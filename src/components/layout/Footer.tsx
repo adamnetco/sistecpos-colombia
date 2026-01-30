@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { Monitor, Mail, Phone, MapPin } from "lucide-react";
+import { Mail, Phone, MapPin } from "lucide-react";
+import logoSistecPOSWhite from "@/assets/logo-sistecpos-white.png";
 
 const footerLinks = {
   soluciones: [
@@ -37,12 +38,13 @@ export function Footer() {
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-5">
           {/* Brand Column */}
           <div className="lg:col-span-1">
-            <Link to="/" className="flex items-center gap-2 mb-4">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
-                <Monitor className="h-5 w-5 text-primary-foreground" />
-              </div>
-              <span className="text-xl font-bold">SistecPOS</span>
-            </Link>
+          <Link to="/" className="flex items-center gap-2 mb-4">
+            <img 
+              src={logoSistecPOSWhite} 
+              alt="SistecPOS" 
+              className="h-10 w-auto" 
+            />
+          </Link>
             <p className="text-sm text-primary-foreground/70 mb-4">
               Software POS con instalación presencial y soporte local en Santander.
             </p>
