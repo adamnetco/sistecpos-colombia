@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, ChevronDown, Monitor, Utensils, ShoppingBag, Shirt, Wrench, Laptop, Scissors } from "lucide-react";
+import { Menu, X, ChevronDown, Utensils, ShoppingBag, Shirt, Wrench, Laptop, Scissors } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
+import logoSistecPOS from "@/assets/logo-sistecpos.png";
 
 const solutions = [
   { name: "Restaurantes", href: "/pos-para-restaurantes", icon: Utensils, description: "Bares, cafeterías y cocinas" },
@@ -32,10 +33,7 @@ export function Navbar() {
       <nav className="container flex h-16 items-center justify-between px-4 md:px-6">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg gradient-bg">
-            <Monitor className="h-5 w-5 text-white" />
-          </div>
-          <span className="text-xl font-bold gradient-text">SistecPOS</span>
+          <img src={logoSistecPOS} alt="SistecPOS" className="h-9 w-auto" />
         </Link>
 
         {/* Desktop Navigation */}
