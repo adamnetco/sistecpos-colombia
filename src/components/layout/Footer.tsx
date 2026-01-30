@@ -22,7 +22,7 @@ const footerLinks = {
     { name: "Garantía", href: "#" },
   ],
   empresa: [
-    { name: "Nosotros", href: "#" },
+    { name: "Nosotros", href: "/nosotros" },
     { name: "Cobertura", href: "#cobertura" },
     { name: "Contacto", href: "#contacto" },
   ],
