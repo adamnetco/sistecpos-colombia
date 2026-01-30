@@ -8,6 +8,7 @@ import RestaurantesPage from "./pages/RestaurantesPage";
 import RetailPage from "./pages/RetailPage";
 import ProductosPage from "./pages/ProductosPage";
 import ProductoDetallePage from "./pages/ProductoDetallePage";
+import NosotrosPage from "./pages/NosotrosPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +25,7 @@ const App = () => (
           <Route path="/pos-para-retail" element={<RetailPage />} />
           <Route path="/productos" element={<ProductosPage />} />
           <Route path="/productos/:slug" element={<ProductoDetallePage />} />
+          <Route path="/nosotros" element={<NosotrosPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

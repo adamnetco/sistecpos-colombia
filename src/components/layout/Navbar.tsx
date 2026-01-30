@@ -43,6 +43,9 @@ const navLinks = [{
   name: "Productos",
   href: "/productos"
 }, {
+  name: "Nosotros",
+  href: "/nosotros"
+}, {
   name: "Contacto",
   href: "#contacto"
 }];
@@ -103,6 +106,10 @@ export function Navbar() {
             Productos
           </Link>
 
+          <Link to="/nosotros" className={cn("px-4 py-2 text-sm font-medium transition-colors rounded-md hover:bg-muted", isActive("/nosotros") && "text-primary")}>
+            Nosotros
+          </Link>
+
           <a href="#contacto" className="px-4 py-2 text-sm font-medium transition-colors rounded-md hover:bg-muted">
             Contacto
           </a>
@@ -154,6 +161,10 @@ export function Navbar() {
 
               <Link to="/productos" className="block py-2 text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>
                 Productos
+              </Link>
+
+              <Link to="/nosotros" className="block py-2 text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>
+                Nosotros
               </Link>
 
               <a href="#contacto" className="block py-2 text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>
