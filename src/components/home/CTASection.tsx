@@ -1,0 +1,74 @@
+import { motion } from "framer-motion";
+import { MessageCircle, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
+export function CTASection() {
+  return (
+    <section className="py-16 md:py-24 bg-gradient-to-br from-primary via-primary to-primary-hover relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-0 right-0 h-64 w-64 rounded-full bg-white/5 blur-3xl" />
+        <div className="absolute bottom-0 left-0 h-96 w-96 rounded-full bg-white/5 blur-3xl" />
+      </div>
+
+      <div className="container relative px-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="mx-auto max-w-3xl text-center text-primary-foreground"
+        >
+          <h2 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl">
+            ¿Listo para modernizar tu negocio?
+          </h2>
+          
+          <p className="mt-6 text-lg text-primary-foreground/80 md:text-xl">
+            Agenda una visita sin compromiso. Vamos a tu local y te mostramos
+            cómo SistecPOS puede transformar tu operación.
+          </p>
+
+          <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+            <Button
+              asChild
+              size="lg"
+              className="bg-whatsapp hover:bg-whatsapp/90 text-whatsapp-foreground text-base h-14 px-10 shadow-lg"
+            >
+              <a
+                href="https://wa.me/573176268307?text=Hola,%20quiero%20agendar%20una%20visita%20para%20conocer%20SistecPOS"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <MessageCircle className="mr-2 h-5 w-5" />
+                Agenda tu Instalación
+              </a>
+            </Button>
+
+            <Button
+              asChild
+              variant="outline"
+              size="lg"
+              className="border-primary-foreground/30 text-primary-foreground bg-transparent hover:bg-primary-foreground/10 text-base h-14 px-10"
+            >
+              <a href="tel:+573176268307">
+                Llámanos Ahora
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </a>
+            </Button>
+          </div>
+
+          <div className="mt-8 flex items-center justify-center gap-6 text-sm text-primary-foreground/70">
+            <div className="flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-whatsapp"></span>
+              Respuesta inmediata
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-whatsapp"></span>
+              Sin compromiso
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
