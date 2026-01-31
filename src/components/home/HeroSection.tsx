@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ArrowRight, MessageCircle } from "lucide-react";
+import { ArrowRight, MessageCircle, Cloud, Smartphone, Monitor, Laptop } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function HeroSection() {
@@ -24,7 +24,7 @@ export function HeroSection() {
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-whatsapp opacity-75"></span>
               <span className="relative inline-flex h-2 w-2 rounded-full bg-whatsapp"></span>
             </span>
-            Servicio Presencial en Santander
+            Administra tu negocio desde cualquier lugar
           </motion.div>
 
           {/* Main Heading */}
@@ -34,8 +34,8 @@ export function HeroSection() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl"
           >
-            Software POS con{" "}
-            <span className="gradient-text">Instalación Presencial</span>
+            Software POS{" "}
+            <span className="gradient-text">100% en la Nube</span>
           </motion.h1>
 
           {/* Subtitle */}
@@ -45,9 +45,34 @@ export function HeroSection() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground md:text-xl"
           >
-            Vamos a tu negocio. Te instalamos. Te capacitamos. 
-            Estamos cerca cuando nos necesites.
+            Controla ventas, inventario y reportes desde tu celular, tablet o PC. 
+            Funciona con o sin internet. Con instalación y capacitación presencial en Santander.
           </motion.p>
+
+          {/* Device icons */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.25 }}
+            className="mt-8 flex items-center justify-center gap-6"
+          >
+            <div className="flex flex-col items-center gap-1 text-muted-foreground">
+              <Monitor className="h-8 w-8" />
+              <span className="text-xs">PC</span>
+            </div>
+            <div className="flex flex-col items-center gap-1 text-muted-foreground">
+              <Laptop className="h-8 w-8" />
+              <span className="text-xs">Laptop</span>
+            </div>
+            <div className="flex flex-col items-center gap-1 text-muted-foreground">
+              <Smartphone className="h-8 w-8" />
+              <span className="text-xs">Celular</span>
+            </div>
+            <div className="flex flex-col items-center gap-1 text-primary">
+              <Cloud className="h-8 w-8" />
+              <span className="text-xs font-medium">Nube</span>
+            </div>
+          </motion.div>
 
           {/* CTAs */}
           <motion.div
@@ -62,12 +87,12 @@ export function HeroSection() {
               className="bg-whatsapp hover:bg-whatsapp/90 text-whatsapp-foreground text-base h-12 px-8"
             >
               <a
-                href="https://wa.me/573176268307?text=Hola,%20quiero%20agendar%20una%20instalación%20de%20SistecPOS"
+                href="https://wa.me/573176268307?text=Hola,%20quiero%20una%20demostración%20de%20SistecPOS"
                 target="_blank"
                 rel="noopener noreferrer"
               >
                 <MessageCircle className="mr-2 h-5 w-5" />
-                Agenda tu Instalación
+                Prueba Gratis
               </a>
             </Button>
 
@@ -90,19 +115,19 @@ export function HeroSection() {
               <span className="flex h-5 w-5 items-center justify-center rounded-full bg-whatsapp/10">
                 ✓
               </span>
-              Instalación el mismo día
+              Multi-dispositivo
             </div>
             <div className="flex items-center gap-2">
               <span className="flex h-5 w-5 items-center justify-center rounded-full bg-whatsapp/10">
                 ✓
               </span>
-              Capacitación presencial
+              Funciona sin internet
             </div>
             <div className="flex items-center gap-2">
               <span className="flex h-5 w-5 items-center justify-center rounded-full bg-whatsapp/10">
                 ✓
               </span>
-              Soporte local en Santander
+              3 respaldos diarios
             </div>
           </motion.div>
         </div>

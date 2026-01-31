@@ -20,12 +20,12 @@ export function CTASection() {
           className="mx-auto max-w-3xl text-center text-primary-foreground"
         >
           <h2 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl">
-            ¿Listo para modernizar tu negocio?
+            ¿Listo para sistematizar tu negocio?
           </h2>
           
           <p className="mt-6 text-lg text-primary-foreground/80 md:text-xl">
-            Agenda una visita sin compromiso. Vamos a tu local y te mostramos
-            cómo SistecPOS puede transformar tu operación.
+            Nuestro sistema es muy amigable, fácil y en pocas horas podrás llevar 
+            el control de tu negocio desde internet. Agenda una visita sin compromiso.
           </p>
 
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">

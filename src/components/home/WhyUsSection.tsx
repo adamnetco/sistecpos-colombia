@@ -6,22 +6,22 @@ const benefits = [
   {
     icon: Home,
     title: "Instalación Presencial",
-    description: "Vamos a tu negocio. No te dejamos solo con un manual.",
+    description: "Vamos a tu negocio. No te dejamos solo con un manual. Te instalamos y configuramos todo.",
   },
   {
     icon: UserCheck,
     title: "Implementador Experto",
-    description: "Eduardo Tobacia, años de experiencia en el sector.",
+    description: "Eduardo Tobacia, años de experiencia sistematizando negocios en Santander.",
   },
   {
     icon: Phone,
     title: "Soporte Cercano",
-    description: "Respuesta rápida. Estamos en Santander, no en otra ciudad.",
+    description: "Respuesta el mismo día. Estamos en Santander, no en otra ciudad.",
   },
   {
     icon: Package,
     title: "Todo en Uno",
-    description: "Software + Hardware + Instalación + Capacitación.",
+    description: "Software + Hardware + Instalación + Capacitación presencial a tu equipo.",
   },
 ];
 
