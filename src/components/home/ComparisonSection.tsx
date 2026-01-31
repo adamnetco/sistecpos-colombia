@@ -9,18 +9,23 @@ const comparisonData = [
   },
   {
     feature: "Instalación",
-    saas: '"Hazlo tú mismo"',
+    saas: '"Hazlo tú mismo" con videos',
     sistecpos: "Te instalamos y configuramos",
   },
   {
     feature: "Capacitación",
-    saas: "Videos genéricos",
-    sistecpos: "Capacitación presencial",
+    saas: "Videos genéricos en internet",
+    sistecpos: "Capacitación presencial a tu equipo",
   },
   {
     feature: "Si algo falla",
     saas: "Espera días por respuesta",
     sistecpos: "Respuesta el mismo día",
+  },
+  {
+    feature: "Personalización",
+    saas: "Configuración estándar",
+    sistecpos: "Sistema ajustado a tu empresa",
   },
 ];
 
