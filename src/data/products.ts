@@ -19,12 +19,16 @@ export interface Product {
   name: string;
   category: string;
   price: number;
+  originalPrice?: number;
+  priceUSD?: number;
+  originalPriceUSD?: number;
   description: string;
   longDescription: string;
   features: string[];
   specifications: ProductSpec[];
   includes: string[];
   popular: boolean;
+  isOffer?: boolean;
 }
 
 export interface Category {
@@ -35,15 +39,351 @@ export interface Category {
 
 export const categories: Category[] = [
   { id: "all", name: "Todos", icon: null },
+  { id: "licencias", name: "Licencias", icon: FileText },
+  { id: "modulos", name: "Módulos", icon: FileText },
   { id: "impresoras", name: "Impresoras", icon: Printer },
   { id: "etiquetas", name: "Etiquetas", icon: Tag },
   { id: "cajones", name: "Cajones", icon: CircleDollarSign },
   { id: "lectores", name: "Lectores", icon: Barcode },
   { id: "papel", name: "Papel", icon: ScrollText },
-  { id: "licencias", name: "Licencias", icon: FileText },
 ];
 
 export const products: Product[] = [
+  // ============ LICENCIAS ============
+  {
+    id: 101,
+    slug: "licencia-mensual-premium",
+    name: "Licencia Mensual Premium Ilimitada",
+    category: "licencias",
+    price: 163800,
+    originalPrice: 205800,
+    priceUSD: 39,
+    originalPriceUSD: 49,
+    description: "Licencia mensual sin límites de ventas ni usuarios. Ideal para probar el sistema.",
+    longDescription: "La Licencia Mensual Premium te da acceso completo a todas las funcionalidades del sistema sin restricciones. Usuarios ilimitados, ventas ilimitadas, sin compromiso de permanencia. Perfecta para negocios que quieren probar antes de comprometerse a largo plazo.",
+    features: ["Usuarios ilimitados", "Ventas ilimitadas", "Sin permanencia", "Soporte incluido"],
+    specifications: [
+      { label: "Duración", value: "1 mes renovable" },
+      { label: "Usuarios", value: "Ilimitados" },
+      { label: "Ventas por mes", value: "Ilimitadas" },
+      { label: "Facturación electrónica", value: "Ilimitada" },
+      { label: "Sucursales", value: "1 sucursal" },
+      { label: "Soporte", value: "WhatsApp + Remoto" },
+      { label: "Actualizaciones", value: "Incluidas" },
+      { label: "Respaldos", value: "3 diarios en la nube" }
+    ],
+    includes: [
+      "Acceso completo al software por 1 mes",
+      "Instalación y configuración inicial",
+      "Capacitación básica incluida",
+      "Soporte técnico por WhatsApp",
+      "Actualizaciones automáticas"
+    ],
+    popular: false,
+    isOffer: true
+  },
+  {
+    id: 102,
+    slug: "licencia-anual-basica",
+    name: "Licencia Anual BÁSICA",
+    category: "licencias",
+    price: 541800,
+    originalPrice: 714000,
+    priceUSD: 129,
+    originalPriceUSD: 170,
+    description: "Licencia anual para negocios pequeños. 900 ventas/mes, 2 usuarios.",
+    longDescription: "La Licencia Anual Básica es perfecta para negocios pequeños que buscan una solución económica y confiable. Incluye las funcionalidades esenciales del sistema con límites adecuados para tiendas de bajo volumen.",
+    features: ["900 ventas/mes", "2 usuarios", "Sin contabilidad", "Ahorra 20%"],
+    specifications: [
+      { label: "Duración", value: "12 meses" },
+      { label: "Usuarios", value: "2 usuarios" },
+      { label: "Ventas por mes", value: "900 ventas" },
+      { label: "Sucursales", value: "1 sucursal" },
+      { label: "Contabilidad", value: "No incluida" },
+      { label: "Soporte", value: "WhatsApp + Presencial" },
+      { label: "Actualizaciones", value: "Incluidas" },
+      { label: "Respaldos", value: "3 diarios en la nube" }
+    ],
+    includes: [
+      "Licencia de software por 12 meses",
+      "Instalación en tu equipo",
+      "Configuración inicial completa",
+      "Carga de productos (hasta 300)",
+      "Capacitación presencial (1 hora)",
+      "Soporte por WhatsApp"
+    ],
+    popular: false,
+    isOffer: true
+  },
+  {
+    id: 103,
+    slug: "licencia-anual-intermedio",
+    name: "Licencia Anual INTERMEDIO",
+    category: "licencias",
+    price: 995400,
+    originalPrice: 1121400,
+    priceUSD: 237,
+    originalPriceUSD: 267,
+    description: "Licencia anual con facturación electrónica. 2000 ventas/mes, 4 usuarios.",
+    longDescription: "La Licencia Anual Intermedio está diseñada para negocios en crecimiento que necesitan facturación electrónica y más capacidad. Ideal para tiendas con volumen medio de ventas.",
+    features: ["2.000 ventas/mes", "4 usuarios", "Facturación electrónica", "Más capacidad"],
+    specifications: [
+      { label: "Duración", value: "12 meses" },
+      { label: "Usuarios", value: "4 usuarios" },
+      { label: "Ventas por mes", value: "2.000 ventas" },
+      { label: "Facturación electrónica", value: "Incluida" },
+      { label: "Sucursales", value: "1 sucursal" },
+      { label: "Soporte", value: "WhatsApp + Presencial" },
+      { label: "Actualizaciones", value: "Incluidas" },
+      { label: "Respaldos", value: "3 diarios en la nube" }
+    ],
+    includes: [
+      "Licencia de software por 12 meses",
+      "Instalación en tu equipo",
+      "Configuración inicial completa",
+      "Carga de productos (hasta 500)",
+      "Capacitación presencial (2 horas)",
+      "Configuración de facturación electrónica",
+      "Soporte prioritario por WhatsApp"
+    ],
+    popular: false,
+    isOffer: true
+  },
+  {
+    id: 104,
+    slug: "licencia-anual-premium",
+    name: "Licencia Anual PREMIUM",
+    category: "licencias",
+    price: 1457400,
+    originalPrice: 1554000,
+    priceUSD: 347,
+    originalPriceUSD: 370,
+    description: "Licencia anual premium con usuarios y facturación ilimitada. La más vendida.",
+    longDescription: "La Licencia Anual Premium es nuestra opción más popular. Sin límites de usuarios ni de facturación electrónica, es la solución completa para negocios establecidos que necesitan todas las funcionalidades.",
+    features: ["Usuarios ilimitados", "Ventas ilimitadas", "F.E. ilimitada", "La más vendida"],
+    specifications: [
+      { label: "Duración", value: "12 meses" },
+      { label: "Usuarios", value: "Ilimitados" },
+      { label: "Ventas por mes", value: "Ilimitadas" },
+      { label: "Facturación electrónica", value: "Ilimitada" },
+      { label: "Sucursales", value: "1 sucursal" },
+      { label: "Soporte", value: "Prioritario WhatsApp + Presencial" },
+      { label: "Actualizaciones", value: "Incluidas" },
+      { label: "Respaldos", value: "3 diarios en la nube" }
+    ],
+    includes: [
+      "Licencia de software por 12 meses",
+      "Instalación en tu equipo",
+      "Configuración inicial completa",
+      "Carga de productos (hasta 1000)",
+      "Capacitación presencial (3 horas)",
+      "Configuración de facturación electrónica",
+      "Soporte prioritario por WhatsApp",
+      "Visitas de soporte presencial incluidas"
+    ],
+    popular: true,
+    isOffer: true
+  },
+  {
+    id: 105,
+    slug: "licencia-anual-premium-contabilidad",
+    name: "Licencia Anual PREMIUM + Contabilidad",
+    category: "licencias",
+    price: 2095800,
+    originalPrice: 2339400,
+    priceUSD: 499,
+    originalPriceUSD: 557,
+    description: "Licencia premium con módulo de contabilidad integrado. Ahorra 10%.",
+    longDescription: "La Licencia Premium + Contabilidad incluye todo lo de la licencia Premium más el módulo de contabilidad completo para llevar tus libros fiscales directamente desde el sistema. Incluye también tienda online gratis.",
+    features: ["Todo Premium", "Contabilidad integrada", "Tienda online gratis", "Ahorra 10%"],
+    specifications: [
+      { label: "Duración", value: "12 meses" },
+      { label: "Usuarios", value: "Ilimitados" },
+      { label: "Ventas por mes", value: "Ilimitadas" },
+      { label: "Facturación electrónica", value: "Ilimitada" },
+      { label: "Contabilidad", value: "Módulo completo incluido" },
+      { label: "Tienda online", value: "Incluida gratis" },
+      { label: "Sucursales", value: "1 sucursal" },
+      { label: "Soporte", value: "VIP WhatsApp + Presencial" }
+    ],
+    includes: [
+      "Licencia Premium por 12 meses",
+      "Módulo de contabilidad incluido",
+      "Tienda online incluida",
+      "Instalación en tu equipo",
+      "Configuración contable inicial",
+      "Capacitación presencial (4 horas)",
+      "Soporte VIP prioritario"
+    ],
+    popular: false,
+    isOffer: true
+  },
+  {
+    id: 106,
+    slug: "licencia-anual-premium-multitienda-2",
+    name: "Licencia Anual PREMIUM Multitienda 2 Sucursales",
+    category: "licencias",
+    price: 2331000,
+    originalPrice: 2914800,
+    priceUSD: 555,
+    originalPriceUSD: 694,
+    description: "Licencia premium para 2 sucursales con todo ilimitado. Ahorra 20%.",
+    longDescription: "La Licencia Premium Multitienda para 2 sucursales te permite administrar dos puntos de venta desde un solo panel. Inventarios separados o compartidos, transferencias entre tiendas, reportes consolidados.",
+    features: ["2 sucursales", "Usuarios ilimitados", "F.E. ilimitada", "Ahorra 20%"],
+    specifications: [
+      { label: "Duración", value: "12 meses" },
+      { label: "Sucursales", value: "2 sucursales" },
+      { label: "Usuarios", value: "Ilimitados" },
+      { label: "Ventas por mes", value: "Ilimitadas" },
+      { label: "Facturación electrónica", value: "Ilimitada" },
+      { label: "Inventarios", value: "Independientes o compartidos" },
+      { label: "Transferencias", value: "Entre sucursales" },
+      { label: "Reportes", value: "Consolidados o por sucursal" }
+    ],
+    includes: [
+      "Licencia Premium para 2 sucursales",
+      "Instalación en ambos puntos de venta",
+      "Configuración de inventarios",
+      "Capacitación al equipo de cada sucursal",
+      "Soporte VIP prioritario",
+      "Panel de administración centralizado"
+    ],
+    popular: true,
+    isOffer: true
+  },
+  {
+    id: 107,
+    slug: "licencia-anual-premium-multitienda-3",
+    name: "Licencia Anual PREMIUM Multitienda 3 Sucursales",
+    category: "licencias",
+    price: 3494400,
+    originalPrice: 4372200,
+    priceUSD: 832,
+    originalPriceUSD: 1041,
+    description: "Licencia premium para 3 sucursales con todo ilimitado. Ahorra 20%.",
+    longDescription: "La Licencia Premium Multitienda para 3 sucursales es ideal para cadenas en crecimiento. Administra todos tus puntos de venta desde un panel centralizado con control total.",
+    features: ["3 sucursales", "Usuarios ilimitados", "F.E. ilimitada", "Ahorra 20%"],
+    specifications: [
+      { label: "Duración", value: "12 meses" },
+      { label: "Sucursales", value: "3 sucursales" },
+      { label: "Usuarios", value: "Ilimitados" },
+      { label: "Ventas por mes", value: "Ilimitadas" },
+      { label: "Facturación electrónica", value: "Ilimitada" },
+      { label: "Inventarios", value: "Independientes o compartidos" },
+      { label: "Transferencias", value: "Entre sucursales" },
+      { label: "Reportes", value: "Consolidados o por sucursal" }
+    ],
+    includes: [
+      "Licencia Premium para 3 sucursales",
+      "Instalación en todos los puntos de venta",
+      "Configuración de inventarios multitienda",
+      "Capacitación al equipo de cada sucursal",
+      "Soporte VIP prioritario",
+      "Panel de administración centralizado"
+    ],
+    popular: false,
+    isOffer: true
+  },
+  {
+    id: 108,
+    slug: "licencia-2-anos-premium",
+    name: "Licencia 2 Años PREMIUM + 2 Meses Gratis",
+    category: "licencias",
+    price: 2331000,
+    originalPrice: 2914800,
+    priceUSD: 555,
+    originalPriceUSD: 694,
+    description: "Licencia premium por 2 años completos + tienda online gratis. Ahorra 20%.",
+    longDescription: "Asegura el mejor precio por 2 años completos más 2 meses adicionales gratis. Incluye tienda online gratis. La opción más económica a largo plazo para negocios establecidos.",
+    features: ["2 años + 2 meses gratis", "Tienda online gratis", "Mayor ahorro", "Tranquilidad total"],
+    specifications: [
+      { label: "Duración", value: "26 meses (2 años + 2 meses)" },
+      { label: "Usuarios", value: "Ilimitados" },
+      { label: "Ventas por mes", value: "Ilimitadas" },
+      { label: "Facturación electrónica", value: "Ilimitada" },
+      { label: "Tienda online", value: "Incluida gratis" },
+      { label: "Sucursales", value: "1 sucursal" },
+      { label: "Soporte", value: "VIP por 2 años" },
+      { label: "Ahorro", value: "20% vs licencias anuales" }
+    ],
+    includes: [
+      "Licencia Premium por 26 meses",
+      "Tienda online incluida",
+      "Instalación en tu equipo",
+      "Configuración completa",
+      "Capacitación presencial (3 horas)",
+      "Soporte VIP durante toda la licencia"
+    ],
+    popular: false,
+    isOffer: true
+  },
+  // ============ MÓDULOS ADICIONALES ============
+  {
+    id: 201,
+    slug: "modulo-contable",
+    name: "Módulo Contable",
+    category: "modulos",
+    price: 882000,
+    originalPrice: 1302000,
+    priceUSD: 210,
+    originalPriceUSD: 310,
+    description: "Módulo de contabilidad integrado con el POS. Lleva tus libros fiscales.",
+    longDescription: "El Módulo Contable se integra perfectamente con tu sistema POS para automatizar la contabilidad. Genera balances, estados de resultados, libros fiscales y más sin salir del sistema.",
+    features: ["Contabilidad automatizada", "Libros fiscales", "Integración total", "Reportes contables"],
+    specifications: [
+      { label: "Tipo", value: "Módulo adicional (requiere licencia activa)" },
+      { label: "Duración", value: "12 meses" },
+      { label: "Integración", value: "Automática con POS" },
+      { label: "Libros fiscales", value: "Generación automática" },
+      { label: "Balance", value: "Generación automática" },
+      { label: "Estados financieros", value: "Incluidos" },
+      { label: "Exportación", value: "Excel, PDF" },
+      { label: "Soporte", value: "Incluido" }
+    ],
+    includes: [
+      "Módulo contable por 12 meses",
+      "Configuración del plan de cuentas",
+      "Integración con tu licencia POS",
+      "Capacitación en el módulo (1 hora)",
+      "Soporte especializado"
+    ],
+    popular: false,
+    isOffer: true
+  },
+  {
+    id: 202,
+    slug: "modulo-tienda-online",
+    name: "Módulo Tienda Online",
+    category: "modulos",
+    price: 882000,
+    originalPrice: 1302000,
+    priceUSD: 210,
+    originalPriceUSD: 310,
+    description: "Tienda online integrada con tu inventario. Vende por internet 24/7.",
+    longDescription: "El Módulo Tienda Online te permite tener tu propia tienda virtual integrada con el inventario del POS. Los productos, precios y stock se sincronizan automáticamente.",
+    features: ["Tienda 24/7", "Inventario sincronizado", "Pagos online", "Tu propia URL"],
+    specifications: [
+      { label: "Tipo", value: "Módulo adicional (requiere licencia activa)" },
+      { label: "Duración", value: "12 meses" },
+      { label: "Productos", value: "Sincronizados con POS" },
+      { label: "Inventario", value: "Sincronización automática" },
+      { label: "Pagos", value: "Tarjetas, PSE, efectivo" },
+      { label: "Dominio", value: "Subdominio incluido" },
+      { label: "SSL", value: "Certificado incluido" },
+      { label: "Diseño", value: "Personalizable" }
+    ],
+    includes: [
+      "Módulo tienda online por 12 meses",
+      "Configuración de productos",
+      "Integración de pasarela de pagos",
+      "Subdominio personalizado",
+      "Capacitación (1 hora)",
+      "Soporte técnico"
+    ],
+    popular: false,
+    isOffer: true
+  },
+  // ============ HARDWARE - IMPRESORAS ============
   {
     id: 1,
     slug: "impresora-termica-80mm",
@@ -298,65 +638,6 @@ export const products: Product[] = [
       "Entrega en tu negocio"
     ],
     popular: false
-  },
-  {
-    id: 10,
-    slug: "licencia-anual-sistecpos",
-    name: "Licencia Anual SistecPOS",
-    category: "licencias",
-    price: 600000,
-    description: "Licencia completa del software con soporte incluido",
-    longDescription: "La Licencia Anual SistecPOS te da acceso completo a todas las funcionalidades del software por un año. Incluye soporte prioritario, actualizaciones gratuitas y capacitación inicial. La mejor opción para negocios establecidos.",
-    features: ["1 año de uso", "Soporte prioritario", "Actualizaciones gratis"],
-    specifications: [
-      { label: "Duración", value: "12 meses" },
-      { label: "Tipo de licencia", value: "Por punto de venta" },
-      { label: "Usuarios incluidos", value: "Ilimitados" },
-      { label: "Productos", value: "Ilimitados" },
-      { label: "Reportes", value: "Completos" },
-      { label: "Soporte", value: "Prioritario (WhatsApp + Presencial)" },
-      { label: "Actualizaciones", value: "Incluidas" },
-      { label: "Respaldos", value: "Automáticos en la nube" }
-    ],
-    includes: [
-      "Licencia de software por 12 meses",
-      "Instalación en tu equipo",
-      "Configuración inicial completa",
-      "Carga de productos (hasta 500)",
-      "Capacitación presencial (2 horas)",
-      "Soporte prioritario por WhatsApp",
-      "Visitas de soporte presencial"
-    ],
-    popular: true
-  },
-  {
-    id: 11,
-    slug: "licencia-mensual-sistecpos",
-    name: "Licencia Mensual SistecPOS",
-    category: "licencias",
-    price: 60000,
-    description: "Licencia mensual flexible para empezar",
-    longDescription: "La Licencia Mensual SistecPOS es perfecta para negocios nuevos o que quieren probar el sistema sin compromiso a largo plazo. Paga mes a mes y escala cuando lo necesites.",
-    features: ["Pago mensual", "Soporte incluido", "Sin permanencia"],
-    specifications: [
-      { label: "Duración", value: "Mensual renovable" },
-      { label: "Tipo de licencia", value: "Por punto de venta" },
-      { label: "Usuarios incluidos", value: "Ilimitados" },
-      { label: "Productos", value: "Ilimitados" },
-      { label: "Reportes", value: "Completos" },
-      { label: "Soporte", value: "Estándar (WhatsApp)" },
-      { label: "Actualizaciones", value: "Incluidas" },
-      { label: "Permanencia", value: "Sin contrato" }
-    ],
-    includes: [
-      "Licencia de software mensual",
-      "Instalación en tu equipo (primera vez)",
-      "Configuración inicial",
-      "Carga de productos (hasta 200)",
-      "Capacitación remota (1 hora)",
-      "Soporte por WhatsApp"
-    ],
-    popular: false
   }
 ];
 
@@ -373,6 +654,15 @@ export const formatPrice = (price: number): string => {
   return new Intl.NumberFormat('es-CO', {
     style: 'currency',
     currency: 'COP',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  }).format(price);
+};
+
+export const formatPriceUSD = (price: number): string => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0
   }).format(price);
