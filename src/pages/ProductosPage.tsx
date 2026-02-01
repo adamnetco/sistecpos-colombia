@@ -50,6 +50,7 @@ const ProductCard = ({ product, index }: { product: Product; index: number }) =>
     : getCategoryIcon(product.category);
   
   const isLicense = product.category === "licencias" || product.category === "modulos";
+  const hasImage = product.image && !isLicense;
   
   return (
     <motion.div
@@ -59,7 +60,7 @@ const ProductCard = ({ product, index }: { product: Product; index: number }) =>
     >
       <Card className="h-full flex flex-col border-0 shadow-card hover:shadow-card-hover transition-all hover:-translate-y-1 relative overflow-hidden">
         {product.isOffer && (
-          <div className="absolute top-0 right-0">
+          <div className="absolute top-0 right-0 z-10">
             <Badge className="rounded-none rounded-bl-lg bg-destructive text-destructive-foreground font-bold px-3 py-1">
               <Sparkles className="h-3 w-3 mr-1" />
               ¡Oferta!
@@ -68,21 +69,37 @@ const ProductCard = ({ product, index }: { product: Product; index: number }) =>
         )}
         
         <CardContent className="p-6 flex-1">
-          <div className="flex items-start justify-between mb-4">
-            <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-              isLicense 
-                ? "bg-gradient-to-br from-primary/20 to-primary/5" 
-                : "bg-primary/10"
-            }`}>
-              <CategoryIcon className="h-6 w-6 text-primary" />
+          {hasImage ? (
+            <div className="relative mb-4 bg-muted/30 rounded-xl p-4 flex items-center justify-center">
+              <img 
+                src={product.image} 
+                alt={product.name}
+                className="h-32 w-auto object-contain"
+              />
+              {product.popular && (
+                <Badge className="absolute top-2 left-2 bg-whatsapp/10 text-whatsapp border-0">
+                  <Crown className="h-3 w-3 mr-1" />
+                  Popular
+                </Badge>
+              )}
             </div>
-            {product.popular && (
-              <Badge className="bg-whatsapp/10 text-whatsapp border-0">
-                <Crown className="h-3 w-3 mr-1" />
-                Popular
-              </Badge>
-            )}
-          </div>
+          ) : (
+            <div className="flex items-start justify-between mb-4">
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                isLicense 
+                  ? "bg-gradient-to-br from-primary/20 to-primary/5" 
+                  : "bg-primary/10"
+              }`}>
+                <CategoryIcon className="h-6 w-6 text-primary" />
+              </div>
+              {product.popular && (
+                <Badge className="bg-whatsapp/10 text-whatsapp border-0">
+                  <Crown className="h-3 w-3 mr-1" />
+                  Popular
+                </Badge>
+              )}
+            </div>
+          )}
 
           <h3 className="font-semibold text-lg mb-2">{product.name}</h3>
           <p className="text-muted-foreground text-sm mb-4">{product.description}</p>

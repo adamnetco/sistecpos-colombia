@@ -29,6 +29,7 @@ export interface Product {
   includes: string[];
   popular: boolean;
   isOffer?: boolean;
+  image?: string;
 }
 
 export interface Category {
@@ -390,6 +391,7 @@ export const products: Product[] = [
     name: "Impresora Térmica 80mm",
     category: "impresoras",
     price: 280000,
+    image: "/images/impresora-termica-80mm.png",
     description: "Impresora de recibos de alta velocidad, ideal para restaurantes y retail",
     longDescription: "La Impresora Térmica de 80mm es la solución profesional para negocios de alto volumen. Con una velocidad de impresión de 250mm/s, garantiza recibos rápidos y claros. Ideal para restaurantes, supermercados y tiendas con alto tráfico de clientes.",
     features: ["Velocidad 250mm/s", "USB + Ethernet", "Corte automático"],
@@ -420,6 +422,7 @@ export const products: Product[] = [
     name: "Impresora Térmica 58mm",
     category: "impresoras",
     price: 150000,
+    image: "/images/impresora-termica-58mm.png",
     description: "Impresora compacta perfecta para negocios pequeños",
     longDescription: "La Impresora Térmica de 58mm es perfecta para negocios pequeños que necesitan una solución económica y confiable. Su tamaño compacto la hace ideal para espacios reducidos sin sacrificar calidad de impresión.",
     features: ["Velocidad 90mm/s", "Conexión USB", "Tamaño compacto"],
@@ -479,6 +482,7 @@ export const products: Product[] = [
     name: "Cajón Monedero Metálico",
     category: "cajones",
     price: 180000,
+    image: "/images/cajon-monedero.png",
     description: "Cajón de dinero resistente con apertura automática",
     longDescription: "El Cajón Monedero Metálico es la solución robusta y segura para manejar el efectivo de tu negocio. Construcción en acero con pintura electrostática, apertura automática mediante señal de impresora o manual con llave.",
     features: ["5 espacios billetes", "8 espacios monedas", "Apertura RJ11"],
@@ -537,6 +541,7 @@ export const products: Product[] = [
     name: "Lector de Código de Barras USB",
     category: "lectores",
     price: 85000,
+    image: "/images/lector-codigo-barras.png",
     description: "Lector láser con cable USB plug & play",
     longDescription: "El Lector de Código de Barras USB es la solución más práctica y económica para agilizar las ventas en tu negocio. Conexión plug & play, no requiere instalación de drivers. Compatible con todos los códigos de barras estándar.",
     features: ["Lectura láser", "Cable 1.5m", "Compatible Windows/Mac"],
@@ -565,6 +570,7 @@ export const products: Product[] = [
     name: "Lector de Código de Barras Inalámbrico",
     category: "lectores",
     price: 150000,
+    image: "/images/lector-inalambrico.png",
     description: "Lector con batería recargable y base",
     longDescription: "El Lector de Código de Barras Inalámbrico te da libertad de movimiento en tu negocio. Con alcance de hasta 100 metros y batería de larga duración, es ideal para inventarios, bodegas y tiendas grandes.",
     features: ["Alcance 100m", "Batería 8hrs", "Base de carga incluida"],
@@ -593,6 +599,7 @@ export const products: Product[] = [
     name: "Papel Térmico 80mm (Caja x 50)",
     category: "papel",
     price: 120000,
+    image: "/images/papel-termico-80mm.png",
     description: "Rollos de papel térmico para impresora 80mm",
     longDescription: "Papel térmico de alta calidad para impresoras de 80mm. Excelente definición de impresión y durabilidad. Ideal para recibos, tickets y comandas. Presentación en caja de 50 rollos.",
     features: ["50 rollos por caja", "80mm x 80m", "Alta durabilidad"],

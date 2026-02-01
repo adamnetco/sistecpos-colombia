@@ -110,9 +110,9 @@ export function Navbar() {
             Nosotros
           </Link>
 
-          <a href="#contacto" className="px-4 py-2 text-sm font-medium transition-colors rounded-md hover:bg-muted">
+          <Link to="/contacto" className="px-4 py-2 text-sm font-medium transition-colors rounded-md hover:bg-muted">
             Contacto
-          </a>
+          </Link>
         </div>
 
         {/* CTA Button */}
@@ -167,9 +167,9 @@ export function Navbar() {
                 Nosotros
               </Link>
 
-              <a href="#contacto" className="block py-2 text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>
+              <Link to="/contacto" className="block py-2 text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>
                 Contacto
-              </a>
+              </Link>
 
               <Button asChild className="w-full bg-whatsapp hover:bg-whatsapp/90 text-whatsapp-foreground">
                 <a href="https://wa.me/573176268307?text=Hola,%20quiero%20información%20sobre%20SistecPOS" target="_blank" rel="noopener noreferrer">
