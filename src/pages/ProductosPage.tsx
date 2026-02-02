@@ -280,23 +280,36 @@ const ProductosPage = () => {
               </div>
               <div className="bg-card rounded-2xl p-6 shadow-card">
                 <h3 className="font-semibold text-lg mb-4">¿No sabes cuál licencia elegir?</h3>
-                <p className="text-sm text-muted-foreground mb-6">
+                <p className="text-sm text-muted-foreground mb-4">
                   Te asesoramos gratis según el tamaño de tu negocio, cantidad de usuarios y necesidades específicas.
                 </p>
-                <Button 
-                  size="lg"
-                  className="w-full bg-whatsapp hover:bg-whatsapp/90 text-whatsapp-foreground gap-2"
-                  asChild
-                >
-                  <a 
-                    href="https://wa.me/573176268307?text=Hola,%20necesito%20asesoría%20para%20elegir%20la%20licencia%20correcta%20para%20mi%20negocio"
-                    target="_blank" 
-                    rel="noopener noreferrer"
+                <div className="space-y-3">
+                  <Button 
+                    size="lg"
+                    className="w-full bg-whatsapp hover:bg-whatsapp/90 text-whatsapp-foreground gap-2"
+                    asChild
                   >
-                    <MessageCircle className="h-5 w-5" />
-                    Asesoría Gratuita
-                  </a>
-                </Button>
+                    <a 
+                      href="https://wa.me/573176268307?text=Hola,%20necesito%20asesoría%20para%20elegir%20la%20licencia%20correcta%20para%20mi%20negocio"
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                    >
+                      <MessageCircle className="h-5 w-5" />
+                      Asesoría Gratuita
+                    </a>
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    size="lg"
+                    className="w-full gap-2"
+                    asChild
+                  >
+                    <Link to="/comparativa-licencias">
+                      <ArrowRight className="h-5 w-5" />
+                      Comparar con otros POS
+                    </Link>
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
