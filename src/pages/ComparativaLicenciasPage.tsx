@@ -14,30 +14,34 @@ const posProviders = [
     description: "Software POS 100% en la nube con soporte presencial en Santander",
     logo: "/lovable-uploads/43a24c53-78c0-4ca3-b642-99a376d90a0f.png",
     color: "bg-primary",
+    url: "https://sistecpos.com",
   },
   {
     id: "tiendana",
     name: "Tiendana",
     recommended: false,
     description: "App todo en uno para negocios con enfoque móvil",
-    logo: null,
+    logo: "/images/logo-tiendana.png",
     color: "bg-blue-500",
+    url: "https://www.tiendana.com",
   },
   {
     id: "vectorpos",
     name: "VectorPOS",
     recommended: false,
     description: "Software especializado para restaurantes",
-    logo: null,
+    logo: "/images/logo-vectorpos.png",
     color: "bg-orange-500",
+    url: "https://vectorposweb.com",
   },
   {
     id: "sitricpos",
     name: "SitricPOS",
     recommended: false,
     description: "Sistema POS con facturación electrónica",
-    logo: null,
+    logo: "/images/logo-sitricpos.png",
     color: "bg-purple-500",
+    url: "https://sitricpos.com",
   },
 ];
 
@@ -180,21 +184,36 @@ const ComparativaLicenciasPage = () => {
                         <Star className="h-3 w-3 mr-1" /> Recomendado
                       </Badge>
                     )}
-                    <div className={`h-12 w-12 rounded-lg ${provider.color} mx-auto flex items-center justify-center mb-2`}>
-                      {provider.logo ? (
-                        <img src={provider.logo} alt={provider.name} className="h-8 w-8 object-contain" />
-                      ) : (
-                        <span className="text-white font-bold text-lg">
-                          {provider.name.charAt(0)}
-                        </span>
-                      )}
-                    </div>
+                    <a 
+                      href={provider.url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="block"
+                    >
+                      <div className={`h-16 w-16 rounded-xl ${provider.logo ? 'bg-white' : provider.color} mx-auto flex items-center justify-center mb-3 p-2 shadow-md hover:shadow-lg transition-shadow`}>
+                        {provider.logo ? (
+                          <img src={provider.logo} alt={provider.name} className="h-full w-full object-contain" />
+                        ) : (
+                          <span className="text-white font-bold text-xl">
+                            {provider.name.charAt(0)}
+                          </span>
+                        )}
+                      </div>
+                    </a>
                     <CardTitle className="text-lg">{provider.name}</CardTitle>
                   </CardHeader>
                   <CardContent className="text-center">
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-muted-foreground mb-3">
                       {provider.description}
                     </p>
+                    <a 
+                      href={provider.url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-xs text-primary hover:underline"
+                    >
+                      Visitar sitio →
+                    </a>
                   </CardContent>
                 </Card>
               </motion.div>
