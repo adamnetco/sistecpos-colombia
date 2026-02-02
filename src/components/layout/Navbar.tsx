@@ -110,8 +110,12 @@ export function Navbar() {
             Nosotros
           </Link>
 
-          <Link to="/contacto" className="px-4 py-2 text-sm font-medium transition-colors rounded-md hover:bg-muted">
+          <Link to="/contacto" className={cn("px-4 py-2 text-sm font-medium transition-colors rounded-md hover:bg-muted", isActive("/contacto") && "text-primary")}>
             Contacto
+          </Link>
+
+          <Link to="/comparativa-licencias" className={cn("px-4 py-2 text-sm font-medium transition-colors rounded-md hover:bg-muted", isActive("/comparativa-licencias") && "text-primary")}>
+            Comparar POS
           </Link>
         </div>
 
@@ -169,6 +173,10 @@ export function Navbar() {
 
               <Link to="/contacto" className="block py-2 text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>
                 Contacto
+              </Link>
+
+              <Link to="/comparativa-licencias" className="block py-2 text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>
+                Comparar POS
               </Link>
 
               <Button asChild className="w-full bg-whatsapp hover:bg-whatsapp/90 text-whatsapp-foreground">
