@@ -23,7 +23,7 @@ export default function SolucionNegocioPage() {
   const business = slug ? getBusinessTypeBySlug(slug) : undefined;
 
   if (!business) {
-    return <Navigate to="/404" replace />;
+    return <Navigate to="/" replace />;
   }
 
   const Icon = business.icon;
@@ -276,7 +276,7 @@ export default function SolucionNegocioPage() {
                   viewport={{ once: true }}
                   transition={{ duration: 0.3, delay: index * 0.05 }}
                 >
-                  <Link to={`/pos-para-${bt.slug}`}>
+                  <Link to={`/soluciones/${bt.slug}`}>
                     <Card className="h-full hover:shadow-md transition-all hover:-translate-y-1 cursor-pointer">
                       <CardContent className="p-4 flex items-center gap-3">
                         <div className={`h-10 w-10 rounded-lg ${bt.color} flex items-center justify-center shrink-0`}>

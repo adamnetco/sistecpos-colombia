@@ -6,8 +6,8 @@ const footerLinks = {
   soluciones: [
     { name: "POS Restaurantes", href: "/pos-para-restaurantes" },
     { name: "POS Retail", href: "/pos-para-retail" },
-    { name: "POS Moda", href: "/pos-para-retail" },
-    { name: "POS Ferreterías", href: "/pos-para-retail" },
+    { name: "POS Moda", href: "/soluciones/moda-calzado" },
+    { name: "POS Ferreterías", href: "/soluciones/ferreterias" },
   ],
   productos: [
     { name: "Impresoras Térmicas", href: "/productos" },
