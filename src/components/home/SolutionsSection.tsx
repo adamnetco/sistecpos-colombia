@@ -55,7 +55,7 @@ export function SolutionsSection() {
         >
           {displayedSolutions.map((solution) => (
             <motion.div key={solution.slug} variants={itemVariants}>
-              <Link to={`/pos-para-${solution.slug}`}>
+              <Link to={`/soluciones/${solution.slug}`}>
                 <Card className="h-full border shadow-soft hover:shadow-card transition-all hover:-translate-y-1 bg-card group cursor-pointer">
                   <CardContent className="p-4">
                     <div className="flex items-center gap-3">
