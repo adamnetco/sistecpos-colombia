@@ -23,8 +23,13 @@ const footerLinks = {
   ],
   empresa: [
     { name: "Nosotros", href: "/nosotros" },
-    { name: "Cobertura", href: "#cobertura" },
-    { name: "Contacto", href: "#contacto" },
+    { name: "Contacto", href: "/contacto" },
+  ],
+  ciudades: [
+    { name: "POS Bucaramanga", href: "/software-pos/bucaramanga" },
+    { name: "POS Floridablanca", href: "/software-pos/floridablanca" },
+    { name: "POS Girón", href: "/software-pos/giron" },
+    { name: "POS Piedecuesta", href: "/software-pos/piedecuesta" },
   ],
 };
 
