@@ -12,6 +12,7 @@ import NosotrosPage from "./pages/NosotrosPage";
 import ComparativaLicenciasPage from "./pages/ComparativaLicenciasPage";
 import ContactoPage from "./pages/ContactoPage";
 import SolucionNegocioPage from "./pages/SolucionNegocioPage";
+import SoftwarePosLocalPage from "./pages/SoftwarePosLocalPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,6 +28,7 @@ const App = () => (
           <Route path="/pos-para-restaurantes" element={<RestaurantesPage />} />
           <Route path="/pos-para-retail" element={<RetailPage />} />
           <Route path="/soluciones/:slug" element={<SolucionNegocioPage />} />
+          <Route path="/software-pos/:city" element={<SoftwarePosLocalPage />} />
           <Route path="/productos" element={<ProductosPage />} />
           <Route path="/productos/:slug" element={<ProductoDetallePage />} />
           <Route path="/nosotros" element={<NosotrosPage />} />
