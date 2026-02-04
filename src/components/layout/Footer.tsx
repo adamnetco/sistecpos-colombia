@@ -43,32 +43,28 @@ export function Footer() {
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-5">
           {/* Brand Column */}
           <div className="lg:col-span-1">
-          <Link to="/" className="flex items-center gap-2 mb-4">
-            <img 
-              src={logoSistecPOSWhite} 
-              alt="SistecPOS" 
-              className="h-10 w-auto" 
-            />
-          </Link>
+            <Link to="/" className="flex items-center gap-2 mb-4">
+              <img src={logoSistecPOSWhite} alt="SistecPOS" className="h-10 w-auto" />
+            </Link>
             <p className="text-sm text-primary-foreground/70 mb-4">
               Software POS con instalación presencial y soporte local en Santander.
             </p>
-            
+
             {/* NAP for Local SEO */}
             <div className="space-y-2 text-sm">
               <div className="flex items-center gap-2 text-primary-foreground/70">
                 <MapPin className="h-4 w-4 shrink-0" />
-                <span>Área Metropolitana de Bucaramanga, Santander</span>
+                <span>Transversal 112 # 19 - 22, Oficina 309, Viversos de Pronveza, Bucaramanga, Santander</span>
               </div>
-              <a 
-                href="https://wa.me/573176268307" 
+              <a
+                href="https://wa.me/573176268307"
                 className="flex items-center gap-2 text-primary-foreground/70 hover:text-whatsapp transition-colors"
               >
                 <Phone className="h-4 w-4 shrink-0" />
                 <span>+57 317 626 8307</span>
               </a>
-              <a 
-                href="mailto:info@sistecpos.com" 
+              <a
+                href="mailto:info@sistecpos.com"
                 className="flex items-center gap-2 text-primary-foreground/70 hover:text-primary transition-colors"
               >
                 <Mail className="h-4 w-4 shrink-0" />
@@ -83,8 +79,8 @@ export function Footer() {
             <ul className="space-y-2">
               {footerLinks.soluciones.map((link) => (
                 <li key={link.name}>
-                  <Link 
-                    to={link.href} 
+                  <Link
+                    to={link.href}
                     className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors"
                   >
                     {link.name}
@@ -100,8 +96,8 @@ export function Footer() {
             <ul className="space-y-2">
               {footerLinks.productos.map((link) => (
                 <li key={link.name}>
-                  <Link 
-                    to={link.href} 
+                  <Link
+                    to={link.href}
                     className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors"
                   >
                     {link.name}
@@ -117,8 +113,8 @@ export function Footer() {
             <ul className="space-y-2">
               {footerLinks.soporte.map((link) => (
                 <li key={link.name}>
-                  <a 
-                    href={link.href} 
+                  <a
+                    href={link.href}
                     className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors"
                   >
                     {link.name}
@@ -134,8 +130,8 @@ export function Footer() {
             <ul className="space-y-2">
               {footerLinks.empresa.map((link) => (
                 <li key={link.name}>
-                  <a 
-                    href={link.href} 
+                  <a
+                    href={link.href}
                     className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors"
                   >
                     {link.name}
@@ -153,9 +149,7 @@ export function Footer() {
             {coverageCities.map((city, index) => (
               <span key={city} className="flex items-center gap-2">
                 <span className="text-primary-foreground/70">{city}</span>
-                {index < coverageCities.length - 1 && (
-                  <span className="text-primary-foreground/30">•</span>
-                )}
+                {index < coverageCities.length - 1 && <span className="text-primary-foreground/30">•</span>}
               </span>
             ))}
           </div>
@@ -166,9 +160,7 @@ export function Footer() {
           <p className="text-sm text-primary-foreground/50">
             © {new Date().getFullYear()} SistecPOS. Todos los derechos reservados.
           </p>
-          <p className="text-xs text-primary-foreground/30 mt-2">
-            Desarrollado por AdamNetCo
-          </p>
+          <p className="text-xs text-primary-foreground/30 mt-2">Desarrollado por AdamNetCo</p>
         </div>
       </div>
     </footer>
