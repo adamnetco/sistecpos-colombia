@@ -6,17 +6,18 @@ import {
   MessageCircle, 
   Phone, 
   ArrowRight, 
-  Shield, 
-  Zap, 
-  Clock,
   WifiOff,
   Building2,
-  Users
+  Users,
+  Shield
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { getBusinessTypeBySlug, businessTypes } from "@/data/businessTypes";
+import { getTestimonialsByBusiness } from "@/data/testimonials";
+import { TestimonialsSection } from "@/components/solutions/TestimonialsSection";
+import { DynamicMeta } from "@/components/seo/DynamicMeta";
 
 export default function SolucionNegocioPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -26,10 +27,19 @@ export default function SolucionNegocioPage() {
     return <Navigate to="/" replace />;
   }
 
+  const testimonials = getTestimonialsByBusiness(slug || "");
+
   const Icon = business.icon;
 
   return (
     <Layout>
+      {/* Dynamic SEO Meta Tags */}
+      <DynamicMeta
+        title={business.metaTitle}
+        description={business.metaDescription}
+        canonical={`https://sistecpos.lovable.app/soluciones/${slug}`}
+      />
+      
       {/* Hero Section */}
       <section className="relative py-16 md:py-24 gradient-bg text-primary-foreground overflow-hidden">
         <div className="absolute inset-0 opacity-10">
@@ -246,6 +256,12 @@ export default function SolucionNegocioPage() {
           </div>
         </div>
       </section>
+
+      {/* Testimonials Section */}
+      <TestimonialsSection 
+        businessType={business.titleShort} 
+        testimonials={testimonials} 
+      />
 
       {/* Other Solutions */}
       <section className="py-16 md:py-24">
