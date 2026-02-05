@@ -129,27 +129,32 @@ export default function SoftwarePosLocalPage() {
         </div>
       </section>
 
-      {/* Why SistecPOS Section */}
-      <section className="py-16 md:py-20 bg-muted/30">
-        <div className="container px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-3xl font-bold tracking-tight md:text-4xl mb-4">
-              ¿Por qué elegir <span className="gradient-text">SistecPOS</span> en {landing.city}?
-            </h2>
-          </motion.div>
-
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 max-w-6xl mx-auto">
-            {[
-              { icon: Building2, title: "Instalación Presencial", description: `Vamos a tu negocio en ${landing.city} a instalar y configurar` },
-              { icon: Users, title: "Capacitación Incluida", description: "Te enseñamos a ti y a tu equipo a usar el sistema" },
-              { icon: WifiOff, title: "Funciona Offline", description: "Hasta 8 días sin internet con sincronización automática" },
-              { icon: Clock, title: "Soporte Rápido", description: "Atención técnica el mismo día en el área metropolitana" },
-            ].map((item, index) => (
+       {/* Why SistecPOS Section */}
+       <section className="py-16 md:py-20 bg-muted/30">
+         <div className="container px-4">
+           <motion.div
+             initial={{ opacity: 0, y: 20 }}
+             whileInView={{ opacity: 1, y: 0 }}
+             viewport={{ once: true }}
+             className="text-center mb-12"
+           >
+             <h2 className="text-3xl font-bold tracking-tight md:text-4xl mb-4">
+               ¿Por qué elegir <span className="gradient-text">SistecPOS</span> en {landing.city}?
+             </h2>
+           </motion.div>
+ 
+           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 max-w-6xl mx-auto">
+             {(landing.isPresencial ? [
+               { icon: Building2, title: "Instalación Presencial", description: `Vamos a tu negocio en ${landing.city} a instalar y configurar` },
+               { icon: Users, title: "Capacitación Incluida", description: "Te enseñamos a ti y a tu equipo a usar el sistema" },
+               { icon: WifiOff, title: "Funciona Offline", description: "Hasta 8 días sin internet con sincronización automática" },
+               { icon: Clock, title: "Soporte Rápido", description: "Atención técnica el mismo día en el área metropolitana" },
+             ] : [
+               { icon: Building2, title: "Instalación Remota", description: `Configuramos tu sistema desde ${landing.city} sin salir de tu negocio` },
+               { icon: Users, title: "Capacitación Virtual", description: "Videollamada personalizada con nuestro equipo técnico" },
+               { icon: WifiOff, title: "Funciona Offline", description: "Hasta 8 días sin internet con sincronización automática" },
+               { icon: Shield, title: "Soporte 24/7", description: "Atención técnica remota cuando lo necesites" },
+             ]).map((item, index) => (
               <motion.div
                 key={item.title}
                 initial={{ opacity: 0, y: 20 }}

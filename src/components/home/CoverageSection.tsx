@@ -1,12 +1,13 @@
-import { motion } from "framer-motion";
-import { MapPin } from "lucide-react";
-
-const cities = [
-  { name: "Bucaramanga", isMain: true },
-  { name: "Floridablanca", isMain: false },
-  { name: "Girón", isMain: false },
-  { name: "Piedecuesta", isMain: false },
-];
+ import { motion } from "framer-motion";
+ import { MapPin } from "lucide-react";
+ import { Link } from "react-router-dom";
+ 
+ const cities = [
+   { name: "Bucaramanga", slug: "bucaramanga", isMain: true },
+   { name: "Floridablanca", slug: "floridablanca", isMain: false },
+   { name: "Girón", slug: "giron", isMain: false },
+   { name: "Piedecuesta", slug: "piedecuesta", isMain: false },
+ ];
 
 export function CoverageSection() {
   return (
@@ -32,23 +33,27 @@ export function CoverageSection() {
           </h2>
 
           <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4">
-            {cities.map((city, index) => (
-              <motion.div
-                key={city.name}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.3, delay: index * 0.1 }}
-                className={`flex items-center gap-2 rounded-full px-5 py-2.5 ${
-                  city.isMain
-                    ? "gradient-bg text-primary-foreground"
-                    : "bg-secondary text-secondary-foreground"
-                }`}
-              >
-                <MapPin className="h-4 w-4" />
-                <span className="font-medium">{city.name}</span>
-              </motion.div>
-            ))}
+             {cities.map((city, index) => (
+               <motion.div
+                 key={city.name}
+                 initial={{ opacity: 0, scale: 0.9 }}
+                 whileInView={{ opacity: 1, scale: 1 }}
+                 viewport={{ once: true }}
+                 transition={{ duration: 0.3, delay: index * 0.1 }}
+               >
+                 <Link
+                   to={`/software-pos/${city.slug}`}
+                   className={`flex items-center gap-2 rounded-full px-5 py-2.5 transition-all hover:scale-105 hover:shadow-md ${
+                     city.isMain
+                       ? "gradient-bg text-primary-foreground"
+                       : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                   }`}
+                 >
+                   <MapPin className="h-4 w-4" />
+                   <span className="font-medium">{city.name}</span>
+                 </Link>
+               </motion.div>
+             ))}
           </div>
 
           <p className="mt-6 text-muted-foreground">

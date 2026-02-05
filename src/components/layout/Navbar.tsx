@@ -1,41 +1,61 @@
-import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { Menu, X, ChevronDown, Utensils, ShoppingBag, Shirt, Wrench, Laptop, Scissors } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { motion, AnimatePresence } from "framer-motion";
-import logoSistecPOS from "@/assets/logo-sistecpos.png";
-const solutions = [{
-  name: "Restaurantes",
-  href: "/pos-para-restaurantes",
-  icon: Utensils,
-  description: "Bares, cafeterías y cocinas"
-}, {
-  name: "Retail",
-  href: "/pos-para-retail",
-  icon: ShoppingBag,
-  description: "Tiendas y supermercados"
-}, {
-  name: "Moda",
-  href: "/pos-para-retail",
-  icon: Shirt,
-  description: "Ropa y calzado"
-}, {
-  name: "Ferreterías",
-  href: "/pos-para-retail",
-  icon: Wrench,
-  description: "Materiales y herramientas"
-}, {
-  name: "Tecnología",
-  href: "/pos-para-retail",
-  icon: Laptop,
-  description: "Almacenes y electrónica"
-}, {
-  name: "Belleza",
-  href: "/pos-para-retail",
-  icon: Scissors,
-  description: "Salones y spa"
-}];
+ import { useState } from "react";
+ import { Link, useLocation } from "react-router-dom";
+ import { Menu, X, ChevronDown, Utensils, ShoppingBag, Shirt, Wrench, Laptop, Scissors, Pill, Store, PawPrint } from "lucide-react";
+ import { Button } from "@/components/ui/button";
+ import { cn } from "@/lib/utils";
+ import { motion, AnimatePresence } from "framer-motion";
+ import logoSistecPOS from "@/assets/logo-sistecpos.png";
+ 
+ const solutions = [
+   {
+     name: "Restaurantes",
+     href: "/soluciones/restaurantes",
+     icon: Utensils,
+     description: "Bares, cafeterías y cocinas"
+   },
+   {
+     name: "Mini Market",
+     href: "/soluciones/mini-market",
+     icon: ShoppingBag,
+     description: "Tiendas y supermercados"
+   },
+   {
+     name: "Moda y Calzado",
+     href: "/soluciones/moda-calzado",
+     icon: Shirt,
+     description: "Ropa y accesorios"
+   },
+   {
+     name: "Ferreterías",
+     href: "/soluciones/ferreterias",
+     icon: Wrench,
+     description: "Materiales y herramientas"
+   },
+   {
+     name: "Tecnología",
+     href: "/soluciones/tecnologia",
+     icon: Laptop,
+     description: "Electrónica y móviles"
+   },
+   {
+     name: "Salón de Belleza",
+     href: "/soluciones/salon-belleza",
+     icon: Scissors,
+     description: "Salones y spa"
+   },
+   {
+     name: "Droguerías",
+     href: "/soluciones/droguerias",
+     icon: Pill,
+     description: "Farmacias y medicamentos"
+   },
+   {
+     name: "Veterinarias",
+     href: "/soluciones/veterinarias",
+     icon: PawPrint,
+     description: "Clínicas de mascotas"
+   }
+ ];
 const navLinks = [{
   name: "Inicio",
   href: "/"

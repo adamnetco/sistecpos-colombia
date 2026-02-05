@@ -1,39 +1,42 @@
-import { Link } from "react-router-dom";
-import { Mail, Phone, MapPin } from "lucide-react";
-import logoSistecPOSWhite from "@/assets/logo-sistecpos-white.png";
-
-const footerLinks = {
-  soluciones: [
-    { name: "POS Restaurantes", href: "/pos-para-restaurantes" },
-    { name: "POS Retail", href: "/pos-para-retail" },
-    { name: "POS Moda", href: "/soluciones/moda-calzado" },
-    { name: "POS Ferreterías", href: "/soluciones/ferreterias" },
-  ],
-  productos: [
-    { name: "Impresoras Térmicas", href: "/productos" },
-    { name: "Lectores de Barras", href: "/productos" },
-    { name: "Cajones Monederos", href: "/productos" },
-    { name: "Licencias", href: "/productos" },
-  ],
-  soporte: [
-    { name: "Instalación Presencial", href: "#" },
-    { name: "Capacitación", href: "#" },
-    { name: "Soporte Técnico", href: "#" },
-    { name: "Garantía", href: "#" },
-  ],
-  empresa: [
-    { name: "Nosotros", href: "/nosotros" },
-    { name: "Contacto", href: "/contacto" },
-  ],
-  ciudades: [
-    { name: "POS Bucaramanga", href: "/software-pos/bucaramanga" },
-    { name: "POS Floridablanca", href: "/software-pos/floridablanca" },
-    { name: "POS Girón", href: "/software-pos/giron" },
-    { name: "POS Piedecuesta", href: "/software-pos/piedecuesta" },
-  ],
-};
-
-const coverageCities = ["Bucaramanga", "Floridablanca", "Girón", "Piedecuesta"];
+ import { Link } from "react-router-dom";
+ import { Mail, Phone, MapPin } from "lucide-react";
+ import logoSistecPOSWhite from "@/assets/logo-sistecpos-white.png";
+ 
+ const footerLinks = {
+   soluciones: [
+     { name: "POS Restaurantes", href: "/soluciones/restaurantes" },
+     { name: "POS Mini Market", href: "/soluciones/mini-market" },
+     { name: "POS Moda", href: "/soluciones/moda-calzado" },
+     { name: "POS Ferreterías", href: "/soluciones/ferreterias" },
+     { name: "POS Droguerías", href: "/soluciones/droguerias" },
+     { name: "Ver todos", href: "/#soluciones" },
+   ],
+   productos: [
+     { name: "Impresoras Térmicas", href: "/productos" },
+     { name: "Lectores de Barras", href: "/productos" },
+     { name: "Cajones Monederos", href: "/productos" },
+     { name: "Comparar Licencias", href: "/comparativa-licencias" },
+   ],
+   ciudades: [
+     { name: "POS Bogotá", href: "/software-pos/bogota" },
+     { name: "POS Medellín", href: "/software-pos/medellin" },
+     { name: "POS Cali", href: "/software-pos/cali" },
+     { name: "POS Barranquilla", href: "/software-pos/barranquilla" },
+     { name: "POS Bucaramanga", href: "/software-pos/bucaramanga" },
+     { name: "POS Cartagena", href: "/software-pos/cartagena" },
+   ],
+   empresa: [
+     { name: "Nosotros", href: "/nosotros" },
+     { name: "Contacto", href: "/contacto" },
+   ],
+ };
+ 
+ const presencialCities = [
+   { name: "Bucaramanga", href: "/software-pos/bucaramanga" },
+   { name: "Floridablanca", href: "/software-pos/floridablanca" },
+   { name: "Girón", href: "/software-pos/giron" },
+   { name: "Piedecuesta", href: "/software-pos/piedecuesta" },
+ ];
 
 export function Footer() {
   return (
@@ -107,26 +110,26 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Soporte */}
-          <div>
-            <h3 className="font-semibold mb-4">Soporte</h3>
-            <ul className="space-y-2">
-              {footerLinks.soporte.map((link) => (
-                <li key={link.name}>
-                  <a
-                    href={link.href}
-                    className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors"
-                  >
-                    {link.name}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Empresa */}
-          <div>
-            <h3 className="font-semibold mb-4">Empresa</h3>
+           {/* Ciudades */}
+           <div>
+             <h3 className="font-semibold mb-4">Ciudades</h3>
+             <ul className="space-y-2">
+               {footerLinks.ciudades.map((link) => (
+                 <li key={link.name}>
+                   <Link
+                     to={link.href}
+                     className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors"
+                   >
+                     {link.name}
+                   </Link>
+                 </li>
+               ))}
+             </ul>
+           </div>
+ 
+           {/* Empresa */}
+           <div>
+             <h3 className="font-semibold mb-4">Empresa</h3>
             <ul className="space-y-2">
               {footerLinks.empresa.map((link) => (
                 <li key={link.name}>
@@ -142,18 +145,23 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Coverage Cities */}
-        <div className="mt-8 pt-8 border-t border-primary-foreground/10" id="cobertura">
-          <div className="flex flex-wrap items-center justify-center gap-2 text-sm">
-            <span className="text-primary-foreground/50">Cobertura:</span>
-            {coverageCities.map((city, index) => (
-              <span key={city} className="flex items-center gap-2">
-                <span className="text-primary-foreground/70">{city}</span>
-                {index < coverageCities.length - 1 && <span className="text-primary-foreground/30">•</span>}
-              </span>
-            ))}
-          </div>
-        </div>
+         {/* Coverage Cities */}
+         <div className="mt-8 pt-8 border-t border-primary-foreground/10" id="cobertura">
+           <div className="flex flex-wrap items-center justify-center gap-2 text-sm">
+             <span className="text-primary-foreground/50">Instalación Presencial:</span>
+             {presencialCities.map((city, index) => (
+               <span key={city.name} className="flex items-center gap-2">
+                 <Link 
+                   to={city.href}
+                   className="text-primary-foreground/70 hover:text-whatsapp transition-colors"
+                 >
+                   {city.name}
+                 </Link>
+                 {index < presencialCities.length - 1 && <span className="text-primary-foreground/30">•</span>}
+               </span>
+             ))}
+           </div>
+         </div>
 
         {/* Copyright */}
         <div className="mt-8 pt-8 border-t border-primary-foreground/10 text-center">
