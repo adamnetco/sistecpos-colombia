@@ -78,7 +78,7 @@ export function SolutionsSection() {
           ))}
         </motion.div>
 
-        {businessTypes.length > 12 && (
+      {businessTypes.length > 12 && !showAll && (
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
@@ -90,7 +90,23 @@ export function SolutionsSection() {
               onClick={() => setShowAll(!showAll)}
               className="gap-2"
             >
-              {showAll ? "Ver menos" : `Ver los ${businessTypes.length} tipos de negocio`}
+              Ver los {businessTypes.length} tipos de negocio
+            </Button>
+          </motion.div>
+        )}
+
+        {showAll && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center mt-8"
+          >
+            <Button
+              variant="outline"
+              onClick={() => setShowAll(false)}
+              className="gap-2"
+            >
+              Ver menos
             </Button>
           </motion.div>
         )}
