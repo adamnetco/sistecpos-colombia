@@ -245,7 +245,7 @@ export default function ContactoPage() {
           <div className="text-center mt-6">
             <Button asChild variant="outline" size="lg">
               <a
-                href="https://maps.app.goo.gl/e5iaeQeAw4oNbWVn6"
+                href="https://www.google.com/maps/place/SistecPOS:+Software+POS+y+Facturaci%C3%B3n+Electr%C3%B3nica+en+1+Clic/@7.0693366,-73.1540583,13z/data=!4m7!3m6!1s0x8e683f02ef225bf7:0x2ecbfbc5d58b0169!8m2!3d7.0807154!4d-73.1184365!15sCghzaXRlY3Bvc1oKIghzaXRlY3Bvc5IBEHNvZnR3YXJlX2NvbXBhbnngAQA!16s%2Fg%2F11lnln_q11"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2"
