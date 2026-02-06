@@ -419,8 +419,113 @@
      ],
      nearbyAreas: ["Centro", "Porfía", "Barzal", "7 de Agosto", "La Grama", "Kirpas"],
      isPresencial: false
-   }
- ];
+    },
+  
+    // ==================== QUINDÍO ====================
+    {
+      slug: "armenia",
+      city: "Armenia",
+      cityFull: "Armenia",
+      region: "Quindío",
+      title: "Software POS en Armenia",
+      heroTitle: "Software POS para Negocios en Armenia",
+      heroSubtitle: "El software punto de venta para el corazón del Eje Cafetero. Ideal para comercios, restaurantes y tiendas en Armenia.",
+      metaTitle: "Software POS en Armenia | Sistema Punto de Venta | SistecPOS",
+      metaDescription: "Software POS para negocios en Armenia, Quindío con facturación DIAN, inventario y modo offline. Instalación remota.",
+      highlights: [
+        "Ideal para el Eje Cafetero",
+        "Facturación electrónica DIAN",
+        "Modo offline hasta 8 días",
+        "Soporte remoto 24/7"
+      ],
+      nearbyAreas: ["Centro", "La Castellana", "Cañas Gordas", "Fundadores", "Calarcá", "Circasia", "Montenegro"],
+      isPresencial: false
+    },
+
+    // ==================== NARIÑO ====================
+    {
+      slug: "pasto",
+      city: "Pasto",
+      cityFull: "San Juan de Pasto",
+      region: "Nariño",
+      title: "Software POS en Pasto",
+      heroTitle: "Software POS para Negocios en Pasto",
+      heroSubtitle: "Sistema punto de venta para comercios nariñenses. Robusto, con modo offline y facturación electrónica DIAN.",
+      metaTitle: "Software POS en Pasto | Sistema Punto de Venta | SistecPOS",
+      metaDescription: "Software POS para negocios en Pasto con inventario, facturación DIAN y modo offline 8 días. Instalación remota.",
+      highlights: [
+        "Diseñado para comercio regional",
+        "Funciona offline hasta 8 días",
+        "Facturación electrónica DIAN",
+        "Capacitación virtual incluida"
+      ],
+      nearbyAreas: ["Centro", "La Aurora", "Torobajo", "Pandiaco", "Lorenzo", "El Tejar", "Obonuco"],
+      isPresencial: false
+    },
+
+    // ==================== CÓRDOBA ====================
+    {
+      slug: "monteria",
+      city: "Montería",
+      cityFull: "Montería",
+      region: "Córdoba",
+      title: "Software POS en Montería",
+      heroTitle: "Software POS para Negocios en Montería",
+      heroSubtitle: "El software punto de venta para el comercio cordobés. Fácil de usar, con inventario y soporte remoto incluido.",
+      metaTitle: "Software POS en Montería | Sistema Punto de Venta | SistecPOS",
+      metaDescription: "Software POS para negocios en Montería con facturación DIAN, inventario y modo offline. Instalación remota.",
+      highlights: [
+        "Ideal para comercio ganadero y agrícola",
+        "Facturación electrónica DIAN",
+        "Modo offline hasta 8 días",
+        "Instalación remota el mismo día"
+      ],
+      nearbyAreas: ["Centro", "El Recreo", "La Castellana", "Mogambo", "Urbina", "Cantaclaro", "Cereté"],
+      isPresencial: false
+    },
+
+    // ==================== CESAR ====================
+    {
+      slug: "valledupar",
+      city: "Valledupar",
+      cityFull: "Valledupar",
+      region: "Cesar",
+      title: "Software POS en Valledupar",
+      heroTitle: "Software POS para Negocios en Valledupar",
+      heroSubtitle: "Sistema punto de venta para la capital del vallenato. Control de inventario, facturación y soporte remoto.",
+      metaTitle: "Software POS en Valledupar | Sistema Punto de Venta | SistecPOS",
+      metaDescription: "Software POS para negocios en Valledupar con inventario, facturación DIAN y modo offline. Instalación remota.",
+      highlights: [
+        "Diseñado para comercio cesarense",
+        "Facturación electrónica DIAN",
+        "Control de inventario completo",
+        "Soporte remoto 24/7"
+      ],
+      nearbyAreas: ["Centro", "Novalito", "Garupal", "Villa del Rosario", "Los Mayales", "Sabana Crespo", "La Nevada"],
+      isPresencial: false
+    },
+
+    // ==================== MAGDALENA ====================
+    {
+      slug: "santa-marta",
+      city: "Santa Marta",
+      cityFull: "Santa Marta",
+      region: "Magdalena",
+      title: "Software POS en Santa Marta",
+      heroTitle: "Software POS para Negocios en Santa Marta",
+      heroSubtitle: "El software punto de venta para el comercio y turismo samario. Ideal para restaurantes, hoteles y tiendas.",
+      metaTitle: "Software POS en Santa Marta | Sistema Punto de Venta | SistecPOS",
+      metaDescription: "Software POS para negocios en Santa Marta con facturación DIAN, modo offline y soporte remoto. Ideal para turismo.",
+      highlights: [
+        "Ideal para sector turístico",
+        "Facturación electrónica DIAN",
+        "Modo offline para zonas rurales",
+        "Instalación remota rápida"
+      ],
+      nearbyAreas: ["Centro Histórico", "El Rodadero", "Bello Horizonte", "Taganga", "Mamatoco", "Gaira", "Pozos Colorados"],
+      isPresencial: false
+    }
+  ];
  
  // Ciudades con servicio presencial (Área Metropolitana de Bucaramanga)
  export const presencialCities = localLandings.filter(l => l.isPresencial);
