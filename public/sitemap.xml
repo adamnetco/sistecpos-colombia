@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Páginas principales -->
+  <url><loc>https://sistecpos.lovable.app/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://sistecpos.lovable.app/productos</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://sistecpos.lovable.app/nosotros</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://sistecpos.lovable.app/contacto</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://sistecpos.lovable.app/comparativa-licencias</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://sistecpos.lovable.app/pos-para-restaurantes</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://sistecpos.lovable.app/pos-para-retail</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+
+  <!-- Landing pages por tipo de negocio -->
+  <url><loc>https://sistecpos.lovable.app/soluciones/restaurantes</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://sistecpos.lovable.app/soluciones/mini-market</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://sistecpos.lovable.app/soluciones/almacen</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://sistecpos.lovable.app/soluciones/moda-calzado</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://sistecpos.lovable.app/soluciones/ferreterias</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://sistecpos.lovable.app/soluciones/papelerias</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://sistecpos.lovable.app/soluciones/tecnologia</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://sistecpos.lovable.app/soluciones/salon-belleza</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://sistecpos.lovable.app/soluciones/tienda-online</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://sistecpos.lovable.app/soluciones/casas-cambio</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://sistecpos.lovable.app/soluciones/servicio-tecnico</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://sistecpos.lovable.app/soluciones/multi-tienda</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://sistecpos.lovable.app/soluciones/consultorios</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://sistecpos.lovable.app/soluciones/veterinarias</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://sistecpos.lovable.app/soluciones/opticas</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://sistecpos.lovable.app/soluciones/farmacias</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://sistecpos.lovable.app/soluciones/panaderias</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://sistecpos.lovable.app/soluciones/fruteria-heladeria</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://sistecpos.lovable.app/soluciones/carniceria-avicola</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://sistecpos.lovable.app/soluciones/cafeteria</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://sistecpos.lovable.app/soluciones/repuestos-automotriz</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://sistecpos.lovable.app/soluciones/mayoristas</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://sistecpos.lovable.app/soluciones/licorera</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://sistecpos.lovable.app/soluciones/distribuidora</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+
+  <!-- Landing pages SEO por ciudad -->
+  <url><loc>https://sistecpos.lovable.app/software-pos/bucaramanga</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://sistecpos.lovable.app/software-pos/floridablanca</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://sistecpos.lovable.app/software-pos/giron</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://sistecpos.lovable.app/software-pos/piedecuesta</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://sistecpos.lovable.app/software-pos/bogota</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://sistecpos.lovable.app/software-pos/soacha</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://sistecpos.lovable.app/software-pos/medellin</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://sistecpos.lovable.app/software-pos/envigado</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://sistecpos.lovable.app/software-pos/itagui</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://sistecpos.lovable.app/software-pos/cali</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://sistecpos.lovable.app/software-pos/palmira</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://sistecpos.lovable.app/software-pos/barranquilla</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://sistecpos.lovable.app/software-pos/soledad</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://sistecpos.lovable.app/software-pos/cartagena</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://sistecpos.lovable.app/software-pos/cucuta</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://sistecpos.lovable.app/software-pos/ibague</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://sistecpos.lovable.app/software-pos/pereira</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://sistecpos.lovable.app/software-pos/manizales</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://sistecpos.lovable.app/software-pos/neiva</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://sistecpos.lovable.app/software-pos/villavicencio</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://sistecpos.lovable.app/software-pos/armenia</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://sistecpos.lovable.app/software-pos/pasto</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://sistecpos.lovable.app/software-pos/monteria</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://sistecpos.lovable.app/software-pos/valledupar</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://sistecpos.lovable.app/software-pos/santa-marta</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+
+  <!-- Productos -->
+  <url><loc>https://sistecpos.lovable.app/productos/impresora-termica-58mm</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://sistecpos.lovable.app/productos/impresora-termica-80mm</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://sistecpos.lovable.app/productos/lector-codigo-barras</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://sistecpos.lovable.app/productos/lector-inalambrico</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://sistecpos.lovable.app/productos/cajon-monedero</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://sistecpos.lovable.app/productos/papel-termico-80mm</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+</urlset>
