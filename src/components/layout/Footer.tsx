@@ -8,7 +8,7 @@ const footerLinks = {
     { name: "POS Mini Market", href: "/soluciones/mini-market" },
     { name: "POS Moda", href: "/soluciones/moda-calzado" },
     { name: "POS Ferreterías", href: "/soluciones/ferreterias" },
-    { name: "POS Droguerías", href: "/soluciones/droguerias" },
+    { name: "POS Farmacias", href: "/soluciones/farmacias" },
     { name: "Ver todos", href: "/#soluciones" },
   ],
   productos: [
@@ -24,6 +24,10 @@ const footerLinks = {
     { name: "POS Barranquilla", href: "/software-pos/barranquilla" },
     { name: "POS Bucaramanga", href: "/software-pos/bucaramanga" },
     { name: "POS Cartagena", href: "/software-pos/cartagena" },
+    { name: "POS Santa Marta", href: "/software-pos/santa-marta" },
+    { name: "POS Montería", href: "/software-pos/monteria" },
+    { name: "POS Valledupar", href: "/software-pos/valledupar" },
+    { name: "POS Cúcuta", href: "/software-pos/cucuta" },
   ],
   empresa: [
     { name: "Nosotros", href: "/nosotros" },

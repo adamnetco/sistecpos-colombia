@@ -43,11 +43,11 @@
      icon: Scissors,
      description: "Salones y spa"
    },
-   {
-     name: "Droguerías",
-     href: "/soluciones/droguerias",
-     icon: Pill,
-     description: "Farmacias y medicamentos"
+    {
+      name: "Farmacias",
+      href: "/soluciones/farmacias",
+      icon: Pill,
+      description: "Droguerías y medicamentos"
    },
    {
      name: "Veterinarias",
