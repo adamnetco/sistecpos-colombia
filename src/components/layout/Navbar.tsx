@@ -60,6 +60,9 @@ const navLinks = [{
   name: "Inicio",
   href: "/"
 }, {
+  name: "Software POS Colombia",
+  href: "/software-pos-colombia"
+}, {
   name: "Productos",
   href: "/productos"
 }, {
@@ -134,6 +137,10 @@ export function Navbar() {
             Contacto
           </Link>
 
+          <Link to="/software-pos-colombia" className={cn("px-4 py-2 text-sm font-medium transition-colors rounded-md hover:bg-muted", isActive("/software-pos-colombia") && "text-primary")}>
+            Software POS Colombia
+          </Link>
+
           <Link to="/comparativa-licencias" className={cn("px-4 py-2 text-sm font-medium transition-colors rounded-md hover:bg-muted", isActive("/comparativa-licencias") && "text-primary")}>
             Comparar POS
           </Link>
@@ -193,6 +200,10 @@ export function Navbar() {
 
               <Link to="/contacto" className="block py-2 text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>
                 Contacto
+              </Link>
+
+              <Link to="/software-pos-colombia" className="block py-2 text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>
+                Software POS Colombia
               </Link>
 
               <Link to="/comparativa-licencias" className="block py-2 text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>

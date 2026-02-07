@@ -9,15 +9,18 @@ import {
   WifiOff,
   Building2,
   Users,
-  Shield
+  Shield,
+  MapPin
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { getBusinessTypeBySlug, businessTypes } from "@/data/businessTypes";
 import { getTestimonialsByBusiness } from "@/data/testimonials";
+import { featuredCities } from "@/data/localSeo";
 import { TestimonialsSection } from "@/components/solutions/TestimonialsSection";
 import { DynamicMeta } from "@/components/seo/DynamicMeta";
+import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 
 export default function SolucionNegocioPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -39,7 +42,11 @@ export default function SolucionNegocioPage() {
         description={business.metaDescription}
         canonical={`https://sistecpos.lovable.app/soluciones/${slug}`}
       />
-      
+      <Breadcrumbs items={[
+        { label: "Software POS Colombia", href: "/software-pos-colombia" },
+        { label: business.titleShort },
+      ]} />
+
       {/* Hero Section */}
       <section className="relative py-16 md:py-24 gradient-bg text-primary-foreground overflow-hidden">
         <div className="absolute inset-0 opacity-10">
@@ -262,6 +269,42 @@ export default function SolucionNegocioPage() {
         businessType={business.titleShort} 
         testimonials={testimonials} 
       />
+
+      {/* Available Cities */}
+      <section className="py-16 md:py-20">
+        <div className="container px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-8"
+          >
+            <h2 className="text-3xl font-bold tracking-tight md:text-4xl mb-4">
+              Disponible en Todo <span className="gradient-text">Colombia</span>
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Instala tu POS para {business.titleShort} en cualquiera de estas ciudades.
+            </p>
+          </motion.div>
+          <div className="flex flex-wrap justify-center gap-3 max-w-4xl mx-auto">
+            {featuredCities.map((city) => (
+              <Link key={city.slug} to={`/software-pos/${city.slug}`}>
+                <Badge variant="secondary" className="py-2 px-4 hover:bg-primary/20 transition-colors cursor-pointer">
+                  <MapPin className="h-3 w-3 mr-1" />
+                  {city.city}
+                </Badge>
+              </Link>
+            ))}
+          </div>
+          <div className="text-center mt-6">
+            <Button variant="outline" size="sm" asChild>
+              <Link to="/software-pos-colombia" className="gap-2">
+                Ver todas las ciudades <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </section>
 
       {/* Other Solutions */}
       <section className="py-16 md:py-24">

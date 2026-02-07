@@ -8,8 +8,9 @@ const footerLinks = {
     { name: "POS Mini Market", href: "/soluciones/mini-market" },
     { name: "POS Moda", href: "/soluciones/moda-calzado" },
     { name: "POS Ferreterías", href: "/soluciones/ferreterias" },
-    { name: "POS Farmacias", href: "/soluciones/farmacias" },
-    { name: "Ver todos", href: "/#soluciones" },
+    { name: "POS Droguerías", href: "/soluciones/droguerias" },
+    { name: "POS Cafeterías", href: "/soluciones/cafeterias" },
+    { name: "Ver todos", href: "/software-pos-colombia#soluciones" },
   ],
   productos: [
     { name: "Impresoras Térmicas", href: "/productos" },
@@ -30,6 +31,9 @@ const footerLinks = {
     { name: "POS Cúcuta", href: "/software-pos/cucuta" },
   ],
   empresa: [
+    { name: "Software POS Colombia", href: "/software-pos-colombia" },
+    { name: "Facturación Electrónica", href: "/facturacion-electronica" },
+    { name: "Comparar POS", href: "/comparativa-licencias" },
     { name: "Nosotros", href: "/nosotros" },
     { name: "Contacto", href: "/contacto" },
   ],
