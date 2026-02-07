@@ -19,6 +19,8 @@ import { Badge } from "@/components/ui/badge";
 import { getLocalLandingBySlug, localLandings } from "@/data/localSeo";
 import { businessTypes } from "@/data/businessTypes";
 import { DynamicMeta } from "@/components/seo/DynamicMeta";
+import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
+import { JsonLd, localBusinessSchema } from "@/components/seo/JsonLd";
 
 export default function SoftwarePosLocalPage() {
   const { city } = useParams<{ city: string }>();
@@ -37,6 +39,12 @@ export default function SoftwarePosLocalPage() {
         description={landing.metaDescription}
         canonical={`https://sistecpos.lovable.app/software-pos/${landing.slug}`}
       />
+      <JsonLd data={localBusinessSchema(landing.city, landing.isPresencial)} />
+
+      <Breadcrumbs items={[
+        { label: "Software POS Colombia", href: "/software-pos-colombia" },
+        { label: `POS en ${landing.city}` },
+      ]} />
 
       {/* Hero Section */}
       <section className="relative py-16 md:py-24 gradient-bg text-primary-foreground overflow-hidden">

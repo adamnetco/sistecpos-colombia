@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { motion } from "framer-motion";
 import { Check, X, Crown, Star, Zap, Building2, MessageCircle } from "lucide-react";
@@ -127,6 +128,17 @@ const FeatureCheck = ({ value }: { value: boolean }) => (
 const ComparativaLicenciasPage = () => {
   return (
     <Layout>
+      {/* Breadcrumb-like link to pillar page */}
+      <div className="container px-4 py-3">
+        <nav className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Link to="/" className="hover:text-foreground transition-colors">Inicio</Link>
+          <span>/</span>
+          <Link to="/software-pos-colombia" className="hover:text-foreground transition-colors">Software POS Colombia</Link>
+          <span>/</span>
+          <span className="text-foreground">Comparativa</span>
+        </nav>
+      </div>
+
       {/* Hero Section */}
       <section className="py-16 md:py-24 gradient-bg text-primary-foreground">
         <div className="container px-4">

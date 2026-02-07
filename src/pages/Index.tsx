@@ -7,10 +7,12 @@ import { SolutionsSection } from "@/components/home/SolutionsSection";
 import { SoftwarePreviewSection } from "@/components/home/SoftwarePreviewSection";
 import { CoverageSection } from "@/components/home/CoverageSection";
 import { CTASection } from "@/components/home/CTASection";
+import { JsonLd, organizationSchema } from "@/components/seo/JsonLd";
 
 const Index = () => {
   return (
     <Layout>
+      <JsonLd data={organizationSchema()} />
       <HeroSection />
       <SoftwarePreviewSection />
       <ComparisonSection />
