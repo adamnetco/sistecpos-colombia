@@ -13,7 +13,7 @@ const posProviders = [
     name: "SistecPOS",
     recommended: true,
     description: "Software POS 100% en la nube con soporte presencial en Santander",
-    logo: "/lovable-uploads/43a24c53-78c0-4ca3-b642-99a376d90a0f.png",
+    logo: "/images/sistecpos.png",
     color: "bg-primary",
     url: "https://sistecpos.com",
   },
@@ -22,7 +22,7 @@ const posProviders = [
     name: "Tiendana",
     recommended: false,
     description: "App todo en uno para negocios con enfoque móvil",
-    logo: "/images/logo-tiendana.png",
+    logo: "/images/tiendana.png",
     color: "bg-blue-500",
     url: "https://www.tiendana.com",
   },
@@ -31,7 +31,7 @@ const posProviders = [
     name: "VectorPOS",
     recommended: false,
     description: "Software especializado para restaurantes",
-    logo: "/images/logo-vectorpos.png",
+    logo: "/images/vectorpos.png",
     color: "bg-orange-500",
     url: "https://vectorposweb.com",
   },
@@ -40,7 +40,7 @@ const posProviders = [
     name: "SitricPOS",
     recommended: false,
     description: "Sistema POS con facturación electrónica",
-    logo: "/images/logo-sitricpos.png",
+    logo: "/images/sitricpos.png",
     color: "bg-purple-500",
     url: "https://sitricpos.com",
   },
@@ -117,13 +117,12 @@ const pricingPlans = {
   ],
 };
 
-const FeatureCheck = ({ value }: { value: boolean }) => (
+const FeatureCheck = ({ value }: { value: boolean }) =>
   value ? (
     <Check className="h-5 w-5 text-whatsapp mx-auto" />
   ) : (
     <X className="h-5 w-5 text-muted-foreground/40 mx-auto" />
-  )
-);
+  );
 
 const ComparativaLicenciasPage = () => {
   return (
@@ -131,9 +130,13 @@ const ComparativaLicenciasPage = () => {
       {/* Breadcrumb-like link to pillar page */}
       <div className="container px-4 py-3">
         <nav className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Link to="/" className="hover:text-foreground transition-colors">Inicio</Link>
+          <Link to="/" className="hover:text-foreground transition-colors">
+            Inicio
+          </Link>
           <span>/</span>
-          <Link to="/software-pos-colombia" className="hover:text-foreground transition-colors">Software POS Colombia</Link>
+          <Link to="/software-pos-colombia" className="hover:text-foreground transition-colors">
+            Software POS Colombia
+          </Link>
           <span>/</span>
           <span className="text-foreground">Comparativa</span>
         </nav>
@@ -148,23 +151,14 @@ const ComparativaLicenciasPage = () => {
             transition={{ duration: 0.5 }}
             className="text-center max-w-4xl mx-auto"
           >
-            <Badge className="mb-4 bg-white/20 text-white border-white/30">
-              Comparativa 2025
-            </Badge>
-            <h1 className="text-3xl md:text-5xl font-bold mb-6">
-              Compara los Mejores Software POS de Colombia
-            </h1>
+            <Badge className="mb-4 bg-white/20 text-white border-white/30">Comparativa 2025</Badge>
+            <h1 className="text-3xl md:text-5xl font-bold mb-6">Compara los Mejores Software POS de Colombia</h1>
             <p className="text-lg md:text-xl text-primary-foreground/80 mb-8">
-              Análisis detallado de SistecPOS vs Tiendana, VectorPOS y SitricPOS. 
-              Encuentra el sistema ideal para tu negocio.
+              Análisis detallado de SistecPOS vs Tiendana, VectorPOS y SitricPOS. Encuentra el sistema ideal para tu
+              negocio.
             </p>
-            <Button 
-              size="lg" 
-              variant="secondary"
-              className="gap-2"
-              asChild
-            >
-              <a 
+            <Button size="lg" variant="secondary" className="gap-2" asChild>
+              <a
                 href="https://wa.me/573176268307?text=Hola,%20quiero%20asesoría%20para%20elegir%20el%20mejor%20POS%20para%20mi%20negocio"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -189,38 +183,31 @@ const ComparativaLicenciasPage = () => {
                 viewport={{ once: true }}
                 transition={{ duration: 0.3, delay: index * 0.1 }}
               >
-                <Card className={`h-full ${provider.recommended ? 'border-primary ring-2 ring-primary/20' : ''}`}>
+                <Card className={`h-full ${provider.recommended ? "border-primary ring-2 ring-primary/20" : ""}`}>
                   <CardHeader className="text-center pb-2">
                     {provider.recommended && (
                       <Badge className="w-fit mx-auto mb-2 bg-primary">
                         <Star className="h-3 w-3 mr-1" /> Recomendado
                       </Badge>
                     )}
-                    <a 
-                      href={provider.url} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="block"
-                    >
-                      <div className={`h-16 w-16 rounded-xl ${provider.logo ? 'bg-white' : provider.color} mx-auto flex items-center justify-center mb-3 p-2 shadow-md hover:shadow-lg transition-shadow`}>
+                    <a href={provider.url} target="_blank" rel="noopener noreferrer" className="block">
+                      <div
+                        className={`h-16 w-16 rounded-xl ${provider.logo ? "bg-white" : provider.color} mx-auto flex items-center justify-center mb-3 p-2 shadow-md hover:shadow-lg transition-shadow`}
+                      >
                         {provider.logo ? (
                           <img src={provider.logo} alt={provider.name} className="h-full w-full object-contain" />
                         ) : (
-                          <span className="text-white font-bold text-xl">
-                            {provider.name.charAt(0)}
-                          </span>
+                          <span className="text-white font-bold text-xl">{provider.name.charAt(0)}</span>
                         )}
                       </div>
                     </a>
                     <CardTitle className="text-lg">{provider.name}</CardTitle>
                   </CardHeader>
                   <CardContent className="text-center">
-                    <p className="text-sm text-muted-foreground mb-3">
-                      {provider.description}
-                    </p>
-                    <a 
-                      href={provider.url} 
-                      target="_blank" 
+                    <p className="text-sm text-muted-foreground mb-3">{provider.description}</p>
+                    <a
+                      href={provider.url}
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="text-xs text-primary hover:underline"
                     >
@@ -259,7 +246,7 @@ const ComparativaLicenciasPage = () => {
                   {posProviders.map((provider) => (
                     <th key={provider.id} className="p-4 text-center">
                       <div className="flex flex-col items-center gap-1">
-                        <span className={`font-semibold ${provider.recommended ? 'text-primary' : ''}`}>
+                        <span className={`font-semibold ${provider.recommended ? "text-primary" : ""}`}>
                           {provider.name}
                         </span>
                         {provider.recommended && (
@@ -276,7 +263,10 @@ const ComparativaLicenciasPage = () => {
                 {comparisonFeatures.map((category) => (
                   <>
                     <tr key={category.category} className="bg-muted/50">
-                      <td colSpan={5} className="p-3 font-semibold text-sm uppercase tracking-wider text-muted-foreground">
+                      <td
+                        colSpan={5}
+                        className="p-3 font-semibold text-sm uppercase tracking-wider text-muted-foreground"
+                      >
                         {category.category}
                       </td>
                     </tr>
@@ -325,11 +315,7 @@ const ComparativaLicenciasPage = () => {
           <Tabs defaultValue="sistecpos" className="max-w-4xl mx-auto">
             <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 mb-8">
               {posProviders.map((provider) => (
-                <TabsTrigger 
-                  key={provider.id} 
-                  value={provider.id}
-                  className="gap-2"
-                >
+                <TabsTrigger key={provider.id} value={provider.id} className="gap-2">
                   {provider.recommended && <Star className="h-3 w-3" />}
                   {provider.name}
                 </TabsTrigger>
@@ -346,22 +332,14 @@ const ComparativaLicenciasPage = () => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.3, delay: index * 0.1 }}
                     >
-                      <Card className={`h-full ${plan.popular ? 'border-primary ring-2 ring-primary/20' : ''}`}>
+                      <Card className={`h-full ${plan.popular ? "border-primary ring-2 ring-primary/20" : ""}`}>
                         <CardHeader>
-                          {plan.popular && (
-                            <Badge className="w-fit mb-2">Popular</Badge>
-                          )}
+                          {plan.popular && <Badge className="w-fit mb-2">Popular</Badge>}
                           <CardTitle className="text-lg">{plan.name}</CardTitle>
                         </CardHeader>
                         <CardContent>
-                          <div className="text-2xl font-bold text-primary mb-1">
-                            {plan.price}
-                          </div>
-                          {plan.priceCOP && (
-                            <div className="text-sm text-muted-foreground">
-                              {plan.priceCOP}
-                            </div>
-                          )}
+                          <div className="text-2xl font-bold text-primary mb-1">{plan.price}</div>
+                          {plan.priceCOP && <div className="text-sm text-muted-foreground">{plan.priceCOP}</div>}
                         </CardContent>
                       </Card>
                     </motion.div>
@@ -398,8 +376,8 @@ const ComparativaLicenciasPage = () => {
                     <div>
                       <h3 className="font-semibold mb-2">Modo Offline Único</h3>
                       <p className="text-sm text-muted-foreground">
-                        Funciona hasta 8 días sin internet con sincronización automática. 
-                        Ningún otro POS en Colombia ofrece esto.
+                        Funciona hasta 8 días sin internet con sincronización automática. Ningún otro POS en Colombia
+                        ofrece esto.
                       </p>
                     </div>
                   </div>
@@ -415,8 +393,8 @@ const ComparativaLicenciasPage = () => {
                     <div>
                       <h3 className="font-semibold mb-2">Soporte Presencial Local</h3>
                       <p className="text-sm text-muted-foreground">
-                        Instalación, configuración y capacitación directamente en tu local. 
-                        Somos de Santander, para Santander.
+                        Instalación, configuración y capacitación directamente en tu local. Somos de Santander, para
+                        Santander.
                       </p>
                     </div>
                   </div>
@@ -432,8 +410,8 @@ const ComparativaLicenciasPage = () => {
                     <div>
                       <h3 className="font-semibold mb-2">16 Módulos Especializados</h3>
                       <p className="text-sm text-muted-foreground">
-                        Inventario, Multi-tienda, Servicio Técnico, Casa de Cambio y más. 
-                        Todo incluido sin costos adicionales.
+                        Inventario, Multi-tienda, Servicio Técnico, Casa de Cambio y más. Todo incluido sin costos
+                        adicionales.
                       </p>
                     </div>
                   </div>
@@ -449,8 +427,8 @@ const ComparativaLicenciasPage = () => {
                     <div>
                       <h3 className="font-semibold mb-2">También Comercializamos Otros POS</h3>
                       <p className="text-sm text-muted-foreground">
-                        Si otro sistema se adapta mejor a tu negocio, también podemos 
-                        implementarlo con el mismo servicio premium.
+                        Si otro sistema se adapta mejor a tu negocio, también podemos implementarlo con el mismo
+                        servicio premium.
                       </p>
                     </div>
                   </div>
@@ -470,21 +448,14 @@ const ComparativaLicenciasPage = () => {
             viewport={{ once: true }}
             className="text-center max-w-3xl mx-auto"
           >
-            <h2 className="text-3xl md:text-4xl font-bold mb-6">
-              ¿Necesitas Ayuda para Decidir?
-            </h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-6">¿Necesitas Ayuda para Decidir?</h2>
             <p className="text-lg text-primary-foreground/80 mb-8">
-              Agenda una asesoría gratuita y te ayudamos a elegir el mejor sistema 
-              para las necesidades específicas de tu negocio.
+              Agenda una asesoría gratuita y te ayudamos a elegir el mejor sistema para las necesidades específicas de
+              tu negocio.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button 
-                size="lg" 
-                variant="secondary"
-                className="gap-2"
-                asChild
-              >
-                <a 
+              <Button size="lg" variant="secondary" className="gap-2" asChild>
+                <a
                   href="https://wa.me/573176268307?text=Hola,%20quiero%20asesoría%20para%20elegir%20el%20mejor%20POS"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -493,15 +464,8 @@ const ComparativaLicenciasPage = () => {
                   Asesoría por WhatsApp
                 </a>
               </Button>
-              <Button 
-                size="lg" 
-                variant="outline"
-                className="border-white text-white hover:bg-white/10"
-                asChild
-              >
-                <a href="/productos">
-                  Ver Todos los Productos
-                </a>
+              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10" asChild>
+                <a href="/productos">Ver Todos los Productos</a>
               </Button>
             </div>
           </motion.div>
