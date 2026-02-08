@@ -1585,4 +1585,349 @@ export const dianArticles: DianArticle[] = [
       { label: "Sanciones por no facturar", href: "/guias-dian/sanciones-no-facturar-electronicamente" },
     ],
   },
+
+  // ─── Cluster 4: Páginas Comerciales ───────────────────────────────────────
+
+  {
+    slug: "facturacion-electronica-pymes-colombia",
+    keyword: "facturación electrónica pymes colombia",
+    metaTitle: "Facturación Electrónica para PYMES en Colombia 2026 | SistecPOS",
+    metaDescription:
+      "Software de facturación electrónica diseñado para PYMES colombianas. Cumple con la DIAN, controla tu inventario y vende más rápido desde $12 USD/mes.",
+    heroIcon: Receipt,
+    heroBadge: "PYMES Colombia",
+    h1: "Facturación Electrónica para PYMES: La Guía Definitiva 2026",
+    heroSubtitle:
+      "El 90% de las PYMES colombianas ya están obligadas a facturar electrónicamente. Si todavía usas Excel, papel o el facturador gratuito de la DIAN, estás perdiendo tiempo y arriesgando multas. Te mostramos la solución más rápida y económica.",
+    sections: [
+      {
+        title: "¿Todas las PYMES deben facturar electrónicamente?",
+        content:
+          "Sí. Desde 2024, todas las personas naturales y jurídicas que vendan bienes o servicios en Colombia están obligadas a emitir factura electrónica ante la DIAN. Esto incluye tiendas de barrio, salones de belleza, ferreterías, restaurantes y cualquier negocio con ventas gravadas.",
+        bullets: [
+          "Personas jurídicas: obligadas desde 2020",
+          "Personas naturales responsables de IVA: obligadas desde 2022",
+          "Régimen Simple de Tributación: obligadas desde 2024",
+          "No contribuyentes con ingresos superiores a 3.500 UVT: obligadas",
+          "Única excepción: ventas inferiores a 5 UVT (≈$250.000 COP) permiten tiquete POS",
+        ],
+      },
+      {
+        title: "Los 3 errores más caros de las PYMES al facturar",
+        content:
+          "Hemos capacitado a más de 2.000 PYMES en Colombia y estos son los errores que más dinero y tiempo les cuestan.",
+        bullets: [
+          "❌ Usar el facturador gratuito DIAN para más de 10 facturas/día — pierdes 1+ hora diaria",
+          "❌ No llevar inventario integrado — no sabes qué se vendió ni qué te falta",
+          "❌ Emitir tiquetes POS cuando deberían ser facturas electrónicas — multa de hasta 15.000 UVT",
+        ],
+      },
+      {
+        title: "¿Qué necesita una PYME para facturar correctamente?",
+        content:
+          "Un sistema POS profesional que combine punto de venta, facturación DIAN e inventario en un solo lugar. Sin instalar servidores, sin contratar ingenieros, sin complicaciones.",
+        bullets: [
+          "Facturación electrónica DIAN automática al vender",
+          "Inventario con alertas de stock bajo y rotación",
+          "Modo offline: vendes aunque no haya internet (hasta 8 días)",
+          "Reportes de ventas diarios, semanales y mensuales",
+          "Multi-tienda si manejas más de un local",
+          "Desde $12 USD/mes (~$50.000 COP) con capacitación incluida",
+        ],
+      },
+      {
+        title: "SistecPOS: diseñado para PYMES colombianas",
+        content:
+          "No somos un ERP genérico de Silicon Valley. SistecPOS fue creado en Colombia, para comerciantes colombianos. Entendemos las reglas de la DIAN, los tiquetes POS, la información exógena y los problemas de conectividad del país.",
+        bullets: [
+          "Proveedor tecnológico autorizado por la DIAN",
+          "Certificado digital incluido sin costo adicional",
+          "Capacitación presencial en tu negocio",
+          "Soporte por WhatsApp de lunes a sábado",
+          "Prueba gratis 7 días, sin tarjeta de crédito",
+        ],
+      },
+    ],
+    painVsSolution: [
+      {
+        pain: "Excel + facturador DIAN = 2 horas diarias perdidas",
+        solution: "POS + facturación automática en 10 segundos",
+      },
+      {
+        pain: "Sin control de inventario = pérdidas invisibles",
+        solution: "Inventario en tiempo real con alertas automáticas",
+      },
+      {
+        pain: "Sin internet = sin ventas",
+        solution: "Modo offline hasta 8 días con sincronización automática",
+      },
+      {
+        pain: "ERP costoso y complejo para una PYME",
+        solution: "Desde $12 USD/mes, sin contratos ni instalaciones",
+      },
+    ],
+    ctaText: "Factura como profesional desde hoy",
+    ctaWhatsappMessage:
+      "Hola, tengo una PYME y quiero implementar facturación electrónica con SistecPOS",
+    faqs: [
+      {
+        question: "¿Cuánto cuesta un software de facturación electrónica para PYMES?",
+        answer:
+          "SistecPOS empieza desde $12 USD/mes (~$50.000 COP) con facturación electrónica DIAN ilimitada, inventario y punto de venta incluidos. No hay costos de instalación ni contratos de permanencia.",
+      },
+      {
+        question: "¿Puedo usar SistecPOS si solo tengo una tienda pequeña?",
+        answer:
+          "Sí. SistecPOS está diseñado tanto para tiendas de barrio como para cadenas de 10+ sucursales. El plan básico incluye todo lo que necesitas para cumplir con la DIAN.",
+      },
+      {
+        question: "¿Necesito contratar un contador para facturar electrónicamente?",
+        answer:
+          "No necesariamente. SistecPOS genera automáticamente la facturación electrónica y la información exógena. Tu contador puede acceder a los reportes desde cualquier dispositivo.",
+      },
+      {
+        question: "¿Qué pasa si no tengo internet estable?",
+        answer:
+          "SistecPOS funciona offline hasta 8 días. Tus ventas, facturas e inventario se guardan localmente y se sincronizan automáticamente cuando vuelve la conexión.",
+      },
+    ],
+    relatedLinks: [
+      { label: "Facturación Electrónica DIAN", href: "/facturacion-electronica" },
+      { label: "Sanciones por no facturar", href: "/guias-dian/sanciones-no-facturar-electronicamente" },
+      { label: "Límite 5 UVT para tiquetes POS", href: "/guias-dian/limite-uvt-pos-2026" },
+      { label: "Calculadora UVT", href: "/herramientas/calculadora-uvt" },
+    ],
+  },
+
+  {
+    slug: "software-inventario-facturacion-electronica",
+    keyword: "software inventario facturación electrónica",
+    metaTitle: "Software de Inventario con Facturación Electrónica DIAN 2026 | SistecPOS",
+    metaDescription:
+      "Controla tu inventario y emite facturas electrónicas DIAN desde un solo sistema. Sin Excel, sin doble digitación. Prueba gratis SistecPOS.",
+    heroIcon: FileText,
+    heroBadge: "Inventario + FE",
+    h1: "Software de Inventario con Facturación Electrónica: Todo en Uno",
+    heroSubtitle:
+      "El 70% de los comerciantes colombianos llevan inventario en Excel y facturan en otro sistema. Eso genera errores, pérdidas y horas de trabajo innecesario. La solución es un sistema que haga ambas cosas automáticamente.",
+    sections: [
+      {
+        title: "El problema de los sistemas separados",
+        content:
+          "Cuando usas un programa para inventario y otro para facturación, los datos no se cruzan. Vendes un producto pero el stock no se actualiza. Haces inventario manual los domingos. Las facturas no reflejan lo que realmente tienes en bodega.",
+        bullets: [
+          "Doble digitación: ingresas la venta en dos sistemas diferentes",
+          "Stock desactualizado: no sabes en tiempo real qué tienes disponible",
+          "Errores de facturación: facturas con productos que ya no existen",
+          "Pérdida de mercancía: sin trazabilidad de entradas y salidas",
+          "Cierres de caja que no cuadran con el inventario físico",
+        ],
+      },
+      {
+        title: "¿Qué debe tener un buen software de inventario + facturación?",
+        content:
+          "Un sistema integrado que conecte cada venta con el inventario en tiempo real, emita la factura DIAN automáticamente y te dé reportes útiles sin necesidad de Excel.",
+        bullets: [
+          "Inventario en tiempo real: cada venta descuenta stock automáticamente",
+          "Facturación DIAN al cobrar: sin pasos adicionales",
+          "Alertas de stock bajo: el sistema te avisa antes de quedarte sin producto",
+          "Reportes de rotación: qué se vende más, qué está estancado",
+          "Trazabilidad completa: entradas, salidas, devoluciones y ajustes",
+          "Código de barras: escanea y vende en segundos",
+        ],
+      },
+      {
+        title: "SistecPOS: inventario y facturación en un solo clic",
+        content:
+          "SistecPOS integra 16 módulos en un solo sistema. Cuando vendes, el inventario se actualiza, la factura DIAN se emite y los reportes se generan automáticamente. Sin Excel, sin doble digitación, sin errores.",
+        bullets: [
+          "Módulo de Inventario con lotes, vencimientos y ubicaciones",
+          "Facturación electrónica DIAN automática e ilimitada",
+          "Compras a proveedores con órdenes de compra integradas",
+          "Kardex digital con trazabilidad completa",
+          "Compatible con lectores de código de barras USB e inalámbricos",
+          "Funciona offline hasta 8 días",
+        ],
+      },
+      {
+        title: "Caso real: ferretería en Bucaramanga",
+        content:
+          "Una ferretería con 3.000+ referencias migró de Excel a SistecPOS en 2 días. Resultado: eliminaron la hora diaria de digitación manual, redujeron pérdidas de inventario en un 40% y ahora facturan a la DIAN automáticamente sin contratar personal adicional.",
+      },
+    ],
+    painVsSolution: [
+      {
+        pain: "Excel para inventario + otro sistema para facturar",
+        solution: "Un solo sistema: inventario + facturación DIAN integrados",
+      },
+      {
+        pain: "Stock desactualizado, inventarios manuales los domingos",
+        solution: "Inventario en tiempo real, actualizado con cada venta",
+      },
+      {
+        pain: "Doble digitación y errores constantes",
+        solution: "Cero digitación extra: escanea, cobra, factura",
+      },
+      {
+        pain: "Sin trazabilidad de entradas y salidas",
+        solution: "Kardex digital con historial completo",
+      },
+    ],
+    ctaText: "Unifica inventario y facturación hoy",
+    ctaWhatsappMessage:
+      "Hola, necesito un software que integre inventario y facturación electrónica DIAN",
+    faqs: [
+      {
+        question: "¿SistecPOS maneja inventario por lotes y vencimientos?",
+        answer:
+          "Sí. El módulo de inventario permite gestionar lotes, fechas de vencimiento, ubicaciones en bodega y múltiples bodegas. Ideal para droguerías, distribuidoras y negocios con productos perecederos.",
+      },
+      {
+        question: "¿Puedo importar mi inventario desde Excel?",
+        answer:
+          "Sí. Nuestro equipo te ayuda a migrar tu base de datos de productos desde Excel o cualquier otro sistema. La migración está incluida sin costo adicional.",
+      },
+      {
+        question: "¿Qué pasa con el inventario si se va el internet?",
+        answer:
+          "SistecPOS funciona offline hasta 8 días. Las ventas descuentan stock localmente y todo se sincroniza cuando vuelve la conexión. Nunca pierdes datos.",
+      },
+      {
+        question: "¿Puedo ver el inventario de varias tiendas desde un solo lugar?",
+        answer:
+          "Sí. El módulo Multi-tienda te permite ver el stock de todas tus sucursales en tiempo real, hacer traslados entre bodegas y consolidar reportes de inventario.",
+      },
+    ],
+    relatedLinks: [
+      { label: "Facturación Electrónica DIAN", href: "/facturacion-electronica" },
+      { label: "Software POS Colombia", href: "/software-pos-colombia" },
+      { label: "Ferreterías", href: "/soluciones/ferreterias" },
+      { label: "Droguerías", href: "/soluciones/droguerias" },
+    ],
+  },
+
+  {
+    slug: "top-10-software-pos-colombia",
+    keyword: "top 10 software pos colombia",
+    metaTitle: "Top 10 Software POS en Colombia 2026: Comparativa Definitiva | SistecPOS",
+    metaDescription:
+      "Ranking actualizado de los 10 mejores software POS en Colombia 2026. Comparamos precios, funciones, facturación DIAN y soporte local.",
+    heroIcon: Globe,
+    heroBadge: "Ranking 2026",
+    h1: "Top 10 Software POS en Colombia 2026: ¿Cuál Es el Mejor?",
+    heroSubtitle:
+      "Analizamos los 10 sistemas de punto de venta más usados en Colombia. Comparamos precios, funcionalidades, soporte técnico y cumplimiento DIAN para que elijas el que realmente necesita tu negocio.",
+    sections: [
+      {
+        title: "Criterios de evaluación",
+        content:
+          "Para este ranking evaluamos cada software POS en 6 criterios clave que un comerciante colombiano debe considerar antes de invertir en un sistema de punto de venta.",
+        bullets: [
+          "📋 Facturación electrónica DIAN: ¿cumple la normativa vigente?",
+          "📦 Inventario integrado: ¿controla stock en tiempo real?",
+          "📶 Modo offline: ¿funciona sin internet?",
+          "💰 Precio: ¿es accesible para una PYME colombiana?",
+          "🎓 Soporte y capacitación: ¿hay soporte local en español?",
+          "🔌 Hardware compatible: ¿funciona con impresoras y lectores estándar?",
+        ],
+      },
+      {
+        title: "1. SistecPOS — El más completo para PYMES",
+        content:
+          "SistecPOS lidera el ranking por su combinación de facturación DIAN, inventario avanzado, modo offline de 8 días y precio accesible. Es el único que ofrece capacitación presencial en 23+ ciudades de Colombia y certificado digital incluido.",
+        bullets: [
+          "✅ Facturación electrónica DIAN ilimitada",
+          "✅ Inventario con lotes, vencimientos y multi-bodega",
+          "✅ Modo offline hasta 8 días",
+          "✅ Desde $12 USD/mes (~$50.000 COP)",
+          "✅ Soporte presencial en 23+ ciudades",
+          "✅ 16 módulos especializados por industria",
+        ],
+      },
+      {
+        title: "2-5. Competidores fuertes con limitaciones",
+        content:
+          "Siigo, Alegra, Loggro y World Office son opciones reconocidas en Colombia. Sin embargo, cada uno tiene limitaciones importantes para comerciantes que necesitan punto de venta rápido + inventario + offline.",
+        bullets: [
+          "Siigo: fuerte en contabilidad, débil en POS e inventario retail. Desde $80.000 COP/mes",
+          "Alegra: bueno para freelancers y servicios, limitado en punto de venta físico. Desde $60.000 COP/mes",
+          "Loggro: enfocado en facturación, inventario básico. Sin modo offline robusto",
+          "World Office: instalación local, requiere servidor. Curva de aprendizaje alta",
+        ],
+      },
+      {
+        title: "6-10. Alternativas internacionales y open source",
+        content:
+          "Existen opciones internacionales como Shopify POS, Lightspeed o Square, y alternativas open source como Loyverse y uniCenta. Todas tienen un problema común: no están optimizadas para la normativa DIAN colombiana.",
+        bullets: [
+          "Shopify POS: excelente para e-commerce, limitado en tienda física colombiana. Sin facturación DIAN nativa",
+          "Lightspeed: potente pero costoso ($69 USD/mes). Sin soporte local en Colombia",
+          "Square POS: no disponible oficialmente en Colombia",
+          "Loyverse: gratuito pero sin facturación electrónica DIAN",
+          "uniCenta: open source, requiere conocimientos técnicos para configurar",
+        ],
+      },
+      {
+        title: "¿Cómo elegir el mejor POS para tu negocio?",
+        content:
+          "No existe un 'mejor POS universal'. La elección depende de tu tipo de negocio, volumen de ventas, número de sucursales y presupuesto. Pero hay un requisito innegociable en Colombia: debe cumplir con la facturación electrónica DIAN.",
+        bullets: [
+          "Si vendes productos físicos → necesitas inventario integrado",
+          "Si estás en una zona con internet inestable → necesitas modo offline",
+          "Si tienes varias tiendas → necesitas módulo multi-tienda",
+          "Si tu presupuesto es limitado → busca planes desde $50.000 COP/mes",
+          "Si necesitas soporte → prioriza proveedores con presencia local",
+        ],
+      },
+    ],
+    painVsSolution: [
+      {
+        pain: "Software internacional sin facturación DIAN",
+        solution: "SistecPOS: proveedor DIAN autorizado, 100% colombiano",
+      },
+      {
+        pain: "ERPs costosos diseñados para grandes empresas",
+        solution: "POS diseñado para PYMES desde $12 USD/mes",
+      },
+      {
+        pain: "Sin soporte local, solo tickets en inglés",
+        solution: "Soporte por WhatsApp + capacitación presencial",
+      },
+      {
+        pain: "Open source sin mantenimiento ni actualizaciones DIAN",
+        solution: "Actualizaciones automáticas de normativa DIAN incluidas",
+      },
+    ],
+    ctaText: "Prueba el #1 en Software POS Colombia",
+    ctaWhatsappMessage:
+      "Hola, vi el ranking de software POS y quiero probar SistecPOS gratis",
+    faqs: [
+      {
+        question: "¿Cuál es el mejor software POS en Colombia en 2026?",
+        answer:
+          "Según nuestro análisis de 6 criterios clave (facturación DIAN, inventario, offline, precio, soporte y hardware), SistecPOS es el software POS más completo para PYMES colombianas en 2026.",
+      },
+      {
+        question: "¿Existe un software POS gratis en Colombia?",
+        answer:
+          "Existen opciones gratuitas como Loyverse o el facturador DIAN, pero ninguna incluye facturación electrónica DIAN + inventario + modo offline. Para un negocio formal, un plan desde $12 USD/mes en SistecPOS ofrece mucho más valor.",
+      },
+      {
+        question: "¿Puedo cambiar de software POS sin perder mis datos?",
+        answer:
+          "Sí. SistecPOS ofrece migración gratuita de datos desde cualquier otro sistema. Nuestro equipo importa tus productos, clientes e historial de ventas sin costo adicional.",
+      },
+      {
+        question: "¿SistecPOS funciona para restaurantes y retail?",
+        answer:
+          "Sí. SistecPOS tiene módulos especializados para 24 tipos de negocio, incluyendo restaurantes (mesas, comandas, cocina) y retail (tallas, colores, código de barras).",
+      },
+    ],
+    relatedLinks: [
+      { label: "Software POS Colombia", href: "/software-pos-colombia" },
+      { label: "Comparar vs Siigo", href: "/comparar/siigo" },
+      { label: "Comparar vs Alegra", href: "/comparar/alegra" },
+      { label: "Todas las Comparativas", href: "/comparar" },
+    ],
+  },
 ];
