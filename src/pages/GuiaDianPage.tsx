@@ -15,6 +15,7 @@ import { SEO } from "@/components/seo/SEO";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { JsonLd, faqSchema } from "@/components/seo/JsonLd";
 import { dianArticles } from "@/data/dianArticles";
+import { CertificatePricingSection } from "@/components/certificados/CertificatePricingSection";
 
 export default function GuiaDianPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -152,6 +153,9 @@ export default function GuiaDianPage() {
           </div>
         </section>
       )}
+
+      {/* Certificate Pricing (only on firma-digital page) */}
+      {article.slug === "firma-digital-dian-gratis" && <CertificatePricingSection />}
 
       {/* FAQ */}
       <section className="py-12 md:py-16">
