@@ -183,12 +183,21 @@ export function Footer() {
           </p>
         </div>
 
-        {/* Copyright */}
-        <div className="mt-6 pt-6 border-t border-primary-foreground/10 text-center">
+        {/* Legal + Copyright */}
+        <div className="mt-6 pt-6 border-t border-primary-foreground/10 text-center space-y-3">
+          <div className="flex flex-wrap justify-center gap-4 text-xs">
+            <Link to="/politica-privacidad" className="text-primary-foreground/50 hover:text-primary-foreground transition-colors">
+              Política de Privacidad
+            </Link>
+            <span className="text-primary-foreground/20">|</span>
+            <Link to="/terminos-condiciones" className="text-primary-foreground/50 hover:text-primary-foreground transition-colors">
+              Términos y Condiciones
+            </Link>
+          </div>
           <p className="text-sm text-primary-foreground/50">
             © {new Date().getFullYear()} SistecPOS. Todos los derechos reservados.
           </p>
-          <p className="text-xs text-primary-foreground/30 mt-2">Desarrollado por AdamNetCo</p>
+          <p className="text-xs text-primary-foreground/30">Desarrollado por AdamNetCo</p>
         </div>
       </div>
     </footer>

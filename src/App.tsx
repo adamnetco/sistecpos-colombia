@@ -19,6 +19,8 @@ import SoftwarePosLocalPage from "./pages/SoftwarePosLocalPage";
 import SoftwarePosColombiaPage from "./pages/SoftwarePosColombiaPage";
 import FacturacionElectronicaPage from "./pages/FacturacionElectronicaPage";
 import GraciasPage from "./pages/GraciasPage";
+import PoliticaPrivacidadPage from "./pages/PoliticaPrivacidadPage";
+import TerminosCondicionesPage from "./pages/TerminosCondicionesPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -46,6 +48,8 @@ const App = () => (
             <Route path="/comparativa-licencias" element={<ComparativaLicenciasPage />} />
             <Route path="/contacto" element={<ContactoPage />} />
             <Route path="/gracias" element={<GraciasPage />} />
+            <Route path="/politica-privacidad" element={<PoliticaPrivacidadPage />} />
+            <Route path="/terminos-condiciones" element={<TerminosCondicionesPage />} />
             {/* Redirects para URLs antiguas indexadas */}
             <Route path="/hello-world" element={<Navigate to="/software-pos-colombia" replace />} />
             <Route path="/c/uncategorized" element={<Navigate to="/productos" replace />} />

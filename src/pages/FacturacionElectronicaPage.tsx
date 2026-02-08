@@ -87,12 +87,16 @@ export default function FacturacionElectronicaPage() {
                 <FileCheck className="h-3 w-3 mr-1" />
                 Obligatorio DIAN 2024
               </Badge>
-              <h1 className="text-3xl md:text-5xl font-bold mb-6">
+              <h1 className="text-3xl md:text-5xl font-bold mb-6" id="titulo">
                 Facturación Electrónica DIAN con Software POS Integrado
               </h1>
-              <p className="text-lg md:text-xl text-primary-foreground/80 mb-8 max-w-3xl mx-auto">
-                Emite facturas electrónicas, notas crédito y documentos soporte directamente desde tu punto de venta. Cumple con la normativa DIAN sin complicaciones.
+              <p className="text-lg md:text-xl text-primary-foreground/80 mb-4 max-w-3xl mx-auto">
+                Emite facturas electrónicas, notas crédito y documentos soporte directamente desde tu punto de venta. Sin intermediarios costosos. Actualizaciones automáticas a la normativa vigente.
               </p>
+              <div className="inline-flex items-center gap-3 rounded-full bg-white/10 border border-white/20 px-5 py-2 mb-8">
+                <span className="text-sm font-medium">Habilitado por la DIAN</span>
+                <span className="text-xs text-primary-foreground/60">Resolución 000042 de 2020</span>
+              </div>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button size="lg" className="bg-whatsapp hover:bg-whatsapp/90 text-whatsapp-foreground gap-2" asChild>
                   <a href="https://wa.me/573176268307?text=Hola,%20necesito%20implementar%20facturación%20electrónica%20DIAN" target="_blank" rel="noopener noreferrer">
