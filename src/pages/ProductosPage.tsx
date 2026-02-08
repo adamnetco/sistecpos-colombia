@@ -133,7 +133,7 @@ const ProductCard = ({ product, index }: { product: Product; index: number }) =>
                 </p>
                 {product.slug === "licencia-software-pos-vitalicia" ? (
                   <p className="text-xs text-primary font-medium mt-1">
-                    + Hosting anual: $99 USD (según facilpos.co/tienda)
+                    + Hosting anual: $99 USD
                   </p>
                 ) : (
                   <p className="text-xs text-muted-foreground">
@@ -171,7 +171,7 @@ const ProductCard = ({ product, index }: { product: Product; index: number }) =>
             </Link>
           </Button>
           <Button 
-            className="flex-1 bg-whatsapp hover:bg-whatsapp/90 text-whatsapp-foreground gap-1"
+            className="flex-1 bg-whatsapp hover:bg-whatsapp/90 text-white gap-1"
             asChild
           >
             <a 
@@ -301,7 +301,7 @@ const ProductosPage = () => {
                 <div className="space-y-3">
                   <Button 
                     size="lg"
-                    className="w-full bg-whatsapp hover:bg-whatsapp/90 text-whatsapp-foreground gap-2"
+                    className="w-full bg-whatsapp hover:bg-whatsapp/90 text-white gap-2"
                     asChild
                   >
                     <a 
@@ -348,7 +348,7 @@ const ProductosPage = () => {
             </p>
             <Button 
               size="lg"
-              className="bg-whatsapp hover:bg-whatsapp/90 text-whatsapp-foreground gap-2"
+              className="bg-whatsapp hover:bg-whatsapp/90 text-white gap-2"
               asChild
             >
               <a 

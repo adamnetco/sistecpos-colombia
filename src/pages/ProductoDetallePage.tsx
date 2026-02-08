@@ -155,7 +155,7 @@ const ProductoDetallePage = () => {
               <div className="flex flex-col sm:flex-row gap-3">
                 <Button 
                   size="lg"
-                  className="flex-1 bg-whatsapp hover:bg-whatsapp/90 text-whatsapp-foreground gap-2"
+                  className="flex-1 bg-whatsapp hover:bg-whatsapp/90 text-white gap-2"
                   asChild
                 >
                   <a 
@@ -307,7 +307,7 @@ const ProductoDetallePage = () => {
             </p>
             <Button 
               size="lg"
-              className="bg-whatsapp hover:bg-whatsapp/90 text-whatsapp-foreground gap-2"
+              className="bg-whatsapp hover:bg-whatsapp/90 text-white gap-2"
               asChild
             >
               <a 

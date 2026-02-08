@@ -1,3 +1,4 @@
+import { forwardRef } from "react";
 import { Link } from "react-router-dom";
 import { Mail, Phone, MapPin } from "lucide-react";
 import logoSistecPOSWhite from "@/assets/logo-sistecpos-white.png";
@@ -49,9 +50,9 @@ const presencialCities = [
   { name: "Lebrija", href: "/software-pos/lebrija" },
 ];
 
-export function Footer() {
+export const Footer = forwardRef<HTMLElement>((_props, ref) => {
   return (
-    <footer className="bg-foreground text-primary-foreground" id="contacto">
+    <footer ref={ref} className="bg-foreground text-primary-foreground" id="contacto">
       <div className="container px-4 py-12 md:py-16">
         {/* Main Footer Content */}
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-5">
@@ -204,4 +205,6 @@ export function Footer() {
       </div>
     </footer>
   );
-}
+});
+
+Footer.displayName = "Footer";
