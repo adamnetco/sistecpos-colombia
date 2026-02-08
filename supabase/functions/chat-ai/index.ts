@@ -1,0 +1,274 @@
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+};
+
+serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
+  }
+
+  try {
+    const { messages, session_id, source_page } = await req.json();
+
+    if (!messages || !Array.isArray(messages) || messages.length === 0) {
+      return new Response(JSON.stringify({ error: "messages required" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (!LOVABLE_API_KEY) {
+      throw new Error("LOVABLE_API_KEY is not configured");
+    }
+
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Load knowledge base entries
+    const { data: kbEntries } = await supabase
+      .from("ai_knowledge_base")
+      .select("title, content, entry_type, category")
+      .eq("is_active", true)
+      .order("sort_order", { ascending: true });
+
+    let knowledgeContext = "";
+    if (kbEntries && kbEntries.length > 0) {
+      const faqs = kbEntries.filter((e) => e.entry_type === "faq");
+      const docs = kbEntries.filter((e) => e.entry_type === "document");
+      const custom = kbEntries.filter((e) => e.entry_type === "custom_text");
+
+      if (faqs.length > 0) {
+        knowledgeContext += "\n\n## Preguntas Frecuentes:\n";
+        faqs.forEach((f) => {
+          knowledgeContext += `\n**P: ${f.title}**\nR: ${f.content}\n`;
+        });
+      }
+      if (docs.length > 0) {
+        knowledgeContext += "\n\n## Documentación:\n";
+        docs.forEach((d) => {
+          knowledgeContext += `\n### ${d.title}\n${d.content}\n`;
+        });
+      }
+      if (custom.length > 0) {
+        knowledgeContext += "\n\n## Información Adicional:\n";
+        custom.forEach((c) => {
+          knowledgeContext += `\n${c.content}\n`;
+        });
+      }
+    }
+
+    const systemPrompt = `Eres el asistente virtual de SistecPOS, un software POS y de facturación electrónica DIAN para Colombia.
+
+Tu objetivo es:
+1. Responder preguntas sobre SistecPOS, sus productos, planes y funcionalidades
+2. Ayudar a prospectos a entender cómo SistecPOS puede resolver sus necesidades
+3. Capturar datos de contacto de personas interesadas de forma natural
+
+Reglas:
+- Responde siempre en español colombiano, de forma amigable y profesional
+- Sé conciso pero útil (máximo 3 párrafos por respuesta)
+- Si no tienes información específica, sugiere contactar al equipo comercial por WhatsApp
+- Cuando detectes que el usuario está interesado, pide amablemente su nombre, email o teléfono
+- Si el usuario proporciona datos de contacto (nombre, email, teléfono), inclúyelos en tu respuesta con el formato exacto: [LEAD_DATA:nombre|email|teléfono]
+- Nunca inventes precios o datos que no estén en tu base de conocimiento
+- La web oficial es sistecpos.com y el WhatsApp comercial es el que aparezca en la base de conocimiento
+
+${knowledgeContext}`;
+
+    // Save/update conversation
+    if (session_id) {
+      const { data: existing } = await supabase
+        .from("ai_conversations")
+        .select("id")
+        .eq("session_id", session_id)
+        .maybeSingle();
+
+      if (!existing) {
+        await supabase.from("ai_conversations").insert({
+          session_id,
+          source_page: source_page || null,
+        });
+      }
+
+      // Save user message
+      const lastUserMsg = messages[messages.length - 1];
+      if (lastUserMsg?.role === "user") {
+        const { data: conv } = await supabase
+          .from("ai_conversations")
+          .select("id")
+          .eq("session_id", session_id)
+          .maybeSingle();
+
+        if (conv) {
+          await supabase.from("ai_messages").insert({
+            conversation_id: conv.id,
+            role: "user",
+            content: lastUserMsg.content,
+          });
+        }
+      }
+    }
+
+    // Call Lovable AI Gateway with streaming
+    const response = await fetch(
+      "https://ai.gateway.lovable.dev/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "google/gemini-3-flash-preview",
+          messages: [
+            { role: "system", content: systemPrompt },
+            ...messages.slice(-10), // Last 10 messages for context window
+          ],
+          stream: true,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      if (response.status === 429) {
+        return new Response(
+          JSON.stringify({ error: "Demasiadas solicitudes, intenta de nuevo en unos segundos." }),
+          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      if (response.status === 402) {
+        return new Response(
+          JSON.stringify({ error: "Servicio temporalmente no disponible." }),
+          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      const errText = await response.text();
+      console.error("AI gateway error:", response.status, errText);
+      return new Response(
+        JSON.stringify({ error: "Error del servicio de IA" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Create a transform stream to capture the full response for saving
+    const { readable, writable } = new TransformStream();
+    const writer = writable.getWriter();
+    const reader = response.body!.getReader();
+    const decoder = new TextDecoder();
+    let fullAssistantResponse = "";
+
+    // Process in background
+    (async () => {
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          const chunk = decoder.decode(value, { stream: true });
+          await writer.write(value);
+
+          // Parse SSE to capture full response
+          const lines = chunk.split("\n");
+          for (const line of lines) {
+            if (!line.startsWith("data: ")) continue;
+            const jsonStr = line.slice(6).trim();
+            if (jsonStr === "[DONE]") continue;
+            try {
+              const parsed = JSON.parse(jsonStr);
+              const content = parsed.choices?.[0]?.delta?.content;
+              if (content) fullAssistantResponse += content;
+            } catch { /* partial JSON */ }
+          }
+        }
+      } catch (e) {
+        console.error("Stream processing error:", e);
+      } finally {
+        await writer.close();
+
+        // Save assistant response and check for lead data
+        if (session_id && fullAssistantResponse) {
+          try {
+            const { data: conv } = await supabase
+              .from("ai_conversations")
+              .select("id")
+              .eq("session_id", session_id)
+              .maybeSingle();
+
+            if (conv) {
+              await supabase.from("ai_messages").insert({
+                conversation_id: conv.id,
+                role: "assistant",
+                content: fullAssistantResponse,
+              });
+
+              // Update message count
+              const { count } = await supabase
+                .from("ai_messages")
+                .select("id", { count: "exact" })
+                .eq("conversation_id", conv.id);
+
+              await supabase
+                .from("ai_conversations")
+                .update({ message_count: count || 0 })
+                .eq("id", conv.id);
+
+              // Check for lead capture
+              const leadMatch = fullAssistantResponse.match(
+                /\[LEAD_DATA:([^|]*)\|([^|]*)\|([^\]]*)\]/
+              );
+              if (leadMatch) {
+                const [, name, email, phone] = leadMatch;
+                if (name || email || phone) {
+                  const { data: newContact } = await supabase
+                    .from("contacts")
+                    .insert({
+                      full_name: name || "Visitante chatbot",
+                      email: email || null,
+                      phone: phone || null,
+                      source: "chatbot_ai",
+                      contact_type: "prospect",
+                      captured_by_ai: true,
+                    })
+                    .select("id")
+                    .maybeSingle();
+
+                  if (newContact) {
+                    await supabase
+                      .from("ai_conversations")
+                      .update({
+                        is_lead_captured: true,
+                        contact_id: newContact.id,
+                        visitor_name: name || null,
+                        visitor_email: email || null,
+                        visitor_phone: phone || null,
+                      })
+                      .eq("id", conv.id);
+                  }
+                }
+              }
+            }
+          } catch (e) {
+            console.error("Error saving conversation:", e);
+          }
+        }
+      }
+    })();
+
+    return new Response(readable, {
+      headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
+    });
+  } catch (e) {
+    console.error("chat-ai error:", e);
+    return new Response(
+      JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+});

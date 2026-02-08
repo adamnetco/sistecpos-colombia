@@ -14,6 +14,124 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_conversations: {
+        Row: {
+          contact_id: string | null
+          created_at: string
+          id: string
+          is_lead_captured: boolean
+          message_count: number
+          session_id: string
+          source_page: string | null
+          updated_at: string
+          visitor_email: string | null
+          visitor_name: string | null
+          visitor_phone: string | null
+        }
+        Insert: {
+          contact_id?: string | null
+          created_at?: string
+          id?: string
+          is_lead_captured?: boolean
+          message_count?: number
+          session_id: string
+          source_page?: string | null
+          updated_at?: string
+          visitor_email?: string | null
+          visitor_name?: string | null
+          visitor_phone?: string | null
+        }
+        Update: {
+          contact_id?: string | null
+          created_at?: string
+          id?: string
+          is_lead_captured?: boolean
+          message_count?: number
+          session_id?: string
+          source_page?: string | null
+          updated_at?: string
+          visitor_email?: string | null
+          visitor_name?: string | null
+          visitor_phone?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_conversations_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_knowledge_base: {
+        Row: {
+          category: string | null
+          content: string
+          created_at: string
+          entry_type: string
+          id: string
+          is_active: boolean
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          content: string
+          created_at?: string
+          entry_type?: string
+          id?: string
+          is_active?: boolean
+          sort_order?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          content?: string
+          created_at?: string
+          entry_type?: string
+          id?: string
+          is_active?: boolean
+          sort_order?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ai_messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string
+          id: string
+          role: string
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          role: string
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "ai_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       certificate_orders: {
         Row: {
           camara_comercio_url: string
