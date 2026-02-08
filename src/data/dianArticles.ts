@@ -6,10 +6,13 @@ import {
   FileText,
   Gavel,
   HelpCircle,
+  Key,
   LogIn,
   Globe,
   Receipt,
+  RefreshCw,
   Shield,
+  ShieldCheck,
   type LucideIcon,
 } from "lucide-react";
 
@@ -1078,6 +1081,508 @@ export const dianArticles: DianArticle[] = [
       { label: "Habilitarse ante la DIAN", href: "/guias-dian/habilitar-facturacion-electronica-dian" },
       { label: "Resolución DIAN 2025", href: "/guias-dian/resolucion-facturacion-electronica-2025" },
       { label: "Validador de NIT", href: "/herramientas/validador-nit" },
+    ],
+  },
+
+  // ─── Cluster 3: Firma Digital y Certificados ───────────────────────
+
+  {
+    slug: "firma-digital-dian-gratis",
+    keyword: "firma digital dian gratis",
+    metaTitle: "¿Existe la Firma Digital DIAN Gratis? Opciones Reales 2026 | SistecPOS",
+    metaDescription:
+      "Descubre si la DIAN ofrece firma digital gratis, cuáles son las opciones reales para facturar electrónicamente y cómo SistecPOS incluye el certificado sin costo.",
+    heroIcon: Key,
+    heroBadge: "Firma Digital",
+    h1: "¿Existe la Firma Digital DIAN Gratis? Lo Que Nadie Te Cuenta",
+    heroSubtitle:
+      "La DIAN exige firma digital para facturar electrónicamente, pero ¿hay alguna opción gratuita? Analizamos las alternativas reales y cómo obtener tu certificado sin costo adicional.",
+    sections: [
+      {
+        title: "¿Qué es la firma digital y por qué la DIAN la exige?",
+        content:
+          "La firma digital es un mecanismo criptográfico que garantiza la autenticidad, integridad y no repudio de las facturas electrónicas. La DIAN la exige porque asegura que la factura fue emitida por quien dice haberla emitido y que no fue alterada después de su generación.",
+        bullets: [
+          "Garantiza que la factura es auténtica y no fue falsificada",
+          "Cumple con la Ley 527 de 1999 de comercio electrónico",
+          "Es requisito obligatorio para facturar electrónicamente",
+          "Sin firma digital, la DIAN rechaza tus documentos electrónicos",
+        ],
+      },
+      {
+        title: "¿La DIAN ofrece firma digital gratis?",
+        content:
+          "No. La DIAN no emite ni regala firmas digitales. El facturador gratuito de la DIAN te permite emitir facturas, pero aún así necesitas adquirir tu certificado digital con un proveedor autorizado (Certicámara, Andes SCD, GSE). El costo oscila entre $150.000 y $400.000 COP al año.",
+      },
+      {
+        title: "Proveedores de firma digital autorizados en Colombia",
+        content:
+          "En Colombia existen varias entidades de certificación digital autorizadas por la ONAC para emitir certificados válidos ante la DIAN.",
+        bullets: [
+          "Certicámara: la más conocida, desde $250.000 COP/año",
+          "Andes SCD: opción económica, desde $150.000 COP/año",
+          "GSE (Gestión de Seguridad Electrónica): desde $180.000 COP/año",
+          "Thomas Signe: especializada en sector salud y gobierno",
+        ],
+      },
+      {
+        title: "La alternativa real: certificado incluido con SistecPOS",
+        content:
+          "SistecPOS incluye el certificado digital en todos los planes con facturación electrónica. No pagas adicional por la firma, no tramitas nada con terceros y nuestro equipo lo configura por ti. Además, la renovación es automática para que nunca se venza tu certificado.",
+        bullets: [
+          "Certificado digital incluido sin costo adicional",
+          "Configuración realizada por nuestro equipo de ingenieros",
+          "Renovación automática: nunca se vence tu firma",
+          "Compatible con factura electrónica, notas crédito y documento soporte",
+          "Desde $12 USD/mes todo incluido",
+        ],
+      },
+    ],
+    painVsSolution: [
+      {
+        pain: "Certificado digital: $150.000 - $400.000 COP/año adicional",
+        solution: "Certificado incluido en tu plan SistecPOS",
+      },
+      {
+        pain: "Tramitar y renovar manualmente cada año",
+        solution: "Renovación automática sin intervención tuya",
+      },
+      {
+        pain: "Configurar la firma en el portal DIAN",
+        solution: "Nuestros ingenieros lo configuran por ti",
+      },
+    ],
+    ctaText: "Obtén tu certificado digital incluido con SistecPOS",
+    ctaWhatsappMessage:
+      "Hola, quiero un POS con certificado digital incluido para facturar electrónicamente",
+    faqs: [
+      {
+        question: "¿Puedo facturar electrónicamente sin firma digital?",
+        answer:
+          "No. La firma digital es obligatoria para emitir cualquier documento electrónico ante la DIAN: facturas, notas crédito, notas débito y documentos soporte.",
+      },
+      {
+        question: "¿El certificado de SistecPOS es válido ante la DIAN?",
+        answer:
+          "Sí. SistecPOS utiliza certificados emitidos por entidades de certificación autorizadas por la ONAC, cumpliendo con toda la normativa DIAN vigente.",
+      },
+      {
+        question: "¿Qué pasa si se vence mi firma digital?",
+        answer:
+          "Si se vence, no podrás emitir facturas electrónicas hasta renovarla. Con SistecPOS esto no pasa porque la renovación es automática.",
+      },
+    ],
+    relatedLinks: [
+      { label: "Certificados Digitales Colombia", href: "/guias-dian/certificados-digitales-facturacion-electronica" },
+      { label: "Andes SCD vs GSE", href: "/guias-dian/andes-scd-vs-gse" },
+      { label: "Habilitarse ante la DIAN", href: "/guias-dian/habilitar-facturacion-electronica-dian" },
+    ],
+  },
+  {
+    slug: "certificados-digitales-facturacion-electronica",
+    keyword: "certificados digitales facturación electrónica",
+    metaTitle: "Certificados Digitales para Facturación Electrónica DIAN 2026 | SistecPOS",
+    metaDescription:
+      "Guía completa sobre certificados digitales para facturación electrónica: proveedores, precios, requisitos y cómo obtenerlo incluido en tu POS.",
+    heroIcon: ShieldCheck,
+    heroBadge: "Certificados Digitales",
+    h1: "Certificados Digitales para Facturación Electrónica: Guía Completa 2026",
+    heroSubtitle:
+      "Todo lo que necesitas saber sobre los certificados digitales que la DIAN exige para facturar electrónicamente: qué son, cuánto cuestan, dónde obtenerlos y cómo evitar pagarlos aparte.",
+    sections: [
+      {
+        title: "¿Qué es un certificado digital?",
+        content:
+          "Un certificado digital es un archivo electrónico emitido por una entidad de certificación autorizada que vincula tu identidad (NIT o cédula) con una clave criptográfica. Este certificado es lo que firma tus facturas electrónicas para que la DIAN las acepte como válidas.",
+        bullets: [
+          "Archivo .p12 o .pfx con tu identidad digital",
+          "Emitido por entidades autorizadas por la ONAC",
+          "Vigencia de 1 a 3 años según el plan",
+          "Necesario para firmar facturas, notas y documentos soporte",
+        ],
+      },
+      {
+        title: "Tipos de certificados para facturación DIAN",
+        content:
+          "Existen diferentes tipos de certificados digitales. Para facturación electrónica, necesitas un certificado de firma digital de persona jurídica o natural, según tu caso.",
+        bullets: [
+          "Certificado de Firma Digital: el más usado para facturación electrónica",
+          "Certificado de Sello Digital: para sistemas automatizados de alta volumetría",
+          "Certificado SSL/TLS: para seguridad web (no aplica para facturación)",
+          "Token físico: dispositivo USB con el certificado (más seguro, más costoso)",
+        ],
+      },
+      {
+        title: "Precios comparativos 2026",
+        content:
+          "Los precios varían según el proveedor, el tipo de certificado y la vigencia. Aquí un comparativo actualizado para 2026.",
+        bullets: [
+          "Certicámara: $250.000 - $450.000 COP/año (la más reconocida)",
+          "Andes SCD: $150.000 - $280.000 COP/año (mejor relación precio-calidad)",
+          "GSE: $180.000 - $350.000 COP/año (buen soporte técnico)",
+          "Token físico: +$100.000 - $200.000 COP adicionales por el dispositivo",
+        ],
+      },
+      {
+        title: "SistecPOS: certificado incluido en tu suscripción",
+        content:
+          "Con SistecPOS no necesitas comprar el certificado por separado. Está incluido en todos los planes con facturación electrónica. Nuestro equipo lo gestiona, lo instala y lo renueva automáticamente. Tú te concentras en vender.",
+        bullets: [
+          "Certificado digital incluido sin costo adicional",
+          "No necesitas tramitar con Certicámara ni Andes SCD",
+          "Instalación y configuración por nuestros ingenieros",
+          "Renovación automática antes de vencimiento",
+          "Ahorras $150.000 - $450.000 COP/año",
+        ],
+      },
+    ],
+    painVsSolution: [
+      {
+        pain: "Comparar proveedores y tramitar el certificado",
+        solution: "Certificado incluido y configurado por SistecPOS",
+      },
+      {
+        pain: "Pagar $150.000 - $450.000 COP/año adicionales",
+        solution: "Incluido en tu plan desde $12 USD/mes",
+      },
+      {
+        pain: "Recordar renovar antes de que se venza",
+        solution: "Renovación automática sin intervención",
+      },
+    ],
+    ctaText: "Ahorra en certificados digitales con SistecPOS",
+    ctaWhatsappMessage:
+      "Hola, quiero un POS que incluya el certificado digital para facturación electrónica",
+    faqs: [
+      {
+        question: "¿Puedo usar cualquier certificado digital para facturar en la DIAN?",
+        answer:
+          "No. Debe ser un certificado emitido por una entidad de certificación autorizada por la ONAC (Organismo Nacional de Acreditación de Colombia). Las más comunes son Certicámara, Andes SCD y GSE.",
+      },
+      {
+        question: "¿Cuánto dura un certificado digital?",
+        answer:
+          "Generalmente 1 año, aunque algunos proveedores ofrecen planes de 2 o 3 años con descuento. Con SistecPOS, la renovación es automática.",
+      },
+      {
+        question: "¿Qué pasa si mi certificado se vence?",
+        answer:
+          "No podrás firmar facturas electrónicas y la DIAN rechazará tus documentos. Esto puede generar sanciones. Con SistecPOS, la renovación automática evita este problema.",
+      },
+    ],
+    relatedLinks: [
+      { label: "Firma Digital DIAN Gratis", href: "/guias-dian/firma-digital-dian-gratis" },
+      { label: "Andes SCD vs GSE", href: "/guias-dian/andes-scd-vs-gse" },
+      { label: "Obtener Firma Electrónica DIAN", href: "/guias-dian/obtener-firma-electronica-dian" },
+    ],
+  },
+  {
+    slug: "andes-scd-vs-gse",
+    keyword: "andes scd vs gse",
+    metaTitle: "Andes SCD vs GSE: ¿Cuál Certificado Digital Elegir en 2026? | SistecPOS",
+    metaDescription:
+      "Comparativa detallada entre Andes SCD y GSE para certificados digitales de facturación electrónica. Precios, soporte y la alternativa que los incluye gratis.",
+    heroIcon: Shield,
+    heroBadge: "Comparativa Certificados",
+    h1: "Andes SCD vs GSE: ¿Cuál Certificado Digital Elegir para Facturar?",
+    heroSubtitle:
+      "Los dos proveedores de certificados digitales más populares en Colombia para facturación electrónica. Comparamos precios, soporte, tiempos de emisión y te mostramos la alternativa que los incluye sin costo.",
+    sections: [
+      {
+        title: "¿Qué son Andes SCD y GSE?",
+        content:
+          "Andes SCD y GSE son dos entidades de certificación digital autorizadas por la ONAC para emitir certificados de firma digital en Colombia. Ambas son ampliamente usadas por comerciantes que necesitan facturar electrónicamente ante la DIAN.",
+        bullets: [
+          "Andes SCD: Autoridad de Certificación Digital con sede en Bogotá",
+          "GSE (Gestión de Seguridad Electrónica): proveedor con fuerte presencia en pymes",
+          "Ambas emiten certificados válidos para facturación electrónica DIAN",
+          "Ambas están autorizadas por la ONAC",
+        ],
+      },
+      {
+        title: "Comparativa de precios 2026",
+        content:
+          "Los precios pueden variar según promociones y el tipo de certificado (persona natural o jurídica). Esta es la comparativa base para 2026.",
+        bullets: [
+          "Andes SCD: desde $150.000 COP/año (persona natural) — $220.000 COP/año (persona jurídica)",
+          "GSE: desde $180.000 COP/año (persona natural) — $280.000 COP/año (persona jurídica)",
+          "Certicámara (referencia): desde $250.000 COP/año",
+          "SistecPOS: $0 adicional (incluido en tu plan)",
+        ],
+      },
+      {
+        title: "Soporte técnico y tiempos de emisión",
+        content:
+          "La experiencia de adquisición y soporte puede ser determinante, especialmente si no tienes conocimientos técnicos.",
+        bullets: [
+          "Andes SCD: emisión en 1-3 días hábiles, soporte por correo y teléfono",
+          "GSE: emisión en 1-2 días hábiles, soporte telefónico y chat",
+          "Ambos requieren que tú configures el certificado en tu sistema",
+          "Con SistecPOS: nuestros ingenieros lo configuran todo por ti en minutos",
+        ],
+      },
+      {
+        title: "La tercera opción: no elegir entre Andes SCD ni GSE",
+        content:
+          "Con SistecPOS, el certificado digital está incluido en tu suscripción. No necesitas comparar proveedores, no necesitas tramitar nada y no pagas costos adicionales. Nuestro equipo gestiona todo: emisión, instalación y renovación automática.",
+        bullets: [
+          "Sin costo adicional por certificado digital",
+          "Sin trámites con terceros",
+          "Configuración profesional por nuestro equipo",
+          "Renovación automática antes de vencimiento",
+          "Compatible con todos los documentos DIAN",
+        ],
+      },
+    ],
+    painVsSolution: [
+      {
+        pain: "Comparar proveedores, precios y planes",
+        solution: "Certificado incluido automáticamente en tu plan",
+      },
+      {
+        pain: "Configurar el .p12 manualmente en tu sistema",
+        solution: "Nuestros ingenieros lo instalan y configuran",
+      },
+      {
+        pain: "Renovar cada año y recordar la fecha",
+        solution: "Renovación automática sin que hagas nada",
+      },
+    ],
+    ctaText: "Olvídate de elegir certificado: SistecPOS lo incluye",
+    ctaWhatsappMessage:
+      "Hola, quiero un POS que incluya certificado digital sin tener que tramitarlo con Andes SCD ni GSE",
+    faqs: [
+      {
+        question: "¿Andes SCD es mejor que GSE?",
+        answer:
+          "Depende de tus prioridades. Andes SCD suele ser más económico, mientras GSE ofrece tiempos de emisión ligeramente más rápidos. Con SistecPOS, no necesitas elegir: el certificado está incluido.",
+      },
+      {
+        question: "¿Puedo usar un certificado de Andes SCD o GSE con SistecPOS?",
+        answer:
+          "No es necesario. SistecPOS incluye su propio certificado digital autorizado. Pero si ya tienes uno vigente, nuestro equipo puede evaluarlo para integrarlo.",
+      },
+      {
+        question: "¿Certicámara es mejor que Andes SCD y GSE?",
+        answer:
+          "Certicámara es la más reconocida pero también la más costosa. Para facturación electrónica de pymes, Andes SCD y GSE ofrecen la misma funcionalidad a menor precio. Con SistecPOS, no pagas por ninguno.",
+      },
+    ],
+    relatedLinks: [
+      { label: "Firma Digital DIAN Gratis", href: "/guias-dian/firma-digital-dian-gratis" },
+      { label: "Certificados Digitales", href: "/guias-dian/certificados-digitales-facturacion-electronica" },
+      { label: "Obtener Firma Electrónica", href: "/guias-dian/obtener-firma-electronica-dian" },
+    ],
+  },
+  {
+    slug: "obtener-firma-electronica-dian",
+    keyword: "obtener firma electrónica dian",
+    metaTitle: "Cómo Obtener tu Firma Electrónica DIAN Paso a Paso 2026 | SistecPOS",
+    metaDescription:
+      "Guía paso a paso para obtener tu firma electrónica y empezar a facturar ante la DIAN. Requisitos, proveedores, costos y la vía express con SistecPOS.",
+    heroIcon: FileCheck,
+    heroBadge: "Guía Práctica",
+    h1: "Cómo Obtener tu Firma Electrónica para Facturar ante la DIAN",
+    heroSubtitle:
+      "Paso a paso para conseguir tu firma o certificado digital, configurarlo correctamente y empezar a emitir facturas electrónicas válidas ante la DIAN.",
+    sections: [
+      {
+        title: "Paso 1: Determina qué tipo de certificado necesitas",
+        content:
+          "Antes de comprar, identifica si necesitas un certificado de persona natural o jurídica. Esto depende de cómo estés registrado ante la DIAN.",
+        bullets: [
+          "Persona Natural: si facturas con tu cédula de ciudadanía",
+          "Persona Jurídica: si facturas con NIT de empresa",
+          "Token físico (USB): mayor seguridad, más costoso",
+          "Certificado en archivo (.p12): más práctico, el más usado",
+        ],
+      },
+      {
+        title: "Paso 2: Elige un proveedor autorizado",
+        content:
+          "Debes adquirir tu certificado digital con una entidad de certificación autorizada por la ONAC. Las opciones principales en Colombia son:",
+        bullets: [
+          "Certicámara: la más conocida y costosa ($250.000+/año)",
+          "Andes SCD: la más económica ($150.000+/año)",
+          "GSE: buen balance precio-soporte ($180.000+/año)",
+          "Visita el sitio web del proveedor y sigue su proceso de compra",
+        ],
+      },
+      {
+        title: "Paso 3: Completa la validación de identidad",
+        content:
+          "Los proveedores exigen verificar tu identidad antes de emitir el certificado. Este proceso puede ser presencial o virtual según el proveedor.",
+        bullets: [
+          "Presentar cédula y RUT actualizados",
+          "Videollamada de verificación (Andes SCD y GSE)",
+          "Visita presencial en algunos casos (Certicámara)",
+          "Tiempo estimado: 1 a 5 días hábiles para recibir tu certificado",
+        ],
+      },
+      {
+        title: "Paso 4: Instala el certificado en tu sistema de facturación",
+        content:
+          "Una vez recibido el archivo .p12, debes instalarlo en tu software de facturación electrónica. Este paso es técnico y muchos comerciantes cometen errores.",
+        bullets: [
+          "Descarga el archivo .p12 del correo del proveedor",
+          "Ingresa la contraseña del certificado en tu software",
+          "Configura los datos de emisor (NIT, razón social, resolución DIAN)",
+          "Realiza una factura de prueba para verificar que funcione",
+        ],
+      },
+      {
+        title: "La vía express: SistecPOS lo hace todo por ti",
+        content:
+          "Con SistecPOS, no necesitas hacer ninguno de estos pasos. El certificado digital está incluido en tu plan. Nuestro equipo de ingenieros lo gestiona, lo instala y lo configura. Tú solo empiezas a vender.",
+        bullets: [
+          "Certificado incluido sin costo adicional",
+          "Cero trámites con proveedores de certificación",
+          "Configuración profesional por nuestros ingenieros",
+          "Listo para facturar en 1-3 días hábiles",
+          "Renovación automática incluida",
+        ],
+      },
+    ],
+    painVsSolution: [
+      {
+        pain: "4 pasos técnicos y 1-5 días de trámites",
+        solution: "SistecPOS lo gestiona todo: listo en 1-3 días",
+      },
+      {
+        pain: "$150.000 - $450.000 COP/año por el certificado",
+        solution: "Incluido en tu plan desde $12 USD/mes",
+      },
+      {
+        pain: "Configurar el .p12 manualmente (riesgo de errores)",
+        solution: "Ingenieros de SistecPOS lo configuran por ti",
+      },
+    ],
+    ctaText: "Obtén tu firma electrónica sin trámites con SistecPOS",
+    ctaWhatsappMessage:
+      "Hola, quiero obtener mi firma electrónica para facturar ante la DIAN con SistecPOS",
+    faqs: [
+      {
+        question: "¿Cuánto tarda obtener una firma electrónica?",
+        answer:
+          "Con proveedores como Andes SCD o GSE, entre 1 y 5 días hábiles. Con SistecPOS, nuestro equipo gestiona todo y puedes estar facturando en 1-3 días.",
+      },
+      {
+        question: "¿Puedo usar la misma firma para varias tiendas?",
+        answer:
+          "Depende del proveedor. Generalmente, un certificado cubre un NIT. Si tienes varias sucursales bajo el mismo NIT, sí puedes usarla. SistecPOS soporta multi-tienda con un solo certificado.",
+      },
+      {
+        question: "¿Qué pasa si pierdo mi certificado digital?",
+        answer:
+          "Debes solicitar la reemisión con tu proveedor, lo cual puede tener costo adicional y tomar días. Con SistecPOS, nuestro equipo resuelve el problema inmediatamente.",
+      },
+    ],
+    relatedLinks: [
+      { label: "Firma Digital DIAN Gratis", href: "/guias-dian/firma-digital-dian-gratis" },
+      { label: "Andes SCD vs GSE", href: "/guias-dian/andes-scd-vs-gse" },
+      { label: "Habilitarse ante la DIAN", href: "/guias-dian/habilitar-facturacion-electronica-dian" },
+    ],
+  },
+  {
+    slug: "renovacion-certificado-digital-dian",
+    keyword: "renovación certificado digital dian",
+    metaTitle: "Renovación de Certificado Digital DIAN: Evita Multas y Bloqueos | SistecPOS",
+    metaDescription:
+      "Guía para renovar tu certificado digital ante la DIAN antes de que se venza. Evita bloqueos de facturación, sanciones y descubre la renovación automática.",
+    heroIcon: RefreshCw,
+    heroBadge: "Renovación Automática",
+    h1: "Renovación de Certificado Digital DIAN: No Dejes que se Venza",
+    heroSubtitle:
+      "Miles de comerciantes dejan vencer su certificado digital cada año y pierden la capacidad de facturar. Te explicamos cómo renovarlo a tiempo y cómo automatizar el proceso.",
+    sections: [
+      {
+        title: "¿Qué pasa cuando se vence tu certificado digital?",
+        content:
+          "Cuando tu certificado digital expira, tu sistema de facturación electrónica deja de funcionar inmediatamente. La DIAN rechaza cualquier documento firmado con un certificado vencido.",
+        bullets: [
+          "No puedes emitir facturas electrónicas",
+          "No puedes generar notas crédito ni débito",
+          "No puedes emitir documentos soporte",
+          "Clientes esperando sin poder recibir su factura",
+          "Riesgo de sanciones por no facturar en tiempo real",
+        ],
+      },
+      {
+        title: "¿Cuándo debes renovar?",
+        content:
+          "La mayoría de certificados digitales tienen vigencia de 1 año. Debes iniciar la renovación al menos 30 días antes del vencimiento para evitar interrupciones en tu facturación.",
+        bullets: [
+          "Revisa la fecha de vencimiento en tu certificado actual",
+          "Inicia el trámite 30 días antes de la expiración",
+          "La renovación implica un nuevo pago ($150.000 - $400.000 COP)",
+          "El proceso de validación puede tomar 1-5 días hábiles",
+          "Debes instalar el nuevo certificado en tu software",
+        ],
+      },
+      {
+        title: "Proceso de renovación manual",
+        content:
+          "Renovar tu certificado digital manualmente requiere varios pasos que debes completar antes de que expire el actual.",
+        bullets: [
+          "1. Contacta a tu proveedor de certificación (Andes SCD, GSE, Certicámara)",
+          "2. Paga la renovación ($150.000 - $400.000 COP/año)",
+          "3. Completa la verificación de identidad nuevamente",
+          "4. Descarga el nuevo archivo .p12",
+          "5. Reemplaza el certificado anterior en tu software",
+          "6. Realiza una factura de prueba para confirmar que funcione",
+        ],
+      },
+      {
+        title: "SistecPOS: renovación automática sin que hagas nada",
+        content:
+          "Con SistecPOS, la renovación del certificado digital es completamente automática. Nuestro sistema monitorea la fecha de vencimiento y gestiona la renovación antes de que expire. Tú ni te enteras — simplemente sigues facturando sin interrupciones.",
+        bullets: [
+          "Monitoreo automático de fecha de vencimiento",
+          "Renovación gestionada por nuestro equipo antes de la expiración",
+          "Sin costo adicional de renovación",
+          "Sin trámites ni verificaciones de identidad repetidas",
+          "Cero interrupciones en tu facturación electrónica",
+        ],
+      },
+    ],
+    painVsSolution: [
+      {
+        pain: "Olvidar renovar y quedarte sin facturar",
+        solution: "Renovación automática: nunca se vence",
+      },
+      {
+        pain: "Pagar $150.000 - $400.000 COP cada año",
+        solution: "Incluido en tu suscripción SistecPOS",
+      },
+      {
+        pain: "6 pasos manuales cada renovación",
+        solution: "Cero intervención tuya: SistecPOS lo hace todo",
+      },
+    ],
+    ctaText: "Nunca más te preocupes por renovar tu certificado",
+    ctaWhatsappMessage:
+      "Hola, quiero un POS con renovación automática de certificado digital para no dejar de facturar",
+    faqs: [
+      {
+        question: "¿Cuánto cuesta renovar el certificado digital?",
+        answer:
+          "Con proveedores como Andes SCD, entre $150.000 y $280.000 COP al año. Con GSE, entre $180.000 y $350.000 COP. Con SistecPOS, la renovación está incluida sin costo adicional.",
+      },
+      {
+        question: "¿Puedo renovar un certificado ya vencido?",
+        answer:
+          "Sí, pero deberás completar el proceso de emisión desde cero, incluyendo la verificación de identidad. Esto puede tomar 3-7 días hábiles durante los cuales no podrás facturar.",
+      },
+      {
+        question: "¿SistecPOS renueva el certificado automáticamente?",
+        answer:
+          "Sí. Nuestro sistema monitorea la fecha de vencimiento y gestiona la renovación antes de que expire. No necesitas hacer nada ni pagar costos adicionales.",
+      },
+    ],
+    relatedLinks: [
+      { label: "Certificados Digitales", href: "/guias-dian/certificados-digitales-facturacion-electronica" },
+      { label: "Firma Digital DIAN Gratis", href: "/guias-dian/firma-digital-dian-gratis" },
+      { label: "Sanciones por no facturar", href: "/guias-dian/sanciones-no-facturar-electronicamente" },
     ],
   },
 ];
