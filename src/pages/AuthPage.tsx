@@ -24,6 +24,7 @@ export default function AuthPage() {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [pendingEmail, setPendingEmail] = useState("");
+  const [pending2FA, setPending2FA] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
@@ -57,10 +58,10 @@ export default function AuthPage() {
   }, []);
 
   useEffect(() => {
-    if (user && view !== "reset" && view !== "otp") {
+    if (user && !pending2FA && view !== "reset" && view !== "otp") {
       navigate("/admin");
     }
-  }, [user, view, navigate]);
+  }, [user, view, pending2FA, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,9 +71,11 @@ export default function AuthPage() {
     }
 
     setLoading(true);
+    setPending2FA(true);
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
+        setPending2FA(false);
         if (error.message.includes("Invalid login")) {
           toast({ title: "Credenciales incorrectas", description: "Verifica tu email y contraseña", variant: "destructive" });
         } else if (error.message.includes("Email not confirmed")) {
@@ -85,11 +88,11 @@ export default function AuthPage() {
 
       // After successful login, send 2FA OTP
       setPendingEmail(email);
+      setView("otp");
       await send2FACode(email);
       
       // Sign out temporarily until OTP is verified
       await supabase.auth.signOut();
-      setView("otp");
     } finally {
       setLoading(false);
     }
@@ -137,6 +140,7 @@ export default function AuthPage() {
         return;
       }
 
+      setPending2FA(false);
       toast({ title: "Verificación exitosa ✅" });
       navigate("/admin");
     } finally {
@@ -323,7 +327,7 @@ export default function AuthPage() {
                 <button
                   type="button"
                   className="text-sm text-muted-foreground hover:underline flex items-center gap-1 mx-auto"
-                  onClick={() => { setView("login"); setOtpCode(""); }}
+                  onClick={() => { setView("login"); setOtpCode(""); setPending2FA(false); }}
                 >
                   <ArrowLeft className="h-3 w-3" /> Volver al inicio de sesión
                 </button>
