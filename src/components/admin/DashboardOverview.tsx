@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { KeyRound, Users, FileCheck, CreditCard, AlertTriangle, Handshake, TrendingUp } from "lucide-react";
+import { KeyRound, Users, FileCheck, CreditCard, AlertTriangle, Handshake, TrendingUp, Contact2 } from "lucide-react";
 
 interface Stats {
   licenses: number;
@@ -14,23 +14,27 @@ interface Stats {
   payments: number;
   resellers: number;
   pendingResellers: number;
+  contacts: number;
+  unreadContacts: number;
 }
 
 export default function DashboardOverview() {
   const [stats, setStats] = useState<Stats>({
     licenses: 0, expiredLicenses: 0, leads: 0, newLeadsToday: 0,
     certificates: 0, pendingCertificates: 0, payments: 0, resellers: 0, pendingResellers: 0,
+    contacts: 0, unreadContacts: 0,
   });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function load() {
-      const [lic, leads, certs, pays, resellers] = await Promise.all([
+      const [lic, leads, certs, pays, resellers, contactsRes] = await Promise.all([
         supabase.from("licenses").select("id, expires_at, status", { count: "exact" }),
         supabase.from("leads_trials").select("id, created_at, status", { count: "exact" }),
         supabase.from("certificate_orders").select("id, status", { count: "exact" }),
         supabase.from("payments").select("id", { count: "exact" }),
         supabase.from("reseller_applications").select("id, status", { count: "exact" }),
+        supabase.from("contacts").select("id, is_read", { count: "exact" }),
       ]);
 
       const now = new Date().toISOString().split("T")[0];
@@ -53,6 +57,10 @@ export default function DashboardOverview() {
         (r) => r.status === "pending"
       ).length;
 
+      const unreadContacts = (contactsRes.data || []).filter(
+        (c) => !c.is_read
+      ).length;
+
       setStats({
         licenses: lic.count || 0,
         expiredLicenses: expired,
@@ -63,6 +71,8 @@ export default function DashboardOverview() {
         payments: pays.count || 0,
         resellers: resellers.count || 0,
         pendingResellers: pendingRes,
+        contacts: contactsRes.count || 0,
+        unreadContacts,
       });
       setLoading(false);
     }
@@ -98,6 +108,12 @@ export default function DashboardOverview() {
       subtitle: stats.pendingResellers > 0 ? `${stats.pendingResellers} por revisar` : undefined,
       subtitleColor: "text-yellow-600",
     },
+    {
+      title: "CRM Contactos", value: stats.contacts, icon: Contact2,
+      color: "text-indigo-500", href: "/admin/contactos",
+      subtitle: stats.unreadContacts > 0 ? `${stats.unreadContacts} sin leer` : undefined,
+      subtitleColor: "text-primary",
+    },
   ];
 
   return (
@@ -107,7 +123,7 @@ export default function DashboardOverview() {
         <h1 className="text-2xl font-bold font-display">Panel de Gestión</h1>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         {cards.map((c) => (
           <Link key={c.title} to={c.href} className="group">
             <Card className="transition-all hover:shadow-md hover:border-primary/30 group-hover:scale-[1.02]">
