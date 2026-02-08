@@ -17,10 +17,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { getLocalLandingBySlug, localLandings } from "@/data/localSeo";
+import { getTestimonialsByCity, type Testimonial } from "@/data/testimonials";
 import { businessTypes } from "@/data/businessTypes";
 import { DynamicMeta } from "@/components/seo/DynamicMeta";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { JsonLd, localBusinessSchema } from "@/components/seo/JsonLd";
+import { Star } from "lucide-react";
 
 export default function SoftwarePosLocalPage() {
   const { city } = useParams<{ city: string }>();
@@ -31,6 +33,7 @@ export default function SoftwarePosLocalPage() {
   }
 
   const featuredSolutions = businessTypes.slice(0, 8);
+  const cityTestimonials = city ? getTestimonialsByCity(city) : [];
 
   return (
     <Layout>
@@ -235,6 +238,60 @@ export default function SoftwarePosLocalPage() {
           </div>
         </div>
       </section>
+
+      {/* Testimonials Section */}
+      {cityTestimonials.length > 0 && (
+        <section className="py-16 md:py-20">
+          <div className="container px-4">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-center mb-12"
+            >
+              <h2 className="text-3xl font-bold tracking-tight md:text-4xl mb-4">
+                Lo que dicen nuestros clientes en <span className="gradient-text">{landing.city}</span>
+              </h2>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                Negocios reales que ya usan SistecPOS en {landing.city} y alrededores.
+              </p>
+            </motion.div>
+
+            <div className="grid gap-6 md:grid-cols-3 max-w-5xl mx-auto">
+              {cityTestimonials.map((t, index) => (
+                <motion.div
+                  key={t.name}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.3, delay: index * 0.1 }}
+                >
+                  <Card className="h-full border-primary/10">
+                    <CardContent className="p-6">
+                      <div className="flex gap-0.5 mb-3">
+                        {Array.from({ length: t.rating }).map((_, i) => (
+                          <Star key={i} className="h-4 w-4 fill-primary text-primary" />
+                        ))}
+                      </div>
+                      <blockquote className="text-sm text-muted-foreground mb-4 italic">
+                        "{t.quote}"
+                      </blockquote>
+                      <div>
+                        <p className="font-semibold text-sm">{t.name}</p>
+                        <p className="text-xs text-muted-foreground">{t.business}</p>
+                        <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                          <MapPin className="h-3 w-3" />
+                          {t.location}
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Coverage Areas */}
       <section className="py-16 md:py-20 bg-muted/30">
