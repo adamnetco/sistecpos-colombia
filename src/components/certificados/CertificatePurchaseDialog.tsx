@@ -130,6 +130,21 @@ export function CertificatePurchaseDialog({ open, onOpenChange, plan, priceCop }
       return;
     }
 
+    // Send WhatsApp notification to sales team (fire-and-forget)
+    supabase.functions.invoke("notify-certificate-order", {
+      body: {
+        full_name: fullName.trim(),
+        nit: nit.trim(),
+        email: email.trim(),
+        phone: phone.trim(),
+        plan,
+        price_cop: priceCop,
+      },
+    }).then(({ error: notifError }) => {
+      if (notifError) console.error("WhatsApp notification failed:", notifError);
+      else console.log("WhatsApp notification sent to sales team");
+    });
+
     setSuccess(true);
   }
 
