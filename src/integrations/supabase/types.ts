@@ -31,6 +31,7 @@ export type Database = {
           soporte_pago_url: string | null
           status: string
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           camara_comercio_url: string
@@ -48,6 +49,7 @@ export type Database = {
           soporte_pago_url?: string | null
           status?: string
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           camara_comercio_url?: string
@@ -65,6 +67,256 @@ export type Database = {
           soporte_pago_url?: string | null
           status?: string
           updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      leads_trials: {
+        Row: {
+          business_name: string
+          business_type: string | null
+          city: string | null
+          contact_name: string
+          created_at: string
+          email: string
+          id: string
+          notes: string | null
+          phone: string
+          source: string | null
+          status: string
+          trial_ends_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          business_name: string
+          business_type?: string | null
+          city?: string | null
+          contact_name: string
+          created_at?: string
+          email: string
+          id?: string
+          notes?: string | null
+          phone: string
+          source?: string | null
+          status?: string
+          trial_ends_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          business_name?: string
+          business_type?: string | null
+          city?: string | null
+          contact_name?: string
+          created_at?: string
+          email?: string
+          id?: string
+          notes?: string | null
+          phone?: string
+          source?: string | null
+          status?: string
+          trial_ends_at?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      licenses: {
+        Row: {
+          business_name: string
+          business_nit: string | null
+          contact_email: string | null
+          contact_name: string
+          contact_phone: string | null
+          created_at: string
+          expires_at: string | null
+          id: string
+          license_key: string
+          notes: string | null
+          plan_type: string
+          price_paid: number
+          start_date: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          business_name: string
+          business_nit?: string | null
+          contact_email?: string | null
+          contact_name: string
+          contact_phone?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          license_key?: string
+          notes?: string | null
+          plan_type: string
+          price_paid?: number
+          start_date?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          business_name?: string
+          business_nit?: string | null
+          contact_email?: string | null
+          contact_name?: string
+          contact_phone?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          license_key?: string
+          notes?: string | null
+          plan_type?: string
+          price_paid?: number
+          start_date?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      payments: {
+        Row: {
+          amount: number
+          certificate_order_id: string | null
+          created_at: string
+          id: string
+          license_id: string | null
+          notes: string | null
+          paid_at: string | null
+          payment_method: string | null
+          reference: string | null
+          status: string
+        }
+        Insert: {
+          amount: number
+          certificate_order_id?: string | null
+          created_at?: string
+          id?: string
+          license_id?: string | null
+          notes?: string | null
+          paid_at?: string | null
+          payment_method?: string | null
+          reference?: string | null
+          status?: string
+        }
+        Update: {
+          amount?: number
+          certificate_order_id?: string | null
+          created_at?: string
+          id?: string
+          license_id?: string | null
+          notes?: string | null
+          paid_at?: string | null
+          payment_method?: string | null
+          reference?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_certificate_order_id_fkey"
+            columns: ["certificate_order_id"]
+            isOneToOne: false
+            referencedRelation: "certificate_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_license_id_fkey"
+            columns: ["license_id"]
+            isOneToOne: false
+            referencedRelation: "licenses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          phone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      reseller_applications: {
+        Row: {
+          city: string
+          created_at: string
+          email: string
+          experience_summary: string | null
+          full_name: string
+          id: string
+          notes: string | null
+          phone: string
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          city: string
+          created_at?: string
+          email: string
+          experience_summary?: string | null
+          full_name: string
+          id?: string
+          notes?: string | null
+          phone: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          city?: string
+          created_at?: string
+          email?: string
+          experience_summary?: string | null
+          full_name?: string
+          id?: string
+          notes?: string | null
+          phone?: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
         }
         Relationships: []
       }
@@ -73,10 +325,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "customer" | "reseller"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -203,6 +461,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "customer", "reseller"],
+    },
   },
 } as const
