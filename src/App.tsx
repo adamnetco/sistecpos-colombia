@@ -24,6 +24,7 @@ import TerminosCondicionesPage from "./pages/TerminosCondicionesPage";
 import NotFound from "./pages/NotFound";
 import CompararPage from "./pages/CompararPage";
 import ComparacionCompetidorPage from "./pages/ComparacionCompetidorPage";
+import RepresentantesPage from "./pages/RepresentantesPage";
 
 const queryClient = new QueryClient();
 
@@ -50,6 +51,7 @@ const App = () => (
             <Route path="/comparativa-licencias" element={<ComparativaLicenciasPage />} />
             <Route path="/comparar" element={<CompararPage />} />
             <Route path="/comparar/:slug" element={<ComparacionCompetidorPage />} />
+            <Route path="/representantes" element={<RepresentantesPage />} />
             <Route path="/contacto" element={<ContactoPage />} />
             <Route path="/gracias" element={<GraciasPage />} />
             <Route path="/politica-privacidad" element={<PoliticaPrivacidadPage />} />
