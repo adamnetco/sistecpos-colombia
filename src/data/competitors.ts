@@ -191,6 +191,11 @@ export const competitors: Competitor[] = [
       "Módulo de servicio técnico y casa de cambio",
       "Soporte con respuesta el mismo día",
     ],
+    painPoints: [
+      { ellos: "Soporte a veces saturado. Tiempos de espera largos.", nosotros: "Soporte WhatsApp con ingeniero directo. Respuesta el mismo día." },
+      { ellos: "100% nube. Sin internet tu punto de venta se paraliza.", nosotros: "Modo offline 8 días. Nunca dejas de vender ni de controlar inventario." },
+      { ellos: "Curva de aprendizaje empinada. Capacitación limitada.", nosotros: "Capacitación presencial en tu local. Tu equipo vende desde el día 1." },
+    ],
     features: [
       { feature: "Facturación electrónica DIAN", competitor: true, sistecpos: true },
       { feature: "Modo offline hasta 8 días", competitor: false, sistecpos: true },
@@ -231,6 +236,11 @@ export const competitors: Competitor[] = [
       "16 módulos por industria",
       "Multi-tienda centralizada",
     ],
+    painPoints: [
+      { ellos: "POS es módulo secundario. Enfocado en facturación, no en vender.", nosotros: "POS especializado con 16 módulos diseñados para vender más." },
+      { ellos: "100% nube. Sin conexión no emites facturas ni vendes.", nosotros: "Vende offline hasta 8 días. Sincroniza facturas automáticamente." },
+      { ellos: "Sin soporte presencial. Todo remoto y genérico.", nosotros: "Instalación y capacitación presencial en tu local." },
+    ],
     features: [
       { feature: "Facturación electrónica DIAN", competitor: true, sistecpos: true },
       { feature: "Modo offline hasta 8 días", competitor: false, sistecpos: true },
@@ -269,6 +279,11 @@ export const competitors: Competitor[] = [
       "Multi-tienda y control avanzado",
       "Instalación y soporte presencial",
       "Facturación electrónica DIAN completa",
+    ],
+    painPoints: [
+      { ellos: "Funciones limitadas. Te quedas corto al crecer.", nosotros: "16 módulos especializados que escalan con tu negocio." },
+      { ellos: "Sin modo offline robusto. Dependes del internet.", nosotros: "Vende offline hasta 8 días con sincronización completa." },
+      { ellos: "Sin soporte presencial ni capacitación en tu local.", nosotros: "Instalación y capacitación presencial directamente en tu negocio." },
     ],
     features: [
       { feature: "Facturación electrónica DIAN", competitor: true, sistecpos: true },
@@ -309,6 +324,11 @@ export const competitors: Competitor[] = [
       "16 módulos para cualquier tipo de negocio",
       "Instalación y soporte presencial",
     ],
+    painPoints: [
+      { ellos: "Solo menú digital y pedidos. No es un POS real.", nosotros: "POS completo con inventario, caja, facturación y 16 módulos." },
+      { ellos: "Sin facturación electrónica DIAN. No cumple la ley.", nosotros: "Facturación electrónica DIAN ilimitada desde el día 1." },
+      { ellos: "Sin control de inventario ni costos de recetas.", nosotros: "Inventario completo con recetas, costos y control de mermas." },
+    ],
     features: [
       { feature: "Punto de venta completo", competitor: "Solo menú/pedidos", sistecpos: true },
       { feature: "Facturación electrónica DIAN", competitor: false, sistecpos: true },
@@ -347,6 +367,11 @@ export const competitors: Competitor[] = [
       "No necesita desarrollador web",
       "Instalación y soporte presencial",
       "Control de mesas y comandas",
+    ],
+    painPoints: [
+      { ellos: "No fue diseñado para venta física. Requiere plugins caros.", nosotros: "Diseñado 100% para punto de venta físico. Listo desde el día 1." },
+      { ellos: "Facturación DIAN solo con plugins de terceros desactualizados.", nosotros: "Facturación electrónica DIAN nativa, siempre actualizada." },
+      { ellos: "Necesitas hosting, dominio, desarrollador web. Costos ocultos.", nosotros: "Sin hosting ni servidores. Todo incluido desde $12 USD/mes." },
     ],
     features: [
       { feature: "Punto de venta físico", competitor: "Con plugins adicionales", sistecpos: true },
@@ -387,6 +412,11 @@ export const competitors: Competitor[] = [
       "Soporte en español presencial",
       "Compatible con hardware local",
     ],
+    painPoints: [
+      { ellos: "No opera oficialmente en Colombia. Sin soporte local.", nosotros: "100% colombiano con soporte presencial en Santander." },
+      { ellos: "Sin facturación electrónica DIAN. Ilegal para comercio.", nosotros: "Facturación DIAN ilimitada, preconfigurada y siempre actualizada." },
+      { ellos: "Cobra comisión por cada transacción (2.6% + $0.10).", nosotros: "Precio fijo desde $12 USD/mes. Sin comisiones por venta." },
+    ],
     features: [
       { feature: "Disponible en Colombia", competitor: false, sistecpos: true },
       { feature: "Facturación electrónica DIAN", competitor: false, sistecpos: true },
@@ -425,6 +455,11 @@ export const competitors: Competitor[] = [
       "Instalación presencial en tu local",
       "16 módulos especializados",
       "Sin instalación de software pesado",
+    ],
+    painPoints: [
+      { ellos: "Interfaz anticuada tipo desktop de los años 2000.", nosotros: "Interfaz moderna accesible desde cualquier navegador." },
+      { ellos: "Instalación de software pesado en cada computador.", nosotros: "100% en la nube. Accede desde cualquier dispositivo sin instalar nada." },
+      { ellos: "Soporte presencial solo con costo adicional elevado.", nosotros: "Instalación y capacitación presencial incluida en tu plan." },
     ],
     features: [
       { feature: "100% en la nube", competitor: "Desktop + Nube", sistecpos: true },
@@ -465,6 +500,11 @@ export const competitors: Competitor[] = [
       "Multi-tienda centralizada",
       "Importación masiva de inventario desde Excel",
     ],
+    painPoints: [
+      { ellos: "Enfocado en facturación, no en punto de venta real.", nosotros: "POS especializado con 16 módulos diseñados para vender más." },
+      { ellos: "Sin modo offline. Si se cae internet, no facturas.", nosotros: "Vende y factura offline hasta 8 días. Sincroniza automáticamente." },
+      { ellos: "Sin inventario avanzado ni control de mesas.", nosotros: "Inventario completo, mesas, comandas y cocina incluidos." },
+    ],
     features: [
       { feature: "Especializado en punto de venta", competitor: "Secundario", sistecpos: true },
       { feature: "Facturación electrónica DIAN", competitor: true, sistecpos: true },
@@ -503,6 +543,11 @@ export const competitors: Competitor[] = [
       "Multi-tienda centralizada",
       "Módulo de servicio técnico y casa de cambio",
       "Precio más accesible",
+    ],
+    painPoints: [
+      { ellos: "Solo para restaurantes. Si diversificas, necesitas otro software.", nosotros: "Funciona para 24 tipos de negocio. Crece sin cambiar de sistema." },
+      { ellos: "Sin modo offline. Se cae internet y tu restaurante se paraliza.", nosotros: "Modo offline 8 días. Tus meseros siguen tomando pedidos sin problema." },
+      { ellos: "Sin soporte presencial. Todo remoto cuando más lo necesitas.", nosotros: "Instalación y soporte presencial. Estamos ahí cuando nos necesitas." },
     ],
     features: [
       { feature: "Control de mesas/comandas", competitor: true, sistecpos: true },
@@ -543,6 +588,11 @@ export const competitors: Competitor[] = [
       "Sin comisiones por transacción",
       "Compatible con hardware local colombiano",
     ],
+    painPoints: [
+      { ellos: "Desde $69 USD/mes + comisiones. Inviable para Pymes colombianas.", nosotros: "Desde $12 USD/mes sin comisiones. Hasta 10x más económico." },
+      { ellos: "Sin soporte en Colombia. Todo en inglés o francés.", nosotros: "Soporte en español con ingeniero directo. Presencial en Santander." },
+      { ellos: "Sin facturación DIAN. No sirve para comercio legal en Colombia.", nosotros: "Facturación electrónica DIAN ilimitada, preconfigurada." },
+    ],
     features: [
       { feature: "Disponible con soporte en Colombia", competitor: false, sistecpos: true },
       { feature: "Facturación electrónica DIAN", competitor: false, sistecpos: true },
@@ -582,6 +632,11 @@ export const competitors: Competitor[] = [
       "Control de mesas, comandas y cocina",
       "Importación masiva de inventario",
     ],
+    painPoints: [
+      { ellos: "Funciones muy básicas. Te limitan al crecer.", nosotros: "16 módulos especializados. Escala sin cambiar de software." },
+      { ellos: "Sin modo offline. Internet inestable = ventas perdidas.", nosotros: "Modo offline 8 días con sincronización automática completa." },
+      { ellos: "Sin soporte presencial ni instalación asistida.", nosotros: "Instalación y capacitación presencial en tu local." },
+    ],
     features: [
       { feature: "Facturación electrónica DIAN", competitor: true, sistecpos: true },
       { feature: "Modo offline hasta 8 días", competitor: false, sistecpos: true },
@@ -619,6 +674,11 @@ export const competitors: Competitor[] = [
       "Multi-tienda centralizada",
       "Control de mesas, comandas y cocina",
       "Importación masiva de inventario desde Excel",
+    ],
+    painPoints: [
+      { ellos: "Funcionalidad offline muy limitada. Depende del internet.", nosotros: "Modo offline 8 días completo. Ventas, inventario y clientes." },
+      { ellos: "Sin módulos especializados por industria.", nosotros: "16 módulos: droguerías, ferreterías, restaurantes, servicio técnico..." },
+      { ellos: "Sin soporte presencial. Instalación por tu cuenta.", nosotros: "Instalación, configuración y capacitación presencial en tu local." },
     ],
     features: [
       { feature: "Facturación electrónica DIAN", competitor: true, sistecpos: true },
@@ -659,6 +719,11 @@ export const competitors: Competitor[] = [
       "Sin comisiones por transacción",
       "16 módulos especializados por industria",
     ],
+    painPoints: [
+      { ellos: "Sin facturación DIAN. No cumple la normativa colombiana.", nosotros: "Facturación electrónica DIAN ilimitada, lista desde el día 1." },
+      { ellos: "Cobra comisiones del 2% al 2.9% por cada venta.", nosotros: "Precio fijo desde $12 USD/mes. Cero comisiones por transacción." },
+      { ellos: "Diseñado para e-commerce, no para punto de venta físico.", nosotros: "POS especializado para venta física con 16 módulos por industria." },
+    ],
     features: [
       { feature: "Facturación electrónica DIAN", competitor: false, sistecpos: true },
       { feature: "Precio desde $12 USD/mes", competitor: "Desde $39 USD/mes + comisiones", sistecpos: true },
@@ -697,6 +762,11 @@ export const competitors: Competitor[] = [
       "16 módulos especializados",
       "Multi-tienda centralizada",
       "Cumple regulación colombiana al 100%",
+    ],
+    painPoints: [
+      { ellos: "Sin facturación DIAN. Operar sin ella es ilegal en Colombia.", nosotros: "Facturación electrónica DIAN ilimitada, preconfigurada." },
+      { ellos: "Gratis pero sin soporte profesional. Solo foros en inglés.", nosotros: "Soporte WhatsApp con ingeniero directo en español." },
+      { ellos: "Funciones avanzadas (inventario, empleados) son de pago.", nosotros: "Todo incluido: 16 módulos, multi-tienda, inventario completo." },
     ],
     features: [
       { feature: "Facturación electrónica DIAN", competitor: false, sistecpos: true },
