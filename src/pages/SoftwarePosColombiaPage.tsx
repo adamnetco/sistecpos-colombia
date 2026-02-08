@@ -26,6 +26,7 @@ import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { JsonLd, organizationSchema, faqSchema } from "@/components/seo/JsonLd";
 import { businessTypes } from "@/data/businessTypes";
 import { localLandings } from "@/data/localSeo";
+import { ColombiaMap } from "@/components/colombia/ColombiaMap";
 
 const faqs = [
   {
@@ -191,7 +192,7 @@ export default function SoftwarePosColombiaPage() {
         </div>
       </section>
 
-      {/* Cities Grid */}
+      {/* Cities Grid with Map */}
       <section className="py-16 md:py-20">
         <div className="container px-4">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
@@ -204,38 +205,48 @@ export default function SoftwarePosColombiaPage() {
           </motion.div>
 
           <div className="max-w-6xl mx-auto">
-            <h3 className="text-lg font-semibold mb-4 text-center">Ciudades Principales</h3>
-            <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mb-8">
-              {featuredCities.map((city, index) => (
-                <motion.div key={city.slug} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.05 }}>
-                  <Link to={`/software-pos/${city.slug}`}>
-                    <Card className="h-full hover:shadow-md transition-all hover:-translate-y-1 cursor-pointer">
-                      <CardContent className="p-4 flex items-center gap-3">
-                        <MapPin className="h-5 w-5 text-primary shrink-0" />
-                        <div>
-                          <span className="font-medium text-sm">{city.city}</span>
-                          <span className="block text-xs text-muted-foreground">{city.region}</span>
-                        </div>
-                        {city.isPresencial && (
-                          <Badge variant="secondary" className="ml-auto text-xs">Presencial</Badge>
-                        )}
-                      </CardContent>
-                    </Card>
-                  </Link>
-                </motion.div>
-              ))}
-            </div>
+            <div className="grid lg:grid-cols-2 gap-8 items-start mb-10">
+              {/* Map */}
+              <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }}>
+                <ColombiaMap />
+              </motion.div>
 
-            <h3 className="text-lg font-semibold mb-4 text-center">Más Ciudades</h3>
-            <div className="flex flex-wrap justify-center gap-3">
-              {otherCities.map((city) => (
-                <Link key={city.slug} to={`/software-pos/${city.slug}`}>
-                  <Badge variant="secondary" className="py-2 px-4 hover:bg-primary/20 transition-colors cursor-pointer">
-                    <MapPin className="h-3 w-3 mr-1" />
-                    {city.city}
-                  </Badge>
-                </Link>
-              ))}
+              {/* Cities List */}
+              <div>
+                <h3 className="text-lg font-semibold mb-4">Ciudades Principales</h3>
+                <div className="grid gap-3 sm:grid-cols-2 mb-6">
+                  {featuredCities.map((city, index) => (
+                    <motion.div key={city.slug} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.05 }}>
+                      <Link to={`/software-pos/${city.slug}`}>
+                        <Card className="h-full hover:shadow-md transition-all hover:-translate-y-1 cursor-pointer">
+                          <CardContent className="p-3 flex items-center gap-3">
+                            <MapPin className="h-4 w-4 text-primary shrink-0" />
+                            <div>
+                              <span className="font-medium text-sm">{city.city}</span>
+                              <span className="block text-xs text-muted-foreground">{city.region}</span>
+                            </div>
+                            {city.isPresencial && (
+                              <Badge variant="secondary" className="ml-auto text-[10px]">Presencial</Badge>
+                            )}
+                          </CardContent>
+                        </Card>
+                      </Link>
+                    </motion.div>
+                  ))}
+                </div>
+
+                <h3 className="text-lg font-semibold mb-3">Más Ciudades</h3>
+                <div className="flex flex-wrap gap-2">
+                  {otherCities.map((city) => (
+                    <Link key={city.slug} to={`/software-pos/${city.slug}`}>
+                      <Badge variant="secondary" className="py-1.5 px-3 hover:bg-primary/20 transition-colors cursor-pointer text-xs">
+                        <MapPin className="h-3 w-3 mr-1" />
+                        {city.city}
+                      </Badge>
+                    </Link>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>
