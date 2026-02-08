@@ -37,6 +37,7 @@ const footerLinks = {
     { name: "Comparativa Licencias", href: "/comparativa-licencias" },
     { name: "Nosotros", href: "/nosotros" },
     { name: "Contacto", href: "/contacto" },
+    { name: "Ser Representante", href: "/representantes" },
   ],
 };
 
