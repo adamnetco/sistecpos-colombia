@@ -131,6 +131,15 @@ const ProductCard = ({ product, index }: { product: Product; index: number }) =>
                 <p className="text-xs text-muted-foreground">
                   ≈ {formatPrice(product.price)} COP
                 </p>
+                {product.slug === "licencia-software-pos-vitalicia" ? (
+                  <p className="text-xs text-primary font-medium mt-1">
+                    + Hosting anual: $99 USD (según facilpos.co/tienda)
+                  </p>
+                ) : (
+                  <p className="text-xs text-muted-foreground">
+                    ≈ {formatPriceUSD(Math.round(product.priceUSD / (product.slug.includes("2-anos") ? 26 : 12)))}/mes USD
+                  </p>
+                )}
               </div>
             ) : (
               <>
