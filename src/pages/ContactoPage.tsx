@@ -53,7 +53,7 @@ const socialLinks = [
   {
     name: "YouTube",
     icon: Youtube,
-    href: "https://www.youtube.com/user/sistecpos",
+    href: "https://www.youtube.com/@sistecpos",
     color: "bg-[#FF0000] hover:bg-[#CC0000]",
   },
   {
