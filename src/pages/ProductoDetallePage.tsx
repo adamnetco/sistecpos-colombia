@@ -21,6 +21,7 @@ import {
 import { motion } from "framer-motion";
 import { getProductBySlug, formatPrice, products } from "@/data/products";
 import { SEO } from "@/components/seo/SEO";
+import { JsonLd, productSchema } from "@/components/seo/JsonLd";
 
 const getCategoryIcon = (category: string) => {
   const icons: Record<string, typeof Printer> = {
@@ -55,6 +56,17 @@ const ProductoDetallePage = () => {
         title={`${product.name} | Hardware POS Colombia | SistecPOS`}
         description={product.longDescription || `Compra ${product.name} para tu punto de venta. Envío a toda Colombia con soporte técnico incluido.`}
         canonical={`https://sistecpos.com/productos/${slug}`}
+      />
+      <JsonLd
+        data={productSchema({
+          name: product.name,
+          description: product.longDescription || product.description,
+          url: `https://sistecpos.com/productos/${slug}`,
+          image: product.image,
+          priceCOP: product.price,
+          priceUSD: product.priceUSD,
+          category: product.category,
+        })}
       />
       <section className="border-b">
         <div className="container px-4 md:px-6 py-4">
