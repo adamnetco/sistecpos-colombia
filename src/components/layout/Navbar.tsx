@@ -85,7 +85,7 @@ export function Navbar() {
         </Link>
 
         {/* Desktop Navigation */}
-        <div className="hidden md:flex md:items-center md:gap-1">
+        <div className="hidden lg:flex lg:items-center lg:gap-1">
           <Link to="/" className={cn("px-4 py-2 text-sm font-medium transition-colors rounded-md hover:bg-muted", isActive("/") && "text-primary")}>
             Inicio
           </Link>
@@ -147,7 +147,7 @@ export function Navbar() {
         </div>
 
         {/* CTA Buttons */}
-        <div className="hidden md:flex md:items-center md:gap-2">
+        <div className="hidden lg:flex lg:items-center lg:gap-2">
           <Button asChild size="sm" className="bg-cta hover:bg-cta/90 text-cta-foreground font-semibold">
             <Link to="/contacto#demo">
               Prueba Gratis 7 Días
@@ -156,7 +156,7 @@ export function Navbar() {
         </div>
 
         {/* Mobile Menu Button */}
-        <button className="md:hidden p-2 rounded-md hover:bg-muted" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+        <button className="lg:hidden p-2 rounded-md hover:bg-muted" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
           {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
       </nav>
@@ -172,7 +172,7 @@ export function Navbar() {
       }} exit={{
         opacity: 0,
         height: 0
-      }} className="md:hidden border-t bg-background">
+      }} className="lg:hidden border-t bg-background">
             <div className="container px-4 py-4 space-y-4">
               <Link to="/" className="block py-2 text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>
                 Inicio
