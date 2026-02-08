@@ -4,7 +4,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
+import { ScrollToTop } from "./components/ScrollToTop";
 import Index from "./pages/Index";
+import SolucionesPage from "./pages/SolucionesPage";
 import RestaurantesPage from "./pages/RestaurantesPage";
 import RetailPage from "./pages/RetailPage";
 import ProductosPage from "./pages/ProductosPage";
@@ -27,8 +29,10 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <ScrollToTop />
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/soluciones" element={<SolucionesPage />} />
             <Route path="/pos-para-restaurantes" element={<RestaurantesPage />} />
             <Route path="/pos-para-retail" element={<RetailPage />} />
             <Route path="/soluciones/:slug" element={<SolucionNegocioPage />} />
