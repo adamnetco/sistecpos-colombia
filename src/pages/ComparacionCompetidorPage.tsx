@@ -18,15 +18,23 @@ import worldOfficeHeroImage from "@/assets/world-office-vs-sistecpos-hero.jpg";
 import helisaHeroImage from "@/assets/helisa-vs-sistecpos-hero.jpg";
 import facturaLatamHeroImage from "@/assets/factura-latam-vs-sistecpos-hero.jpg";
 import defontanaHeroImage from "@/assets/defontana-vs-sistecpos-hero.jpg";
+import loggroHeroImage from "@/assets/loggro-vs-sistecpos-hero.jpg";
+import contabilizaloHeroImage from "@/assets/contabilizalo-vs-sistecpos-hero.jpg";
+import bsaleHeroImage from "@/assets/bsale-vs-sistecpos-hero.jpg";
+import xubioHeroImage from "@/assets/xubio-vs-sistecpos-hero.jpg";
 
 const heroImages: Record<string, string> = {
   "facturador-gratuito-dian": dianHeroImage,
   "alegra": alegraHeroImage,
   "siigo": siigoHeroImage,
   "world-office": worldOfficeHeroImage,
-  "helisa": helisaHeroImage,
+  "hellonext": helisaHeroImage,
   "factura-latam": facturaLatamHeroImage,
   "defontana": defontanaHeroImage,
+  "loogro": loggroHeroImage,
+  "contabilizalo": contabilizaloHeroImage,
+  "bsale": bsaleHeroImage,
+  "xubio": xubioHeroImage,
 };
 import {
   Accordion,
