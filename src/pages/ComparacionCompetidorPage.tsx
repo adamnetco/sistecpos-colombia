@@ -5,12 +5,23 @@ import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { JsonLd, faqSchema, softwareApplicationSchema } from "@/components/seo/JsonLd";
 import { getCompetitorBySlug, competitors } from "@/data/competitors";
 import { PainVsSolutionSection } from "@/components/comparar/PainVsSolutionSection";
+import { TimeLostCalculator } from "@/components/comparar/TimeLostCalculator";
 import { motion } from "framer-motion";
 import { Check, X, MessageCircle, ArrowRight, Shield, WifiOff, Users, Wrench, Globe, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import dianHeroImage from "@/assets/dian-vs-sistecpos-hero.jpg";
+import alegraHeroImage from "@/assets/alegra-vs-sistecpos-hero.jpg";
+import siigoHeroImage from "@/assets/siigo-vs-sistecpos-hero.jpg";
+import worldOfficeHeroImage from "@/assets/world-office-vs-sistecpos-hero.jpg";
+
+const heroImages: Record<string, string> = {
+  "facturador-gratuito-dian": dianHeroImage,
+  "alegra": alegraHeroImage,
+  "siigo": siigoHeroImage,
+  "world-office": worldOfficeHeroImage,
+};
 import {
   Accordion,
   AccordionContent,
@@ -102,7 +113,7 @@ export default function ComparacionCompetidorPage() {
                 <Link to="/contacto#demo">Prueba Gratis 7 Días</Link>
               </Button>
             </div>
-            {competitor.slug === "facturador-gratuito-dian" && (
+            {heroImages[competitor.slug] && (
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -110,19 +121,17 @@ export default function ComparacionCompetidorPage() {
                 className="mt-10 max-w-4xl mx-auto"
               >
                 <img
-                  src={dianHeroImage}
-                  alt="Comparación visual: estrés facturando con la DIAN vs velocidad vendiendo con SistecPOS"
+                  src={heroImages[competitor.slug]}
+                  alt={`Comparación visual: ${competitor.name} vs SistecPOS`}
                   className="rounded-xl shadow-2xl w-full"
                   loading="eager"
                 />
-                <p className="text-xs text-primary-foreground/50 mt-2">
-                  5 minutos digitando en la DIAN vs 10 segundos con SistecPOS
-                </p>
               </motion.div>
             )}
           </motion.div>
         </div>
       </section>
+
 
       {/* Key Differentiators */}
       <section className="py-12 md:py-16 bg-muted/30">
@@ -206,6 +215,9 @@ export default function ComparacionCompetidorPage() {
           painPoints={competitor.painPoints}
         />
       )}
+
+      {/* Time Lost Calculator - DIAN only */}
+      {competitor.slug === "facturador-gratuito-dian" && <TimeLostCalculator />}
 
       {/* Feature Table */}
       <section className="py-16 md:py-20 bg-muted/30">
