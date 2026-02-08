@@ -4,7 +4,7 @@ import { DynamicMeta } from "@/components/seo/DynamicMeta";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { competitors } from "@/data/competitors";
 import { motion } from "framer-motion";
-import { ArrowRight, MessageCircle, Shield, WifiOff, Users, Wrench, Star, Globe, Code } from "lucide-react";
+import { ArrowRight, MessageCircle, Shield, WifiOff, Users, Wrench, Star, Globe, Code, Landmark } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +18,7 @@ const keyAdvantages = [
 
 const saasCompetitors = competitors.filter((c) => c.type === "saas");
 const openSourceCompetitors = competitors.filter((c) => c.type === "open-source");
+const gobiernoCompetitors = competitors.filter((c) => c.type === "gobierno");
 
 export default function CompararPage() {
   return (
@@ -177,6 +178,54 @@ export default function CompararPage() {
           </div>
         </div>
       </section>
+
+      {/* Gobierno Competitors */}
+      {gobiernoCompetitors.length > 0 && (
+        <section className="py-16 md:py-20">
+          <div className="container px-4">
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
+              <div className="flex items-center justify-center gap-2 mb-4">
+                <Landmark className="h-6 w-6 text-primary" />
+                <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
+                  vs Herramientas <span className="gradient-text">Gubernamentales</span>
+                </h2>
+              </div>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                ¿Las herramientas gratuitas del gobierno son suficientes para un negocio real? Compara y decide.
+              </p>
+            </motion.div>
+
+            <div className="grid gap-6 sm:grid-cols-2 max-w-4xl mx-auto">
+              {gobiernoCompetitors.map((c, i) => (
+                <motion.div
+                  key={c.slug}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.05 }}
+                >
+                  <Link to={`/comparar/${c.slug}`}>
+                    <Card className="h-full hover:shadow-card hover:-translate-y-1 transition-all cursor-pointer group border-amber-500/20 bg-amber-50/30 dark:bg-amber-950/10">
+                      <CardContent className="p-6">
+                        <div className="flex items-center justify-between mb-3">
+                          <h3 className="text-lg font-bold group-hover:text-primary transition-colors">
+                            {c.name} vs SistecPOS
+                          </h3>
+                          <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                        </div>
+                        <p className="text-sm text-muted-foreground mb-3">{c.tagline}</p>
+                        <Badge variant="secondary" className="text-xs">
+                          🏛️ Gobierno · {c.origin}
+                        </Badge>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Link to existing comparativa-licencias */}
       <section className="py-12 md:py-16">
