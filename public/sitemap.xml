@@ -10,6 +10,8 @@
   <url><loc>https://sistecpos.lovable.app/contacto</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://sistecpos.lovable.app/gracias</loc><changefreq>monthly</changefreq><priority>0.3</priority></url>
   <url><loc>https://sistecpos.lovable.app/comparativa-licencias</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://sistecpos.lovable.app/politica-privacidad</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://sistecpos.lovable.app/terminos-condiciones</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
   <url><loc>https://sistecpos.lovable.app/pos-para-restaurantes</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://sistecpos.lovable.app/pos-para-retail</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
 
