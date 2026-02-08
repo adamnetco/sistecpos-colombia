@@ -2,7 +2,7 @@ import { useParams, Link, Navigate } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { DynamicMeta } from "@/components/seo/DynamicMeta";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
-import { JsonLd, faqSchema } from "@/components/seo/JsonLd";
+import { JsonLd, faqSchema, softwareApplicationSchema } from "@/components/seo/JsonLd";
 import { getCompetitorBySlug, competitors } from "@/data/competitors";
 import { motion } from "framer-motion";
 import { Check, X, MessageCircle, ArrowRight, Shield, WifiOff, Users, Wrench, Globe, Star } from "lucide-react";
@@ -45,6 +45,14 @@ export default function ComparacionCompetidorPage() {
         canonical={`https://sistecpos.lovable.app/comparar/${competitor.slug}`}
       />
       <JsonLd data={faqSchema(competitor.faqs)} />
+      <JsonLd
+        data={softwareApplicationSchema({
+          name: "SistecPOS",
+          description: `Comparativa ${competitor.name} vs SistecPOS: software POS con facturación electrónica DIAN, modo offline 8 días y soporte presencial en Colombia.`,
+          url: `https://sistecpos.lovable.app/comparar/${competitor.slug}`,
+          compareName: competitor.name,
+        })}
+      />
 
       <Breadcrumbs
         items={[
