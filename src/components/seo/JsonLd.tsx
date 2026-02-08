@@ -95,3 +95,51 @@ export function breadcrumbSchema(items: { name: string; url: string }[]) {
     })),
   };
 }
+
+export function softwareApplicationSchema(opts: {
+  name: string;
+  description: string;
+  url: string;
+  compareName?: string;
+}) {
+  return [
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      name: "SistecPOS",
+      applicationCategory: "BusinessApplication",
+      operatingSystem: "Web, Windows, Android",
+      description: opts.description,
+      url: opts.url,
+      offers: {
+        "@type": "Offer",
+        price: "12",
+        priceCurrency: "USD",
+        priceValidUntil: "2026-12-31",
+      },
+      aggregateRating: {
+        "@type": "AggregateRating",
+        ratingValue: "4.8",
+        ratingCount: "150",
+        bestRating: "5",
+      },
+      featureList: [
+        "Facturación electrónica DIAN",
+        "Modo offline hasta 8 días",
+        "16 módulos especializados",
+        "Instalación presencial en Santander",
+        "Soporte WhatsApp mismo día",
+      ],
+    },
+    ...(opts.compareName
+      ? [
+          {
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            name: opts.compareName,
+            applicationCategory: "BusinessApplication",
+          },
+        ]
+      : []),
+  ];
+}
