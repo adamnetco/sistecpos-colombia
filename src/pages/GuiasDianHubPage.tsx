@@ -222,6 +222,49 @@ export default function GuiasDianHubPage() {
         </div>
       </section>
 
+      {/* Cluster 4: Páginas Comerciales */}
+      <section className="py-12 md:py-16">
+        <div className="container px-4">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-8">
+            <h2 className="text-2xl md:text-3xl font-bold tracking-tight">
+              Guías <span className="gradient-text">Comerciales</span>
+            </h2>
+            <p className="text-muted-foreground mt-2">
+              Facturación para PYMES, inventario integrado y rankings de software POS en Colombia.
+            </p>
+          </motion.div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto">
+            {dianArticles.filter(a => [
+              "facturacion-electronica-pymes-colombia",
+              "software-inventario-facturacion-electronica",
+              "top-10-software-pos-colombia",
+            ].includes(a.slug)).map((article, i) => (
+              <motion.div key={article.slug} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }}>
+                <Link to={`/guias-dian/${article.slug}`}>
+                  <Card className="h-full hover:shadow-md transition-shadow cursor-pointer group">
+                    <CardContent className="p-6">
+                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                        <article.heroIcon className="h-5 w-5 text-primary" />
+                      </div>
+                      <Badge variant="secondary" className="mb-3 text-xs">{article.heroBadge}</Badge>
+                      <h3 className="font-semibold mb-2 group-hover:text-primary transition-colors text-sm leading-tight">
+                        {article.h1}
+                      </h3>
+                      <p className="text-xs text-muted-foreground line-clamp-2">
+                        {article.metaDescription}
+                      </p>
+                      <span className="inline-flex items-center gap-1 text-xs text-primary mt-3 font-medium">
+                        Leer guía <ArrowRight className="h-3 w-3" />
+                      </span>
+                    </CardContent>
+                  </Card>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="py-16 md:py-20">
         <div className="container px-4">
