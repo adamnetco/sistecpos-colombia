@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import Index from "./pages/Index";
 import RestaurantesPage from "./pages/RestaurantesPage";
@@ -40,6 +40,9 @@ const App = () => (
             <Route path="/nosotros" element={<NosotrosPage />} />
             <Route path="/comparativa-licencias" element={<ComparativaLicenciasPage />} />
             <Route path="/contacto" element={<ContactoPage />} />
+            {/* Redirects para URLs antiguas indexadas */}
+            <Route path="/hello-world" element={<Navigate to="/software-pos-colombia" replace />} />
+            <Route path="/c/uncategorized" element={<Navigate to="/productos" replace />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
