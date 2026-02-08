@@ -10,7 +10,7 @@ const footerLinks = {
     { name: "POS Ferreterías", href: "/soluciones/ferreterias" },
     { name: "POS Droguerías", href: "/soluciones/droguerias" },
     { name: "POS Cafeterías", href: "/soluciones/cafeterias" },
-    { name: "Ver todos", href: "/software-pos-colombia#soluciones" },
+    { name: "Ver todas las soluciones", href: "/soluciones" },
   ],
   productos: [
     { name: "Impresoras Térmicas", href: "/productos" },
