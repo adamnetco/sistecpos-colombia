@@ -11,6 +11,7 @@ import {
   Handshake,
   LogOut,
   ChevronLeft,
+  Contact2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -21,6 +22,7 @@ const navItems = [
   { name: "Certificados", href: "/admin/certificados", icon: FileCheck },
   { name: "Pagos", href: "/admin/pagos", icon: CreditCard },
   { name: "Socios", href: "/admin/socios", icon: Handshake },
+  { name: "CRM", href: "/admin/contactos", icon: Contact2 },
 ];
 
 export function AdminLayout({ children }: { children: ReactNode }) {

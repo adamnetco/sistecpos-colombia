@@ -10,6 +10,7 @@ const LeadsView = lazy(() => import("@/components/admin/LeadsView"));
 const CertificatesView = lazy(() => import("@/components/admin/CertificatesView"));
 const PaymentsView = lazy(() => import("@/components/admin/PaymentsView"));
 const ResellersView = lazy(() => import("@/components/admin/ResellersView"));
+const ContactsView = lazy(() => import("@/components/admin/ContactsView"));
 
 function Loader() {
   return (
@@ -31,6 +32,7 @@ export default function AdminPage() {
             <Route path="certificados" element={<CertificatesView />} />
             <Route path="pagos" element={<PaymentsView />} />
             <Route path="socios" element={<ResellersView />} />
+            <Route path="contactos" element={<ContactsView />} />
           </Routes>
         </Suspense>
       </AdminLayout>

@@ -71,6 +71,91 @@ export type Database = {
         }
         Relationships: []
       }
+      contacts: {
+        Row: {
+          business_name: string | null
+          business_type: string | null
+          captured_by_ai: boolean
+          city: string | null
+          contact_type: string
+          created_at: string
+          email: string | null
+          full_name: string
+          id: string
+          is_read: boolean
+          lead_id: string | null
+          license_id: string | null
+          notes: string | null
+          phone: string | null
+          reseller_id: string | null
+          source: string
+          tags: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          business_name?: string | null
+          business_type?: string | null
+          captured_by_ai?: boolean
+          city?: string | null
+          contact_type?: string
+          created_at?: string
+          email?: string | null
+          full_name: string
+          id?: string
+          is_read?: boolean
+          lead_id?: string | null
+          license_id?: string | null
+          notes?: string | null
+          phone?: string | null
+          reseller_id?: string | null
+          source?: string
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          business_name?: string | null
+          business_type?: string | null
+          captured_by_ai?: boolean
+          city?: string | null
+          contact_type?: string
+          created_at?: string
+          email?: string | null
+          full_name?: string
+          id?: string
+          is_read?: boolean
+          lead_id?: string | null
+          license_id?: string | null
+          notes?: string | null
+          phone?: string | null
+          reseller_id?: string | null
+          source?: string
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contacts_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads_trials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contacts_license_id_fkey"
+            columns: ["license_id"]
+            isOneToOne: false
+            referencedRelation: "licenses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contacts_reseller_id_fkey"
+            columns: ["reseller_id"]
+            isOneToOne: false
+            referencedRelation: "reseller_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leads_trials: {
         Row: {
           business_name: string
