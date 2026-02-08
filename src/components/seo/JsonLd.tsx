@@ -1,23 +1,14 @@
-import { useEffect } from "react";
-
 interface JsonLdProps {
   data: Record<string, unknown> | Record<string, unknown>[];
 }
 
 export function JsonLd({ data }: JsonLdProps) {
-  useEffect(() => {
-    const script = document.createElement("script");
-    script.type = "application/ld+json";
-    script.text = JSON.stringify(data);
-    script.setAttribute("data-jsonld", "true");
-    document.head.appendChild(script);
-
-    return () => {
-      script.remove();
-    };
-  }, [data]);
-
-  return null;
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+    />
+  );
 }
 
 // Schema generators
