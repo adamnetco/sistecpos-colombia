@@ -37,6 +37,8 @@ const CalculadoraUVTPage = lazy(() => import("./pages/CalculadoraUVTPage"));
 const ValidadorNITPage = lazy(() => import("./pages/ValidadorNITPage"));
 const AuthPage = lazy(() => import("./pages/AuthPage"));
 const AdminPage = lazy(() => import("./pages/AdminPage"));
+const LandingDemoPage = lazy(() => import("./pages/LandingDemoPage"));
+const LandingRepresentantesPage = lazy(() => import("./pages/LandingRepresentantesPage"));
 
 const queryClient = new QueryClient();
 
@@ -82,6 +84,9 @@ const App = () => (
                 <Route path="/gracias" element={<GraciasPage />} />
                 <Route path="/politica-privacidad" element={<PoliticaPrivacidadPage />} />
                 <Route path="/terminos-condiciones" element={<TerminosCondicionesPage />} />
+                {/* Landing pages for campaigns */}
+                <Route path="/lp/demo" element={<LandingDemoPage />} />
+                <Route path="/lp/representantes" element={<LandingRepresentantesPage />} />
                 {/* Auth & Admin */}
                 <Route path="/auth" element={<AuthPage />} />
                 <Route path="/admin/*" element={<AdminPage />} />
