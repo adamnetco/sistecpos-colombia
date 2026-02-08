@@ -10,6 +10,7 @@ import { Check, X, MessageCircle, ArrowRight, Shield, WifiOff, Users, Wrench, Gl
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import dianHeroImage from "@/assets/dian-vs-sistecpos-hero.jpg";
 import {
   Accordion,
   AccordionContent,
@@ -101,6 +102,24 @@ export default function ComparacionCompetidorPage() {
                 <Link to="/contacto#demo">Prueba Gratis 7 Días</Link>
               </Button>
             </div>
+            {competitor.slug === "facturador-gratuito-dian" && (
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+                className="mt-10 max-w-4xl mx-auto"
+              >
+                <img
+                  src={dianHeroImage}
+                  alt="Comparación visual: estrés facturando con la DIAN vs velocidad vendiendo con SistecPOS"
+                  className="rounded-xl shadow-2xl w-full"
+                  loading="eager"
+                />
+                <p className="text-xs text-primary-foreground/50 mt-2">
+                  5 minutos digitando en la DIAN vs 10 segundos con SistecPOS
+                </p>
+              </motion.div>
+            )}
           </motion.div>
         </div>
       </section>
