@@ -96,11 +96,11 @@ const comparisonFeatures = [
 
 const pricingPlans = {
   sistecpos: [
-    { name: "Mensual", price: "$18 USD", priceCOP: "~$75.000 COP", popular: false },
-    { name: "Anual Básico", price: "$12 USD/mes", priceCOP: "~$50.000 COP/mes", popular: false },
-    { name: "Anual Intermedio", price: "$15 USD/mes", priceCOP: "~$62.500 COP/mes", popular: true },
-    { name: "Anual Premium", price: "$18 USD/mes", priceCOP: "~$75.000 COP/mes", popular: false },
-    { name: "Multi-tienda", price: "$50 USD/mes", priceCOP: "~$208.000 COP/mes", popular: false },
+    { name: "Vitalicia", price: "$900 USD (pago único)", priceCOP: "Hosting anual: $99 USD", popular: true },
+    { name: "Anual Básico", price: "$11 USD/mes", priceCOP: "$129 USD/año", popular: false },
+    { name: "Anual Intermedio", price: "$20 USD/mes", priceCOP: "$237 USD/año", popular: false },
+    { name: "Anual Premium", price: "$29 USD/mes", priceCOP: "$347 USD/año", popular: false },
+    { name: "Multi-tienda 2", price: "$46 USD/mes", priceCOP: "$555 USD/año", popular: false },
   ],
   tiendana: [
     { name: "Básico", price: "Gratis", priceCOP: "Limitado", popular: false },
