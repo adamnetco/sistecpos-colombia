@@ -88,6 +88,9 @@
   <url><loc>https://sistecpos.lovable.app/comparar/pos-colombia</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
   <url><loc>https://sistecpos.lovable.app/comparar/shopify-pos</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
   <url><loc>https://sistecpos.lovable.app/comparar/loyverse</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://sistecpos.lovable.app/comparar/unicenta</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://sistecpos.lovable.app/comparar/floreant-pos</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://sistecpos.lovable.app/comparar/wallace-pos</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
 
   <!-- Licencias -->
   <url><loc>https://sistecpos.lovable.app/productos/licencia-mensual-premium</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
