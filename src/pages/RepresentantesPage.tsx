@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import { ApplicationForm } from "@/components/representantes/ApplicationForm";
 import {
   Handshake,
   TrendingUp,
@@ -342,8 +343,15 @@ export default function RepresentantesPage() {
         </div>
       </section>
 
+      {/* Application Form */}
+      <section id="postularse" className="py-16 md:py-24 bg-background">
+        <div className="container px-4">
+          <ApplicationForm />
+        </div>
+      </section>
+
       {/* Final CTA */}
-      <section className="py-16 md:py-24 bg-foreground text-primary-foreground">
+      <section className="py-16 md:py-20 bg-foreground text-primary-foreground">
         <div className="container px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -351,20 +359,19 @@ export default function RepresentantesPage() {
             viewport={{ once: true }}
             className="max-w-2xl mx-auto text-center"
           >
-            <h2 className="text-2xl md:text-4xl font-bold mb-4">
+            <h2 className="text-2xl md:text-3xl font-bold mb-4">
               ¿Listo para Empezar a Ganar?
             </h2>
-            <p className="text-primary-foreground/70 mb-8 text-lg">
-              Escríbenos por WhatsApp con tu nombre, ciudad y por qué te interesa.
-              Te respondemos en menos de 24 horas.
+            <p className="text-primary-foreground/70 mb-6">
+              Completa el formulario arriba o escríbenos directamente por WhatsApp.
             </p>
-            <Button size="lg" className="bg-whatsapp hover:bg-whatsapp/90 text-white gap-2 text-base px-8" asChild>
+            <Button size="lg" className="bg-whatsapp hover:bg-whatsapp/90 text-white gap-2" asChild>
               <a
                 href="https://wa.me/573176268307?text=Hola%2C%20quiero%20ser%20representante%20de%20SistecPOS%20en%20mi%20ciudad"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Postularme como Representante
+                Escribir por WhatsApp
                 <ArrowRight className="h-5 w-5" />
               </a>
             </Button>
