@@ -1,0 +1,432 @@
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Bot, Plus, Pencil, Trash2, GripVertical, FileText, HelpCircle, MessageSquareText,
+  Eye, EyeOff, MessagesSquare, Users,
+} from "lucide-react";
+
+interface KBEntry {
+  id: string;
+  entry_type: string;
+  title: string;
+  content: string;
+  category: string | null;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+}
+
+interface Conversation {
+  id: string;
+  session_id: string;
+  visitor_name: string | null;
+  visitor_email: string | null;
+  source_page: string | null;
+  is_lead_captured: boolean;
+  message_count: number;
+  created_at: string;
+}
+
+interface Message {
+  id: string;
+  role: string;
+  content: string;
+  created_at: string;
+}
+
+const entryTypeConfig: Record<string, { label: string; icon: typeof HelpCircle; color: string }> = {
+  faq: { label: "FAQ", icon: HelpCircle, color: "bg-blue-500/10 text-blue-700" },
+  document: { label: "Documento", icon: FileText, color: "bg-whatsapp/10 text-whatsapp" },
+  custom_text: { label: "Texto Libre", icon: MessageSquareText, color: "bg-purple-500/10 text-purple-700" },
+};
+
+export default function CentralIAView() {
+  return (
+    <div>
+      <div className="mb-6 flex items-center gap-3">
+        <Bot className="h-6 w-6 text-primary" />
+        <div>
+          <h1 className="text-2xl font-bold font-display">Central IA</h1>
+          <p className="text-sm text-muted-foreground">Entrenamiento del chatbot y gestión de conversaciones</p>
+        </div>
+      </div>
+
+      <Tabs defaultValue="knowledge" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="knowledge" className="gap-1.5">
+            <FileText className="h-4 w-4" /> Base de Conocimiento
+          </TabsTrigger>
+          <TabsTrigger value="conversations" className="gap-1.5">
+            <MessagesSquare className="h-4 w-4" /> Conversaciones
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="knowledge"><KnowledgeBaseTab /></TabsContent>
+        <TabsContent value="conversations"><ConversationsTab /></TabsContent>
+      </Tabs>
+    </div>
+  );
+}
+
+function KnowledgeBaseTab() {
+  const [entries, setEntries] = useState<KBEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [editing, setEditing] = useState<KBEntry | null>(null);
+  const [filterType, setFilterType] = useState("all");
+  const { toast } = useToast();
+
+  const load = async () => {
+    setLoading(true);
+    let query = supabase.from("ai_knowledge_base").select("*").order("sort_order").order("created_at", { ascending: false });
+    if (filterType !== "all") query = query.eq("entry_type", filterType);
+    const { data } = await query;
+    setEntries((data as KBEntry[]) || []);
+    setLoading(false);
+  };
+
+  useEffect(() => { load(); }, [filterType]);
+
+  const toggleActive = async (id: string, current: boolean) => {
+    await supabase.from("ai_knowledge_base").update({ is_active: !current }).eq("id", id);
+    setEntries((prev) => prev.map((e) => (e.id === id ? { ...e, is_active: !current } : e)));
+  };
+
+  const deleteEntry = async (id: string) => {
+    if (!confirm("¿Eliminar esta entrada?")) return;
+    await supabase.from("ai_knowledge_base").delete().eq("id", id);
+    setEntries((prev) => prev.filter((e) => e.id !== id));
+    toast({ title: "Entrada eliminada" });
+  };
+
+  const openEdit = (entry: KBEntry) => {
+    setEditing(entry);
+    setShowForm(true);
+  };
+
+  const handleFormClose = () => {
+    setShowForm(false);
+    setEditing(null);
+    load();
+  };
+
+  return (
+    <div>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <Select value={filterType} onValueChange={setFilterType}>
+            <SelectTrigger className="h-9 w-40 text-xs"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos los tipos</SelectItem>
+              <SelectItem value="faq">FAQs</SelectItem>
+              <SelectItem value="document">Documentos</SelectItem>
+              <SelectItem value="custom_text">Texto Libre</SelectItem>
+            </SelectContent>
+          </Select>
+          <Badge variant="outline" className="text-xs">
+            {entries.filter((e) => e.is_active).length} activas / {entries.length} total
+          </Badge>
+        </div>
+
+        <Dialog open={showForm} onOpenChange={(open) => { if (!open) handleFormClose(); else setShowForm(true); }}>
+          <DialogTrigger asChild>
+            <Button size="sm"><Plus className="h-3.5 w-3.5 mr-1" /> Nueva Entrada</Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>{editing ? "Editar Entrada" : "Nueva Entrada"}</DialogTitle>
+            </DialogHeader>
+            <KBEntryForm entry={editing} onSuccess={handleFormClose} />
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      <div className="space-y-2">
+        {loading ? (
+          <div className="py-8 text-center text-muted-foreground">Cargando...</div>
+        ) : entries.length === 0 ? (
+          <div className="py-12 text-center">
+            <Bot className="h-12 w-12 mx-auto text-muted-foreground/50 mb-3" />
+            <p className="text-muted-foreground">No hay entradas en la base de conocimiento</p>
+            <p className="text-xs text-muted-foreground mt-1">Agrega FAQs, documentos o textos para entrenar el chatbot</p>
+          </div>
+        ) : (
+          entries.map((entry) => {
+            const config = entryTypeConfig[entry.entry_type] || entryTypeConfig.faq;
+            const Icon = config.icon;
+            return (
+              <div
+                key={entry.id}
+                className={`flex items-start gap-3 rounded-lg border p-4 transition-colors ${
+                  entry.is_active ? "bg-card" : "bg-muted/30 opacity-60"
+                }`}
+              >
+                <GripVertical className="h-4 w-4 mt-1 text-muted-foreground/40 cursor-grab" />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Badge className={`text-[10px] ${config.color}`}>
+                      <Icon className="h-3 w-3 mr-0.5" /> {config.label}
+                    </Badge>
+                    {entry.category && (
+                      <Badge variant="outline" className="text-[10px]">{entry.category}</Badge>
+                    )}
+                  </div>
+                  <h3 className="font-medium text-sm">{entry.title}</h3>
+                  <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{entry.content}</p>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <Switch
+                    checked={entry.is_active}
+                    onCheckedChange={() => toggleActive(entry.id, entry.is_active)}
+                  />
+                  <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => openEdit(entry)}>
+                    <Pencil className="h-3.5 w-3.5" />
+                  </Button>
+                  <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive" onClick={() => deleteEntry(entry.id)}>
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+    </div>
+  );
+}
+
+function KBEntryForm({ entry, onSuccess }: { entry: KBEntry | null; onSuccess: () => void }) {
+  const [form, setForm] = useState({
+    entry_type: entry?.entry_type || "faq",
+    title: entry?.title || "",
+    content: entry?.content || "",
+    category: entry?.category || "",
+    is_active: entry?.is_active ?? true,
+    sort_order: entry?.sort_order ?? 0,
+  });
+  const [saving, setSaving] = useState(false);
+  const { toast } = useToast();
+
+  const handle = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.title.trim() || !form.content.trim()) return;
+    setSaving(true);
+
+    const payload = {
+      entry_type: form.entry_type,
+      title: form.title,
+      content: form.content,
+      category: form.category || null,
+      is_active: form.is_active,
+      sort_order: form.sort_order,
+    };
+
+    const { error } = entry
+      ? await supabase.from("ai_knowledge_base").update(payload).eq("id", entry.id)
+      : await supabase.from("ai_knowledge_base").insert(payload);
+
+    setSaving(false);
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: entry ? "Entrada actualizada" : "Entrada creada" });
+      onSuccess();
+    }
+  };
+
+  const set = (k: string, v: any) => setForm((p) => ({ ...p, [k]: v }));
+
+  return (
+    <form onSubmit={handle} className="space-y-4">
+      <div className="grid grid-cols-3 gap-3">
+        <div>
+          <Label className="text-xs">Tipo</Label>
+          <Select value={form.entry_type} onValueChange={(v) => set("entry_type", v)}>
+            <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="faq">FAQ</SelectItem>
+              <SelectItem value="document">Documento</SelectItem>
+              <SelectItem value="custom_text">Texto Libre</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-xs">Categoría</Label>
+          <Input value={form.category} onChange={(e) => set("category", e.target.value)} placeholder="Ej: Precios" className="h-9" />
+        </div>
+        <div>
+          <Label className="text-xs">Orden</Label>
+          <Input type="number" value={form.sort_order} onChange={(e) => set("sort_order", parseInt(e.target.value) || 0)} className="h-9" />
+        </div>
+      </div>
+
+      <div>
+        <Label className="text-xs">{form.entry_type === "faq" ? "Pregunta *" : "Título *"}</Label>
+        <Input value={form.title} onChange={(e) => set("title", e.target.value)} required className="h-9" />
+      </div>
+
+      <div>
+        <Label className="text-xs">{form.entry_type === "faq" ? "Respuesta *" : "Contenido *"}</Label>
+        <Textarea value={form.content} onChange={(e) => set("content", e.target.value)} required rows={6} />
+      </div>
+
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Switch checked={form.is_active} onCheckedChange={(v) => set("is_active", v)} />
+          <Label className="text-xs">Activa</Label>
+        </div>
+        <Button type="submit" disabled={saving}>{saving ? "Guardando..." : entry ? "Actualizar" : "Crear"}</Button>
+      </div>
+    </form>
+  );
+}
+
+function ConversationsTab() {
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedConv, setSelectedConv] = useState<string | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [loadingMsgs, setLoadingMsgs] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase
+        .from("ai_conversations")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(50);
+      setConversations((data as Conversation[]) || []);
+      setLoading(false);
+    })();
+  }, []);
+
+  const loadMessages = async (convId: string) => {
+    setSelectedConv(convId);
+    setLoadingMsgs(true);
+    const { data } = await supabase
+      .from("ai_messages")
+      .select("*")
+      .eq("conversation_id", convId)
+      .order("created_at");
+    setMessages((data as Message[]) || []);
+    setLoadingMsgs(false);
+  };
+
+  if (selectedConv) {
+    const conv = conversations.find((c) => c.id === selectedConv);
+    return (
+      <div>
+        <Button variant="ghost" size="sm" onClick={() => setSelectedConv(null)} className="mb-4">
+          ← Volver a conversaciones
+        </Button>
+        <div className="mb-4 flex items-center gap-3">
+          <h2 className="font-medium text-sm">
+            {conv?.visitor_name || "Visitante anónimo"}
+          </h2>
+          {conv?.is_lead_captured && (
+            <Badge className="bg-whatsapp/10 text-whatsapp text-[10px]">
+              <Users className="h-3 w-3 mr-0.5" /> Lead capturado
+            </Badge>
+          )}
+          {conv?.source_page && (
+            <Badge variant="outline" className="text-[10px]">{conv.source_page}</Badge>
+          )}
+        </div>
+
+        <div className="space-y-3 rounded-lg border bg-card p-4 max-h-[60vh] overflow-y-auto">
+          {loadingMsgs ? (
+            <p className="text-center text-muted-foreground text-sm">Cargando...</p>
+          ) : messages.length === 0 ? (
+            <p className="text-center text-muted-foreground text-sm">Sin mensajes</p>
+          ) : (
+            messages.map((m) => (
+              <div
+                key={m.id}
+                className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
+              >
+                <div
+                  className={`max-w-[75%] rounded-lg px-4 py-2 text-sm ${
+                    m.role === "user"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted"
+                  }`}
+                >
+                  <p className="whitespace-pre-wrap">{m.content.replace(/\[LEAD_DATA:[^\]]*\]/g, "")}</p>
+                  <p className="text-[10px] opacity-60 mt-1">
+                    {new Date(m.created_at).toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" })}
+                  </p>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      {loading ? (
+        <div className="py-8 text-center text-muted-foreground">Cargando...</div>
+      ) : conversations.length === 0 ? (
+        <div className="py-12 text-center">
+          <MessagesSquare className="h-12 w-12 mx-auto text-muted-foreground/50 mb-3" />
+          <p className="text-muted-foreground">No hay conversaciones aún</p>
+          <p className="text-xs text-muted-foreground mt-1">Las conversaciones aparecerán aquí cuando los visitantes usen el chatbot</p>
+        </div>
+      ) : (
+        <div className="rounded-lg border bg-card overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b bg-muted/50">
+                <th className="px-4 py-3 text-left font-medium">Visitante</th>
+                <th className="px-4 py-3 text-left font-medium">Página</th>
+                <th className="px-4 py-3 text-left font-medium">Mensajes</th>
+                <th className="px-4 py-3 text-left font-medium">Lead</th>
+                <th className="px-4 py-3 text-left font-medium">Fecha</th>
+              </tr>
+            </thead>
+            <tbody>
+              {conversations.map((c) => (
+                <tr
+                  key={c.id}
+                  className="border-b hover:bg-muted/30 cursor-pointer transition-colors"
+                  onClick={() => loadMessages(c.id)}
+                >
+                  <td className="px-4 py-3 font-medium">
+                    {c.visitor_name || "Anónimo"}
+                    {c.visitor_email && <div className="text-xs text-muted-foreground">{c.visitor_email}</div>}
+                  </td>
+                  <td className="px-4 py-3 text-xs text-muted-foreground">{c.source_page || "—"}</td>
+                  <td className="px-4 py-3">
+                    <Badge variant="outline" className="text-xs">{c.message_count}</Badge>
+                  </td>
+                  <td className="px-4 py-3">
+                    {c.is_lead_captured ? (
+                      <Badge className="bg-whatsapp/10 text-whatsapp text-[10px]">✓ Capturado</Badge>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">—</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-xs text-muted-foreground whitespace-nowrap">
+                    {new Date(c.created_at).toLocaleDateString("es-CO", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
