@@ -1,14 +1,16 @@
+import { forwardRef } from "react";
 import { MessageCircle } from "lucide-react";
 import { motion } from "framer-motion";
 
 const WHATSAPP_NUMBER = "573176268307";
 const WHATSAPP_MESSAGE = "Hola Sistecpos, quiero información sobre el software";
 
-export function WhatsAppButton() {
+export const WhatsAppButton = forwardRef<HTMLAnchorElement>((_props, ref) => {
   const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`;
 
   return (
     <motion.a
+      ref={ref}
       href={whatsappUrl}
       target="_blank"
       rel="noopener noreferrer"
@@ -23,9 +25,11 @@ export function WhatsAppButton() {
       <span className="absolute h-14 w-14 rounded-full bg-whatsapp animate-pulse-ring" />
       
       {/* Button */}
-      <div className="relative flex h-14 w-14 items-center justify-center rounded-full bg-whatsapp text-whatsapp-foreground shadow-lg hover:shadow-xl transition-shadow">
+      <div className="relative flex h-14 w-14 items-center justify-center rounded-full bg-whatsapp text-white shadow-lg hover:shadow-xl transition-shadow">
         <MessageCircle className="h-7 w-7" />
       </div>
     </motion.a>
   );
-}
+});
+
+WhatsAppButton.displayName = "WhatsAppButton";

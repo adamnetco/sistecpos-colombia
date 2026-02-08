@@ -85,7 +85,7 @@ export function HeroSection() {
             <Button
               asChild
               size="lg"
-              className="bg-whatsapp hover:bg-whatsapp/90 text-whatsapp-foreground text-base h-12 px-8"
+              className="bg-whatsapp hover:bg-whatsapp/90 text-white text-base h-12 px-8"
             >
               <a
                 href="https://wa.me/573176268307?text=Hola,%20quiero%20una%20demostración%20de%20SistecPOS"

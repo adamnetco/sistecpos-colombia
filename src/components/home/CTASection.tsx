@@ -32,7 +32,7 @@ export function CTASection() {
             <Button
               asChild
               size="lg"
-              className="bg-whatsapp hover:bg-whatsapp/90 text-whatsapp-foreground text-base h-14 px-10 shadow-lg"
+              className="bg-whatsapp hover:bg-whatsapp/90 text-white text-base h-14 px-10 shadow-lg"
             >
               <a
                 href="https://wa.me/573176268307?text=Hola,%20quiero%20agendar%20una%20visita%20para%20conocer%20SistecPOS"
