@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { MessageCircle, ArrowRight } from "lucide-react";
+import { MessageCircle, ArrowRight, Shield, Clock, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function CTASection() {
@@ -19,8 +19,14 @@ export function CTASection() {
           transition={{ duration: 0.5 }}
           className="mx-auto max-w-3xl text-center text-primary-foreground"
         >
-          <h2 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl">
-            ¿Listo para sistematizar tu negocio?
+          {/* Urgency badge */}
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-1.5 text-sm font-semibold backdrop-blur-sm">
+            <Clock className="h-4 w-4" />
+            Prueba gratis — Sin contratos, cancela cuando quieras
+          </div>
+
+          <h2 className="font-display text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl">
+            ¿Listo para vender más y preocuparte menos?
           </h2>
           
           <p className="mt-6 text-lg text-primary-foreground/80 md:text-xl">
@@ -28,11 +34,33 @@ export function CTASection() {
             el control de tu negocio desde internet. Agenda una visita sin compromiso.
           </p>
 
+          {/* Testimonial snippet */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.3 }}
+            className="mx-auto mt-8 max-w-lg rounded-xl bg-white/10 p-4 backdrop-blur-sm"
+          >
+            <div className="flex items-center justify-center gap-1 mb-2">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <Star key={i} className="h-4 w-4 fill-cta text-cta" />
+              ))}
+            </div>
+            <p className="text-sm italic text-primary-foreground/90">
+              "Desde que instalamos SistecPOS, el inventario cuadra y facturamos en segundos. 
+              El soporte es real, no un bot."
+            </p>
+            <p className="mt-2 text-xs font-medium text-primary-foreground/70">
+              — Carlos M., Mini Market, Bucaramanga
+            </p>
+          </motion.div>
+
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Button
               asChild
               size="lg"
-              className="bg-whatsapp hover:bg-whatsapp/90 text-white text-base h-14 px-10 shadow-lg"
+              className="bg-cta hover:bg-cta/90 text-white text-base h-14 px-10 shadow-lg font-bold"
             >
               <a
                 href="https://wa.me/573176268307?text=Hola,%20quiero%20agendar%20una%20visita%20para%20conocer%20SistecPOS"
@@ -57,14 +85,18 @@ export function CTASection() {
             </Button>
           </div>
 
-          <div className="mt-8 flex items-center justify-center gap-6 text-sm text-primary-foreground/70">
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-sm text-primary-foreground/70">
             <div className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-whatsapp"></span>
+              <Shield className="h-4 w-4" />
               Respuesta inmediata
             </div>
             <div className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-whatsapp"></span>
+              <Shield className="h-4 w-4" />
               Sin compromiso
+            </div>
+            <div className="flex items-center gap-2">
+              <Shield className="h-4 w-4" />
+              Instalación presencial
             </div>
           </div>
         </motion.div>
