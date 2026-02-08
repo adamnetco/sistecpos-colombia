@@ -1,5 +1,6 @@
 import { Layout } from "@/components/layout/Layout";
 import { DynamicMeta } from "@/components/seo/DynamicMeta";
+import { DemoRequestForm } from "@/components/forms/DemoRequestForm";
 import { motion } from "framer-motion";
 import {
   MapPin,
@@ -110,11 +111,59 @@ export default function ContactoPage() {
             transition={{ duration: 0.6 }}
             className="text-center max-w-3xl mx-auto"
           >
-            <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">Contáctanos</h1>
+            <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-6" id="titulo">Contáctanos</h1>
             <p className="text-xl text-muted-foreground">
               Estamos listos para ayudarte a transformar tu negocio con la mejor solución POS en Santander
             </p>
           </motion.div>
+        </div>
+      </section>
+
+      {/* Demo Request Form */}
+      <section className="py-16 bg-muted/30" id="demo">
+        <div className="container px-4">
+          <div className="grid gap-10 lg:grid-cols-2 items-start">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
+              <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
+                Prueba Gratis por 7 Días
+              </h2>
+              <p className="text-lg text-muted-foreground mb-6">
+                Sin tarjeta de crédito. Sin compromisos. Acceso completo al software POS con todas las funcionalidades.
+              </p>
+              <ul className="space-y-3 text-muted-foreground">
+                <li className="flex items-center gap-3">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-whatsapp/10 text-whatsapp text-sm">✓</span>
+                  Instalación y configuración incluida
+                </li>
+                <li className="flex items-center gap-3">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-whatsapp/10 text-whatsapp text-sm">✓</span>
+                  Capacitación personalizada para tu equipo
+                </li>
+                <li className="flex items-center gap-3">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-whatsapp/10 text-whatsapp text-sm">✓</span>
+                  Soporte técnico ilimitado durante la prueba
+                </li>
+                <li className="flex items-center gap-3">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-whatsapp/10 text-whatsapp text-sm">✓</span>
+                  Facturación electrónica DIAN incluida
+                </li>
+              </ul>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
+              <DemoRequestForm />
+            </motion.div>
+          </div>
         </div>
       </section>
 

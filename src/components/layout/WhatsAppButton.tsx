@@ -2,7 +2,7 @@ import { MessageCircle } from "lucide-react";
 import { motion } from "framer-motion";
 
 const WHATSAPP_NUMBER = "573176268307";
-const WHATSAPP_MESSAGE = "Hola, quiero información sobre SistecPOS";
+const WHATSAPP_MESSAGE = "Hola Sistecpos, quiero información sobre el software";
 
 export function WhatsAppButton() {
   const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`;

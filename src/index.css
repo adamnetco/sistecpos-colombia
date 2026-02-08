@@ -34,6 +34,10 @@
     --accent: 199 89% 48%;
     --accent-foreground: 0 0% 100%;
 
+    /* CTA Orange for high-contrast buttons */
+    --cta: 25 95% 53%;
+    --cta-foreground: 0 0% 100%;
+
     /* Cards and surfaces */
     --card: 0 0% 100%;
     --card-foreground: 222 47% 11%;
