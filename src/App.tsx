@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider } from "@/hooks/useAuth";
 
 import { ScrollToTop } from "./components/ScrollToTop";
 
@@ -34,6 +35,8 @@ const GuiasDianHubPage = lazy(() => import("./pages/GuiasDianHubPage"));
 const GuiaDianPage = lazy(() => import("./pages/GuiaDianPage"));
 const CalculadoraUVTPage = lazy(() => import("./pages/CalculadoraUVTPage"));
 const ValidadorNITPage = lazy(() => import("./pages/ValidadorNITPage"));
+const AuthPage = lazy(() => import("./pages/AuthPage"));
+const AdminPage = lazy(() => import("./pages/AdminPage"));
 
 const queryClient = new QueryClient();
 
@@ -52,39 +55,44 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <ScrollToTop />
-          <Suspense fallback={<PageLoader />}>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/soluciones" element={<SolucionesPage />} />
-              <Route path="/pos-para-restaurantes" element={<RestaurantesPage />} />
-              <Route path="/pos-para-retail" element={<RetailPage />} />
-              <Route path="/soluciones/:slug" element={<SolucionNegocioPage />} />
-              <Route path="/software-pos-colombia" element={<SoftwarePosColombiaPage />} />
-              <Route path="/facturacion-electronica" element={<FacturacionElectronicaPage />} />
-              <Route path="/software-pos/:city" element={<SoftwarePosLocalPage />} />
-              <Route path="/productos" element={<ProductosPage />} />
-              <Route path="/productos/:slug" element={<ProductoDetallePage />} />
-              <Route path="/nosotros" element={<NosotrosPage />} />
-              <Route path="/comparativa-licencias" element={<ComparativaLicenciasPage />} />
-              <Route path="/comparar" element={<CompararPage />} />
-              <Route path="/comparar/:slug" element={<ComparacionCompetidorPage />} />
-              <Route path="/representantes" element={<RepresentantesPage />} />
-              <Route path="/guias-dian" element={<GuiasDianHubPage />} />
-              <Route path="/guias-dian/:slug" element={<GuiaDianPage />} />
-              <Route path="/herramientas/calculadora-uvt" element={<CalculadoraUVTPage />} />
-              <Route path="/herramientas/validador-nit" element={<ValidadorNITPage />} />
-              <Route path="/contacto" element={<ContactoPage />} />
-              <Route path="/gracias" element={<GraciasPage />} />
-              <Route path="/politica-privacidad" element={<PoliticaPrivacidadPage />} />
-              <Route path="/terminos-condiciones" element={<TerminosCondicionesPage />} />
-              {/* Redirects para URLs antiguas indexadas */}
-              <Route path="/hello-world" element={<Navigate to="/software-pos-colombia" replace />} />
-              <Route path="/c/uncategorized" element={<Navigate to="/productos" replace />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
+          <AuthProvider>
+            <ScrollToTop />
+            <Suspense fallback={<PageLoader />}>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/soluciones" element={<SolucionesPage />} />
+                <Route path="/pos-para-restaurantes" element={<RestaurantesPage />} />
+                <Route path="/pos-para-retail" element={<RetailPage />} />
+                <Route path="/soluciones/:slug" element={<SolucionNegocioPage />} />
+                <Route path="/software-pos-colombia" element={<SoftwarePosColombiaPage />} />
+                <Route path="/facturacion-electronica" element={<FacturacionElectronicaPage />} />
+                <Route path="/software-pos/:city" element={<SoftwarePosLocalPage />} />
+                <Route path="/productos" element={<ProductosPage />} />
+                <Route path="/productos/:slug" element={<ProductoDetallePage />} />
+                <Route path="/nosotros" element={<NosotrosPage />} />
+                <Route path="/comparativa-licencias" element={<ComparativaLicenciasPage />} />
+                <Route path="/comparar" element={<CompararPage />} />
+                <Route path="/comparar/:slug" element={<ComparacionCompetidorPage />} />
+                <Route path="/representantes" element={<RepresentantesPage />} />
+                <Route path="/guias-dian" element={<GuiasDianHubPage />} />
+                <Route path="/guias-dian/:slug" element={<GuiaDianPage />} />
+                <Route path="/herramientas/calculadora-uvt" element={<CalculadoraUVTPage />} />
+                <Route path="/herramientas/validador-nit" element={<ValidadorNITPage />} />
+                <Route path="/contacto" element={<ContactoPage />} />
+                <Route path="/gracias" element={<GraciasPage />} />
+                <Route path="/politica-privacidad" element={<PoliticaPrivacidadPage />} />
+                <Route path="/terminos-condiciones" element={<TerminosCondicionesPage />} />
+                {/* Auth & Admin */}
+                <Route path="/auth" element={<AuthPage />} />
+                <Route path="/admin/*" element={<AdminPage />} />
+                {/* Redirects para URLs antiguas indexadas */}
+                <Route path="/hello-world" element={<Navigate to="/software-pos-colombia" replace />} />
+                <Route path="/c/uncategorized" element={<Navigate to="/productos" replace />} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
+          </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
