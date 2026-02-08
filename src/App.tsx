@@ -18,6 +18,7 @@ import SolucionNegocioPage from "./pages/SolucionNegocioPage";
 import SoftwarePosLocalPage from "./pages/SoftwarePosLocalPage";
 import SoftwarePosColombiaPage from "./pages/SoftwarePosColombiaPage";
 import FacturacionElectronicaPage from "./pages/FacturacionElectronicaPage";
+import GraciasPage from "./pages/GraciasPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -44,6 +45,7 @@ const App = () => (
             <Route path="/nosotros" element={<NosotrosPage />} />
             <Route path="/comparativa-licencias" element={<ComparativaLicenciasPage />} />
             <Route path="/contacto" element={<ContactoPage />} />
+            <Route path="/gracias" element={<GraciasPage />} />
             {/* Redirects para URLs antiguas indexadas */}
             <Route path="/hello-world" element={<Navigate to="/software-pos-colombia" replace />} />
             <Route path="/c/uncategorized" element={<Navigate to="/productos" replace />} />

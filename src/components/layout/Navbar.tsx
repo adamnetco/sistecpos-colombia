@@ -146,12 +146,12 @@ export function Navbar() {
           </Link>
         </div>
 
-        {/* CTA Button */}
-        <div className="hidden md:block">
-          <Button asChild className="bg-whatsapp hover:bg-whatsapp/90 text-whatsapp-foreground">
-            <a href="https://wa.me/573176268307?text=Hola,%20quiero%20información%20sobre%20SistecPOS" target="_blank" rel="noopener noreferrer">
-              Agenda tu Instalación
-            </a>
+        {/* CTA Buttons */}
+        <div className="hidden md:flex md:items-center md:gap-2">
+          <Button asChild size="sm" className="bg-cta hover:bg-cta/90 text-cta-foreground font-semibold">
+            <Link to="/contacto#demo">
+              Prueba Gratis 7 Días
+            </Link>
           </Button>
         </div>
 
@@ -210,10 +210,10 @@ export function Navbar() {
                 Comparar POS
               </Link>
 
-              <Button asChild className="w-full bg-whatsapp hover:bg-whatsapp/90 text-whatsapp-foreground">
-                <a href="https://wa.me/573176268307?text=Hola,%20quiero%20información%20sobre%20SistecPOS" target="_blank" rel="noopener noreferrer">
-                  Agenda tu Instalación
-                </a>
+              <Button asChild className="w-full bg-cta hover:bg-cta/90 text-cta-foreground font-semibold">
+                <Link to="/contacto#demo" onClick={() => setMobileMenuOpen(false)}>
+                  Prueba Gratis 7 Días
+                </Link>
               </Button>
             </div>
           </motion.div>}

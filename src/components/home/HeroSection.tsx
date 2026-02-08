@@ -33,8 +33,9 @@ export function HeroSection() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
             className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl"
+            id="titulo"
           >
-            Software POS{" "}
+            Software POS y Facturación Electrónica DIAN{" "}
             <span className="gradient-text">100% en la Nube</span>
           </motion.h1>
 
