@@ -141,7 +141,7 @@ export function Navbar() {
             Software POS Colombia
           </Link>
 
-          <Link to="/comparativa-licencias" className={cn("px-4 py-2 text-sm font-medium transition-colors rounded-md hover:bg-muted", isActive("/comparativa-licencias") && "text-primary")}>
+          <Link to="/comparar" className={cn("px-4 py-2 text-sm font-medium transition-colors rounded-md hover:bg-muted", (isActive("/comparar") || location.pathname.startsWith("/comparar/")) && "text-primary")}>
             Comparar POS
           </Link>
         </div>
@@ -206,7 +206,7 @@ export function Navbar() {
                 Software POS Colombia
               </Link>
 
-              <Link to="/comparativa-licencias" className="block py-2 text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>
+              <Link to="/comparar" className="block py-2 text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>
                 Comparar POS
               </Link>
 

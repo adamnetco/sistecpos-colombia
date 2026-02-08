@@ -33,7 +33,8 @@ const footerLinks = {
   empresa: [
     { name: "Software POS Colombia", href: "/software-pos-colombia" },
     { name: "Facturación Electrónica", href: "/facturacion-electronica" },
-    { name: "Comparar POS", href: "/comparativa-licencias" },
+    { name: "Comparar POS", href: "/comparar" },
+    { name: "Comparativa Licencias", href: "/comparativa-licencias" },
     { name: "Nosotros", href: "/nosotros" },
     { name: "Contacto", href: "/contacto" },
   ],

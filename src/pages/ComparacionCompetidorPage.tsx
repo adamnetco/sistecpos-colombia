@@ -1,0 +1,288 @@
+import { useParams, Link, Navigate } from "react-router-dom";
+import { Layout } from "@/components/layout/Layout";
+import { DynamicMeta } from "@/components/seo/DynamicMeta";
+import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
+import { JsonLd, faqSchema } from "@/components/seo/JsonLd";
+import { getCompetitorBySlug, competitors } from "@/data/competitors";
+import { motion } from "framer-motion";
+import { Check, X, MessageCircle, ArrowRight, Shield, WifiOff, Users, Wrench, Globe, Star } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+
+function FeatureValue({ value }: { value: boolean | string }) {
+  if (value === true) return <Check className="h-5 w-5 text-whatsapp mx-auto" />;
+  if (value === false) return <X className="h-5 w-5 text-destructive/50 mx-auto" />;
+  return <span className="text-xs text-muted-foreground text-center block">{value}</span>;
+}
+
+const differentiators = [
+  { icon: WifiOff, title: "Modo Offline 8 Días", desc: "Funciona sin internet con sincronización automática" },
+  { icon: Users, title: "Soporte Presencial", desc: "Instalación y capacitación en tu local" },
+  { icon: Shield, title: "DIAN Integrada", desc: "Facturación electrónica sin intermediarios" },
+  { icon: Wrench, title: "16 Módulos", desc: "Especializados por tipo de industria" },
+];
+
+export default function ComparacionCompetidorPage() {
+  const { slug } = useParams<{ slug: string }>();
+  const competitor = slug ? getCompetitorBySlug(slug) : undefined;
+
+  if (!competitor) return <Navigate to="/comparar" replace />;
+
+  const otherCompetitors = competitors.filter((c) => c.slug !== competitor.slug).slice(0, 4);
+
+  return (
+    <Layout>
+      <DynamicMeta
+        title={`${competitor.name} vs SistecPOS | Comparativa Software POS Colombia 2025`}
+        description={competitor.metaDescription}
+        canonical={`https://sistecpos.lovable.app/comparar/${competitor.slug}`}
+      />
+      <JsonLd data={faqSchema(competitor.faqs)} />
+
+      <Breadcrumbs
+        items={[
+          { label: "Comparar POS", href: "/comparar" },
+          { label: `${competitor.name} vs SistecPOS` },
+        ]}
+      />
+
+      {/* Hero */}
+      <section className="py-16 md:py-24 gradient-bg text-primary-foreground overflow-hidden relative">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.2),transparent_50%)]" />
+        </div>
+        <div className="container px-4 relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="text-center max-w-4xl mx-auto"
+          >
+            <Badge className="mb-4 bg-white/20 text-white border-white/30">
+              Comparativa 2025
+            </Badge>
+            <h1 className="text-3xl md:text-5xl font-bold mb-4">
+              {competitor.name} vs SistecPOS
+            </h1>
+            <p className="text-lg md:text-xl text-primary-foreground/80 mb-2">
+              {competitor.tagline}
+            </p>
+            <p className="text-sm text-primary-foreground/60 mb-8">
+              {competitor.type === "open-source" ? "🔓 Open Source" : "☁️ SaaS"} · Origen: {competitor.origin}
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button size="lg" className="bg-whatsapp hover:bg-whatsapp/90 text-whatsapp-foreground gap-2" asChild>
+                <a
+                  href={`https://wa.me/573176268307?text=Hola,%20estoy%20comparando%20${competitor.name}%20vs%20SistecPOS%20y%20quiero%20más%20información`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <MessageCircle className="h-5 w-5" />
+                  Asesoría Gratis
+                </a>
+              </Button>
+              <Button size="lg" variant="secondary" asChild>
+                <Link to="/contacto#demo">Prueba Gratis 7 Días</Link>
+              </Button>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Key Differentiators */}
+      <section className="py-12 md:py-16 bg-muted/30">
+        <div className="container px-4">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 max-w-5xl mx-auto">
+            {differentiators.map((d, i) => (
+              <motion.div
+                key={d.title}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+              >
+                <Card className="h-full text-center border-primary/10">
+                  <CardContent className="p-5">
+                    <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                      <d.icon className="h-5 w-5 text-primary" />
+                    </div>
+                    <h3 className="font-semibold text-sm mb-1">{d.title}</h3>
+                    <p className="text-xs text-muted-foreground">{d.desc}</p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* About competitor */}
+      <section className="py-16 md:py-20">
+        <div className="container px-4 max-w-4xl mx-auto">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+            <h2 className="text-3xl font-bold tracking-tight md:text-4xl mb-4 text-center">
+              ¿Qué es <span className="gradient-text">{competitor.name}</span>?
+            </h2>
+            <p className="text-lg text-muted-foreground text-center mb-8">{competitor.description}</p>
+
+            <div className="grid gap-6 md:grid-cols-2">
+              <Card>
+                <CardContent className="p-6">
+                  <h3 className="font-semibold mb-3 flex items-center gap-2">
+                    <Globe className="h-5 w-5 text-muted-foreground" />
+                    Fortalezas de {competitor.name}
+                  </h3>
+                  <ul className="space-y-2">
+                    {competitor.strengths.map((s) => (
+                      <li key={s} className="flex items-start gap-2 text-sm text-muted-foreground">
+                        <Check className="h-4 w-4 text-muted-foreground/50 shrink-0 mt-0.5" />
+                        {s}
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+
+              <Card className="border-primary/20 bg-primary/5">
+                <CardContent className="p-6">
+                  <h3 className="font-semibold mb-3 flex items-center gap-2">
+                    <Star className="h-5 w-5 text-primary" />
+                    Ventajas de SistecPOS
+                  </h3>
+                  <ul className="space-y-2">
+                    {competitor.sistecposAdvantages.map((a) => (
+                      <li key={a} className="flex items-start gap-2 text-sm">
+                        <Check className="h-4 w-4 text-whatsapp shrink-0 mt-0.5" />
+                        <span className="font-medium">{a}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Feature Table */}
+      <section className="py-16 md:py-20 bg-muted/30">
+        <div className="container px-4">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
+            <h2 className="text-3xl font-bold tracking-tight md:text-4xl mb-4">
+              Comparativa de <span className="gradient-text">Funcionalidades</span>
+            </h2>
+          </motion.div>
+
+          <div className="max-w-3xl mx-auto overflow-x-auto">
+            <table className="w-full border-collapse bg-card rounded-xl overflow-hidden shadow-card">
+              <thead>
+                <tr className="border-b">
+                  <th className="text-left p-4 font-semibold">Característica</th>
+                  <th className="p-4 text-center font-semibold text-muted-foreground">{competitor.name}</th>
+                  <th className="p-4 text-center font-semibold text-primary bg-primary/5">
+                    SistecPOS
+                    <Badge variant="secondary" className="ml-2 text-xs"><Star className="h-3 w-3 mr-1" />#1</Badge>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {competitor.features.map((f, i) => (
+                  <tr key={f.feature} className={`border-b last:border-0 ${i % 2 === 0 ? "" : "bg-muted/30"}`}>
+                    <td className="p-4 text-sm font-medium">{f.feature}</td>
+                    <td className="p-4"><FeatureValue value={f.competitor} /></td>
+                    <td className="p-4 bg-primary/5"><FeatureValue value={f.sistecpos} /></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      {competitor.faqs.length > 0 && (
+        <section className="py-16 md:py-20">
+          <div className="container px-4">
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
+              <h2 className="text-3xl font-bold tracking-tight md:text-4xl mb-4">
+                Preguntas <span className="gradient-text">Frecuentes</span>
+              </h2>
+            </motion.div>
+            <div className="max-w-3xl mx-auto">
+              <Accordion type="single" collapsible className="w-full">
+                {competitor.faqs.map((faq, i) => (
+                  <AccordionItem key={i} value={`faq-${i}`}>
+                    <AccordionTrigger className="text-left">{faq.question}</AccordionTrigger>
+                    <AccordionContent className="text-muted-foreground">{faq.answer}</AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Other comparisons */}
+      <section className="py-16 md:py-20 bg-muted/30">
+        <div className="container px-4">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-8">
+            <h2 className="text-2xl font-bold tracking-tight md:text-3xl mb-4">
+              Otras <span className="gradient-text">Comparativas</span>
+            </h2>
+          </motion.div>
+          <div className="flex flex-wrap justify-center gap-3 max-w-3xl mx-auto mb-6">
+            {otherCompetitors.map((c) => (
+              <Link key={c.slug} to={`/comparar/${c.slug}`}>
+                <Badge variant="secondary" className="py-2 px-4 hover:bg-primary/20 transition-colors cursor-pointer">
+                  {c.name} vs SistecPOS
+                </Badge>
+              </Link>
+            ))}
+          </div>
+          <div className="text-center">
+            <Button variant="outline" asChild>
+              <Link to="/comparar" className="gap-2">
+                Ver todas las comparativas
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="py-16 md:py-24 bg-primary text-primary-foreground">
+        <div className="container px-4">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center max-w-3xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold mb-6">
+              ¿Listo para Probar SistecPOS?
+            </h2>
+            <p className="text-lg text-primary-foreground/80 mb-8">
+              7 días gratis, sin compromiso. Instalación y configuración incluida.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button size="lg" className="bg-cta hover:bg-cta/90 text-cta-foreground gap-2" asChild>
+                <Link to="/contacto#demo">
+                  Prueba Gratis 7 Días
+                </Link>
+              </Button>
+              <Button size="lg" className="bg-whatsapp hover:bg-whatsapp/90 text-whatsapp-foreground gap-2" asChild>
+                <a href="https://wa.me/573176268307?text=Hola,%20quiero%20probar%20SistecPOS" target="_blank" rel="noopener noreferrer">
+                  <MessageCircle className="h-5 w-5" />
+                  Escribir por WhatsApp
+                </a>
+              </Button>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+    </Layout>
+  );
+}
