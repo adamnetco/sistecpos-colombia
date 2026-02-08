@@ -64,11 +64,28 @@
   <url><loc>https://sistecpos.lovable.app/software-pos/valledupar</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://sistecpos.lovable.app/software-pos/santa-marta</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
 
-  <!-- Productos -->
-  <url><loc>https://sistecpos.lovable.app/productos/impresora-termica-58mm</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <!-- Licencias -->
+  <url><loc>https://sistecpos.lovable.app/productos/licencia-mensual-premium</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://sistecpos.lovable.app/productos/licencia-anual-basica</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://sistecpos.lovable.app/productos/licencia-anual-intermedio</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://sistecpos.lovable.app/productos/licencia-anual-premium</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://sistecpos.lovable.app/productos/licencia-anual-premium-contabilidad</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://sistecpos.lovable.app/productos/licencia-anual-premium-multitienda-2</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://sistecpos.lovable.app/productos/licencia-anual-premium-multitienda-3</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://sistecpos.lovable.app/productos/licencia-2-anos-premium</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+
+  <!-- Módulos -->
+  <url><loc>https://sistecpos.lovable.app/productos/modulo-contable</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://sistecpos.lovable.app/productos/modulo-tienda-online</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+
+  <!-- Hardware -->
   <url><loc>https://sistecpos.lovable.app/productos/impresora-termica-80mm</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://sistecpos.lovable.app/productos/lector-codigo-barras</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://sistecpos.lovable.app/productos/lector-inalambrico</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://sistecpos.lovable.app/productos/cajon-monedero</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://sistecpos.lovable.app/productos/impresora-termica-58mm</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://sistecpos.lovable.app/productos/impresora-etiquetas</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://sistecpos.lovable.app/productos/cajon-monedero-metalico</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://sistecpos.lovable.app/productos/cajon-monedero-compacto</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://sistecpos.lovable.app/productos/lector-codigo-barras-usb</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://sistecpos.lovable.app/productos/lector-codigo-barras-inalambrico</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://sistecpos.lovable.app/productos/papel-termico-80mm</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://sistecpos.lovable.app/productos/papel-termico-58mm</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
 </urlset>
