@@ -92,10 +92,29 @@
        "Servicio para comercios de todos los tamaños"
      ],
      nearbyAreas: ["Centro", "La Feria", "Paseo del Puente", "Guatiguará", "Vijagual", "Mensulí"],
-     isPresencial: true
-   },
- 
-   // ==================== BOGOTÁ Y CUNDINAMARCA ====================
+      isPresencial: true
+    },
+    {
+      slug: "lebrija",
+      city: "Lebrija",
+      cityFull: "Lebrija",
+      region: "Santander",
+      title: "Software POS en Lebrija",
+      heroTitle: "Software POS con Instalación Presencial en Lebrija",
+      heroSubtitle: "Llevamos el software POS a tu negocio en Lebrija. Instalación completa, capacitación y soporte técnico desde el área metropolitana.",
+      metaTitle: "Software POS en Lebrija | Instalación Presencial | SistecPOS",
+      metaDescription: "Software punto de venta para comercios en Lebrija, Santander. Instalación presencial, capacitación incluida y soporte técnico local.",
+      highlights: [
+        "Servicio presencial desde el área metropolitana",
+        "Instalación y configuración en tu local",
+        "Soporte técnico rápido",
+        "Ideal para comercios agrícolas y tiendas"
+      ],
+      nearbyAreas: ["Centro", "Zona Rural", "Vía al Aeropuerto", "La Renta", "San Bernardo"],
+      isPresencial: true
+    },
+  
+    // ==================== BOGOTÁ Y CUNDINAMARCA ====================
    {
      slug: "bogota",
      city: "Bogotá",

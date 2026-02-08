@@ -44,6 +44,7 @@ const presencialCities = [
   { name: "Floridablanca", href: "/software-pos/floridablanca" },
   { name: "Girón", href: "/software-pos/giron" },
   { name: "Piedecuesta", href: "/software-pos/piedecuesta" },
+  { name: "Lebrija", href: "/software-pos/lebrija" },
 ];
 
 export function Footer() {
@@ -175,8 +176,16 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Copyright */}
+        {/* Confianza Local */}
         <div className="mt-8 pt-8 border-t border-primary-foreground/10 text-center">
+          <p className="text-sm text-primary-foreground/70 font-medium">
+            🏢 Desarrollado en Floridablanca, Santander. Soporte local inmediato
+            <span className="text-primary-foreground/50"> (sin Call Centers en otros países).</span>
+          </p>
+        </div>
+
+        {/* Copyright */}
+        <div className="mt-6 pt-6 border-t border-primary-foreground/10 text-center">
           <p className="text-sm text-primary-foreground/50">
             © {new Date().getFullYear()} SistecPOS. Todos los derechos reservados.
           </p>

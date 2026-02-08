@@ -20,6 +20,7 @@ const cities: CityPoint[] = [
   { slug: "floridablanca", name: "Floridablanca", px: 52.8, py: 34.2, isPresencial: true, region: "Santander" },
   { slug: "giron", name: "Girón", px: 52.0, py: 33.8, isPresencial: true, region: "Santander" },
   { slug: "piedecuesta", name: "Piedecuesta", px: 53.2, py: 34.8, isPresencial: true, region: "Santander" },
+  { slug: "lebrija", name: "Lebrija", px: 51.5, py: 32.5, isPresencial: true, region: "Santander" },
   // Principales
   { slug: "bogota", name: "Bogotá", px: 48.5, py: 46.0, isPresencial: false, region: "Cundinamarca" },
   { slug: "medellin", name: "Medellín", px: 42.0, py: 38.0, isPresencial: false, region: "Antioquia" },
