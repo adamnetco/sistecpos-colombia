@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ApplicationForm } from "@/components/representantes/ApplicationForm";
+import { FAQSection } from "@/components/representantes/FAQSection";
 import {
   Handshake,
   TrendingUp,
@@ -343,8 +344,11 @@ export default function RepresentantesPage() {
         </div>
       </section>
 
+      {/* FAQ */}
+      <FAQSection />
+
       {/* Application Form */}
-      <section id="postularse" className="py-16 md:py-24 bg-background">
+      <section id="postularse" className="py-16 md:py-24 bg-secondary/30">
         <div className="container px-4">
           <ApplicationForm />
         </div>
