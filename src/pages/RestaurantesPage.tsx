@@ -82,7 +82,7 @@ const RestaurantesPage = () => {
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button 
                   size="lg" 
-                  className="bg-whatsapp hover:bg-whatsapp/90 text-whatsapp-foreground gap-2"
+                  className="bg-whatsapp hover:bg-whatsapp/90 text-white gap-2"
                   asChild
                 >
                   <a 
@@ -215,7 +215,7 @@ const RestaurantesPage = () => {
             </p>
             <Button 
               size="lg" 
-              className="bg-whatsapp hover:bg-whatsapp/90 text-whatsapp-foreground gap-2"
+              className="bg-whatsapp hover:bg-whatsapp/90 text-white gap-2"
               asChild
             >
               <a 
