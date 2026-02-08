@@ -1,4 +1,5 @@
 import { Layout } from "@/components/layout/Layout";
+import { DynamicMeta } from "@/components/seo/DynamicMeta";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { Target, Eye, Heart, Users, Award, Clock, MapPin, Phone } from "lucide-react";
@@ -48,6 +49,11 @@ const timeline = [
 export default function NosotrosPage() {
   return (
     <Layout>
+      <DynamicMeta
+        title="Sobre Nosotros | SistecPOS - Software POS en Santander"
+        description="Conoce a SistecPOS: empresa de software POS con soporte presencial en Bucaramanga y el Área Metropolitana. Compromiso local, calidad garantizada."
+        canonical="https://sistecpos.lovable.app/nosotros"
+      />
       {/* Hero Section */}
       <section className="relative py-20 md:py-28 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-secondary/50 to-background" />

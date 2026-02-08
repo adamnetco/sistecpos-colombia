@@ -14,6 +14,7 @@ import {
   Settings
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { DynamicMeta } from "@/components/seo/DynamicMeta";
 
 const benefits = [
   {
@@ -48,6 +49,11 @@ const installationIncludes = [
 const RestaurantesPage = () => {
   return (
     <Layout>
+      <DynamicMeta
+        title="Software POS para Restaurantes en Bucaramanga | SistecPOS"
+        description="Sistema POS especializado para restaurantes, bares y cafeterías. Gestión de comandas, mesas, recetas y división de cuentas. Instalación presencial en Bucaramanga."
+        canonical="https://sistecpos.lovable.app/pos-para-restaurantes"
+      />
       {/* Hero Section */}
       <section className="relative py-20 md:py-28 overflow-hidden">
         <div className="absolute inset-0 gradient-bg opacity-5" />

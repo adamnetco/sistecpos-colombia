@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
+import { DynamicMeta } from "@/components/seo/DynamicMeta";
 import { motion } from "framer-motion";
 import { Check, X, Crown, Star, Zap, Building2, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -127,6 +128,11 @@ const FeatureCheck = ({ value }: { value: boolean }) =>
 const ComparativaLicenciasPage = () => {
   return (
     <Layout>
+      <DynamicMeta
+        title="Comparativa de Software POS en Colombia | SistecPOS vs Competencia"
+        description="Compara SistecPOS con otros proveedores POS en Colombia. Funcionalidades, precios y soporte. Encuentra el mejor software para tu negocio."
+        canonical="https://sistecpos.lovable.app/comparativa-licencias"
+      />
       {/* Breadcrumb-like link to pillar page */}
       <div className="container px-4 py-3">
         <nav className="flex items-center gap-2 text-sm text-muted-foreground">
