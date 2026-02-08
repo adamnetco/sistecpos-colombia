@@ -383,12 +383,112 @@ const businessTestimonials: Record<string, Testimonial[]> = {
   ],
 };
 
+// Testimonios específicos por ciudad para landing pages locales
+const cityTestimonials: Record<string, Testimonial[]> = {
+  bogota: [
+    {
+      name: "Andrea Gutiérrez",
+      business: "Tienda Naturista Vida Sana",
+      location: "Chapinero, Bogotá",
+      quote: "Buscaba un POS que funcionara cuando se cae el internet en mi zona. SistecPOS me solucionó ese problema con 8 días offline.",
+      rating: 5,
+    },
+    {
+      name: "Felipe Castañeda",
+      business: "Restaurante La Cazuela Rola",
+      location: "Usaquén, Bogotá",
+      quote: "La instalación remota fue rapidísima. En una hora ya estábamos facturando con todo configurado.",
+      rating: 5,
+    },
+    {
+      name: "Lorena Ávila",
+      business: "Boutique Lorena",
+      location: "Kennedy, Bogotá",
+      quote: "El soporte por WhatsApp me responde el mismo día. Es como tener un técnico disponible siempre.",
+      rating: 5,
+    },
+  ],
+  medellin: [
+    {
+      name: "Santiago Restrepo",
+      business: "Café del Parque",
+      location: "Laureles, Medellín",
+      quote: "Las comandas y el control de mesas son perfectos para mi café. Ya no se pierde ningún pedido.",
+      rating: 5,
+    },
+    {
+      name: "Manuela Ochoa",
+      business: "Ferretería La Paisa",
+      location: "Envigado, Antioquia",
+      quote: "Importé más de 5,000 productos desde Excel en minutos. Otros POS ni siquiera ofrecían eso.",
+      rating: 5,
+    },
+    {
+      name: "Julián Zapata",
+      business: "Droguería Salud Medellín",
+      location: "Itagüí, Antioquia",
+      quote: "El control de vencimientos me ahorra plata todos los meses. Ya no pierdo medicamentos.",
+      rating: 5,
+    },
+  ],
+  cali: [
+    {
+      name: "Valentina Caicedo",
+      business: "Restaurante Mi Cali Bella",
+      location: "San Antonio, Cali",
+      quote: "Divido cuentas, manejo mesas y la cocina recibe los pedidos al instante. Mis clientes están felices.",
+      rating: 5,
+    },
+    {
+      name: "Carlos Henao",
+      business: "Minimarket Don Carlos",
+      location: "Ciudad Jardín, Cali",
+      quote: "El modo offline me salvó durante un corte de luz de 2 días. Seguí vendiendo normal.",
+      rating: 5,
+    },
+    {
+      name: "Isabella Muñoz",
+      business: "Óptica Visual Express",
+      location: "Granada, Cali",
+      quote: "Las fórmulas de mis pacientes quedan guardadas y facturar con la DIAN es automático.",
+      rating: 5,
+    },
+  ],
+  barranquilla: [
+    {
+      name: "Roberto Barrios",
+      business: "Gastrobar La Terraza",
+      location: "El Prado, Barranquilla",
+      quote: "Las comandas separadas a bar y cocina nos organizaron por completo. Todo sale coordinado.",
+      rating: 5,
+    },
+    {
+      name: "Melissa Charris",
+      business: "Tienda Costeña de Melissa",
+      location: "Riomar, Barranquilla",
+      quote: "El inventario se actualiza solo con cada venta. Ya no hay faltantes ni productos fantasma.",
+      rating: 5,
+    },
+    {
+      name: "Hernán De la Hoz",
+      business: "Ferretería Del Caribe",
+      location: "Soledad, Atlántico",
+      quote: "Con más de 6,000 referencias, encontrar un producto toma segundos. Una maravilla.",
+      rating: 5,
+    },
+  ],
+};
+
 // Función para obtener testimonios por tipo de negocio
 export function getTestimonialsByBusiness(slug: string): Testimonial[] {
   const specific = businessTestimonials[slug];
   if (specific && specific.length > 0) {
     return specific;
   }
-  // Si no hay testimonios específicos, usar genéricos
   return genericTestimonials;
+}
+
+// Función para obtener testimonios por ciudad
+export function getTestimonialsByCity(citySlug: string): Testimonial[] {
+  return cityTestimonials[citySlug] || genericTestimonials;
 }
