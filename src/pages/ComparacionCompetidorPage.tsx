@@ -15,12 +15,18 @@ import dianHeroImage from "@/assets/dian-vs-sistecpos-hero.jpg";
 import alegraHeroImage from "@/assets/alegra-vs-sistecpos-hero.jpg";
 import siigoHeroImage from "@/assets/siigo-vs-sistecpos-hero.jpg";
 import worldOfficeHeroImage from "@/assets/world-office-vs-sistecpos-hero.jpg";
+import helisaHeroImage from "@/assets/helisa-vs-sistecpos-hero.jpg";
+import facturaLatamHeroImage from "@/assets/factura-latam-vs-sistecpos-hero.jpg";
+import defontanaHeroImage from "@/assets/defontana-vs-sistecpos-hero.jpg";
 
 const heroImages: Record<string, string> = {
   "facturador-gratuito-dian": dianHeroImage,
   "alegra": alegraHeroImage,
   "siigo": siigoHeroImage,
   "world-office": worldOfficeHeroImage,
+  "helisa": helisaHeroImage,
+  "factura-latam": facturaLatamHeroImage,
+  "defontana": defontanaHeroImage,
 };
 import {
   Accordion,
