@@ -179,9 +179,13 @@ export function Navbar() {
               </Link>
 
               <div className="space-y-2">
-                <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                <Link 
+                  to="/soluciones" 
+                  className="block text-xs font-semibold text-primary uppercase tracking-wider hover:underline"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
                   Soluciones
-                </div>
+                </Link>
                 <div className="grid grid-cols-2 gap-2">
                   {solutions.map(solution => <Link key={solution.name} to={solution.href} className="flex items-center gap-2 p-2 rounded-lg hover:bg-muted" onClick={() => setMobileMenuOpen(false)}>
                       <solution.icon className="h-4 w-4 text-primary" />
