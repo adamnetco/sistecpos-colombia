@@ -1,31 +1,50 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Lock, Chrome } from "lucide-react";
+import { Mail, Lock, Chrome, ArrowLeft, ShieldCheck } from "lucide-react";
 import { SEO } from "@/components/seo/SEO";
 import type { User, Session } from "@supabase/supabase-js";
 
+type AuthView = "login" | "signup" | "forgot" | "reset" | "otp";
+
 export default function AuthPage() {
-  const [isLogin, setIsLogin] = useState(true);
+  const [view, setView] = useState<AuthView>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [otpCode, setOtpCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
+  const [pendingEmail, setPendingEmail] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
+
+  // Check if this is a password reset callback
+  useEffect(() => {
+    const type = searchParams.get("type");
+    if (type === "recovery") {
+      setView("reset");
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
+
+        if (event === "PASSWORD_RECOVERY") {
+          setView("reset");
+        }
       }
     );
 
@@ -38,12 +57,94 @@ export default function AuthPage() {
   }, []);
 
   useEffect(() => {
-    if (user) {
+    if (user && view !== "reset" && view !== "otp") {
       navigate("/admin");
     }
-  }, [user, navigate]);
+  }, [user, view, navigate]);
 
-  const handleEmailAuth = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !password) {
+      toast({ title: "Completa todos los campos", variant: "destructive" });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        if (error.message.includes("Invalid login")) {
+          toast({ title: "Credenciales incorrectas", description: "Verifica tu email y contraseña", variant: "destructive" });
+        } else if (error.message.includes("Email not confirmed")) {
+          toast({ title: "Email no verificado", description: "Revisa tu correo para confirmar tu cuenta", variant: "destructive" });
+        } else {
+          toast({ title: "Error al iniciar sesión", description: error.message, variant: "destructive" });
+        }
+        return;
+      }
+
+      // After successful login, send 2FA OTP
+      setPendingEmail(email);
+      await send2FACode(email);
+      
+      // Sign out temporarily until OTP is verified
+      await supabase.auth.signOut();
+      setView("otp");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const send2FACode = async (targetEmail: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke("send-otp", {
+        body: { email: targetEmail, type: "2fa" },
+      });
+      if (error) throw error;
+      toast({ title: "Código enviado", description: "Revisa tu correo electrónico" });
+    } catch (err) {
+      console.error("OTP send error:", err);
+      toast({ title: "Error al enviar código", variant: "destructive" });
+    }
+  };
+
+  const handleVerifyOTP = async () => {
+    if (otpCode.length !== 6) {
+      toast({ title: "Ingresa el código de 6 dígitos", variant: "destructive" });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // Verify OTP via edge function
+      const { data, error } = await supabase.functions.invoke("send-otp", {
+        body: { email: pendingEmail, type: "verify", code: otpCode },
+      });
+
+      if (error || !data?.valid) {
+        toast({ title: "Código inválido o expirado", description: "Intenta de nuevo", variant: "destructive" });
+        return;
+      }
+
+      // OTP verified, sign in again
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: pendingEmail,
+        password,
+      });
+
+      if (signInError) {
+        toast({ title: "Error al iniciar sesión", description: signInError.message, variant: "destructive" });
+        return;
+      }
+
+      toast({ title: "Verificación exitosa ✅" });
+      navigate("/admin");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
       toast({ title: "Completa todos los campos", variant: "destructive" });
@@ -56,30 +157,71 @@ export default function AuthPage() {
 
     setLoading(true);
     try {
-      if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) {
-          if (error.message.includes("Invalid login")) {
-            toast({ title: "Credenciales incorrectas", description: "Verifica tu email y contraseña", variant: "destructive" });
-          } else {
-            toast({ title: "Error al iniciar sesión", description: error.message, variant: "destructive" });
-          }
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { emailRedirectTo: `${window.location.origin}/auth` },
+      });
+      if (error) {
+        if (error.message.includes("already registered")) {
+          toast({ title: "Este email ya está registrado", description: "Intenta iniciar sesión", variant: "destructive" });
+        } else {
+          toast({ title: "Error al registrarse", description: error.message, variant: "destructive" });
         }
       } else {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: { emailRedirectTo: `${window.location.origin}/` },
-        });
-        if (error) {
-          if (error.message.includes("already registered")) {
-            toast({ title: "Este email ya está registrado", description: "Intenta iniciar sesión", variant: "destructive" });
-          } else {
-            toast({ title: "Error al registrarse", description: error.message, variant: "destructive" });
-          }
-        } else {
-          toast({ title: "Revisa tu correo", description: "Te enviamos un enlace de confirmación" });
-        }
+        toast({ title: "¡Registro exitoso! 📧", description: "Te enviamos un correo de verificación. Confírmalo para acceder." });
+        setView("login");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) {
+      toast({ title: "Ingresa tu email", variant: "destructive" });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth?type=recovery`,
+      });
+      if (error) {
+        toast({ title: "Error", description: error.message, variant: "destructive" });
+      } else {
+        toast({ title: "Correo enviado 📧", description: "Revisa tu bandeja de entrada para restablecer tu contraseña." });
+        setView("login");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!password || password.length < 6) {
+      toast({ title: "La contraseña debe tener al menos 6 caracteres", variant: "destructive" });
+      return;
+    }
+    if (password !== confirmPassword) {
+      toast({ title: "Las contraseñas no coinciden", variant: "destructive" });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ password });
+      if (error) {
+        toast({ title: "Error al actualizar contraseña", description: error.message, variant: "destructive" });
+      } else {
+        toast({ title: "Contraseña actualizada ✅", description: "Ya puedes iniciar sesión con tu nueva contraseña." });
+        await supabase.auth.signOut();
+        setView("login");
+        setPassword("");
+        setConfirmPassword("");
       }
     } finally {
       setLoading(false);
@@ -110,81 +252,305 @@ export default function AuthPage() {
             alt="SistecPOS"
             className="mx-auto mb-4 h-10"
           />
-          <CardTitle className="text-2xl font-display">
-            {isLogin ? "Iniciar Sesión" : "Crear Cuenta"}
-          </CardTitle>
-          <CardDescription>
-            {isLogin ? "Accede al panel de gestión" : "Regístrate para comenzar"}
-          </CardDescription>
+
+          {view === "login" && (
+            <>
+              <CardTitle className="text-2xl font-display">Iniciar Sesión</CardTitle>
+              <CardDescription>Accede al panel de gestión</CardDescription>
+            </>
+          )}
+          {view === "signup" && (
+            <>
+              <CardTitle className="text-2xl font-display">Crear Cuenta</CardTitle>
+              <CardDescription>Regístrate para comenzar</CardDescription>
+            </>
+          )}
+          {view === "forgot" && (
+            <>
+              <CardTitle className="text-2xl font-display">Restablecer Contraseña</CardTitle>
+              <CardDescription>Te enviaremos un enlace para restablecer tu contraseña</CardDescription>
+            </>
+          )}
+          {view === "reset" && (
+            <>
+              <CardTitle className="text-2xl font-display">Nueva Contraseña</CardTitle>
+              <CardDescription>Ingresa tu nueva contraseña</CardDescription>
+            </>
+          )}
+          {view === "otp" && (
+            <>
+              <CardTitle className="text-2xl font-display">Verificación de Seguridad</CardTitle>
+              <CardDescription>Ingresa el código de 6 dígitos enviado a <strong>{pendingEmail}</strong></CardDescription>
+            </>
+          )}
         </CardHeader>
+
         <CardContent className="space-y-4">
-          {/* Google OAuth */}
-          <Button
-            variant="outline"
-            className="w-full h-12 text-base"
-            onClick={handleGoogleLogin}
-            disabled={loading}
-          >
-            <Chrome className="mr-2 h-5 w-5" />
-            Continuar con Google
-          </Button>
-
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-card px-2 text-muted-foreground">o con email</span>
-            </div>
-          </div>
-
-          {/* Email/Password Form */}
-          <form onSubmit={handleEmailAuth} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="tu@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10"
-                  required
-                />
+          {/* OTP verification view */}
+          {view === "otp" && (
+            <div className="space-y-6">
+              <div className="flex justify-center">
+                <ShieldCheck className="h-16 w-16 text-primary" />
+              </div>
+              <div className="flex justify-center">
+                <InputOTP maxLength={6} value={otpCode} onChange={setOtpCode}>
+                  <InputOTPGroup>
+                    <InputOTPSlot index={0} />
+                    <InputOTPSlot index={1} />
+                    <InputOTPSlot index={2} />
+                    <InputOTPSlot index={3} />
+                    <InputOTPSlot index={4} />
+                    <InputOTPSlot index={5} />
+                  </InputOTPGroup>
+                </InputOTP>
+              </div>
+              <Button
+                onClick={handleVerifyOTP}
+                disabled={loading || otpCode.length !== 6}
+                className="w-full h-12 text-base gradient-bg text-primary-foreground"
+              >
+                {loading ? "Verificando..." : "Verificar Código"}
+              </Button>
+              <div className="text-center space-y-2">
+                <button
+                  type="button"
+                  className="text-sm text-primary hover:underline"
+                  onClick={() => send2FACode(pendingEmail)}
+                >
+                  Reenviar código
+                </button>
+                <br />
+                <button
+                  type="button"
+                  className="text-sm text-muted-foreground hover:underline flex items-center gap-1 mx-auto"
+                  onClick={() => { setView("login"); setOtpCode(""); }}
+                >
+                  <ArrowLeft className="h-3 w-3" /> Volver al inicio de sesión
+                </button>
               </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Contraseña</Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="Mínimo 6 caracteres"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10"
-                  minLength={6}
-                  required
-                />
-              </div>
-            </div>
-            <Button type="submit" className="w-full h-12 text-base gradient-bg text-primary-foreground" disabled={loading}>
-              {loading ? "Cargando..." : isLogin ? "Iniciar Sesión" : "Registrarse"}
-            </Button>
-          </form>
+          )}
 
-          <div className="text-center text-sm">
-            <button
-              type="button"
-              className="text-primary hover:underline"
-              onClick={() => setIsLogin(!isLogin)}
-            >
-              {isLogin ? "¿No tienes cuenta? Regístrate" : "¿Ya tienes cuenta? Inicia sesión"}
-            </button>
-          </div>
+          {/* Login view */}
+          {view === "login" && (
+            <>
+              <Button
+                variant="outline"
+                className="w-full h-12 text-base"
+                onClick={handleGoogleLogin}
+                disabled={loading}
+              >
+                <Chrome className="mr-2 h-5 w-5" />
+                Continuar con Google
+              </Button>
+
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-card px-2 text-muted-foreground">o con email</span>
+                </div>
+              </div>
+
+              <form onSubmit={handleLogin} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="tu@email.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="pl-10"
+                      required
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="password">Contraseña</Label>
+                    <button
+                      type="button"
+                      className="text-xs text-primary hover:underline"
+                      onClick={() => setView("forgot")}
+                    >
+                      ¿Olvidaste tu contraseña?
+                    </button>
+                  </div>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder="Mínimo 6 caracteres"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="pl-10"
+                      minLength={6}
+                      required
+                    />
+                  </div>
+                </div>
+                <Button type="submit" className="w-full h-12 text-base gradient-bg text-primary-foreground" disabled={loading}>
+                  {loading ? "Cargando..." : "Iniciar Sesión"}
+                </Button>
+              </form>
+
+              <div className="text-center text-sm">
+                <button type="button" className="text-primary hover:underline" onClick={() => setView("signup")}>
+                  ¿No tienes cuenta? Regístrate
+                </button>
+              </div>
+            </>
+          )}
+
+          {/* Signup view */}
+          {view === "signup" && (
+            <>
+              <Button
+                variant="outline"
+                className="w-full h-12 text-base"
+                onClick={handleGoogleLogin}
+                disabled={loading}
+              >
+                <Chrome className="mr-2 h-5 w-5" />
+                Continuar con Google
+              </Button>
+
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-card px-2 text-muted-foreground">o con email</span>
+                </div>
+              </div>
+
+              <form onSubmit={handleSignUp} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="signup-email">Email</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="signup-email"
+                      type="email"
+                      placeholder="tu@email.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="pl-10"
+                      required
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="signup-password">Contraseña</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="signup-password"
+                      type="password"
+                      placeholder="Mínimo 6 caracteres"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="pl-10"
+                      minLength={6}
+                      required
+                    />
+                  </div>
+                </div>
+                <Button type="submit" className="w-full h-12 text-base gradient-bg text-primary-foreground" disabled={loading}>
+                  {loading ? "Cargando..." : "Registrarse"}
+                </Button>
+              </form>
+
+              <p className="text-xs text-center text-muted-foreground">
+                Al registrarte, recibirás un correo de verificación para activar tu cuenta.
+              </p>
+
+              <div className="text-center text-sm">
+                <button type="button" className="text-primary hover:underline" onClick={() => setView("login")}>
+                  ¿Ya tienes cuenta? Inicia sesión
+                </button>
+              </div>
+            </>
+          )}
+
+          {/* Forgot password view */}
+          {view === "forgot" && (
+            <form onSubmit={handleForgotPassword} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="forgot-email">Email</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="forgot-email"
+                    type="email"
+                    placeholder="tu@email.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="pl-10"
+                    required
+                  />
+                </div>
+              </div>
+              <Button type="submit" className="w-full h-12 text-base gradient-bg text-primary-foreground" disabled={loading}>
+                {loading ? "Enviando..." : "Enviar Enlace de Recuperación"}
+              </Button>
+              <div className="text-center">
+                <button
+                  type="button"
+                  className="text-sm text-muted-foreground hover:underline flex items-center gap-1 mx-auto"
+                  onClick={() => setView("login")}
+                >
+                  <ArrowLeft className="h-3 w-3" /> Volver al inicio de sesión
+                </button>
+              </div>
+            </form>
+          )}
+
+          {/* Reset password view */}
+          {view === "reset" && (
+            <form onSubmit={handleResetPassword} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="new-password">Nueva Contraseña</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="new-password"
+                    type="password"
+                    placeholder="Mínimo 6 caracteres"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="pl-10"
+                    minLength={6}
+                    required
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="confirm-password">Confirmar Contraseña</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="confirm-password"
+                    type="password"
+                    placeholder="Repite la contraseña"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="pl-10"
+                    minLength={6}
+                    required
+                  />
+                </div>
+              </div>
+              <Button type="submit" className="w-full h-12 text-base gradient-bg text-primary-foreground" disabled={loading}>
+                {loading ? "Actualizando..." : "Guardar Nueva Contraseña"}
+              </Button>
+            </form>
+          )}
         </CardContent>
       </Card>
     </div>
