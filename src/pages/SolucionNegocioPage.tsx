@@ -62,7 +62,7 @@ export default function SolucionNegocioPage() {
               <Badge className="mb-4 bg-white/20 text-white border-white/30">
                 Software POS Especializado
               </Badge>
-              <h1 className="text-3xl md:text-5xl font-bold mb-6">
+              <h1 id="titulo" className="text-3xl md:text-5xl font-bold mb-6">
                 {business.title}
               </h1>
               <p className="text-lg md:text-xl text-primary-foreground/80 mb-8">
@@ -351,7 +351,7 @@ export default function SolucionNegocioPage() {
 
           <div className="text-center mt-8">
             <Button variant="outline" asChild>
-              <Link to="/#soluciones" className="gap-2">
+              <Link to="/soluciones" className="gap-2">
                 Ver todas las soluciones
                 <ArrowRight className="h-4 w-4" />
               </Link>

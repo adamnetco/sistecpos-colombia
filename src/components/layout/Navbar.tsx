@@ -92,7 +92,7 @@ export function Navbar() {
 
           {/* Solutions Dropdown */}
           <div className="relative" onMouseEnter={() => setSolutionsOpen(true)} onMouseLeave={() => setSolutionsOpen(false)}>
-            <Link to="/software-pos-colombia#soluciones" className={cn("flex items-center gap-1 px-4 py-2 text-sm font-medium transition-colors rounded-md hover:bg-muted", solutionsOpen && "bg-muted")}>
+            <Link to="/soluciones" className={cn("flex items-center gap-1 px-4 py-2 text-sm font-medium transition-colors rounded-md hover:bg-muted", isActive("/soluciones") && "text-primary", solutionsOpen && "bg-muted")}>
               Soluciones
               <ChevronDown className={cn("h-4 w-4 transition-transform", solutionsOpen && "rotate-180")} />
             </Link>
