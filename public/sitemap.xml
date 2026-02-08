@@ -69,6 +69,19 @@
   <url><loc>https://sistecpos.lovable.app/software-pos/valledupar</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://sistecpos.lovable.app/software-pos/santa-marta</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
 
+  <!-- Comparativas vs Competidores -->
+  <url><loc>https://sistecpos.lovable.app/comparar</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://sistecpos.lovable.app/comparar/odoo</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://sistecpos.lovable.app/comparar/siigo</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://sistecpos.lovable.app/comparar/alegra</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://sistecpos.lovable.app/comparar/vendty</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://sistecpos.lovable.app/comparar/loogro</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://sistecpos.lovable.app/comparar/cluvi</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://sistecpos.lovable.app/comparar/olaclick</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://sistecpos.lovable.app/comparar/woocommerce</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://sistecpos.lovable.app/comparar/pos-square</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://sistecpos.lovable.app/comparar/hellonext</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
+
   <!-- Licencias -->
   <url><loc>https://sistecpos.lovable.app/productos/licencia-mensual-premium</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://sistecpos.lovable.app/productos/licencia-anual-basica</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
