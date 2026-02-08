@@ -25,6 +25,10 @@ import NotFound from "./pages/NotFound";
 import CompararPage from "./pages/CompararPage";
 import ComparacionCompetidorPage from "./pages/ComparacionCompetidorPage";
 import RepresentantesPage from "./pages/RepresentantesPage";
+import GuiasDianHubPage from "./pages/GuiasDianHubPage";
+import GuiaDianPage from "./pages/GuiaDianPage";
+import CalculadoraUVTPage from "./pages/CalculadoraUVTPage";
+import ValidadorNITPage from "./pages/ValidadorNITPage";
 
 const queryClient = new QueryClient();
 
@@ -52,6 +56,10 @@ const App = () => (
             <Route path="/comparar" element={<CompararPage />} />
             <Route path="/comparar/:slug" element={<ComparacionCompetidorPage />} />
             <Route path="/representantes" element={<RepresentantesPage />} />
+            <Route path="/guias-dian" element={<GuiasDianHubPage />} />
+            <Route path="/guias-dian/:slug" element={<GuiaDianPage />} />
+            <Route path="/herramientas/calculadora-uvt" element={<CalculadoraUVTPage />} />
+            <Route path="/herramientas/validador-nit" element={<ValidadorNITPage />} />
             <Route path="/contacto" element={<ContactoPage />} />
             <Route path="/gracias" element={<GraciasPage />} />
             <Route path="/politica-privacidad" element={<PoliticaPrivacidadPage />} />

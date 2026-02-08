@@ -35,6 +35,8 @@ const footerLinks = {
     { name: "Soluciones por Industria", href: "/soluciones" },
     { name: "Software POS Colombia", href: "/software-pos-colombia" },
     { name: "Facturación Electrónica", href: "/facturacion-electronica" },
+    { name: "Guías DIAN", href: "/guias-dian" },
+    { name: "Calculadora UVT", href: "/herramientas/calculadora-uvt" },
     { name: "Comparar POS", href: "/comparar" },
     { name: "Comparativa Licencias", href: "/comparativa-licencias" },
     { name: "Nosotros", href: "/nosotros" },

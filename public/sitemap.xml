@@ -99,6 +99,18 @@
   <url><loc>https://sistecpos.lovable.app/comparar/contabilizalo</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
   <url><loc>https://sistecpos.lovable.app/comparar/bsale</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
 
+  <!-- Guías DIAN -->
+  <url><loc>https://sistecpos.lovable.app/guias-dian</loc><changefreq>weekly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://sistecpos.lovable.app/guias-dian/facturacion-gratuita-dian</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://sistecpos.lovable.app/guias-dian/facturador-gratuito-dian-no-funciona</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://sistecpos.lovable.app/guias-dian/como-facturar-electronicamente-gratis-dian</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://sistecpos.lovable.app/guias-dian/registro-facturador-gratuito-dian</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://sistecpos.lovable.app/guias-dian/micrositio-facturacion-electronica-dian</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+
+  <!-- Herramientas -->
+  <url><loc>https://sistecpos.lovable.app/herramientas/calculadora-uvt</loc><changefreq>yearly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://sistecpos.lovable.app/herramientas/validador-nit</loc><changefreq>yearly</changefreq><priority>0.8</priority></url>
+
   <!-- Licencias -->
   <url><loc>https://sistecpos.lovable.app/productos/licencia-mensual-premium</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://sistecpos.lovable.app/productos/licencia-anual-basica</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
