@@ -92,6 +92,11 @@
   <url><loc>https://sistecpos.lovable.app/comparar/floreant-pos</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
   <url><loc>https://sistecpos.lovable.app/comparar/wallace-pos</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
   <url><loc>https://sistecpos.lovable.app/comparar/facturador-gratuito-dian</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://sistecpos.lovable.app/comparar/xubio</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://sistecpos.lovable.app/comparar/world-office</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://sistecpos.lovable.app/comparar/loogro</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://sistecpos.lovable.app/comparar/contabilizalo</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://sistecpos.lovable.app/comparar/bsale</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
 
   <!-- Licencias -->
   <url><loc>https://sistecpos.lovable.app/productos/licencia-mensual-premium</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
