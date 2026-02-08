@@ -1,5 +1,6 @@
 import { Layout } from "@/components/layout/Layout";
 import { HeroSection } from "@/components/home/HeroSection";
+import { SocialProofBar } from "@/components/home/SocialProofBar";
 import { ComparisonSection } from "@/components/home/ComparisonSection";
 import { WhyUsSection } from "@/components/home/WhyUsSection";
 import { FeaturesSection } from "@/components/home/FeaturesSection";
@@ -21,6 +22,7 @@ const Index = () => {
       />
       <JsonLd data={organizationSchema()} />
       <HeroSection />
+      <SocialProofBar />
       <SoftwarePreviewSection />
       <ComparisonSection />
       <WhyUsSection />

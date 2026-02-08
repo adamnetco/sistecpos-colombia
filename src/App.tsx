@@ -1,3 +1,4 @@
+import { Suspense, lazy } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -5,32 +6,44 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import { ScrollToTop } from "./components/ScrollToTop";
+
+// Eager load: critical above-the-fold page
 import Index from "./pages/Index";
-import SolucionesPage from "./pages/SolucionesPage";
-import RestaurantesPage from "./pages/RestaurantesPage";
-import RetailPage from "./pages/RetailPage";
-import ProductosPage from "./pages/ProductosPage";
-import ProductoDetallePage from "./pages/ProductoDetallePage";
-import NosotrosPage from "./pages/NosotrosPage";
-import ComparativaLicenciasPage from "./pages/ComparativaLicenciasPage";
-import ContactoPage from "./pages/ContactoPage";
-import SolucionNegocioPage from "./pages/SolucionNegocioPage";
-import SoftwarePosLocalPage from "./pages/SoftwarePosLocalPage";
-import SoftwarePosColombiaPage from "./pages/SoftwarePosColombiaPage";
-import FacturacionElectronicaPage from "./pages/FacturacionElectronicaPage";
-import GraciasPage from "./pages/GraciasPage";
-import PoliticaPrivacidadPage from "./pages/PoliticaPrivacidadPage";
-import TerminosCondicionesPage from "./pages/TerminosCondicionesPage";
-import NotFound from "./pages/NotFound";
-import CompararPage from "./pages/CompararPage";
-import ComparacionCompetidorPage from "./pages/ComparacionCompetidorPage";
-import RepresentantesPage from "./pages/RepresentantesPage";
-import GuiasDianHubPage from "./pages/GuiasDianHubPage";
-import GuiaDianPage from "./pages/GuiaDianPage";
-import CalculadoraUVTPage from "./pages/CalculadoraUVTPage";
-import ValidadorNITPage from "./pages/ValidadorNITPage";
+
+// Lazy load all other pages for code splitting
+const SolucionesPage = lazy(() => import("./pages/SolucionesPage"));
+const RestaurantesPage = lazy(() => import("./pages/RestaurantesPage"));
+const RetailPage = lazy(() => import("./pages/RetailPage"));
+const ProductosPage = lazy(() => import("./pages/ProductosPage"));
+const ProductoDetallePage = lazy(() => import("./pages/ProductoDetallePage"));
+const NosotrosPage = lazy(() => import("./pages/NosotrosPage"));
+const ComparativaLicenciasPage = lazy(() => import("./pages/ComparativaLicenciasPage"));
+const ContactoPage = lazy(() => import("./pages/ContactoPage"));
+const SolucionNegocioPage = lazy(() => import("./pages/SolucionNegocioPage"));
+const SoftwarePosLocalPage = lazy(() => import("./pages/SoftwarePosLocalPage"));
+const SoftwarePosColombiaPage = lazy(() => import("./pages/SoftwarePosColombiaPage"));
+const FacturacionElectronicaPage = lazy(() => import("./pages/FacturacionElectronicaPage"));
+const GraciasPage = lazy(() => import("./pages/GraciasPage"));
+const PoliticaPrivacidadPage = lazy(() => import("./pages/PoliticaPrivacidadPage"));
+const TerminosCondicionesPage = lazy(() => import("./pages/TerminosCondicionesPage"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const CompararPage = lazy(() => import("./pages/CompararPage"));
+const ComparacionCompetidorPage = lazy(() => import("./pages/ComparacionCompetidorPage"));
+const RepresentantesPage = lazy(() => import("./pages/RepresentantesPage"));
+const GuiasDianHubPage = lazy(() => import("./pages/GuiasDianHubPage"));
+const GuiaDianPage = lazy(() => import("./pages/GuiaDianPage"));
+const CalculadoraUVTPage = lazy(() => import("./pages/CalculadoraUVTPage"));
+const ValidadorNITPage = lazy(() => import("./pages/ValidadorNITPage"));
 
 const queryClient = new QueryClient();
+
+function PageLoader() {
+  return (
+    <div className="flex min-h-[60vh] items-center justify-center">
+      <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+    </div>
+  );
+}
 
 const App = () => (
   <>
@@ -40,36 +53,38 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <ScrollToTop />
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/soluciones" element={<SolucionesPage />} />
-            <Route path="/pos-para-restaurantes" element={<RestaurantesPage />} />
-            <Route path="/pos-para-retail" element={<RetailPage />} />
-            <Route path="/soluciones/:slug" element={<SolucionNegocioPage />} />
-            <Route path="/software-pos-colombia" element={<SoftwarePosColombiaPage />} />
-            <Route path="/facturacion-electronica" element={<FacturacionElectronicaPage />} />
-            <Route path="/software-pos/:city" element={<SoftwarePosLocalPage />} />
-            <Route path="/productos" element={<ProductosPage />} />
-            <Route path="/productos/:slug" element={<ProductoDetallePage />} />
-            <Route path="/nosotros" element={<NosotrosPage />} />
-            <Route path="/comparativa-licencias" element={<ComparativaLicenciasPage />} />
-            <Route path="/comparar" element={<CompararPage />} />
-            <Route path="/comparar/:slug" element={<ComparacionCompetidorPage />} />
-            <Route path="/representantes" element={<RepresentantesPage />} />
-            <Route path="/guias-dian" element={<GuiasDianHubPage />} />
-            <Route path="/guias-dian/:slug" element={<GuiaDianPage />} />
-            <Route path="/herramientas/calculadora-uvt" element={<CalculadoraUVTPage />} />
-            <Route path="/herramientas/validador-nit" element={<ValidadorNITPage />} />
-            <Route path="/contacto" element={<ContactoPage />} />
-            <Route path="/gracias" element={<GraciasPage />} />
-            <Route path="/politica-privacidad" element={<PoliticaPrivacidadPage />} />
-            <Route path="/terminos-condiciones" element={<TerminosCondicionesPage />} />
-            {/* Redirects para URLs antiguas indexadas */}
-            <Route path="/hello-world" element={<Navigate to="/software-pos-colombia" replace />} />
-            <Route path="/c/uncategorized" element={<Navigate to="/productos" replace />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/soluciones" element={<SolucionesPage />} />
+              <Route path="/pos-para-restaurantes" element={<RestaurantesPage />} />
+              <Route path="/pos-para-retail" element={<RetailPage />} />
+              <Route path="/soluciones/:slug" element={<SolucionNegocioPage />} />
+              <Route path="/software-pos-colombia" element={<SoftwarePosColombiaPage />} />
+              <Route path="/facturacion-electronica" element={<FacturacionElectronicaPage />} />
+              <Route path="/software-pos/:city" element={<SoftwarePosLocalPage />} />
+              <Route path="/productos" element={<ProductosPage />} />
+              <Route path="/productos/:slug" element={<ProductoDetallePage />} />
+              <Route path="/nosotros" element={<NosotrosPage />} />
+              <Route path="/comparativa-licencias" element={<ComparativaLicenciasPage />} />
+              <Route path="/comparar" element={<CompararPage />} />
+              <Route path="/comparar/:slug" element={<ComparacionCompetidorPage />} />
+              <Route path="/representantes" element={<RepresentantesPage />} />
+              <Route path="/guias-dian" element={<GuiasDianHubPage />} />
+              <Route path="/guias-dian/:slug" element={<GuiaDianPage />} />
+              <Route path="/herramientas/calculadora-uvt" element={<CalculadoraUVTPage />} />
+              <Route path="/herramientas/validador-nit" element={<ValidadorNITPage />} />
+              <Route path="/contacto" element={<ContactoPage />} />
+              <Route path="/gracias" element={<GraciasPage />} />
+              <Route path="/politica-privacidad" element={<PoliticaPrivacidadPage />} />
+              <Route path="/terminos-condiciones" element={<TerminosCondicionesPage />} />
+              {/* Redirects para URLs antiguas indexadas */}
+              <Route path="/hello-world" element={<Navigate to="/software-pos-colombia" replace />} />
+              <Route path="/c/uncategorized" element={<Navigate to="/productos" replace />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>

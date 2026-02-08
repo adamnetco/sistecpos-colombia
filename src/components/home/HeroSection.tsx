@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ArrowRight, MessageCircle, Cloud, Smartphone, Monitor, Laptop } from "lucide-react";
+import { ArrowRight, MessageCircle, Cloud, Smartphone, Monitor, Laptop, Shield, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function HeroSection() {
@@ -13,18 +13,15 @@ export function HeroSection() {
 
       <div className="container relative px-4">
         <div className="mx-auto max-w-4xl text-center">
-          {/* Badge */}
+          {/* Urgency Badge */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-sm font-medium text-primary"
+            className="mb-6 inline-flex items-center gap-2 rounded-full border border-cta/30 bg-cta/10 px-4 py-1.5 text-sm font-semibold text-cta"
           >
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-whatsapp opacity-75"></span>
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-whatsapp"></span>
-            </span>
-            Administra tu negocio desde cualquier lugar
+            <Clock className="h-4 w-4" />
+            Prueba gratis 7 días — Sin tarjeta de crédito
           </motion.div>
 
           {/* Main Heading */}
@@ -32,11 +29,12 @@ export function HeroSection() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl"
+            className="font-display text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl"
             id="titulo"
           >
-            Software POS y Facturación Electrónica DIAN{" "}
-            <span className="gradient-text">100% en la Nube</span>
+            El Software POS que{" "}
+            <span className="gradient-text">vende más</span>{" "}
+            y factura con la DIAN
           </motion.h1>
 
           {/* Subtitle */}
@@ -85,7 +83,7 @@ export function HeroSection() {
             <Button
               asChild
               size="lg"
-              className="bg-whatsapp hover:bg-whatsapp/90 text-white text-base h-12 px-8"
+              className="bg-cta hover:bg-cta/90 text-white text-base h-14 px-10 shadow-lg font-bold"
             >
               <a
                 href="https://wa.me/573176268307?text=Hola,%20quiero%20una%20demostración%20de%20SistecPOS"
@@ -93,11 +91,11 @@ export function HeroSection() {
                 rel="noopener noreferrer"
               >
                 <MessageCircle className="mr-2 h-5 w-5" />
-                Prueba Gratis
+                Quiero Mi Prueba Gratis
               </a>
             </Button>
 
-            <Button asChild variant="outline" size="lg" className="text-base h-12 px-8">
+            <Button asChild variant="outline" size="lg" className="text-base h-14 px-10">
               <a href="#como-funciona">
                 Ver Cómo Funciona
                 <ArrowRight className="ml-2 h-5 w-5" />
@@ -110,25 +108,19 @@ export function HeroSection() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.5 }}
-            className="mt-12 flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground"
+            className="mt-12 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-muted-foreground"
           >
             <div className="flex items-center gap-2">
-              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-whatsapp/10">
-                ✓
-              </span>
-              Multi-dispositivo
+              <Shield className="h-4 w-4 text-whatsapp" />
+              Facturación DIAN incluida
             </div>
             <div className="flex items-center gap-2">
-              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-whatsapp/10">
-                ✓
-              </span>
+              <Shield className="h-4 w-4 text-whatsapp" />
               Funciona sin internet
             </div>
             <div className="flex items-center gap-2">
-              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-whatsapp/10">
-                ✓
-              </span>
-              3 respaldos diarios
+              <Shield className="h-4 w-4 text-whatsapp" />
+              +500 negocios activos
             </div>
           </motion.div>
         </div>
