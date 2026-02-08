@@ -112,7 +112,7 @@ const GraciasPage = () => {
               <Button
                 asChild
                 size="lg"
-                className="w-full sm:w-auto bg-whatsapp hover:bg-whatsapp/90 text-whatsapp-foreground text-base h-14 px-10 shadow-lg"
+                className="w-full sm:w-auto bg-whatsapp hover:bg-whatsapp/90 text-white text-base h-14 px-10 shadow-lg"
               >
                 <a
                   href="https://wa.me/573176268307?text=Hola,%20acabo%20de%20solicitar%20una%20demo%20y%20quiero%20activar%20mi%20acceso%20ya"

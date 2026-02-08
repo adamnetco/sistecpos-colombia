@@ -281,7 +281,7 @@ export default function NosotrosPage() {
             <Button 
               asChild 
               size="lg" 
-              className="bg-whatsapp hover:bg-whatsapp/90 text-whatsapp-foreground"
+              className="bg-whatsapp hover:bg-whatsapp/90 text-white"
             >
               <a
                 href="https://wa.me/573176268307?text=Hola,%20quiero%20conocer%20más%20sobre%20SistecPOS"

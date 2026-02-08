@@ -100,7 +100,7 @@ export default function SolucionesPage() {
             </p>
             <Button
               size="lg"
-              className="bg-whatsapp hover:bg-whatsapp/90 text-whatsapp-foreground gap-2"
+              className="bg-whatsapp hover:bg-whatsapp/90 text-white gap-2"
               asChild
             >
               <a

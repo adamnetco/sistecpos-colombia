@@ -50,7 +50,7 @@ export default function CompararPage() {
             <p className="text-lg md:text-xl text-primary-foreground/80 mb-8 max-w-3xl mx-auto">
               Comparativas detalladas con los principales software POS, ERP y plataformas de facturación de Colombia y el mundo. Elige con información real.
             </p>
-            <Button size="lg" className="bg-whatsapp hover:bg-whatsapp/90 text-whatsapp-foreground gap-2" asChild>
+            <Button size="lg" className="bg-whatsapp hover:bg-whatsapp/90 text-white gap-2" asChild>
               <a href="https://wa.me/573176268307?text=Hola,%20quiero%20asesoría%20para%20elegir%20el%20mejor%20POS" target="_blank" rel="noopener noreferrer">
                 <MessageCircle className="h-5 w-5" />
                 Asesoría Personalizada Gratis
@@ -262,7 +262,7 @@ export default function CompararPage() {
               <Button size="lg" className="bg-cta hover:bg-cta/90 text-cta-foreground" asChild>
                 <Link to="/contacto#demo">Prueba Gratis 7 Días</Link>
               </Button>
-              <Button size="lg" className="bg-whatsapp hover:bg-whatsapp/90 text-whatsapp-foreground gap-2" asChild>
+              <Button size="lg" className="bg-whatsapp hover:bg-whatsapp/90 text-white gap-2" asChild>
                 <a href="https://wa.me/573176268307?text=Hola,%20quiero%20probar%20SistecPOS" target="_blank" rel="noopener noreferrer">
                   <MessageCircle className="h-5 w-5" />
                   WhatsApp
