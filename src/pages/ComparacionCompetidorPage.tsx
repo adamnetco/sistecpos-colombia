@@ -84,7 +84,7 @@ export default function ComparacionCompetidorPage() {
               Descubre por qué más de 500 negocios en Colombia prefieren SistecPOS sobre {competitor.name}.
             </p>
             <p className="text-sm text-primary-foreground/60 mb-8">
-              {competitor.type === "open-source" ? "🔓 Open Source" : "☁️ SaaS"} · Origen: {competitor.origin}
+              {competitor.type === "open-source" ? "🔓 Open Source" : competitor.type === "gobierno" ? "🏛️ Gobierno" : "☁️ SaaS"} · Origen: {competitor.origin}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" className="bg-whatsapp hover:bg-whatsapp/90 text-whatsapp-foreground gap-2" asChild>

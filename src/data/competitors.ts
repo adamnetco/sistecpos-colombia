@@ -15,7 +15,7 @@ import {
 export interface Competitor {
   slug: string;
   name: string;
-  type: "saas" | "open-source";
+  type: "saas" | "open-source" | "gobierno";
   tagline: string;
   description: string;
   website: string;
@@ -917,6 +917,55 @@ export const competitors: Competitor[] = [
       { question: "¿Wallace POS tiene facturación DIAN?", answer: "No. Wallace POS no emite facturación electrónica DIAN. Para operar legalmente en Colombia, necesitas un sistema como SistecPOS con facturación electrónica integrada." },
     ],
     metaDescription: "Wallace POS vs SistecPOS 2025: ¿POS open source abandonado o moderno con DIAN? Alternativa a Wallace POS en Colombia.",
+  },
+  {
+    slug: "facturador-gratuito-dian",
+    name: "Solución Gratuita DIAN",
+    type: "gobierno",
+    tagline: "Facturador gratuito vs Software POS profesional",
+    description: "El Facturador Gratuito de la DIAN es una herramienta web proporcionada por el gobierno colombiano para que contribuyentes emitan facturas electrónicas sin costo. Está diseñada para freelancers y microempresas con pocas facturas al mes, no para puntos de venta con flujo diario de clientes.",
+    website: "https://www.dian.gov.co",
+    origin: "Colombia (Gobierno Nacional)",
+    strengths: [
+      "100% gratuito, sin costo mensual",
+      "Emitido por la entidad oficial (DIAN)",
+      "Cumple la normativa de facturación electrónica",
+    ],
+    sistecposAdvantages: [
+      "Venta en 3 clics vs 15+ campos manuales por factura",
+      "Control automático de inventario (DIAN no lo tiene)",
+      "Modo offline 8 días: si la DIAN se cae, tú sigues vendiendo",
+      "Reportes de inteligencia de negocios vs reportes básicos",
+      "Soporte WhatsApp con ingeniero humano vs manuales PDF",
+      "Interfaz táctil POS para vender rápido en caja",
+    ],
+    painPoints: [
+      { ellos: "Debes digitar cliente, producto y 15+ campos cada factura. Un error y toca empezar de cero.", nosotros: "Facturas en 3 clics: escanea código, selecciona cliente, cobra. Listo." },
+      { ellos: "La web de la DIAN se cae en quincena, fin de mes y días de alta demanda. No puedes facturar.", nosotros: "SistecPOS funciona offline hasta 8 días. Si la DIAN se cae, guarda la factura y la envía cuando vuelva." },
+      { ellos: "Cero control de inventario. No sabes cuánto stock te queda ni qué producto se vende más.", nosotros: "Inventario automático con alertas de stock bajo, importación masiva desde Excel y reportes de rotación." },
+    ],
+    features: [
+      { feature: "Costo mensual", competitor: "$0 (Gratis)", sistecpos: "Desde $12 USD/mes" },
+      { feature: "Control de inventario", competitor: false, sistecpos: true },
+      { feature: "Venta rápida POS (interfaz táctil)", competitor: false, sistecpos: true },
+      { feature: "Velocidad por factura", competitor: "3-5 minutos", sistecpos: "10 segundos" },
+      { feature: "Funciona si la DIAN se cae", competitor: false, sistecpos: true },
+      { feature: "Modo offline hasta 8 días", competitor: false, sistecpos: true },
+      { feature: "Soporte técnico", competitor: "Manuales PDF", sistecpos: "WhatsApp ingeniero humano" },
+      { feature: "Reportes de ventas", competitor: "Básicos", sistecpos: "Inteligencia de negocios" },
+      { feature: "Control de mesas/comandas", competitor: false, sistecpos: true },
+      { feature: "Multi-tienda", competitor: false, sistecpos: true },
+      { feature: "Importación masiva Excel", competitor: false, sistecpos: true },
+      { feature: "16 módulos especializados", competitor: false, sistecpos: true },
+    ],
+    faqs: [
+      { question: "¿Es obligatorio usar el facturador gratuito de la DIAN?", answer: "No. La DIAN permite usar cualquier software autorizado como proveedor tecnológico para emitir facturas electrónicas. SistecPOS es proveedor tecnológico autorizado y cumple toda la normativa DIAN vigente." },
+      { question: "¿Cuál es la diferencia entre el facturador gratuito y un software POS propio?", answer: "El facturador gratuito solo emite facturas (sin inventario, sin POS, sin reportes avanzados). Un software POS como SistecPOS integra facturación electrónica DIAN + punto de venta rápido + control de inventario + 16 módulos especializados, ahorrándote horas de trabajo diario." },
+      { question: "¿Si la DIAN se cae, puedo seguir facturando con SistecPOS?", answer: "Sí. SistecPOS tiene modo offline y contingencia. Si los servidores de la DIAN se caen, SistecPOS guarda tus facturas y las envía automáticamente cuando el servicio se restablezca. Nunca dejas de vender." },
+      { question: "¿Cuánto tardo en hacer una factura en la DIAN vs SistecPOS?", answer: "En el facturador gratuito de la DIAN tardas 3-5 minutos por factura (login, token, llenar campos manualmente). En SistecPOS tardas 10 segundos: escaneas el código de barras, seleccionas cliente y cobras." },
+      { question: "¿Vale la pena pagar por un POS si la DIAN es gratis?", answer: "Si tu negocio vende a diario, el tiempo que pierdes usando el facturador gratuito cuesta más que una suscripción POS. Con SistecPOS recuperas horas de trabajo al día, controlas inventario automáticamente y nunca pierdes una venta por caída del sistema." },
+    ],
+    metaDescription: "Facturador Gratuito DIAN vs SistecPOS 2025: ¿La solución gratuita es suficiente para tu negocio? Descubre por qué pierdes horas y cómo un POS profesional automatiza tus ventas.",
   },
 ];
 
