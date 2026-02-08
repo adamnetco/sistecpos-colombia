@@ -16,10 +16,10 @@ interface Reseller {
 }
 
 const statusOptions = [
-  { value: "pending", label: "Pendiente" },
-  { value: "reviewing", label: "En Revisión" },
-  { value: "approved", label: "Aprobado" },
-  { value: "rejected", label: "Rechazado" },
+  { value: "pending", label: "Pendiente", badge: "bg-yellow-500 text-white" },
+  { value: "reviewing", label: "En Revisión", badge: "bg-blue-500 text-white" },
+  { value: "approved", label: "Aprobado", badge: "bg-whatsapp text-white" },
+  { value: "rejected", label: "Rechazado", badge: "bg-destructive text-destructive-foreground" },
 ];
 
 export default function ResellersView() {
@@ -43,7 +43,13 @@ export default function ResellersView() {
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold font-display">Solicitudes de Socios</h1>
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="text-2xl font-bold font-display">Solicitudes de Socios</h1>
+        <Badge variant="outline" className="text-xs">
+          {apps.filter((a) => a.status === "pending").length} pendientes
+        </Badge>
+      </div>
+
       <div className="rounded-lg border bg-card overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
@@ -52,24 +58,30 @@ export default function ResellersView() {
               <th className="px-4 py-3 text-left font-medium">Ciudad</th>
               <th className="px-4 py-3 text-left font-medium">Contacto</th>
               <th className="px-4 py-3 text-left font-medium">Experiencia</th>
+              <th className="px-4 py-3 text-left font-medium">Fecha</th>
               <th className="px-4 py-3 text-left font-medium">Estado</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={5} className="py-8 text-center text-muted-foreground">Cargando...</td></tr>
+              <tr><td colSpan={6} className="py-8 text-center text-muted-foreground">Cargando...</td></tr>
             ) : apps.length === 0 ? (
-              <tr><td colSpan={5} className="py-8 text-center text-muted-foreground">No hay solicitudes</td></tr>
+              <tr><td colSpan={6} className="py-8 text-center text-muted-foreground">No hay solicitudes</td></tr>
             ) : (
               apps.map((a) => (
-                <tr key={a.id} className="border-b">
+                <tr key={a.id} className={`border-b hover:bg-muted/30 transition-colors ${a.status === "pending" ? "bg-yellow-500/5" : ""}`}>
                   <td className="px-4 py-3 font-medium">{a.full_name}</td>
                   <td className="px-4 py-3">{a.city}</td>
                   <td className="px-4 py-3">
                     <div className="text-xs">{a.email}</div>
                     <div className="text-xs text-muted-foreground">{a.phone}</div>
                   </td>
-                  <td className="px-4 py-3 max-w-xs truncate text-xs">{a.experience_summary || "—"}</td>
+                  <td className="px-4 py-3 max-w-xs text-xs">
+                    <p className="line-clamp-2">{a.experience_summary || "—"}</p>
+                  </td>
+                  <td className="px-4 py-3 text-xs text-muted-foreground whitespace-nowrap">
+                    {new Date(a.created_at).toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" })}
+                  </td>
                   <td className="px-4 py-3">
                     <Select value={a.status} onValueChange={(v) => updateStatus(a.id, v)}>
                       <SelectTrigger className="w-32 h-8 text-xs">
