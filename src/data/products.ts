@@ -52,35 +52,38 @@ export const categories: Category[] = [
 export const products: Product[] = [
   // ============ LICENCIAS ============
   {
-    id: 101,
-    slug: "licencia-mensual-premium",
-    name: "Licencia Mensual Premium Ilimitada",
+    id: 109,
+    slug: "licencia-software-pos-vitalicia",
+    name: "Licencia Software POS Vitalicia",
     category: "licencias",
-    price: 163800,
-    originalPrice: 205800,
-    priceUSD: 39,
-    originalPriceUSD: 49,
-    description: "Licencia mensual sin límites de ventas ni usuarios. Ideal para probar el sistema.",
-    longDescription: "La Licencia Mensual Premium te da acceso completo a todas las funcionalidades del sistema sin restricciones. Usuarios ilimitados, ventas ilimitadas, sin compromiso de permanencia. Perfecta para negocios que quieren probar antes de comprometerse a largo plazo.",
-    features: ["Usuarios ilimitados", "Ventas ilimitadas", "Sin permanencia", "Soporte incluido"],
+    price: 3780000,
+    originalPrice: 4620000,
+    priceUSD: 900,
+    originalPriceUSD: 1100,
+    description: "Licencia de por vida. Solo pagas hosting anual de $99 USD. Sin límites.",
+    longDescription: "La Licencia Vitalicia de SistecPOS es una inversión única que te da acceso permanente al software POS más completo de Colombia. No vuelves a pagar licencia: solo un hosting anual de $99 USD para mantener tu sistema en la nube, actualizaciones y respaldos. Ideal para negocios que quieren eliminar costos recurrentes de software.",
+    features: ["Pago único de por vida", "Hosting anual $99 USD", "Usuarios ilimitados", "F.E. ilimitada"],
     specifications: [
-      { label: "Duración", value: "1 mes renovable" },
+      { label: "Duración", value: "Vitalicia (de por vida)" },
       { label: "Usuarios", value: "Ilimitados" },
       { label: "Ventas por mes", value: "Ilimitadas" },
       { label: "Facturación electrónica", value: "Ilimitada" },
       { label: "Sucursales", value: "1 sucursal" },
-      { label: "Soporte", value: "WhatsApp + Remoto" },
-      { label: "Actualizaciones", value: "Incluidas" },
+      { label: "Hosting anual", value: "$99 USD/año (obligatorio)" },
+      { label: "Soporte", value: "Prioritario WhatsApp + Presencial" },
+      { label: "Actualizaciones", value: "Incluidas de por vida" },
       { label: "Respaldos", value: "3 diarios en la nube" }
     ],
     includes: [
-      "Acceso completo al software por 1 mes",
-      "Instalación y configuración inicial",
-      "Capacitación básica incluida",
-      "Soporte técnico por WhatsApp",
-      "Actualizaciones automáticas"
+      "Licencia permanente del software POS",
+      "Instalación y configuración en tu negocio",
+      "Capacitación presencial (3 horas)",
+      "Configuración de facturación electrónica",
+      "Soporte prioritario por WhatsApp",
+      "Actualizaciones de por vida incluidas",
+      "Primer año de hosting incluido"
     ],
-    popular: false,
+    popular: true,
     isOffer: true
   },
   {
