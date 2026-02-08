@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { getProductBySlug, formatPrice, products } from "@/data/products";
+import { SEO } from "@/components/seo/SEO";
 
 const getCategoryIcon = (category: string) => {
   const icons: Record<string, typeof Printer> = {
@@ -50,7 +51,11 @@ const ProductoDetallePage = () => {
 
   return (
     <Layout>
-      {/* Breadcrumb */}
+      <SEO
+        title={`${product.name} | Hardware POS Colombia | SistecPOS`}
+        description={product.longDescription || `Compra ${product.name} para tu punto de venta. Envío a toda Colombia con soporte técnico incluido.`}
+        canonical={`https://sistecpos.com/productos/${slug}`}
+      />
       <section className="border-b">
         <div className="container px-4 md:px-6 py-4">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
