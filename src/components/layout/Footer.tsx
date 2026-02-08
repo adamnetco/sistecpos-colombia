@@ -179,8 +179,7 @@ export function Footer() {
         {/* Confianza Local */}
         <div className="mt-8 pt-8 border-t border-primary-foreground/10 text-center">
           <p className="text-sm text-primary-foreground/70 font-medium">
-            🏢 Desarrollado en Floridablanca, Santander. Soporte local inmediato
-            <span className="text-primary-foreground/50"> (sin Call Centers en otros países).</span>
+            📍 Instalación y soporte presencial en Santander. Soporte remoto 24/7 para toda Colombia.
           </p>
         </div>
 
