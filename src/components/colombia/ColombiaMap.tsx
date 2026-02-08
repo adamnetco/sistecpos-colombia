@@ -64,9 +64,9 @@ export function ColombiaMap() {
         <img
           src={colombiaSvgUrl}
           alt="Silueta del mapa de Colombia"
-          className="absolute inset-0 w-full h-full object-contain opacity-20"
+          className="absolute inset-0 w-full h-full object-contain opacity-30"
           style={{
-            filter: "sepia(1) saturate(5) hue-rotate(190deg) brightness(0.7)",
+            filter: "sepia(1) saturate(8) hue-rotate(195deg) brightness(0.55)",
           }}
           draggable={false}
         />
