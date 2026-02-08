@@ -24,6 +24,8 @@ export interface Competitor {
   strengths: string[];
   /** Where SistecPOS wins */
   sistecposAdvantages: string[];
+  /** Pain points: Ellos vs Nosotros */
+  painPoints?: { ellos: string; nosotros: string }[];
   /** Feature comparison rows */
   features: { feature: string; competitor: boolean | string; sistecpos: boolean | string }[];
   /** SEO-friendly FAQ */
@@ -53,6 +55,11 @@ export const competitors: Competitor[] = [
       "Modo offline 8 días (Odoo requiere internet constante)",
       "Facturación electrónica DIAN preconfigurada",
       "Precio predecible sin costos de hosting ni desarrollo",
+    ],
+    painPoints: [
+      { ellos: "Requiere desarrollador para instalar y configurar. Semanas de implementación.", nosotros: "Listo para usar en 1 día. Instalación presencial sin conocimiento técnico." },
+      { ellos: "100% nube. Sin internet no puedes vender ni consultar inventario.", nosotros: "Tecnología Híbrida: vende offline hasta 8 días, sincroniza automáticamente." },
+      { ellos: "Módulos DIAN son costosos y requieren configuración técnica compleja.", nosotros: "Facturación Electrónica DIAN preconfigurada e ilimitada desde el día 1." },
     ],
     features: [
       { feature: "Facturación electrónica DIAN", competitor: "Con módulo adicional", sistecpos: true },
@@ -94,6 +101,11 @@ export const competitors: Competitor[] = [
       "Soporte WhatsApp con respuesta el mismo día",
       "Precio más accesible sin paquetes de contabilidad obligatorios",
     ],
+    painPoints: [
+      { ellos: "Soporte por tickets lento (24-72h). Call center saturado.", nosotros: "Soporte WhatsApp con ingeniero directo. Respuesta el mismo día." },
+      { ellos: "100% nube. Si se cae internet, tu negocio se paraliza.", nosotros: "Modo offline 8 días. Nunca dejas de vender." },
+      { ellos: "Precios suben anualmente. Cobros por funcionalidades extra.", nosotros: "Precio fijo desde $12 USD/mes. Facturación electrónica ilimitada incluida." },
+    ],
     features: [
       { feature: "Especializado en punto de venta", competitor: "Módulo secundario", sistecpos: true },
       { feature: "Facturación electrónica DIAN", competitor: true, sistecpos: true },
@@ -133,6 +145,11 @@ export const competitors: Competitor[] = [
       "Control de mesas, comandas y cocina para restaurantes",
       "Módulo de servicio técnico y casa de cambio",
       "Importación masiva de inventario desde Excel",
+    ],
+    painPoints: [
+      { ellos: "Dependencia total de internet. Sin conexión, no facturas.", nosotros: "Vende offline hasta 8 días con sincronización automática." },
+      { ellos: "Costos extra por funcionalidades avanzadas y módulos.", nosotros: "16 módulos especializados incluidos en un solo precio." },
+      { ellos: "Soporte remoto genérico desde call center.", nosotros: "Instalación y soporte presencial en tu local." },
     ],
     features: [
       { feature: "Especializado en punto de venta", competitor: "Módulo complementario", sistecpos: true },
@@ -698,6 +715,138 @@ export const competitors: Competitor[] = [
       { question: "¿Loyverse cumple con la DIAN?", answer: "No. Loyverse no emite facturación electrónica DIAN ni cumple con la regulación colombiana. Para operar legalmente en Colombia necesitas un sistema como SistecPOS que incluye facturación electrónica." },
     ],
     metaDescription: "Loyverse vs SistecPOS 2025: ¿POS gratis internacional o profesional colombiano? Compara funciones y regulación DIAN.",
+  },
+  {
+    slug: "unicenta",
+    name: "Unicenta",
+    type: "open-source",
+    tagline: "POS open source legacy vs POS moderno colombiano",
+    description: "Unicenta (antes Openbravo POS) es un software POS de código abierto basado en Java. Funcional pero con tecnología obsoleta, sin soporte en la nube ni facturación DIAN.",
+    website: "https://unicenta.com",
+    origin: "Internacional (Open Source)",
+    strengths: [
+      "Código abierto y gratuito",
+      "Personalizable con Java",
+      "Comunidad de desarrollo activa",
+    ],
+    sistecposAdvantages: [
+      "100% en la nube con respaldos automáticos",
+      "Facturación electrónica DIAN incluida",
+      "Modo offline 8 días con sincronización",
+      "Sin necesidad de servidor local ni DBA",
+      "Instalación y soporte presencial",
+      "Interfaz moderna sin conocimientos técnicos",
+    ],
+    painPoints: [
+      { ellos: "Base de datos local sin backups automáticos. Riesgo de perder datos.", nosotros: "3 respaldos diarios automáticos en la nube. Tus datos siempre seguros." },
+      { ellos: "Tecnología Java obsoleta. Interfaz de los años 2000.", nosotros: "Interfaz moderna, accesible desde cualquier navegador o dispositivo." },
+      { ellos: "Sin facturación electrónica DIAN. No cumple regulación colombiana.", nosotros: "Facturación electrónica DIAN ilimitada, preconfigurada desde el día 1." },
+    ],
+    features: [
+      { feature: "Facturación electrónica DIAN", competitor: false, sistecpos: true },
+      { feature: "100% en la nube", competitor: false, sistecpos: true },
+      { feature: "Modo offline hasta 8 días", competitor: "Solo local (sin nube)", sistecpos: true },
+      { feature: "Respaldos automáticos", competitor: false, sistecpos: true },
+      { feature: "Instalación presencial", competitor: false, sistecpos: true },
+      { feature: "Interfaz moderna", competitor: false, sistecpos: true },
+      { feature: "Soporte en español", competitor: "Solo comunidad", sistecpos: true },
+      { feature: "Multi-tienda", competitor: false, sistecpos: true },
+      { feature: "Código abierto", competitor: true, sistecpos: false },
+      { feature: "Sin costo de licencia", competitor: true, sistecpos: "Desde $12 USD/mes" },
+    ],
+    faqs: [
+      { question: "¿Unicenta es gratis?", answer: "Sí, Unicenta es gratuito y de código abierto. Sin embargo, requiere instalación técnica en servidor local, no tiene facturación DIAN y no cuenta con soporte profesional. SistecPOS desde $12 USD/mes incluye todo listo para usar." },
+      { question: "¿Unicenta cumple con la DIAN?", answer: "No. Unicenta no emite facturación electrónica DIAN ni cumple la normativa colombiana. Para operar legalmente necesitas un sistema como SistecPOS con facturación electrónica integrada." },
+    ],
+    metaDescription: "Unicenta vs SistecPOS 2025: ¿POS open source obsoleto o moderno con DIAN? Alternativa a Unicenta para Colombia.",
+  },
+  {
+    slug: "floreant-pos",
+    name: "Floreant POS",
+    type: "open-source",
+    tagline: "POS de restaurantes open source vs POS integral colombiano",
+    description: "Floreant POS es un software POS de código abierto basado en Java, diseñado para restaurantes. Difícil de instalar, sin soporte en español y sin facturación electrónica DIAN.",
+    website: "https://floreant.org",
+    origin: "Internacional (Open Source)",
+    strengths: [
+      "Diseñado para restaurantes",
+      "Código abierto y gratuito",
+      "Control de mesas básico",
+    ],
+    sistecposAdvantages: [
+      "Facturación electrónica DIAN para restaurantes",
+      "Soporte en español con respuesta el mismo día",
+      "Instalación presencial sin conocimientos técnicos",
+      "Modo offline 8 días",
+      "Funciona para 24 tipos de negocio",
+      "Monitor KDS de cocina avanzado",
+    ],
+    painPoints: [
+      { ellos: "Instalación compleja con Java y Linux. Requiere técnico.", nosotros: "Instalación presencial en tu local. Listo en 1 día." },
+      { ellos: "Sin soporte en español. Documentación solo en inglés.", nosotros: "Soporte WhatsApp en español con ingeniero directo." },
+      { ellos: "Sin facturación DIAN. Ilegal para comercio en Colombia.", nosotros: "Facturación electrónica DIAN ilimitada desde el día 1." },
+    ],
+    features: [
+      { feature: "Facturación electrónica DIAN", competitor: false, sistecpos: true },
+      { feature: "Soporte en español", competitor: false, sistecpos: true },
+      { feature: "Instalación presencial", competitor: false, sistecpos: true },
+      { feature: "Modo offline hasta 8 días", competitor: "Solo local", sistecpos: true },
+      { feature: "Control de mesas/comandas", competitor: true, sistecpos: true },
+      { feature: "Monitor KDS cocina", competitor: false, sistecpos: true },
+      { feature: "Multi-tienda", competitor: false, sistecpos: true },
+      { feature: "Funciona para 24 industrias", competitor: "Solo restaurantes", sistecpos: true },
+      { feature: "100% en la nube", competitor: false, sistecpos: true },
+      { feature: "Código abierto", competitor: true, sistecpos: false },
+    ],
+    faqs: [
+      { question: "¿Floreant POS funciona en Colombia?", answer: "Técnicamente se puede instalar, pero no tiene soporte en español, no emite facturación electrónica DIAN y requiere conocimientos técnicos avanzados. SistecPOS es la alternativa ideal para restaurantes colombianos." },
+      { question: "¿Floreant POS es fácil de instalar?", answer: "No. Floreant requiere Java, configuración de base de datos y conocimientos de Linux. SistecPOS se instala presencialmente en tu local sin que necesites conocimientos técnicos." },
+    ],
+    metaDescription: "Floreant POS vs SistecPOS 2025: ¿POS open source difícil o POS listo para restaurantes en Colombia? Alternativa a Floreant.",
+  },
+  {
+    slug: "wallace-pos",
+    name: "Wallace POS",
+    type: "open-source",
+    tagline: "POS open source clásico vs POS moderno con soporte real",
+    description: "Wallace POS es un software de punto de venta de código abierto con interfaz web. Funcional pero con desarrollo discontinuado, sin soporte profesional ni facturación DIAN.",
+    website: "https://wallacepos.com",
+    origin: "Internacional (Open Source)",
+    strengths: [
+      "Interfaz web moderna (para ser open source)",
+      "Código abierto PHP/MySQL",
+      "Gratuito",
+    ],
+    sistecposAdvantages: [
+      "Desarrollo activo y actualizaciones constantes",
+      "Facturación electrónica DIAN incluida",
+      "Soporte profesional con respuesta el mismo día",
+      "Modo offline 8 días con sincronización",
+      "16 módulos especializados por industria",
+      "Sin necesidad de hosting ni mantenimiento propio",
+    ],
+    painPoints: [
+      { ellos: "Desarrollo discontinuado. Sin actualizaciones de seguridad.", nosotros: "Actualizaciones automáticas constantes. Siempre al día con la DIAN." },
+      { ellos: "Sin soporte profesional. Solo foros abandonados.", nosotros: "Soporte WhatsApp con ingeniero directo. Respuesta el mismo día." },
+      { ellos: "Requiere hosting propio y mantenimiento técnico constante.", nosotros: "100% en la nube. Sin servidores, sin mantenimiento, sin preocupaciones." },
+    ],
+    features: [
+      { feature: "Facturación electrónica DIAN", competitor: false, sistecpos: true },
+      { feature: "Desarrollo activo", competitor: false, sistecpos: true },
+      { feature: "Soporte profesional", competitor: false, sistecpos: true },
+      { feature: "Modo offline hasta 8 días", competitor: false, sistecpos: true },
+      { feature: "100% en la nube (sin hosting)", competitor: false, sistecpos: true },
+      { feature: "Multi-tienda", competitor: false, sistecpos: true },
+      { feature: "16 módulos especializados", competitor: false, sistecpos: true },
+      { feature: "Instalación presencial", competitor: false, sistecpos: true },
+      { feature: "Interfaz web", competitor: true, sistecpos: true },
+      { feature: "Código abierto", competitor: true, sistecpos: false },
+    ],
+    faqs: [
+      { question: "¿Wallace POS sigue activo?", answer: "El desarrollo de Wallace POS está prácticamente discontinuado. No recibe actualizaciones de seguridad ni nuevas funciones. SistecPOS se actualiza constantemente y cumple la normativa DIAN vigente." },
+      { question: "¿Wallace POS tiene facturación DIAN?", answer: "No. Wallace POS no emite facturación electrónica DIAN. Para operar legalmente en Colombia, necesitas un sistema como SistecPOS con facturación electrónica integrada." },
+    ],
+    metaDescription: "Wallace POS vs SistecPOS 2025: ¿POS open source abandonado o moderno con DIAN? Alternativa a Wallace POS en Colombia.",
   },
 ];
 

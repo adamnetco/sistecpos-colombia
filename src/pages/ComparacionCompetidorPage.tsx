@@ -4,6 +4,7 @@ import { DynamicMeta } from "@/components/seo/DynamicMeta";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { JsonLd, faqSchema, softwareApplicationSchema } from "@/components/seo/JsonLd";
 import { getCompetitorBySlug, competitors } from "@/data/competitors";
+import { PainVsSolutionSection } from "@/components/comparar/PainVsSolutionSection";
 import { motion } from "framer-motion";
 import { Check, X, MessageCircle, ArrowRight, Shield, WifiOff, Users, Wrench, Globe, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -35,21 +36,21 @@ export default function ComparacionCompetidorPage() {
 
   if (!competitor) return <Navigate to="/comparar" replace />;
 
-  const otherCompetitors = competitors.filter((c) => c.slug !== competitor.slug).slice(0, 4);
+  const otherCompetitors = competitors.filter((c) => c.slug !== competitor.slug).slice(0, 6);
 
   return (
     <Layout>
       <DynamicMeta
-        title={`${competitor.name} vs SistecPOS | Comparativa Software POS Colombia 2025`}
+        title={`${competitor.name} vs SistecPOS | Alternativa a ${competitor.name} en Colombia 2025`}
         description={competitor.metaDescription}
-        canonical={`https://sistecpos.lovable.app/comparar/${competitor.slug}`}
+        canonical={`https://sistecpos.com/comparar/${competitor.slug}`}
       />
       <JsonLd data={faqSchema(competitor.faqs)} />
       <JsonLd
         data={softwareApplicationSchema({
           name: "SistecPOS",
-          description: `Comparativa ${competitor.name} vs SistecPOS: software POS con facturación electrónica DIAN, modo offline 8 días y soporte presencial en Colombia.`,
-          url: `https://sistecpos.lovable.app/comparar/${competitor.slug}`,
+          description: `Alternativa a ${competitor.name}: SistecPOS con facturación electrónica DIAN, modo offline 8 días y soporte presencial en Colombia.`,
+          url: `https://sistecpos.com/comparar/${competitor.slug}`,
           compareName: competitor.name,
         })}
       />
@@ -77,10 +78,10 @@ export default function ComparacionCompetidorPage() {
               Comparativa 2025
             </Badge>
             <h1 className="text-3xl md:text-5xl font-bold mb-4">
-              {competitor.name} vs SistecPOS
+              ¿Buscas una Alternativa a {competitor.name}?
             </h1>
             <p className="text-lg md:text-xl text-primary-foreground/80 mb-2">
-              {competitor.tagline}
+              Descubre por qué más de 500 negocios en Colombia prefieren SistecPOS sobre {competitor.name}.
             </p>
             <p className="text-sm text-primary-foreground/60 mb-8">
               {competitor.type === "open-source" ? "🔓 Open Source" : "☁️ SaaS"} · Origen: {competitor.origin}
@@ -179,6 +180,14 @@ export default function ComparacionCompetidorPage() {
         </div>
       </section>
 
+      {/* Pain vs Solution */}
+      {competitor.painPoints && competitor.painPoints.length > 0 && (
+        <PainVsSolutionSection
+          competitorName={competitor.name}
+          painPoints={competitor.painPoints}
+        />
+      )}
+
       {/* Feature Table */}
       <section className="py-16 md:py-20 bg-muted/30">
         <div className="container px-4">
@@ -269,22 +278,29 @@ export default function ComparacionCompetidorPage() {
       <section className="py-16 md:py-24 bg-primary text-primary-foreground">
         <div className="container px-4">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center max-w-3xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold mb-6">
-              ¿Listo para Probar SistecPOS?
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              ¿Cansado de {competitor.name}?
             </h2>
-            <p className="text-lg text-primary-foreground/80 mb-8">
-              7 días gratis, sin compromiso. Instalación y configuración incluida.
+            <p className="text-xl text-primary-foreground/90 mb-2 font-semibold">
+              Trae tu base de datos y te regalamos 1 mes gratis.
+            </p>
+            <p className="text-lg text-primary-foreground/70 mb-8">
+              Migración asistida, instalación presencial y capacitación incluida. Sin compromiso.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" className="bg-cta hover:bg-cta/90 text-cta-foreground gap-2" asChild>
                 <Link to="/contacto#demo">
-                  Prueba Gratis 7 Días
+                  Migrar Ahora — Prueba Gratis
                 </Link>
               </Button>
               <Button size="lg" className="bg-whatsapp hover:bg-whatsapp/90 text-whatsapp-foreground gap-2" asChild>
-                <a href="https://wa.me/573176268307?text=Hola,%20quiero%20probar%20SistecPOS" target="_blank" rel="noopener noreferrer">
+                <a
+                  href={`https://wa.me/573176268307?text=Hola,%20quiero%20migrar%20de%20${encodeURIComponent(competitor.name)}%20a%20SistecPOS`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   <MessageCircle className="h-5 w-5" />
-                  Escribir por WhatsApp
+                  Migrar por WhatsApp
                 </a>
               </Button>
             </div>
