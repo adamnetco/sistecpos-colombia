@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
+import { DynamicMeta } from "@/components/seo/DynamicMeta";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -182,6 +183,11 @@ const ProductCard = ({ product, index }: { product: Product; index: number }) =>
 const ProductosPage = () => {
   return (
     <Layout>
+      <DynamicMeta
+        title="Productos y Hardware POS | Impresoras, Lectores, Cajones | SistecPOS"
+        description="Encuentra impresoras térmicas, lectores de códigos de barras, cajones monederos y papel térmico para tu punto de venta. Envío a toda Colombia."
+        canonical="https://sistecpos.lovable.app/productos"
+      />
       {/* Hero Section */}
       <section className="relative py-16 md:py-20 overflow-hidden">
         <div className="absolute inset-0 gradient-bg opacity-5" />

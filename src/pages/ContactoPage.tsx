@@ -1,4 +1,5 @@
 import { Layout } from "@/components/layout/Layout";
+import { DynamicMeta } from "@/components/seo/DynamicMeta";
 import { motion } from "framer-motion";
 import {
   MapPin,
@@ -95,6 +96,11 @@ const contactInfo = [
 export default function ContactoPage() {
   return (
     <Layout>
+      <DynamicMeta
+        title="Contacto | SistecPOS - Soporte POS en Bucaramanga"
+        description="Contáctanos para una demostración gratuita de nuestro software POS. Estamos en Bucaramanga, Santander. WhatsApp, teléfono y redes sociales."
+        canonical="https://sistecpos.lovable.app/contacto"
+      />
       {/* Hero Section */}
       <section className="relative py-20 md:py-28 bg-gradient-to-br from-primary/5 via-background to-secondary/5">
         <div className="container px-4">
