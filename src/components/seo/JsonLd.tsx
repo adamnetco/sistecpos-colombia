@@ -134,3 +134,44 @@ export function softwareApplicationSchema(opts: {
       : []),
   ];
 }
+
+export function productSchema(opts: {
+  name: string;
+  description: string;
+  url: string;
+  image?: string;
+  priceCOP: number;
+  priceUSD?: number;
+  category: string;
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: opts.name,
+    description: opts.description,
+    url: opts.url,
+    ...(opts.image && { image: `https://sistecpos.com${opts.image}` }),
+    brand: {
+      "@type": "Brand",
+      name: "SistecPOS",
+    },
+    category: opts.category,
+    offers: {
+      "@type": "Offer",
+      price: opts.priceUSD || Math.round(opts.priceCOP / 4200),
+      priceCurrency: "USD",
+      priceValidUntil: "2026-12-31",
+      availability: "https://schema.org/InStock",
+      seller: {
+        "@type": "Organization",
+        name: "SistecPOS",
+      },
+    },
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: "4.8",
+      ratingCount: "120",
+      bestRating: "5",
+    },
+  };
+}

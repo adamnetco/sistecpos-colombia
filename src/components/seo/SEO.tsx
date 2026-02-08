@@ -1,4 +1,4 @@
-import { Helmet } from "react-helmet-async";
+import { useEffect } from "react";
 
 interface SEOProps {
   title: string;
@@ -7,29 +7,57 @@ interface SEOProps {
   ogImage?: string;
 }
 
+function setMetaTag(property: string, content: string, isProperty = false) {
+  const attr = isProperty ? "property" : "name";
+  let el = document.querySelector(`meta[${attr}="${property}"]`) as HTMLMetaElement | null;
+  if (!el) {
+    el = document.createElement("meta");
+    el.setAttribute(attr, property);
+    document.head.appendChild(el);
+  }
+  el.content = content;
+}
+
+function setCanonical(href: string | undefined) {
+  let el = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
+  if (!href) {
+    el?.remove();
+    return;
+  }
+  if (!el) {
+    el = document.createElement("link");
+    el.rel = "canonical";
+    document.head.appendChild(el);
+  }
+  el.href = href;
+}
+
 export function SEO({ title, description, canonical, ogImage }: SEOProps) {
-  return (
-    <Helmet>
-      <title>{title}</title>
-      <meta name="description" content={description} />
+  useEffect(() => {
+    // Title
+    document.title = title;
 
-      {/* Open Graph */}
-      <meta property="og:title" content={title} />
-      <meta property="og:description" content={description} />
-      <meta property="og:type" content="website" />
-      {canonical && <meta property="og:url" content={canonical} />}
-      {ogImage && <meta property="og:image" content={ogImage} />}
+    // Basic meta
+    setMetaTag("description", description);
 
-      {/* Twitter */}
-      <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:title" content={title} />
-      <meta name="twitter:description" content={description} />
-      {ogImage && <meta name="twitter:image" content={ogImage} />}
+    // Open Graph
+    setMetaTag("og:title", title, true);
+    setMetaTag("og:description", description, true);
+    setMetaTag("og:type", "website", true);
+    if (canonical) setMetaTag("og:url", canonical, true);
+    if (ogImage) setMetaTag("og:image", ogImage, true);
 
-      {/* Canonical */}
-      {canonical && <link rel="canonical" href={canonical} />}
-    </Helmet>
-  );
+    // Twitter
+    setMetaTag("twitter:card", "summary_large_image");
+    setMetaTag("twitter:title", title);
+    setMetaTag("twitter:description", description);
+    if (ogImage) setMetaTag("twitter:image", ogImage);
+
+    // Canonical
+    setCanonical(canonical);
+  }, [title, description, canonical, ogImage]);
+
+  return null;
 }
 
 // Backward compatibility alias
