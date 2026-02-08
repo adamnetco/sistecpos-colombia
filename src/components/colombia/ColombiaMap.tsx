@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useState } from "react";
 
@@ -97,6 +97,7 @@ const easternExtension = `
 
 export function ColombiaMap() {
   const [hoveredCity, setHoveredCity] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   return (
     <div className="relative w-full max-w-lg mx-auto">
@@ -185,11 +186,12 @@ export function ColombiaMap() {
           if (city.slug === "itagui" || city.slug === "soledad") return null;
 
           return (
-            <Link
+            <g
               key={city.slug}
-              to={`/software-pos/${city.slug}`}
+              onClick={() => navigate(`/software-pos/${city.slug}`)}
               onMouseEnter={() => setHoveredCity(city.slug)}
               onMouseLeave={() => setHoveredCity(null)}
+              className="cursor-pointer"
             >
               {/* Pulse for Bucaramanga */}
               {isBucaramangaArea && city.slug === "bucaramanga" && (
@@ -232,7 +234,7 @@ export function ColombiaMap() {
                   {city.name}
                 </text>
               )}
-            </Link>
+            </g>
           );
         })}
 
