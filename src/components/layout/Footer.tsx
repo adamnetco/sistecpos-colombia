@@ -32,6 +32,7 @@ const footerLinks = {
     { name: "POS Cúcuta", href: "/software-pos/cucuta" },
   ],
   empresa: [
+    { name: "Soluciones por Industria", href: "/soluciones" },
     { name: "Software POS Colombia", href: "/software-pos-colombia" },
     { name: "Facturación Electrónica", href: "/facturacion-electronica" },
     { name: "Comparar POS", href: "/comparar" },
