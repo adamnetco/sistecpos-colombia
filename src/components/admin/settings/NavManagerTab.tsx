@@ -136,7 +136,8 @@ export default function NavManagerTab() {
             </div>
             <div>
               <Label>URL *</Label>
-              <Input value={form.href} onChange={e => set("href", e.target.value)} placeholder="/productos" />
+              <Input value={form.href} onChange={e => set("href", e.target.value)} placeholder="/productos o /pagina#seccion" />
+              <p className="text-[10px] text-muted-foreground mt-1">Soporta rutas (/ruta), anclas (#seccion), y combinaciones (/ruta#seccion)</p>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
