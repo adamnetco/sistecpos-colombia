@@ -1175,6 +1175,7 @@ export type Database = {
           created_at: string
           id: string
           image_url: string | null
+          instagram_url: string | null
           is_featured: boolean
           is_published: boolean
           logo_url: string | null
@@ -1182,12 +1183,15 @@ export type Database = {
           quote: string | null
           results: string | null
           slug: string
+          social_links: Json | null
           solution: string | null
           sort_order: number
           tags: string[] | null
+          tiktok_url: string | null
           title: string
           updated_at: string
           video_url: string | null
+          website_url: string | null
         }
         Insert: {
           business_name: string
@@ -1199,6 +1203,7 @@ export type Database = {
           created_at?: string
           id?: string
           image_url?: string | null
+          instagram_url?: string | null
           is_featured?: boolean
           is_published?: boolean
           logo_url?: string | null
@@ -1206,12 +1211,15 @@ export type Database = {
           quote?: string | null
           results?: string | null
           slug: string
+          social_links?: Json | null
           solution?: string | null
           sort_order?: number
           tags?: string[] | null
+          tiktok_url?: string | null
           title: string
           updated_at?: string
           video_url?: string | null
+          website_url?: string | null
         }
         Update: {
           business_name?: string
@@ -1223,6 +1231,7 @@ export type Database = {
           created_at?: string
           id?: string
           image_url?: string | null
+          instagram_url?: string | null
           is_featured?: boolean
           is_published?: boolean
           logo_url?: string | null
@@ -1230,12 +1239,15 @@ export type Database = {
           quote?: string | null
           results?: string | null
           slug?: string
+          social_links?: Json | null
           solution?: string | null
           sort_order?: number
           tags?: string[] | null
+          tiktok_url?: string | null
           title?: string
           updated_at?: string
           video_url?: string | null
+          website_url?: string | null
         }
         Relationships: []
       }
