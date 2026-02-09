@@ -1,151 +1,121 @@
 
 
-# Plan: Dominar SEO "Software POS Colombia"
+# Plan: Rediseno Integral del Panel Admin + IA + UX/UI (Inspirado en Nubeyne)
 
-## Diagnostico: Que falta
+## Contexto y Diagnostico
 
-### 1. Pagina Pilar Nacional (CRITICA - No existe)
-Falta la pagina mas importante para el keyword principal: **`/software-pos-colombia`**. Esta seria la pagina pilar que concentra autoridad y enlaza a todas las ciudades y soluciones.
+Tras auditar todo el panel actual de SistecPOS (`/admin`) y el portal de socios (`/socio`), se identificaron las siguientes brechas frente al modelo Nubeyne y al modelo de negocio real (socios, clientes directos/indirectos, proveedores de software/hardware/certificados):
 
-**Contenido propuesto:**
-- H1: "Software POS en Colombia: El Sistema Punto de Venta #1 para Tu Negocio"
-- Seccion "Que es un Software POS" (contenido educativo para long-tail)
-- Seccion "Facturacion Electronica DIAN" (keyword de alta intencion)
-- Mapa visual de cobertura con las 23+ ciudades enlazadas
-- Grid de los 24 tipos de negocio enlazados
-- Comparativa resumida con CTA a `/comparativa-licencias`
-- FAQ con schema markup (preguntas frecuentes sobre POS en Colombia)
-- Testimonios nacionales
+### Lo que ya funciona bien
+- Central IA con base de conocimiento (FAQs, documentos, texto libre)
+- Conversaciones del chatbot con captura de leads automatica
+- CRM unificado con filtros por fuente y tipo
+- Kanban de certificados con gestion documental
+- Tracking scripts (GA, GTM, Pixel)
+- Portal de socios con licencias, tickets, comisiones y entrenamientos
 
-### 2. Pagina de Facturacion Electronica (No existe)
-Keyword de alta intencion: **`/facturacion-electronica`**
-- H1: "Facturacion Electronica DIAN con Software POS Integrado"
-- Explicar la obligatoriedad DIAN
-- Como SistecPOS cumple con la norma
-- Interlinks a ciudades y soluciones
+### Brechas detectadas
 
-### 3. Sitemap Desincronizado con Datos Reales
-El `sitemap.xml` tiene slugs que NO coinciden con `businessTypes.ts`:
-
-| Sitemap (incorrecto) | businessTypes.ts (real) |
-|---|---|
-| `/soluciones/farmacias` | `droguerias` |
-| `/soluciones/fruteria-heladeria` | `fruver` |
-| `/soluciones/carniceria-avicola` | `carnicerias` |
-| `/soluciones/cafeteria` | `cafeterias` |
-| `/soluciones/repuestos-automotriz` | `lavaderos-autos` |
-| `/soluciones/mayoristas` | No existe |
-| `/soluciones/licorera` | No existe |
-| `/soluciones/distribuidora` | `distribuidoras` |
-
-Esto genera enlaces rotos que perjudican el SEO.
-
-### 4. Interlinks Faltantes Entre Paginas
-Actualmente las paginas estan aisladas. Se necesitan interlinks estrategicos:
-
-- Cada pagina de ciudad debe enlazar a las soluciones mas relevantes de esa ciudad
-- Cada pagina de solucion debe enlazar a las ciudades donde esta disponible
-- La pagina de comparativa debe enlazar a la pillar page y viceversa
-- Las paginas de productos deben enlazar a las soluciones que usan ese hardware
-
-### 5. Schema JSON-LD (No implementado en paginas)
-Falta structured data en:
-- Paginas de ciudad: `LocalBusiness` schema
-- Pagina de comparativa: `Product` + `AggregateRating`
-- FAQ sections: `FAQPage` schema
-- Home: `Organization` + `LocalBusiness`
-
-### 6. Navbar sin enlace a Pagina Pilar
-El menu no tiene enlace a "Software POS Colombia" ni a "Facturacion Electronica"
+| Area | Brecha |
+|------|--------|
+| Dashboard Admin | Sin graficos de tendencia, sin metricas de IA, sin revenue |
+| Central IA | Sin metricas de uso (conversaciones/dia, tasa de captura), sin test en vivo, sin prompt editor avanzado |
+| CRM | Sin pipeline visual (Kanban), sin actividad/notas por contacto, sin scoring |
+| Proveedores | No existe modulo de proveedores (software, hardware, certificados) |
+| Socios | Dashboard basico sin graficos, sin historial de comisiones ganadas |
+| UX/UI Sidebar | Sin responsive mobile (hamburger menu), sin notificaciones |
+| Pagos | Sin graficos de revenue, sin exportacion |
 
 ---
 
-## Implementacion Tecnica
+## Alcance de Implementacion (7 bloques)
 
-### Paso 1: Corregir sitemap.xml
-Sincronizar todos los slugs del sitemap con los slugs reales de `businessTypes.ts`. Agregar las nuevas paginas pillar.
+### Bloque 1: Dashboard Admin Rediseñado
+- Agregar fila de graficos con recharts: Revenue mensual, Leads por semana, Conversiones
+- KPIs de IA: conversaciones del chatbot hoy, leads capturados por IA, tasa de conversion
+- Mini-calendario de licencias por vencer en los proximos 7 dias
+- Alertas activas mejoradas con iconos y urgencia visual
 
-### Paso 2: Crear pagina `/software-pos-colombia`
-Nueva pagina `src/pages/SoftwarePosColombiaPage.tsx` con:
-- Hero optimizado para "Software POS Colombia"
-- Seccion de ciudades con mapa de cobertura interactivo (links a cada `/software-pos/:city`)
-- Grid de soluciones por industria (links a cada `/soluciones/:slug`)
-- Seccion de facturacion electronica DIAN
-- FAQ con schema JSON-LD integrado
-- CTA a WhatsApp
+### Bloque 2: Central IA Avanzada
+- **Tab "Metricas IA"**: grafico de conversaciones/dia (ultimos 30 dias), leads capturados por IA, tasa de captura, paginas con mas interaccion
+- **Tab "Prompt Studio"**: editor del system prompt del chatbot directamente desde el admin (guardado en `app_settings`), con preview en tiempo real
+- **Tab "Test en Vivo"**: mini-chatbot embebido en el admin para probar cambios al prompt y KB sin salir del panel
+- Indicador de tokens/coste estimado por conversacion
 
-### Paso 3: Crear pagina `/facturacion-electronica`
-Nueva pagina `src/pages/FacturacionElectronicaPage.tsx` con:
-- Contenido educativo sobre obligatoriedad DIAN
-- Como funciona con SistecPOS
-- Interlinks a soluciones y ciudades
+### Bloque 3: CRM con Pipeline Kanban
+- Vista Kanban con columnas: Nuevo > Contactado > Demo Activa > Negociacion > Cerrado/Perdido
+- Drag & drop para mover contactos entre etapas
+- Panel lateral al hacer click en un contacto: historial de notas, actividades, archivos
+- Lead scoring basico (automatico por interaccion: visito web +1, chatbot +2, solicito demo +5)
+- Tabla `contact_activities` para registrar llamadas, emails, notas
 
-### Paso 4: Agregar interlinks cruzados
-- En `SoftwarePosLocalPage.tsx`: seccion "Soluciones disponibles en [ciudad]" con links a `/soluciones/:slug`
-- En `SolucionNegocioPage.tsx`: seccion "Disponible en estas ciudades" con links a `/software-pos/:city`
-- En `ComparativaLicenciasPage.tsx`: links a la pagina pillar
-- Breadcrumbs en todas las subpaginas
+### Bloque 4: Modulo de Proveedores
+- Nueva seccion `/admin/proveedores` en el sidebar
+- Tabla `suppliers` con campos: nombre, tipo (software/hardware/certificados), contacto, email, telefono, ciudad, estado, notas
+- Vista con filtros por tipo de proveedor
+- Formulario de alta/edicion
+- RLS: solo admins pueden ver/editar
 
-### Paso 5: Implementar JSON-LD Schema
-Crear componente `src/components/seo/JsonLd.tsx` reutilizable que inyecte:
-- `LocalBusiness` en paginas de ciudad
-- `FAQPage` en la pagina pillar y facturacion
-- `Organization` en el home
-- `BreadcrumbList` en todas las subpaginas
+### Bloque 5: Portal Socio Mejorado
+- Dashboard con graficos: licencias creadas por mes, comisiones acumuladas
+- Historial de comisiones con estado (pendiente/pagada/rechazada) y total acumulado
+- Notificaciones simples (banner) cuando hay entrenamientos nuevos o tickets resueltos
+- Sidebar responsive con hamburger menu en mobile
 
-### Paso 6: Actualizar navegacion
-- Agregar "Software POS Colombia" al Navbar
-- Agregar "Facturacion Electronica" al Footer
-- Agregar breadcrumbs visuales en paginas interiores
+### Bloque 6: UX/UI Global del Admin
+- Sidebar responsive: colapsable en desktop, drawer/hamburger en mobile
+- Header con breadcrumbs + indicador de notificaciones (licencias por vencer, socios pendientes, certificados sin procesar)
+- Tema consistente: cards con hover mejorado, transiciones suaves
+- Skeleton loaders en lugar de "Cargando..." en todas las tablas
+- Todos los formularios con validacion visual (bordes rojos, mensajes inline)
 
-### Paso 7: Actualizar rutas en App.tsx
-Agregar:
-```text
-/software-pos-colombia -> SoftwarePosColombiaPage
-/facturacion-electronica -> FacturacionElectronicaPage
-```
-
-### Paso 8: Regenerar sitemap.xml
-Con todos los slugs corregidos y las nuevas paginas incluidas.
-
----
-
-## Copywriting SEO Propuesto
-
-### Pagina Pillar - H1 y Meta
-- **H1:** "Software POS en Colombia | Sistema Punto de Venta para Tu Negocio"
-- **Meta Title:** "Software POS Colombia 2025 | Sistema Punto de Venta #1 | SistecPOS"
-- **Meta Description:** "Software POS para negocios en Colombia con facturacion electronica DIAN, modo offline 8 dias y soporte en 23+ ciudades. Prueba gratis."
-
-### Facturacion Electronica - H1 y Meta
-- **H1:** "Facturacion Electronica DIAN con Software POS Integrado"
-- **Meta Title:** "Facturacion Electronica DIAN | Software POS con FE | SistecPOS"
-- **Meta Description:** "Cumple con la facturacion electronica DIAN desde tu software POS. Emite facturas, notas credito y documentos soporte. Cotiza gratis."
-
-### FAQ Sugeridas (con schema)
-1. "Que es un software POS y para que sirve?"
-2. "Cuanto cuesta un software POS en Colombia?"
-3. "Que software POS funciona sin internet?"
-4. "Como implementar facturacion electronica DIAN?"
-5. "Cual es el mejor software POS para restaurantes en Colombia?"
-6. "Se puede usar un POS en el celular?"
-7. "Que hardware necesito para un punto de venta?"
+### Bloque 7: Pagos Enriquecidos
+- Graficos de revenue mensual con recharts
+- Filtros por metodo de pago, rango de fechas, estado
+- Subtotales visibles (total confirmado, pendiente)
+- Vinculacion visual: click en pago abre el detalle de la licencia o certificado asociado
 
 ---
 
-## Archivos a Crear
-- `src/pages/SoftwarePosColombiaPage.tsx`
-- `src/pages/FacturacionElectronicaPage.tsx`
-- `src/components/seo/JsonLd.tsx`
-- `src/components/seo/Breadcrumbs.tsx`
+## Cambios en Base de Datos
 
-## Archivos a Modificar
-- `src/App.tsx` (nuevas rutas)
-- `public/sitemap.xml` (corregir slugs, agregar paginas)
-- `src/components/layout/Navbar.tsx` (nuevos enlaces)
-- `src/components/layout/Footer.tsx` (nuevos enlaces)
-- `src/pages/SoftwarePosLocalPage.tsx` (interlinks a soluciones)
-- `src/pages/SolucionNegocioPage.tsx` (interlinks a ciudades)
-- `src/pages/ComparativaLicenciasPage.tsx` (interlinks)
-- `src/pages/Index.tsx` (JSON-LD Organization)
+1. **Nueva tabla `suppliers`**: id, name, supplier_type (enum: software/hardware/certificados/otro), contact_name, email, phone, city, status, notes, created_at
+2. **Nueva tabla `contact_activities`**: id, contact_id (FK), activity_type (call/email/note/meeting), description, created_by, created_at
+3. **Agregar columna `lead_score`** (integer, default 0) a tabla `contacts`
+4. **Agregar fila `chatbot_system_prompt`** a `app_settings`
+5. RLS en `suppliers`: solo usuarios con rol admin
+6. RLS en `contact_activities`: solo usuarios con rol admin
+
+---
+
+## Seccion Tecnica
+
+### Archivos a crear
+- `src/components/admin/SuppliersView.tsx` - CRUD de proveedores
+- `src/components/admin/AIMetricsTab.tsx` - Metricas de IA con recharts
+- `src/components/admin/PromptStudioTab.tsx` - Editor del prompt del chatbot
+- `src/components/admin/AITestTab.tsx` - Chat de prueba embebido
+- `src/components/admin/ContactPipelineView.tsx` - Kanban CRM
+- `src/components/admin/ContactDetailPanel.tsx` - Panel lateral de contacto
+- `src/components/admin/AdminHeader.tsx` - Header con breadcrumbs y notificaciones
+- `src/components/admin/AdminSidebar.tsx` - Sidebar responsive extraido
+
+### Archivos a modificar
+- `src/components/admin/AdminLayout.tsx` - Sidebar responsive + header
+- `src/components/admin/DashboardOverview.tsx` - Graficos y KPIs de IA
+- `src/components/admin/CentralIAView.tsx` - Nuevos tabs (Metricas, Prompt Studio, Test)
+- `src/components/admin/ContactsView.tsx` - Agregar vista Kanban toggle
+- `src/components/admin/PaymentsView.tsx` - Graficos y filtros
+- `src/pages/AdminPage.tsx` - Nueva ruta /admin/proveedores
+- `src/components/reseller/ResellerDashboard.tsx` - Graficos
+- `src/components/reseller/ResellerLayout.tsx` - Sidebar responsive
+- `src/components/reseller/ResellerCommissionsView.tsx` - Historial con estados
+- `supabase/functions/chat-ai/index.ts` - Leer prompt desde app_settings
+
+### Dependencias
+- `recharts` ya esta instalado
+- No se necesitan dependencias adicionales
+
+### Migracion SQL
+Una sola migracion con: tabla `suppliers`, tabla `contact_activities`, columna `lead_score` en `contacts`, fila en `app_settings`, y politicas RLS correspondientes.
 
