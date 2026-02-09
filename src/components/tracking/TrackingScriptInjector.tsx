@@ -1,5 +1,6 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { initConsentDefaults } from "./CookieConsentBanner";
 
 interface TrackingScript {
   id: string;
@@ -10,6 +11,7 @@ interface TrackingScript {
 
 /**
  * Injects tracking scripts from the database into the DOM.
+ * Initializes Google Consent Mode v2 defaults BEFORE any scripts load.
  * Supports head, body_start, and body_end placements.
  */
 export function TrackingScriptInjector() {
@@ -18,6 +20,9 @@ export function TrackingScriptInjector() {
   useEffect(() => {
     if (injectedRef.current) return;
     injectedRef.current = true;
+
+    // CRITICAL: Set consent defaults BEFORE any Google tags load
+    initConsentDefaults();
 
     (async () => {
       const { data } = await supabase

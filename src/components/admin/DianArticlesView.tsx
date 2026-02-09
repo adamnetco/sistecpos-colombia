@@ -117,6 +117,7 @@ export default function DianArticlesView() {
   const [form, setForm] = useState<FormState>(defaultForm);
   const [search, setSearch] = useState("");
   const [filterCluster, setFilterCluster] = useState<string>("all");
+  const [filterStatus, setFilterStatus] = useState<string>("all");
 
   const { data: articles = [], isLoading } = useQuery({
     queryKey: ["admin_dian_articles"],
@@ -137,7 +138,10 @@ export default function DianArticlesView() {
     const matchSearch = a.h1.toLowerCase().includes(search.toLowerCase()) ||
       a.slug.toLowerCase().includes(search.toLowerCase());
     const matchCluster = filterCluster === "all" || a.cluster === filterCluster;
-    return matchSearch && matchCluster;
+    const matchStatus = filterStatus === "all" ||
+      (filterStatus === "published" && a.is_published) ||
+      (filterStatus === "draft" && !a.is_published);
+    return matchSearch && matchCluster && matchStatus;
   });
 
   const set = (key: string, value: any) => setForm((f) => ({ ...f, [key]: value }));
@@ -257,6 +261,16 @@ export default function DianArticlesView() {
               {CLUSTER_OPTIONS.map((c) => (
                 <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
               ))}
+            </SelectContent>
+          </Select>
+          <Select value={filterStatus} onValueChange={setFilterStatus}>
+            <SelectTrigger className="h-9 w-40">
+              <SelectValue placeholder="Estado..." />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos los estados</SelectItem>
+              <SelectItem value="published">✅ Publicados</SelectItem>
+              <SelectItem value="draft">📝 Borradores</SelectItem>
             </SelectContent>
           </Select>
         </div>
