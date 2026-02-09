@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Copy, Check, Download } from "lucide-react";
 import { useState } from "react";
+import { planLabel } from "@/data/licensePlans";
 
 interface License {
   id: string;
@@ -72,7 +73,7 @@ export function LicenseDetailsDialog({ license, onClose }: Props) {
           {/* Info Grid */}
           <div className="grid grid-cols-2 gap-3">
             <Field label="NIT" value={license.business_nit || "—"} />
-            <Field label="Plan" value={license.plan_type} className="capitalize" />
+            <Field label="Plan" value={planLabel(license.plan_type)} />
             <Field label="Contacto" value={license.contact_name} />
             <Field label="Email" value={license.contact_email || "—"} />
             <Field label="Teléfono" value={license.contact_phone || "—"} />

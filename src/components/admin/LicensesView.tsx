@@ -8,6 +8,7 @@ import { RefreshCw, Search, Eye, Pause, Play } from "lucide-react";
 import { LicenseCreateDialog } from "./licenses/LicenseCreateDialog";
 import { LicenseRenewDialog } from "./licenses/LicenseRenewDialog";
 import { LicenseDetailsDialog } from "./licenses/LicenseDetailsDialog";
+import { planLabel } from "@/data/licensePlans";
 
 interface License {
   id: string;
@@ -140,7 +141,7 @@ export default function LicensesView() {
                     <div className="font-medium">{l.business_name}</div>
                     <div className="text-xs text-muted-foreground">{l.contact_name}</div>
                   </td>
-                  <td className="px-4 py-3 capitalize">{l.plan_type}</td>
+                  <td className="px-4 py-3">{planLabel(l.plan_type)}</td>
                   <td className="px-4 py-3">{statusBadge(l)}</td>
                   <td className="px-4 py-3">{l.expires_at || "—"}</td>
                   <td className="px-4 py-3 font-mono text-xs">{l.license_key.slice(0, 8)}...</td>

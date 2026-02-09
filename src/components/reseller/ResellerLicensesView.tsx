@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Plus, Search, Eye } from "lucide-react";
+import { LICENSE_PLANS, planLabel, planIsAnnual } from "@/data/licensePlans";
 
 interface License {
   id: string;
@@ -85,7 +86,7 @@ export default function ResellerLicensesView() {
       const planType = fd.get("plan_type") as string;
       let expiresAt: string | null = null;
 
-      if (planType === "anual") {
+      if (planIsAnnual(planType)) {
         const d = new Date();
         d.setFullYear(d.getFullYear() + 1);
         expiresAt = d.toISOString().split("T")[0];
@@ -148,8 +149,9 @@ export default function ResellerLicensesView() {
                 <div>
                   <Label>Plan *</Label>
                   <select name="plan_type" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" required>
-                    <option value="anual">Anual</option>
-                    <option value="vitalicio">Vitalicio</option>
+                    {LICENSE_PLANS.map((p) => (
+                      <option key={p.value} value={p.value}>{p.label}</option>
+                    ))}
                   </select>
                 </div>
                 <div><Label>Precio (COP) *</Label><Input name="price_paid" type="number" required /></div>
@@ -206,7 +208,7 @@ export default function ResellerLicensesView() {
                     <div className="font-medium">{l.business_name}</div>
                     <div className="text-xs text-muted-foreground">{l.contact_name}</div>
                   </td>
-                  <td className="px-4 py-3 capitalize">{l.plan_type}</td>
+                  <td className="px-4 py-3">{planLabel(l.plan_type)}</td>
                   <td className="px-4 py-3">{statusBadge(l)}</td>
                   <td className="px-4 py-3">{l.expires_at || "—"}</td>
                   <td className="px-4 py-3">
@@ -232,7 +234,7 @@ export default function ResellerLicensesView() {
               <Row label="Contacto" value={detailTarget.contact_name} />
               <Row label="Email" value={detailTarget.contact_email || "—"} />
               <Row label="Teléfono" value={detailTarget.contact_phone || "—"} />
-              <Row label="Plan" value={detailTarget.plan_type} />
+              <Row label="Plan" value={planLabel(detailTarget.plan_type)} />
               <Row label="Estado" value={detailTarget.status} />
               <Row label="Inicio" value={detailTarget.start_date} />
               <Row label="Vence" value={detailTarget.expires_at || "Sin vencimiento"} />
