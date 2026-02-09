@@ -1038,6 +1038,47 @@ export type Database = {
         }
         Relationships: []
       }
+      reseller_commission_payments: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          notes: string | null
+          paid_at: string | null
+          period: string
+          reseller_id: string
+          status: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          notes?: string | null
+          paid_at?: string | null
+          period: string
+          reseller_id: string
+          status?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          notes?: string | null
+          paid_at?: string | null
+          period?: string
+          reseller_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reseller_commission_payments_reseller_id_fkey"
+            columns: ["reseller_id"]
+            isOneToOne: false
+            referencedRelation: "reseller_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reseller_commissions: {
         Row: {
           commission_type: string

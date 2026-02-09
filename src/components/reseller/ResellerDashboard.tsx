@@ -1,16 +1,17 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useReseller } from "@/hooks/useReseller";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { BarChart, Bar, XAxis, YAxis } from "recharts";
-import { KeyRound, TicketCheck, DollarSign, TrendingUp } from "lucide-react";
+import { KeyRound, TicketCheck, DollarSign, TrendingUp, AlertTriangle, GraduationCap, MessageSquare, Wallet } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 
 export default function ResellerDashboard() {
   const { reseller } = useReseller();
-  const [stats, setStats] = useState({ licenses: 0, tickets: 0, openTickets: 0 });
+  const [stats, setStats] = useState({ licenses: 0, tickets: 0, openTickets: 0, expiringSoon: 0, pendingCommissions: 0 });
   const [licensesByMonth, setLicensesByMonth] = useState<{ month: string; count: number }[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -18,17 +19,29 @@ export default function ResellerDashboard() {
     if (!reseller) return;
 
     const load = async () => {
-      const [licRes, tickRes] = await Promise.all([
-        supabase.from("licenses").select("id, created_at", { count: "exact" }).eq("created_by_reseller_id", reseller.id),
+      const today = new Date().toISOString().split("T")[0];
+      const in30 = new Date();
+      in30.setDate(in30.getDate() + 30);
+      const in30Str = in30.toISOString().split("T")[0];
+
+      const [licRes, tickRes, payRes] = await Promise.all([
+        supabase.from("licenses").select("id, created_at, expires_at, status", { count: "exact" }).eq("created_by_reseller_id", reseller.id),
         supabase.from("reseller_tickets").select("id, status", { count: "exact" }).eq("reseller_id", reseller.id),
+        supabase.from("reseller_commission_payments").select("amount, status").eq("reseller_id", reseller.id).eq("status", "pending"),
       ]);
 
       const openTickets = (tickRes.data || []).filter(t => t.status === "open").length;
+      const expiringSoon = (licRes.data || []).filter(l =>
+        l.expires_at && l.expires_at >= today && l.expires_at <= in30Str && l.status !== "suspended"
+      ).length;
+      const pendingCommissions = (payRes.data || []).reduce((s, p) => s + Number(p.amount), 0);
 
       setStats({
         licenses: licRes.count || 0,
         tickets: tickRes.count || 0,
         openTickets,
+        expiringSoon,
+        pendingCommissions,
       });
 
       // Licenses by month
@@ -48,6 +61,13 @@ export default function ResellerDashboard() {
     load();
   }, [reseller]);
 
+  const quickLinks = [
+    { label: "Licencias", href: "/socio/licencias", icon: KeyRound, color: "bg-primary/10 text-primary" },
+    { label: "Entrenamientos", href: "/socio/entrenamientos", icon: GraduationCap, color: "bg-blue-500/10 text-blue-600" },
+    { label: "Tickets", href: "/socio/tickets", icon: MessageSquare, color: "bg-yellow-500/10 text-yellow-600" },
+    { label: "Comisiones", href: "/socio/comisiones", icon: Wallet, color: "bg-whatsapp/10 text-whatsapp" },
+  ];
+
   return (
     <div>
       <h1 className="mb-6 text-2xl font-bold font-display flex items-center gap-2">
@@ -55,12 +75,13 @@ export default function ResellerDashboard() {
         Bienvenido, {reseller?.full_name?.split(" ")[0]}
       </h1>
 
-      <div className="grid gap-4 sm:grid-cols-3 mb-6">
+      {/* KPI cards */}
+      <div className="grid gap-4 grid-cols-2 sm:grid-cols-4 mb-6">
         <Card>
           <CardContent className="flex items-center gap-3 pt-6">
             <div className="rounded-md bg-primary/10 p-2"><KeyRound className="h-5 w-5 text-primary" /></div>
             <div>
-              <p className="text-sm text-muted-foreground">Licencias Creadas</p>
+              <p className="text-sm text-muted-foreground">Licencias</p>
               <p className="text-2xl font-bold">{loading ? <Skeleton className="h-8 w-12" /> : stats.licenses}</p>
             </div>
           </CardContent>
@@ -79,11 +100,36 @@ export default function ResellerDashboard() {
           <CardContent className="flex items-center gap-3 pt-6">
             <div className="rounded-md bg-whatsapp/10 p-2"><DollarSign className="h-5 w-5 text-whatsapp" /></div>
             <div>
-              <p className="text-sm text-muted-foreground">Comisiones</p>
-              <p className="text-2xl font-bold">$0</p>
+              <p className="text-sm text-muted-foreground">Comisiones pendientes</p>
+              <p className="text-2xl font-bold">{loading ? <Skeleton className="h-8 w-12" /> : `$${stats.pendingCommissions.toLocaleString()}`}</p>
             </div>
           </CardContent>
         </Card>
+        <Card className={stats.expiringSoon > 0 ? "border-yellow-500/50" : ""}>
+          <CardContent className="flex items-center gap-3 pt-6">
+            <div className="rounded-md bg-destructive/10 p-2"><AlertTriangle className="h-5 w-5 text-destructive" /></div>
+            <div>
+              <p className="text-sm text-muted-foreground">Por vencer (30d)</p>
+              <p className="text-2xl font-bold">{loading ? <Skeleton className="h-8 w-12" /> : stats.expiringSoon}</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Quick access */}
+      <div className="grid gap-3 grid-cols-2 sm:grid-cols-4 mb-6">
+        {quickLinks.map((link) => (
+          <Link key={link.href} to={link.href}>
+            <Card className="hover:bg-muted/30 transition-colors cursor-pointer">
+              <CardContent className="flex items-center gap-3 pt-5 pb-4">
+                <div className={`rounded-md p-2 ${link.color}`}>
+                  <link.icon className="h-4 w-4" />
+                </div>
+                <span className="text-sm font-medium">{link.label}</span>
+              </CardContent>
+            </Card>
+          </Link>
+        ))}
       </div>
 
       {!loading && (
