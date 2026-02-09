@@ -4,39 +4,81 @@ import { cn } from "@/lib/utils";
 import {
   LayoutDashboard, KeyRound, Users, FileCheck, CreditCard,
   Handshake, LogOut, ChevronLeft, Contact2, Bot, Code2,
-  Package, Menu, X, ShoppingBag, Tag, FolderOpen, BarChart3, Settings2,
-  FileText,
+  Package, Menu, ShoppingBag, Tag, FolderOpen, BarChart3, Settings2,
+  FileText, ChevronDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-const navItems = [
-  { name: "Resumen", href: "/admin", icon: LayoutDashboard, exact: true },
-  { name: "Productos", href: "/admin/productos", icon: ShoppingBag },
-  { name: "Marcas", href: "/admin/marcas", icon: Tag },
-  { name: "Categorías", href: "/admin/categorias", icon: FolderOpen },
-  { name: "Licencias", href: "/admin/licencias", icon: KeyRound },
-  { name: "Leads / Demos", href: "/admin/leads", icon: Users },
-  { name: "Certificados", href: "/admin/certificados", icon: FileCheck },
-  { name: "Pagos", href: "/admin/pagos", icon: CreditCard },
-  { name: "Socios", href: "/admin/socios", icon: Handshake },
-  { name: "CRM", href: "/admin/contactos", icon: Contact2 },
-  { name: "Proveedores", href: "/admin/proveedores", icon: Package },
-  { name: "Analytics Tienda", href: "/admin/analytics", icon: BarChart3 },
-  { name: "Central IA", href: "/admin/central-ia", icon: Bot },
-  { name: "Tracking", href: "/admin/tracking", icon: Code2 },
-  { name: "Artículos DIAN", href: "/admin/articulos-dian", icon: FileText },
-  { name: "Configuración", href: "/admin/configuracion", icon: Settings2 },
+interface NavGroup {
+  label: string;
+  items: { name: string; href: string; icon: typeof LayoutDashboard; exact?: boolean }[];
+}
+
+const navGroups: NavGroup[] = [
+  {
+    label: "",
+    items: [
+      { name: "Resumen", href: "/admin", icon: LayoutDashboard, exact: true },
+    ],
+  },
+  {
+    label: "Catálogo",
+    items: [
+      { name: "Productos", href: "/admin/productos", icon: ShoppingBag },
+      { name: "Marcas", href: "/admin/marcas", icon: Tag },
+      { name: "Categorías", href: "/admin/categorias", icon: FolderOpen },
+    ],
+  },
+  {
+    label: "Ventas",
+    items: [
+      { name: "Licencias", href: "/admin/licencias", icon: KeyRound },
+      { name: "Certificados", href: "/admin/certificados", icon: FileCheck },
+      { name: "Pagos", href: "/admin/pagos", icon: CreditCard },
+    ],
+  },
+  {
+    label: "CRM",
+    items: [
+      { name: "Contactos", href: "/admin/contactos", icon: Contact2 },
+      { name: "Socios", href: "/admin/socios", icon: Handshake },
+      { name: "Proveedores", href: "/admin/proveedores", icon: Package },
+    ],
+  },
+  {
+    label: "Marketing",
+    items: [
+      { name: "Analytics Tienda", href: "/admin/analytics", icon: BarChart3 },
+      { name: "Central IA", href: "/admin/central-ia", icon: Bot },
+      { name: "Tracking", href: "/admin/tracking", icon: Code2 },
+      { name: "Artículos DIAN", href: "/admin/articulos-dian", icon: FileText },
+    ],
+  },
+  {
+    label: "Sistema",
+    items: [
+      { name: "Configuración", href: "/admin/configuracion", icon: Settings2 },
+    ],
+  },
 ];
 
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const { signOut, user } = useAuth();
   const location = useLocation();
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
 
   const isActive = (href: string, exact?: boolean) =>
     exact ? location.pathname === href : location.pathname.startsWith(href);
+
+  const groupHasActive = (group: NavGroup) =>
+    group.items.some((item) => isActive(item.href, item.exact));
+
+  const toggleGroup = (label: string) => {
+    setCollapsed((prev) => ({ ...prev, [label]: !prev[label] }));
+  };
 
   return (
     <>
@@ -49,23 +91,47 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         <span className="text-sm font-bold">Admin</span>
       </div>
 
-      <nav className="flex-1 space-y-1 px-2 py-4 overflow-y-auto">
-        {navItems.map((item) => (
-          <Link
-            key={item.href}
-            to={item.href}
-            onClick={onNavigate}
-            className={cn(
-              "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors hover:bg-muted",
-              isActive(item.href, item.exact)
-                ? "bg-primary/10 text-primary"
-                : "text-muted-foreground"
-            )}
-          >
-            <item.icon className="h-4 w-4" />
-            {item.name}
-          </Link>
-        ))}
+      <nav className="flex-1 space-y-1 px-2 py-3 overflow-y-auto">
+        {navGroups.map((group) => {
+          const hasLabel = group.label.length > 0;
+          const isCollapsed = hasLabel && collapsed[group.label] && !groupHasActive(group);
+
+          return (
+            <div key={group.label || "root"} className={hasLabel ? "pt-3" : ""}>
+              {hasLabel && (
+                <button
+                  onClick={() => toggleGroup(group.label)}
+                  className="flex w-full items-center justify-between px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70 hover:text-muted-foreground transition-colors"
+                >
+                  {group.label}
+                  <ChevronDown
+                    className={cn(
+                      "h-3 w-3 transition-transform",
+                      isCollapsed && "-rotate-90"
+                    )}
+                  />
+                </button>
+              )}
+              {!isCollapsed &&
+                group.items.map((item) => (
+                  <Link
+                    key={item.href}
+                    to={item.href}
+                    onClick={onNavigate}
+                    className={cn(
+                      "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-muted",
+                      isActive(item.href, item.exact)
+                        ? "bg-primary/10 text-primary"
+                        : "text-muted-foreground"
+                    )}
+                  >
+                    <item.icon className="h-4 w-4" />
+                    {item.name}
+                  </Link>
+                ))}
+            </div>
+          );
+        })}
       </nav>
 
       <div className="border-t p-4 space-y-2">
@@ -113,5 +179,5 @@ export function AdminSidebar() {
 }
 
 export function MobileMenuTrigger() {
-  return null; // handled by AdminSidebar Sheet
+  return null;
 }
