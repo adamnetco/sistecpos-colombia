@@ -9,10 +9,14 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Code2, Plus, Pencil, Trash2, Eye, EyeOff, BarChart3,
-  Tag, Facebook, Chrome,
+  Tag, Facebook, Chrome, Shield,
 } from "lucide-react";
+import { Suspense, lazy } from "react";
+
+const ConsentSettingsTab = lazy(() => import("@/components/admin/tracking/ConsentSettingsTab"));
 
 interface TrackingScript {
   id: string;
@@ -89,96 +93,111 @@ export default function TrackingView() {
         </div>
       </div>
 
-      <div className="mb-4 flex items-center justify-between">
-        <Badge variant="outline" className="text-xs">
-          {scripts.filter((s) => s.is_enabled).length} activos / {scripts.length} total
-        </Badge>
-        <Dialog open={showForm} onOpenChange={(open) => { if (!open) handleFormClose(); else setShowForm(true); }}>
-          <DialogTrigger asChild>
-            <Button size="sm" onClick={() => { setEditing(null); setShowForm(true); }}>
-              <Plus className="h-3.5 w-3.5 mr-1" /> Nuevo Script
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>{editing ? "Editar Script" : "Nuevo Script de Tracking"}</DialogTitle>
-            </DialogHeader>
-            <TrackingScriptForm entry={editing} onSuccess={handleFormClose} />
-          </DialogContent>
-        </Dialog>
-      </div>
+      <Tabs defaultValue="scripts" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="scripts"><Code2 className="h-3.5 w-3.5 mr-1.5" />Scripts</TabsTrigger>
+          <TabsTrigger value="consent"><Shield className="h-3.5 w-3.5 mr-1.5" />Consentimiento</TabsTrigger>
+        </TabsList>
 
-      {/* Quick-add templates */}
-      <div className="mb-6 grid grid-cols-2 md:grid-cols-4 gap-2">
-        {Object.entries(scriptTypeConfig).map(([key, cfg]) => {
-          const Icon = cfg.icon;
-          return (
-            <button
-              key={key}
-              onClick={() => {
-                setEditing(null);
-                setShowForm(true);
-              }}
-              className="flex items-center gap-2 rounded-lg border p-3 text-left hover:bg-muted/50 transition-colors"
-            >
-              <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${cfg.color}`}>
-                <Icon className="h-4 w-4" />
-              </div>
-              <span className="text-xs font-medium">{cfg.label}</span>
-            </button>
-          );
-        })}
-      </div>
+        <TabsContent value="scripts">
+          <div className="mb-4 flex items-center justify-between">
+            <Badge variant="outline" className="text-xs">
+              {scripts.filter((s) => s.is_enabled).length} activos / {scripts.length} total
+            </Badge>
+            <Dialog open={showForm} onOpenChange={(open) => { if (!open) handleFormClose(); else setShowForm(true); }}>
+              <DialogTrigger asChild>
+                <Button size="sm" onClick={() => { setEditing(null); setShowForm(true); }}>
+                  <Plus className="h-3.5 w-3.5 mr-1" /> Nuevo Script
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>{editing ? "Editar Script" : "Nuevo Script de Tracking"}</DialogTitle>
+                </DialogHeader>
+                <TrackingScriptForm entry={editing} onSuccess={handleFormClose} />
+              </DialogContent>
+            </Dialog>
+          </div>
 
-      {loading ? (
-        <div className="py-8 text-center text-muted-foreground">Cargando...</div>
-      ) : scripts.length === 0 ? (
-        <div className="py-12 text-center">
-          <Code2 className="h-12 w-12 mx-auto text-muted-foreground/50 mb-3" />
-          <p className="text-muted-foreground">No hay scripts de tracking configurados</p>
-          <p className="text-xs text-muted-foreground mt-1">
-            Agrega Google Analytics, Tag Manager o Facebook Pixel para medir tus campañas
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-2">
-          {scripts.map((s) => {
-            const cfg = scriptTypeConfig[s.script_type] || scriptTypeConfig.custom;
-            const Icon = cfg.icon;
-            return (
-              <div
-                key={s.id}
-                className={`flex items-start gap-3 rounded-lg border p-4 transition-colors ${
-                  s.is_enabled ? "bg-card" : "bg-muted/30 opacity-60"
-                }`}
-              >
-                <div className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${cfg.color}`}>
-                  <Icon className="h-4 w-4" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Badge className={`text-[10px] ${cfg.color}`}>{cfg.label}</Badge>
-                    <Badge variant="outline" className="text-[10px]">
-                      {placementLabels[s.placement] || s.placement}
-                    </Badge>
+          {/* Quick-add templates */}
+          <div className="mb-6 grid grid-cols-2 md:grid-cols-4 gap-2">
+            {Object.entries(scriptTypeConfig).map(([key, cfg]) => {
+              const Icon = cfg.icon;
+              return (
+                <button
+                  key={key}
+                  onClick={() => {
+                    setEditing(null);
+                    setShowForm(true);
+                  }}
+                  className="flex items-center gap-2 rounded-lg border p-3 text-left hover:bg-muted/50 transition-colors"
+                >
+                  <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${cfg.color}`}>
+                    <Icon className="h-4 w-4" />
                   </div>
-                  <h3 className="font-medium text-sm">{s.name}</h3>
-                  <p className="text-xs text-muted-foreground mt-1 font-mono line-clamp-1">{s.code.slice(0, 80)}...</p>
-                </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <Switch checked={s.is_enabled} onCheckedChange={() => toggleActive(s.id, s.is_enabled)} />
-                  <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => { setEditing(s); setShowForm(true); }}>
-                    <Pencil className="h-3.5 w-3.5" />
-                  </Button>
-                  <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive" onClick={() => deleteScript(s.id)}>
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+                  <span className="text-xs font-medium">{cfg.label}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {loading ? (
+            <div className="py-8 text-center text-muted-foreground">Cargando...</div>
+          ) : scripts.length === 0 ? (
+            <div className="py-12 text-center">
+              <Code2 className="h-12 w-12 mx-auto text-muted-foreground/50 mb-3" />
+              <p className="text-muted-foreground">No hay scripts de tracking configurados</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Agrega Google Analytics, Tag Manager o Facebook Pixel para medir tus campañas
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {scripts.map((s) => {
+                const cfg = scriptTypeConfig[s.script_type] || scriptTypeConfig.custom;
+                const Icon = cfg.icon;
+                return (
+                  <div
+                    key={s.id}
+                    className={`flex items-start gap-3 rounded-lg border p-4 transition-colors ${
+                      s.is_enabled ? "bg-card" : "bg-muted/30 opacity-60"
+                    }`}
+                  >
+                    <div className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${cfg.color}`}>
+                      <Icon className="h-4 w-4" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Badge className={`text-[10px] ${cfg.color}`}>{cfg.label}</Badge>
+                        <Badge variant="outline" className="text-[10px]">
+                          {placementLabels[s.placement] || s.placement}
+                        </Badge>
+                      </div>
+                      <h3 className="font-medium text-sm">{s.name}</h3>
+                      <p className="text-xs text-muted-foreground mt-1 font-mono line-clamp-1">{s.code.slice(0, 80)}...</p>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <Switch checked={s.is_enabled} onCheckedChange={() => toggleActive(s.id, s.is_enabled)} />
+                      <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => { setEditing(s); setShowForm(true); }}>
+                        <Pencil className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive" onClick={() => deleteScript(s.id)}>
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="consent">
+          <Suspense fallback={<div className="py-8 text-center text-muted-foreground">Cargando…</div>}>
+            <ConsentSettingsTab />
+          </Suspense>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
