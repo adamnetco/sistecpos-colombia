@@ -48,7 +48,7 @@ const NotFound = () => {
                   Ver Productos
                 </Link>
               </Button>
-              <Button size="lg" className="bg-whatsapp hover:bg-whatsapp/90 text-white gap-2" asChild>
+              <Button size="lg" className="btn-whatsapp gap-2" asChild>
                 <a
                   href="https://wa.me/573176268307?text=Hola,%20necesito%20ayuda%20con%20el%20sitio%20web"
                   target="_blank"

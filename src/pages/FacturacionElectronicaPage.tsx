@@ -98,7 +98,7 @@ export default function FacturacionElectronicaPage() {
                 <span className="text-xs text-primary-foreground/60">Resolución 000042 de 2020</span>
               </div>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button size="lg" className="bg-whatsapp hover:bg-whatsapp/90 text-white gap-2" asChild>
+                <Button size="lg" className="btn-whatsapp gap-2" asChild>
                   <a href="https://wa.me/573176268307?text=Hola,%20necesito%20implementar%20facturación%20electrónica%20DIAN" target="_blank" rel="noopener noreferrer">
                     <MessageCircle className="h-5 w-5" />
                     Implementar Facturación Electrónica
@@ -238,7 +238,7 @@ export default function FacturacionElectronicaPage() {
             <p className="text-lg text-primary-foreground/80 mb-8">
               Implementación incluida. Sin costos adicionales por cantidad de facturas.
             </p>
-            <Button size="lg" className="bg-whatsapp hover:bg-whatsapp/90 text-white gap-2" asChild>
+            <Button size="lg" className="btn-whatsapp gap-2" asChild>
               <a href="https://wa.me/573176268307?text=Hola,%20quiero%20implementar%20facturación%20electrónica%20con%20SistecPOS" target="_blank" rel="noopener noreferrer">
                 <MessageCircle className="h-5 w-5" />
                 Cotizar Facturación Electrónica

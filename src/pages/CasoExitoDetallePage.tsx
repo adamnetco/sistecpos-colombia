@@ -163,7 +163,7 @@ export default function CasoExitoDetallePage() {
             <Trophy className="h-10 w-10 text-yellow-500 mx-auto mb-4" />
             <h2 className="text-2xl md:text-3xl font-bold mb-4">¿Quieres resultados similares?</h2>
             <p className="text-muted-foreground mb-6">Contacta con nuestro equipo y te ayudaremos a encontrar la mejor solución para tu negocio.</p>
-            <Button size="lg" className="bg-whatsapp hover:bg-whatsapp/90 text-white gap-2" asChild>
+            <Button size="lg" className="btn-whatsapp gap-2" asChild>
               <a href={`https://wa.me/573176268307?text=Hola,%20vi%20el%20caso%20de%20${encodeURIComponent(story.business_name)}%20y%20quiero%20algo%20similar%20para%20mi%20negocio`} target="_blank" rel="noopener noreferrer">
                 <MessageCircle className="h-5 w-5" />Contactar Asesor
               </a>

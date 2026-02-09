@@ -131,7 +131,7 @@ export function TimeLostCalculator() {
                 <p className="text-muted-foreground text-sm mb-4">
                   Eso es <strong>{Math.round(savedMinutes / 480)} días laborales</strong> que podrías dedicar a vender más.
                 </p>
-                <Button className="bg-whatsapp hover:bg-whatsapp/90 text-white font-semibold" asChild>
+                <Button className="btn-whatsapp font-semibold" asChild>
                   <Link to="/contacto#demo">Dejar de Perder Tiempo — Prueba Gratis</Link>
                 </Button>
               </CardContent>

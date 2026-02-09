@@ -50,7 +50,7 @@ export default function NicheLandingPage() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button
                   size="lg"
-                  className="bg-whatsapp hover:bg-whatsapp/90 text-white gap-2"
+                  className="btn-whatsapp gap-2"
                   asChild
                 >
                   <a
@@ -182,7 +182,7 @@ export default function NicheLandingPage() {
             </p>
             <Button
               size="lg"
-              className="bg-whatsapp hover:bg-whatsapp/90 text-white gap-2"
+              className="btn-whatsapp gap-2"
               asChild
             >
               <a

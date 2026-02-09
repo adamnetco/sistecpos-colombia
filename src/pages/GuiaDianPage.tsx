@@ -59,7 +59,7 @@ export default function GuiaDianPage() {
               <p className="text-lg md:text-xl text-primary-foreground/80 mb-8 max-w-3xl mx-auto">
                 {article.heroSubtitle}
               </p>
-              <Button size="lg" className="bg-whatsapp hover:bg-whatsapp/90 text-white gap-2" asChild>
+              <Button size="lg" className="btn-whatsapp gap-2" asChild>
                 <a
                   href={`https://wa.me/573176268307?text=${encodeURIComponent(article.ctaWhatsappMessage)}`}
                   target="_blank"
@@ -214,7 +214,7 @@ export default function GuiaDianPage() {
             <p className="text-lg text-primary-foreground/80 mb-8">
               Prueba gratis 7 días. Sin tarjeta de crédito. Capacitación incluida.
             </p>
-            <Button size="lg" className="bg-whatsapp hover:bg-whatsapp/90 text-white gap-2" asChild>
+            <Button size="lg" className="btn-whatsapp gap-2" asChild>
               <a
                 href={`https://wa.me/573176268307?text=${encodeURIComponent(article.ctaWhatsappMessage)}`}
                 target="_blank"

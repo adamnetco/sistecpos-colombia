@@ -367,7 +367,7 @@ export default function ContactoPage() {
               Contáctanos ahora y recibe asesoría personalizada para tu negocio
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button asChild size="lg" className="bg-whatsapp hover:bg-whatsapp/90 text-white">
+              <Button asChild size="lg" className="btn-whatsapp">
                 <a
                   href="https://wa.me/573176268307?text=Hola,%20quiero%20información%20sobre%20SistecPOS"
                   target="_blank"

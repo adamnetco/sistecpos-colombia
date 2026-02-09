@@ -132,7 +132,7 @@ export function CartDrawer() {
               </p>
               <Button
                 size="lg"
-                className="w-full bg-whatsapp hover:bg-whatsapp/90 text-white gap-2"
+                className="w-full btn-whatsapp gap-2"
                 onClick={handleSendQuote}
                 disabled={sending}
               >

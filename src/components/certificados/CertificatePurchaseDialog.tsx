@@ -177,7 +177,7 @@ export function CertificatePurchaseDialog({ open, onOpenChange, plan, priceCop }
             <p className="text-sm text-muted-foreground mb-6">
               Te contactaremos por WhatsApp al <strong>{phone}</strong> con los datos de transferencia bancaria y los siguientes pasos.
             </p>
-            <Button onClick={handleClose} className="bg-whatsapp hover:bg-whatsapp/90 text-white">
+            <Button onClick={handleClose} className="btn-whatsapp">
               Entendido
             </Button>
           </div>
