@@ -2,12 +2,12 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, RefreshCw } from "lucide-react";
+import { RefreshCw, Search, Eye, Pause, Play } from "lucide-react";
+import { LicenseCreateDialog } from "./licenses/LicenseCreateDialog";
+import { LicenseRenewDialog } from "./licenses/LicenseRenewDialog";
+import { LicenseDetailsDialog } from "./licenses/LicenseDetailsDialog";
 
 interface License {
   id: string;
@@ -29,8 +29,10 @@ export default function LicensesView() {
   const [licenses, setLicenses] = useState<License[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAdd, setShowAdd] = useState(false);
-  const [renewId, setRenewId] = useState<string | null>(null);
-  const [renewPeriod, setRenewPeriod] = useState("anual");
+  const [renewTarget, setRenewTarget] = useState<{ id: string; expires_at: string | null } | null>(null);
+  const [detailTarget, setDetailTarget] = useState<License | null>(null);
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState<"all" | "active" | "expired" | "suspended">("all");
   const { toast } = useToast();
 
   const load = async () => {
@@ -43,69 +45,37 @@ export default function LicensesView() {
   useEffect(() => { load(); }, []);
 
   const today = new Date().toISOString().split("T")[0];
-
   const isExpired = (l: License) => l.expires_at && l.expires_at < today;
 
-  const handleRenew = async () => {
-    if (!renewId) return;
-    const license = licenses.find((l) => l.id === renewId);
-    if (!license) return;
-
-    const base = license.expires_at && license.expires_at > today
-      ? new Date(license.expires_at)
-      : new Date();
-
-    if (renewPeriod === "anual") base.setFullYear(base.getFullYear() + 1);
-    else base.setMonth(base.getMonth() + 1);
-
-    const { error } = await supabase
-      .from("licenses")
-      .update({ expires_at: base.toISOString().split("T")[0], status: "active" })
-      .eq("id", renewId);
-
+  const toggleStatus = async (l: License) => {
+    const newStatus = l.status === "suspended" ? "active" : "suspended";
+    const { error } = await supabase.from("licenses").update({ status: newStatus }).eq("id", l.id);
     if (error) {
-      toast({ title: "Error al renovar", variant: "destructive" });
+      toast({ title: "Error al cambiar estado", variant: "destructive" });
     } else {
-      toast({ title: "Licencia renovada" });
-      setRenewId(null);
+      toast({ title: newStatus === "suspended" ? "Licencia suspendida" : "Licencia reactivada" });
       load();
     }
   };
 
-  const handleAdd = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const fd = new FormData(e.currentTarget);
-    const planType = fd.get("plan_type") as string;
-    const startDate = new Date();
-    let expiresAt: string | null = null;
+  const filtered = licenses.filter((l) => {
+    const matchSearch =
+      l.business_name.toLowerCase().includes(search.toLowerCase()) ||
+      l.contact_name.toLowerCase().includes(search.toLowerCase()) ||
+      l.license_key.toLowerCase().includes(search.toLowerCase()) ||
+      (l.business_nit || "").toLowerCase().includes(search.toLowerCase());
 
-    if (planType === "mensual") {
-      const d = new Date(startDate);
-      d.setMonth(d.getMonth() + 1);
-      expiresAt = d.toISOString().split("T")[0];
-    } else if (planType === "anual") {
-      const d = new Date(startDate);
-      d.setFullYear(d.getFullYear() + 1);
-      expiresAt = d.toISOString().split("T")[0];
-    }
+    if (filter === "active") return matchSearch && !isExpired(l) && l.status === "active";
+    if (filter === "expired") return matchSearch && isExpired(l);
+    if (filter === "suspended") return matchSearch && l.status === "suspended";
+    return matchSearch;
+  });
 
-    const { error } = await supabase.from("licenses").insert({
-      business_name: fd.get("business_name") as string,
-      contact_name: fd.get("contact_name") as string,
-      contact_email: fd.get("contact_email") as string,
-      contact_phone: fd.get("contact_phone") as string,
-      plan_type: planType,
-      price_paid: Number(fd.get("price_paid")),
-      expires_at: expiresAt,
-    });
-
-    if (error) {
-      toast({ title: "Error al crear licencia", description: error.message, variant: "destructive" });
-    } else {
-      toast({ title: "Licencia creada" });
-      setShowAdd(false);
-      load();
-    }
+  const stats = {
+    total: licenses.length,
+    active: licenses.filter((l) => !isExpired(l) && l.status === "active").length,
+    expired: licenses.filter((l) => isExpired(l)).length,
+    suspended: licenses.filter((l) => l.status === "suspended").length,
   };
 
   const statusBadge = (l: License) => {
@@ -116,57 +86,30 @@ export default function LicensesView() {
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
+      {/* Header */}
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-2xl font-bold font-display">Licencias</h1>
-        <Dialog open={showAdd} onOpenChange={setShowAdd}>
-          <DialogTrigger asChild>
-            <Button><Plus className="mr-2 h-4 w-4" />Nueva Licencia</Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader><DialogTitle>Crear Licencia</DialogTitle></DialogHeader>
-            <form onSubmit={handleAdd} className="space-y-3">
-              <div><Label>Negocio</Label><Input name="business_name" required /></div>
-              <div><Label>Contacto</Label><Input name="contact_name" required /></div>
-              <div className="grid grid-cols-2 gap-3">
-                <div><Label>Email</Label><Input name="contact_email" type="email" /></div>
-                <div><Label>Teléfono</Label><Input name="contact_phone" /></div>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <Label>Plan</Label>
-                  <select name="plan_type" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" required>
-                    <option value="mensual">Mensual</option>
-                    <option value="anual">Anual</option>
-                    <option value="vitalicio">Vitalicio</option>
-                  </select>
-                </div>
-                <div><Label>Precio (COP)</Label><Input name="price_paid" type="number" required /></div>
-              </div>
-              <Button type="submit" className="w-full">Crear</Button>
-            </form>
-          </DialogContent>
-        </Dialog>
+        <LicenseCreateDialog open={showAdd} onOpenChange={setShowAdd} onCreated={load} />
       </div>
 
-      {/* Renew Dialog */}
-      <Dialog open={!!renewId} onOpenChange={(o) => !o && setRenewId(null)}>
-        <DialogContent>
-          <DialogHeader><DialogTitle>Renovar Licencia</DialogTitle></DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label>Período</Label>
-              <Select value={renewPeriod} onValueChange={setRenewPeriod}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="mensual">+1 Mes</SelectItem>
-                  <SelectItem value="anual">+1 Año</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <Button onClick={handleRenew} className="w-full">Confirmar Renovación</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      {/* Stats */}
+      <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <StatCard label="Total" value={stats.total} onClick={() => setFilter("all")} active={filter === "all"} />
+        <StatCard label="Activas" value={stats.active} onClick={() => setFilter("active")} active={filter === "active"} className="text-green-600" />
+        <StatCard label="Vencidas" value={stats.expired} onClick={() => setFilter("expired")} active={filter === "expired"} className="text-destructive" />
+        <StatCard label="Suspendidas" value={stats.suspended} onClick={() => setFilter("suspended")} active={filter === "suspended"} className="text-muted-foreground" />
+      </div>
+
+      {/* Search */}
+      <div className="relative mb-4">
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          placeholder="Buscar por negocio, contacto, NIT o clave..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="pl-10"
+        />
+      </div>
 
       {/* Table */}
       <div className="rounded-lg border bg-card overflow-x-auto">
@@ -184,11 +127,15 @@ export default function LicensesView() {
           <tbody>
             {loading ? (
               <tr><td colSpan={6} className="py-8 text-center text-muted-foreground">Cargando...</td></tr>
-            ) : licenses.length === 0 ? (
+            ) : filtered.length === 0 ? (
               <tr><td colSpan={6} className="py-8 text-center text-muted-foreground">No hay licencias</td></tr>
             ) : (
-              licenses.map((l) => (
-                <tr key={l.id} className={`border-b ${isExpired(l) ? "bg-destructive/5" : ""}`}>
+              filtered.map((l) => (
+                <tr
+                  key={l.id}
+                  className={`border-b cursor-pointer hover:bg-muted/30 ${isExpired(l) ? "bg-destructive/5" : ""}`}
+                  onClick={() => setDetailTarget(l)}
+                >
                   <td className="px-4 py-3">
                     <div className="font-medium">{l.business_name}</div>
                     <div className="text-xs text-muted-foreground">{l.contact_name}</div>
@@ -197,10 +144,23 @@ export default function LicensesView() {
                   <td className="px-4 py-3">{statusBadge(l)}</td>
                   <td className="px-4 py-3">{l.expires_at || "—"}</td>
                   <td className="px-4 py-3 font-mono text-xs">{l.license_key.slice(0, 8)}...</td>
-                  <td className="px-4 py-3">
-                    <Button size="sm" variant="outline" onClick={() => setRenewId(l.id)}>
-                      <RefreshCw className="mr-1 h-3 w-3" />Renovar
-                    </Button>
+                  <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                    <div className="flex items-center gap-1">
+                      <Button size="sm" variant="ghost" title="Ver detalle" onClick={() => setDetailTarget(l)}>
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => setRenewTarget({ id: l.id, expires_at: l.expires_at })}>
+                        <RefreshCw className="mr-1 h-3 w-3" />Renovar
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant={l.status === "suspended" ? "default" : "secondary"}
+                        onClick={() => toggleStatus(l)}
+                        title={l.status === "suspended" ? "Reactivar" : "Suspender"}
+                      >
+                        {l.status === "suspended" ? <Play className="h-3 w-3" /> : <Pause className="h-3 w-3" />}
+                      </Button>
+                    </div>
                   </td>
                 </tr>
               ))
@@ -208,6 +168,29 @@ export default function LicensesView() {
           </tbody>
         </table>
       </div>
+
+      {/* Dialogs */}
+      <LicenseRenewDialog
+        licenseId={renewTarget?.id || null}
+        currentExpiresAt={renewTarget?.expires_at || null}
+        onClose={() => setRenewTarget(null)}
+        onRenewed={load}
+      />
+      <LicenseDetailsDialog license={detailTarget} onClose={() => setDetailTarget(null)} />
     </div>
+  );
+}
+
+function StatCard({ label, value, onClick, active, className }: {
+  label: string; value: number; onClick: () => void; active: boolean; className?: string;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`rounded-lg border p-3 text-left transition-colors ${active ? "border-primary bg-primary/5" : "bg-card hover:bg-muted/50"}`}
+    >
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className={`text-2xl font-bold ${className || ""}`}>{value}</p>
+    </button>
   );
 }
