@@ -698,6 +698,34 @@ export const businessTypes: BusinessType[] = [
     metaTitle: "Software POS para Lavaderos de Autos | SistecPOS",
     metaDescription: "Sistema POS para lavaderos con turnos y comisiones. Instalación en Bucaramanga."
   },
+  {
+    slug: "farmacia",
+    title: "POS para Farmacias",
+    titleShort: "Farmacias",
+    description: "Farmacias, droguerías y tiendas naturistas.",
+    longDescription: "Software POS especializado para farmacias y droguerías con control de lotes, fechas de vencimiento, medicamentos regulados y facturación electrónica DIAN. Ideal para droguerías de barrio, farmacias independientes y tiendas naturistas.",
+    icon: Pill,
+    color: "bg-rose-500/10 text-rose-600",
+    features: [
+      "Control de fechas de vencimiento",
+      "Gestión de lotes por producto",
+      "Medicamentos controlados",
+      "Alertas de stock mínimo",
+      "Recetas médicas digitales",
+      "Proveedores y compras",
+      "Facturación electrónica DIAN",
+      "Reportes INVIMA"
+    ],
+    modules: ["Inventario", "Vencimientos", "Lotes", "Proveedores", "Facturación", "Reportes"],
+    benefits: [
+      { title: "Control de vencimientos", description: "Alertas automáticas de productos próximos a vencer para evitar pérdidas" },
+      { title: "Trazabilidad completa", description: "Rastrea cada lote de medicamentos desde la compra hasta la venta" },
+      { title: "Cumplimiento normativo", description: "Genera reportes para INVIMA y entidades reguladoras de salud" },
+    ],
+    cta: "Agenda tu demo para farmacias",
+    metaTitle: "Software POS para Farmacias y Droguerías en Colombia | SistecPOS",
+    metaDescription: "Sistema POS para farmacias con control de vencimientos, lotes, medicamentos regulados y facturación DIAN. Instalación presencial en Colombia."
+  },
 ];
 
 export const getBusinessTypeBySlug = (slug: string): BusinessType | undefined => {
