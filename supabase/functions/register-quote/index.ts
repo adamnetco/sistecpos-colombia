@@ -54,7 +54,13 @@ Deno.serve(async (req) => {
       console.log(`Logged ${events.length} quote events`);
     }
 
-    // 2. Create or update contact in CRM
+    // 2. Smart upsert contact in CRM (only if identifiable data exists)
+    const visitorName = (payload.visitor_name || "").trim();
+    const visitorPhone = (payload.visitor_phone || "").trim().replace(/\D/g, "");
+    const visitorEmail = (payload.visitor_email || "").trim().toLowerCase();
+
+    const hasIdentifiableData = visitorPhone.length >= 10 || visitorEmail.length > 0;
+
     const itemSummary = payload.items
       .map((i) => `${i.product_name} x${i.quantity}`)
       .join(", ");
@@ -66,36 +72,85 @@ Deno.serve(async (req) => {
         minimumFractionDigits: 0,
       }).format(n);
 
-    const notes = `Cotización WhatsApp: ${itemSummary}. Total: ${formatCOP(payload.total_cop)}`;
+    const activityDescription = `Cotización WhatsApp: ${itemSummary}. Total: ${formatCOP(payload.total_cop)}`;
 
-    // Insert contact as prospect
-    const { data: contact, error: contactErr } = await supabase.from("contacts").insert({
-      full_name: payload.visitor_name || "Cotización Web",
-      email: payload.visitor_email || null,
-      phone: payload.visitor_phone || null,
-      source: "website",
-      contact_type: "prospect",
-      pipeline_stage: "new",
-      notes,
-      captured_by_ai: false,
-    }).select("id").single();
+    if (hasIdentifiableData) {
+      // Search for existing contact by phone or email
+      let existingId: string | null = null;
 
-    if (contactErr) {
-      console.error("Contact insert error:", contactErr);
-      results.push("contact_failed");
+      if (visitorPhone.length >= 10) {
+        const { data } = await supabase
+          .from("contacts")
+          .select("id")
+          .eq("phone", visitorPhone)
+          .limit(1)
+          .maybeSingle();
+        if (data) existingId = data.id;
+      }
+
+      if (!existingId && visitorEmail) {
+        const { data } = await supabase
+          .from("contacts")
+          .select("id")
+          .eq("email", visitorEmail)
+          .limit(1)
+          .maybeSingle();
+        if (data) existingId = data.id;
+      }
+
+      if (existingId) {
+        // Update existing contact with latest info & add activity
+        console.log("Existing contact found:", existingId);
+        await supabase.from("contacts").update({
+          full_name: visitorName || undefined,
+          phone: visitorPhone || undefined,
+          email: visitorEmail || undefined,
+          updated_at: new Date().toISOString(),
+        }).eq("id", existingId);
+
+        await supabase.from("contact_activities").insert({
+          contact_id: existingId,
+          activity_type: "quote",
+          description: activityDescription,
+        });
+        results.push("contact_updated");
+      } else {
+        // Create new contact with real data
+        const { data: contact, error: contactErr } = await supabase.from("contacts").insert({
+          full_name: visitorName || "Sin nombre",
+          email: visitorEmail || null,
+          phone: visitorPhone || null,
+          source: "cotizacion_web",
+          contact_type: "prospect",
+          pipeline_stage: "new",
+          notes: activityDescription,
+          captured_by_ai: false,
+        }).select("id").single();
+
+        if (contactErr) {
+          console.error("Contact insert error:", contactErr);
+          results.push("contact_failed");
+        } else {
+          results.push("contact_created");
+          console.log("Contact created:", contact.id);
+
+          await supabase.from("contact_activities").insert({
+            contact_id: contact.id,
+            activity_type: "quote",
+            description: activityDescription,
+          });
+        }
+      }
     } else {
-      results.push("contact_created");
-      console.log("Contact created:", contact.id);
-
-      // Log activity
-      await supabase.from("contact_activities").insert({
-        contact_id: contact.id,
-        activity_type: "quote",
-        description: `Cotización enviada por WhatsApp: ${itemSummary}. Total: ${formatCOP(payload.total_cop)}`,
-      });
+      console.log("No identifiable data — skipping contact creation");
+      results.push("contact_skipped");
     }
 
     // 3. Send notifications (email + WhatsApp)
+    const contactInfo = hasIdentifiableData
+      ? `\n👤 *${visitorName || "Sin nombre"}*\n📱 ${visitorPhone || "N/A"}\n✉️ ${visitorEmail || "N/A"}`
+      : "";
+
     const resendKey = Deno.env.get("RESEND_API_KEY");
     if (resendKey) {
       const itemsHtml = payload.items
@@ -105,8 +160,13 @@ Deno.serve(async (req) => {
         )
         .join("");
 
+      const contactHtml = hasIdentifiableData
+        ? `<p><strong>👤 Cliente:</strong> ${visitorName || "Sin nombre"}<br><strong>📱 WhatsApp:</strong> ${visitorPhone || "N/A"}<br><strong>✉️ Email:</strong> ${visitorEmail || "N/A"}</p>`
+        : "";
+
       const html = `
         <h2>🛒 Nueva Cotización desde la Tienda Web</h2>
+        ${contactHtml}
         <table style="border-collapse:collapse;width:100%;max-width:600px;">
           <thead>
             <tr style="background:#f3f4f6;"><th style="padding:8px;border:1px solid #ddd;text-align:left;">Producto</th><th style="padding:8px;border:1px solid #ddd;">Cant.</th><th style="padding:8px;border:1px solid #ddd;text-align:right;">Subtotal</th></tr>
@@ -145,6 +205,7 @@ Deno.serve(async (req) => {
     if (apiKey && waPhone) {
       const msg = [
         "🛒 *Nueva Cotización Web*",
+        contactInfo,
         "",
         ...payload.items.map((i) => `• ${i.product_name} x${i.quantity}`),
         "",
