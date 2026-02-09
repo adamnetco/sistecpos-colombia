@@ -43,6 +43,7 @@ const sourceLabels: Record<string, { label: string; color: string }> = {
   website: { label: "Sitio Web", color: "bg-blue-500/10 text-blue-700 border-blue-200" },
   whatsapp: { label: "WhatsApp", color: "bg-whatsapp/10 text-whatsapp border-whatsapp/20" },
   chatbot_ai: { label: "Chatbot IA", color: "bg-purple-500/10 text-purple-700 border-purple-200" },
+  cotizacion_web: { label: "Cotización Web", color: "bg-emerald-500/10 text-emerald-700 border-emerald-200" },
   referral: { label: "Referido", color: "bg-yellow-500/10 text-yellow-700 border-yellow-200" },
   social_media: { label: "Redes Sociales", color: "bg-pink-500/10 text-pink-700 border-pink-200" },
   landing: { label: "Landing", color: "bg-cta/10 text-cta border-cta/20" },

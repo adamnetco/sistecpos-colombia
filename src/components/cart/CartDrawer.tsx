@@ -2,7 +2,9 @@ import { useCart } from "@/hooks/useCart";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ShoppingCart, Plus, Minus, Trash2, MessageCircle, CreditCard } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { ShoppingCart, Plus, Minus, Trash2, MessageCircle, CreditCard, ArrowLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -12,14 +14,50 @@ import { WompiCheckoutButton } from "@/components/payments/WompiCheckoutButton";
 const formatCOP = (n: number) =>
   new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0 }).format(n);
 
+interface ContactForm {
+  name: string;
+  phone: string;
+  email: string;
+}
+
 export function CartDrawer() {
   const { items, removeItem, updateQuantity, clearCart, totalCOP, itemCount, getWhatsAppUrl } = useCart();
   const [sending, setSending] = useState(false);
+  const [showContactForm, setShowContactForm] = useState(false);
+  const [contactForm, setContactForm] = useState<ContactForm>({ name: "", phone: "", email: "" });
+  const [formErrors, setFormErrors] = useState<Partial<ContactForm>>({});
+
+  const validateForm = (): boolean => {
+    const errors: Partial<ContactForm> = {};
+    const trimmedName = contactForm.name.trim();
+    const trimmedPhone = contactForm.phone.trim().replace(/\D/g, "");
+
+    if (!trimmedName || trimmedName.length < 2) {
+      errors.name = "Ingresa tu nombre";
+    }
+    if (!trimmedPhone || trimmedPhone.length < 10) {
+      errors.phone = "Ingresa un WhatsApp válido (10 dígitos)";
+    }
+    if (contactForm.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactForm.email.trim())) {
+      errors.email = "Email no válido";
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleQuoteClick = () => {
+    setShowContactForm(true);
+    setFormErrors({});
+  };
 
   const handleSendQuote = async () => {
+    if (!validateForm()) return;
+
     setSending(true);
     try {
       const sessionId = sessionStorage.getItem("sp_session_id") || undefined;
+      const phone = contactForm.phone.trim().replace(/\D/g, "");
       await supabase.functions.invoke("register-quote", {
         body: {
           items: items.map(i => ({
@@ -30,6 +68,9 @@ export function CartDrawer() {
           })),
           total_cop: totalCOP,
           session_id: sessionId,
+          visitor_name: contactForm.name.trim(),
+          visitor_phone: phone,
+          visitor_email: contactForm.email.trim() || undefined,
         },
       });
     } catch (e) {
@@ -37,9 +78,10 @@ export function CartDrawer() {
     }
     setSending(false);
 
-    // Open WhatsApp
     window.open(getWhatsAppUrl(), "_blank");
     toast.success("Cotización enviada. ¡Te contactaremos pronto!");
+    setShowContactForm(false);
+    setContactForm({ name: "", phone: "", email: "" });
   };
 
   return (
@@ -131,6 +173,7 @@ export function CartDrawer() {
               <p className="text-xs text-muted-foreground">
                 * Precio final sujeto a confirmación. Incluye instalación y configuración.
               </p>
+
               <WompiCheckoutButton
                 amountCents={totalCOP * 100}
                 cartItems={items.map(i => ({
@@ -147,16 +190,92 @@ export function CartDrawer() {
                 <CreditCard className="h-5 w-5" />
                 Pagar en línea
               </WompiCheckoutButton>
-              <Button
-                size="lg"
-                variant="outline"
-                className="w-full gap-2"
-                onClick={handleSendQuote}
-                disabled={sending}
-              >
-                <MessageCircle className="h-5 w-5" />
-                {sending ? "Registrando..." : "Cotizar por WhatsApp"}
-              </Button>
+
+              <AnimatePresence mode="wait">
+                {showContactForm ? (
+                  <motion.div
+                    key="contact-form"
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="space-y-3 overflow-hidden"
+                  >
+                    <div className="rounded-lg border bg-muted/30 p-3 space-y-3">
+                      <p className="text-xs font-medium text-foreground">Completa tus datos para cotizar:</p>
+                      <div className="space-y-1">
+                        <Label htmlFor="quote-name" className="text-xs">Nombre *</Label>
+                        <Input
+                          id="quote-name"
+                          placeholder="Tu nombre completo"
+                          value={contactForm.name}
+                          onChange={(e) => setContactForm(f => ({ ...f, name: e.target.value }))}
+                          className="h-8 text-sm"
+                          maxLength={100}
+                        />
+                        {formErrors.name && <p className="text-xs text-destructive">{formErrors.name}</p>}
+                      </div>
+                      <div className="space-y-1">
+                        <Label htmlFor="quote-phone" className="text-xs">WhatsApp *</Label>
+                        <Input
+                          id="quote-phone"
+                          placeholder="3001234567"
+                          value={contactForm.phone}
+                          onChange={(e) => setContactForm(f => ({ ...f, phone: e.target.value }))}
+                          className="h-8 text-sm"
+                          maxLength={15}
+                          inputMode="tel"
+                        />
+                        {formErrors.phone && <p className="text-xs text-destructive">{formErrors.phone}</p>}
+                      </div>
+                      <div className="space-y-1">
+                        <Label htmlFor="quote-email" className="text-xs">Email (opcional)</Label>
+                        <Input
+                          id="quote-email"
+                          type="email"
+                          placeholder="tu@email.com"
+                          value={contactForm.email}
+                          onChange={(e) => setContactForm(f => ({ ...f, email: e.target.value }))}
+                          className="h-8 text-sm"
+                          maxLength={255}
+                        />
+                        {formErrors.email && <p className="text-xs text-destructive">{formErrors.email}</p>}
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowContactForm(false)}
+                        className="flex-shrink-0"
+                      >
+                        <ArrowLeft className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        className="flex-1 gap-2"
+                        onClick={handleSendQuote}
+                        disabled={sending}
+                      >
+                        <MessageCircle className="h-4 w-4" />
+                        {sending ? "Enviando..." : "Enviar cotización"}
+                      </Button>
+                    </div>
+                  </motion.div>
+                ) : (
+                  <motion.div key="quote-btn" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="w-full gap-2"
+                      onClick={handleQuoteClick}
+                    >
+                      <MessageCircle className="h-5 w-5" />
+                      Cotizar por WhatsApp
+                    </Button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
               <Button variant="ghost" size="sm" onClick={clearCart} className="w-full text-muted-foreground">
                 Vaciar cotización
               </Button>
