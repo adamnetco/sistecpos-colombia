@@ -96,11 +96,10 @@ const comparisonFeatures = [
 
 const pricingPlans = {
   sistecpos: [
-    { name: "Vitalicia", price: "$900 USD (pago único)", priceCOP: "Hosting anual: $99 USD", popular: true },
-    { name: "Anual Básico", price: "$11 USD/mes", priceCOP: "$129 USD/año", popular: false },
-    { name: "Anual Intermedio", price: "$20 USD/mes", priceCOP: "$237 USD/año", popular: false },
-    { name: "Anual Premium", price: "$29 USD/mes", priceCOP: "$347 USD/año", popular: false },
-    { name: "Multi-tienda 2", price: "$46 USD/mes", priceCOP: "$555 USD/año", popular: false },
+    { name: "Plan Emprendedor", price: "$11 USD/mes", priceCOP: "$129 USD/año", popular: false, desc: "1 punto de venta, ideal para pequeños negocios" },
+    { name: "Plan Negocio", price: "$20 USD/mes", priceCOP: "$237 USD/año", popular: true, desc: "Inventario detallado y reportes avanzados" },
+    { name: "Plan Empresarial", price: "$29 USD/mes", priceCOP: "$347 USD/año", popular: false, desc: "Múltiples sedes o bodegas" },
+    { name: "Licencia Vitalicia", price: "$900 USD (pago único)", priceCOP: "Hosting anual: $99 USD", popular: false, desc: "Pago único, sin mensualidades" },
   ],
   tiendana: [
     { name: "Básico", price: "Gratis", priceCOP: "Limitado", popular: false },
@@ -355,6 +354,9 @@ const ComparativaLicenciasPage = () => {
                         <CardContent>
                           <div className="text-2xl font-bold text-primary mb-1">{plan.price}</div>
                           {plan.priceCOP && <div className="text-sm text-muted-foreground">{plan.priceCOP}</div>}
+                          {"desc" in plan && (plan as any).desc && (
+                            <p className="mt-2 text-xs text-muted-foreground">{(plan as any).desc}</p>
+                          )}
                         </CardContent>
                       </Card>
                     </motion.div>

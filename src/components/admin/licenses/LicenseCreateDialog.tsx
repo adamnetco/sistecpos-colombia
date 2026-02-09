@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { LICENSE_PLANS, planIsAnnual } from "@/data/licensePlans";
 
 interface Props {
   open: boolean;
@@ -23,12 +24,11 @@ export function LicenseCreateDialog({ open, onOpenChange, onCreated }: Props) {
     const startDate = new Date();
     let expiresAt: string | null = null;
 
-    if (planType === "anual") {
+    if (planIsAnnual(planType)) {
       const d = new Date(startDate);
       d.setFullYear(d.getFullYear() + 1);
       expiresAt = d.toISOString().split("T")[0];
     }
-    // vitalicio = no expiration
 
     const { error } = await supabase.from("licenses").insert({
       business_name: fd.get("business_name") as string,
@@ -72,8 +72,9 @@ export function LicenseCreateDialog({ open, onOpenChange, onCreated }: Props) {
             <div>
               <Label>Plan *</Label>
               <select name="plan_type" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" required>
-                <option value="anual">Anual</option>
-                <option value="vitalicio">Vitalicio</option>
+                {LICENSE_PLANS.map((p) => (
+                  <option key={p.value} value={p.value}>{p.label} — {p.description}</option>
+                ))}
               </select>
             </div>
             <div><Label>Precio (COP) *</Label><Input name="price_paid" type="number" required /></div>
