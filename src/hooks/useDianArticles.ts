@@ -31,9 +31,10 @@ interface DbDianArticle {
   related_links: unknown;
   is_published: boolean;
   sort_order: number;
+  cluster: string;
 }
 
-function dbToArticle(row: DbDianArticle): DianArticle {
+function dbToArticle(row: DbDianArticle): DianArticle & { cluster?: string } {
   return {
     slug: row.slug,
     keyword: row.keyword,
@@ -49,6 +50,7 @@ function dbToArticle(row: DbDianArticle): DianArticle {
     ctaWhatsappMessage: row.cta_whatsapp_message,
     faqs: (row.faqs as DianArticle["faqs"]) || [],
     relatedLinks: (row.related_links as DianArticle["relatedLinks"]) || [],
+    cluster: row.cluster,
   };
 }
 
