@@ -40,7 +40,7 @@ export default function SoftwarePosLocalPage() {
       <DynamicMeta
         title={landing.metaTitle}
         description={landing.metaDescription}
-        canonical={`https://sistecpos.lovable.app/software-pos/${landing.slug}`}
+        canonical={`https://sistecpos.com/software-pos/${landing.slug}`}
       />
       <JsonLd data={localBusinessSchema(landing.city, landing.isPresencial)} />
 

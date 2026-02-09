@@ -26,7 +26,7 @@ export default function CompararPage() {
       <DynamicMeta
         title="SistecPOS vs Competencia | Comparativas Software POS Colombia 2025"
         description="Compara SistecPOS con Odoo, Siigo, Alegra, Vendty, Cluvi, OlaClick, Square y más. Descubre el mejor software POS para tu negocio en Colombia."
-        canonical="https://sistecpos.lovable.app/comparar"
+        canonical="https://sistecpos.com/comparar"
       />
 
       <Breadcrumbs items={[{ label: "Comparar Software POS" }]} />

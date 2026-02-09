@@ -100,7 +100,7 @@ export default function ContactoPage() {
       <DynamicMeta
         title="Contacto | SistecPOS - Soporte POS en Bucaramanga"
         description="Contáctanos para una demostración gratuita de nuestro software POS. Estamos en Bucaramanga, Santander. WhatsApp, teléfono y redes sociales."
-        canonical="https://sistecpos.lovable.app/contacto"
+        canonical="https://sistecpos.com/contacto"
       />
       {/* Hero Section */}
       <section className="relative py-20 md:py-28 bg-gradient-to-br from-primary/5 via-background to-secondary/5">

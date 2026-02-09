@@ -30,7 +30,7 @@ export default function GuiaDianPage() {
       <SEO
         title={article.metaTitle}
         description={article.metaDescription}
-        canonical={`https://sistecpos.lovable.app/guias-dian/${article.slug}`}
+        canonical={`https://sistecpos.com/guias-dian/${article.slug}`}
       />
       <JsonLd data={faqSchema(article.faqs)} />
 

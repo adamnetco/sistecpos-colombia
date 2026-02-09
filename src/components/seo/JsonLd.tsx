@@ -17,8 +17,8 @@ export function organizationSchema() {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: "SistecPOS",
-    url: "https://sistecpos.lovable.app",
-    logo: "https://sistecpos.lovable.app/lovable-uploads/43a24c53-78c0-4ca3-b642-99a376d90a0f.png",
+    url: "https://sistecpos.com",
+    logo: "https://sistecpos.com/lovable-uploads/43a24c53-78c0-4ca3-b642-99a376d90a0f.png",
     contactPoint: {
       "@type": "ContactPoint",
       telephone: "+57-317-626-8307",
@@ -42,7 +42,7 @@ export function localBusinessSchema(city: string, isPresencial: boolean) {
     "@type": "LocalBusiness",
     name: `SistecPOS ${city}`,
     description: `Software POS con ${isPresencial ? "instalación presencial" : "instalación remota"} en ${city}`,
-    url: `https://sistecpos.lovable.app/software-pos/${city.toLowerCase().replace(/\s+/g, "-")}`,
+    url: `https://sistecpos.com/software-pos/${city.toLowerCase().replace(/\s+/g, "-")}`,
     telephone: "+57-317-626-8307",
     address: {
       "@type": "PostalAddress",

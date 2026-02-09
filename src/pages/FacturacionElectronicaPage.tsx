@@ -69,7 +69,7 @@ export default function FacturacionElectronicaPage() {
       <DynamicMeta
         title="Facturación Electrónica DIAN | Software POS con FE | SistecPOS"
         description="Cumple con la facturación electrónica DIAN desde tu software POS. Emite facturas, notas crédito y documentos soporte. Cotiza gratis."
-        canonical="https://sistecpos.lovable.app/facturacion-electronica"
+        canonical="https://sistecpos.com/facturacion-electronica"
       />
       <JsonLd data={faqSchema(faqs)} />
 

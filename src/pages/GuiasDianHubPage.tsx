@@ -30,7 +30,7 @@ export default function GuiasDianHubPage() {
       <SEO
         title="Guías DIAN 2026: Facturación Electrónica, UVT y Normativa | SistecPOS"
         description="Guías prácticas sobre facturación electrónica DIAN, habilitación, sanciones y herramientas tributarias para comerciantes colombianos."
-        canonical="https://sistecpos.lovable.app/guias-dian"
+        canonical="https://sistecpos.com/guias-dian"
       />
       <Breadcrumbs items={[{ label: "Guías DIAN" }]} />
 

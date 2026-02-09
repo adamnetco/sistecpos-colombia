@@ -86,7 +86,7 @@ export default function SoftwarePosColombiaPage() {
       <DynamicMeta
         title="Software POS Colombia 2025 | Sistema Punto de Venta #1 | SistecPOS"
         description="Software POS para negocios en Colombia con facturación electrónica DIAN, modo offline 8 días y soporte en 23+ ciudades. Prueba gratis."
-        canonical="https://sistecpos.lovable.app/software-pos-colombia"
+        canonical="https://sistecpos.com/software-pos-colombia"
       />
       <JsonLd data={organizationSchema()} />
       <JsonLd data={faqSchema(faqs)} />

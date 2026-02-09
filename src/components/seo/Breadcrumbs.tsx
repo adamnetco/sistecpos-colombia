@@ -18,7 +18,7 @@ interface BreadcrumbsProps {
   items: BreadcrumbItem[];
 }
 
-const BASE_URL = "https://sistecpos.lovable.app";
+const BASE_URL = "https://sistecpos.com";
 
 export function Breadcrumbs({ items }: BreadcrumbsProps) {
   const allItems = [{ label: "Inicio", href: "/" }, ...items];

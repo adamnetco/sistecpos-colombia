@@ -52,7 +52,7 @@ const RetailPage = () => {
       <DynamicMeta
         title="Software POS para Tiendas y Retail | SistecPOS"
         description="Sistema POS para tiendas, minimarkets y ferreterías. Control de inventario, códigos de barras y multi-sucursal. Soporte presencial en Floridablanca."
-        canonical="https://sistecpos.lovable.app/pos-para-retail"
+        canonical="https://sistecpos.com/pos-para-retail"
       />
       {/* Hero Section */}
       <section className="relative py-20 md:py-28 overflow-hidden">
