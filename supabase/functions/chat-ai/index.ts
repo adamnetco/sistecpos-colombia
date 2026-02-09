@@ -64,7 +64,14 @@ serve(async (req) => {
       }
     }
 
-    const systemPrompt = `Eres el asistente virtual de SistecPOS, un software POS y de facturación electrónica DIAN para Colombia.
+    // Load custom system prompt from app_settings
+    const { data: promptSetting } = await supabase
+      .from("app_settings")
+      .select("value")
+      .eq("key", "chatbot_system_prompt")
+      .maybeSingle();
+
+    const basePrompt = promptSetting?.value || `Eres el asistente virtual de SistecPOS, un software POS y de facturación electrónica DIAN para Colombia.
 
 Tu objetivo es:
 1. Responder preguntas sobre SistecPOS, sus productos, planes y funcionalidades
@@ -78,7 +85,9 @@ Reglas:
 - Cuando detectes que el usuario está interesado, pide amablemente su nombre, email o teléfono
 - Si el usuario proporciona datos de contacto (nombre, email, teléfono), inclúyelos en tu respuesta con el formato exacto: [LEAD_DATA:nombre|email|teléfono]
 - Nunca inventes precios o datos que no estén en tu base de conocimiento
-- La web oficial es sistecpos.com y el WhatsApp comercial es el que aparezca en la base de conocimiento
+- La web oficial es sistecpos.com y el WhatsApp comercial es el que aparezca en la base de conocimiento`;
+
+    const systemPrompt = `${basePrompt}
 
 ${knowledgeContext}`;
 
