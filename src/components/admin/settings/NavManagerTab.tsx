@@ -152,10 +152,10 @@ export default function NavManagerTab() {
               </div>
               <div>
                 <Label>Padre</Label>
-                <Select value={form.parent_id} onValueChange={v => set("parent_id", v)}>
+                <Select value={form.parent_id || "__none__"} onValueChange={v => set("parent_id", v === "__none__" ? "" : v)}>
                   <SelectTrigger><SelectValue placeholder="Ninguno" /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Ninguno</SelectItem>
+                    <SelectItem value="__none__">Ninguno</SelectItem>
                     {topItems.filter((n: any) => n.id !== editing?.id).map((n: any) => (
                       <SelectItem key={n.id} value={n.id}>{n.label}</SelectItem>
                     ))}
