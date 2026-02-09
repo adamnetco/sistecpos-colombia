@@ -3,8 +3,11 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { BarChart, Bar, XAxis, YAxis, LineChart, Line, Area, AreaChart } from "recharts";
-import { KeyRound, Users, FileCheck, CreditCard, AlertTriangle, Handshake, TrendingUp, Contact2, Bot, Calendar } from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, Area, AreaChart } from "recharts";
+import {
+  KeyRound, Users, FileCheck, CreditCard, AlertTriangle,
+  Handshake, TrendingUp, Contact2, Bot, Calendar, ArrowRight,
+} from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 
@@ -13,10 +16,14 @@ interface Stats {
   expiredLicenses: number;
   leads: number;
   newLeadsToday: number;
+  activeTrials: number;
+  contactedLeads: number;
+  convertedLeads: number;
   certificates: number;
   pendingCertificates: number;
   payments: number;
   totalRevenue: number;
+  totalRevenueWompi: number;
   resellers: number;
   pendingResellers: number;
   contacts: number;
@@ -34,7 +41,9 @@ interface ExpiringLicense {
 export default function DashboardOverview() {
   const [stats, setStats] = useState<Stats>({
     licenses: 0, expiredLicenses: 0, leads: 0, newLeadsToday: 0,
-    certificates: 0, pendingCertificates: 0, payments: 0, totalRevenue: 0,
+    activeTrials: 0, contactedLeads: 0, convertedLeads: 0,
+    certificates: 0, pendingCertificates: 0, payments: 0,
+    totalRevenue: 0, totalRevenueWompi: 0,
     resellers: 0, pendingResellers: 0, contacts: 0, unreadContacts: 0,
     aiConversationsToday: 0, aiLeadsToday: 0,
   });
@@ -49,23 +58,30 @@ export default function DashboardOverview() {
       todayStart.setHours(0, 0, 0, 0);
       const now = new Date().toISOString().split("T")[0];
 
-      const [lic, leads, certs, pays, resellers, contactsRes, aiConvs] = await Promise.all([
+      const [lic, leads, certs, pays, wompi, resellers, contactsRes, aiConvs] = await Promise.all([
         supabase.from("licenses").select("id, expires_at, status, business_name", { count: "exact" }),
         supabase.from("leads_trials").select("id, created_at, status", { count: "exact" }),
         supabase.from("certificate_orders").select("id, status", { count: "exact" }),
         supabase.from("payments").select("id, amount, status, paid_at", { count: "exact" }),
+        supabase.from("wompi_transactions").select("id, amount_cents, status, created_at"),
         supabase.from("reseller_applications").select("id, status", { count: "exact" }),
         supabase.from("contacts").select("id, is_read", { count: "exact" }),
         supabase.from("ai_conversations").select("id, created_at, is_lead_captured").gte("created_at", todayStart.toISOString()),
       ]);
 
+      const leadsData = leads.data || [];
       const expired = (lic.data || []).filter(l => l.expires_at && l.expires_at < now && l.status !== "expired").length;
-      const newToday = (leads.data || []).filter(l => new Date(l.created_at) >= todayStart).length;
+      const newToday = leadsData.filter(l => new Date(l.created_at) >= todayStart).length;
+      const activeTrials = leadsData.filter(l => l.status === "active_trial").length;
+      const contactedLeads = leadsData.filter(l => l.status === "contacted").length;
+      const convertedLeads = leadsData.filter(l => l.status === "converted").length;
       const pendingCerts = (certs.data || []).filter(c => c.status === "pending").length;
       const pendingRes = (resellers.data || []).filter(r => r.status === "pending").length;
       const unreadContacts = (contactsRes.data || []).filter(c => !c.is_read).length;
-      const confirmedPayments = (pays.data || []).filter(p => p.status === "confirmed");
+      const confirmedPayments = (pays.data || []).filter(p => p.status === "confirmed" || p.status === "paid");
       const totalRevenue = confirmedPayments.reduce((sum, p) => sum + (p.amount || 0), 0);
+      const wompiApproved = (wompi.data || []).filter(t => t.status === "APPROVED");
+      const totalRevenueWompi = wompiApproved.reduce((sum, t) => sum + (t.amount_cents || 0) / 100, 0);
 
       // Expiring in next 7 days
       const sevenDays = new Date();
@@ -78,15 +94,16 @@ export default function DashboardOverview() {
       setStats({
         licenses: lic.count || 0, expiredLicenses: expired,
         leads: leads.count || 0, newLeadsToday: newToday,
+        activeTrials, contactedLeads, convertedLeads,
         certificates: certs.count || 0, pendingCertificates: pendingCerts,
-        payments: pays.count || 0, totalRevenue,
+        payments: pays.count || 0, totalRevenue, totalRevenueWompi,
         resellers: resellers.count || 0, pendingResellers: pendingRes,
         contacts: contactsRes.count || 0, unreadContacts,
         aiConversationsToday: (aiConvs.data || []).length,
         aiLeadsToday: (aiConvs.data || []).filter(c => c.is_lead_captured).length,
       });
 
-      // Revenue by month (last 6 months)
+      // Revenue by month (last 6 months) - combined manual + Wompi
       const months: Record<string, number> = {};
       for (let i = 5; i >= 0; i--) {
         const d = new Date();
@@ -96,10 +113,13 @@ export default function DashboardOverview() {
       }
       confirmedPayments.forEach(p => {
         if (p.paid_at) {
-          const d = new Date(p.paid_at);
-          const key = d.toLocaleDateString("es-CO", { month: "short", year: "2-digit" });
+          const key = new Date(p.paid_at).toLocaleDateString("es-CO", { month: "short", year: "2-digit" });
           if (months[key] !== undefined) months[key] += p.amount || 0;
         }
+      });
+      wompiApproved.forEach(t => {
+        const key = new Date(t.created_at).toLocaleDateString("es-CO", { month: "short", year: "2-digit" });
+        if (months[key] !== undefined) months[key] += (t.amount_cents || 0) / 100;
       });
       setRevenueData(Object.entries(months).map(([month, revenue]) => ({ month, revenue })));
 
@@ -110,7 +130,7 @@ export default function DashboardOverview() {
         d.setDate(d.getDate() - i);
         days[d.toLocaleDateString("es-CO", { weekday: "short" })] = 0;
       }
-      (leads.data || []).forEach(l => {
+      leadsData.forEach(l => {
         const d = new Date(l.created_at);
         const key = d.toLocaleDateString("es-CO", { weekday: "short" });
         if (days[key] !== undefined) days[key]++;
@@ -122,14 +142,28 @@ export default function DashboardOverview() {
     load();
   }, []);
 
+  const formatCOP = (n: number) =>
+    new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0 }).format(n);
+
   const cards = [
     { title: "Licencias", value: stats.licenses, icon: KeyRound, color: "text-primary", href: "/admin/licencias", subtitle: stats.expiredLicenses > 0 ? `${stats.expiredLicenses} vencida(s)` : undefined, subtitleColor: "text-destructive" },
-    { title: "Leads", value: stats.leads, icon: Users, color: "text-blue-500", href: "/admin/leads", subtitle: stats.newLeadsToday > 0 ? `+${stats.newLeadsToday} hoy` : undefined, subtitleColor: "text-primary" },
+    { title: "Leads / Demos", value: stats.leads, icon: Users, color: "text-blue-500", href: "/admin/contactos", subtitle: stats.newLeadsToday > 0 ? `+${stats.newLeadsToday} hoy` : undefined, subtitleColor: "text-primary" },
     { title: "Certificados", value: stats.certificates, icon: FileCheck, color: "text-whatsapp", href: "/admin/certificados", subtitle: stats.pendingCertificates > 0 ? `${stats.pendingCertificates} pendiente(s)` : undefined, subtitleColor: "text-yellow-600" },
-    { title: "Revenue", value: `$${(stats.totalRevenue / 1000).toFixed(0)}k`, icon: CreditCard, color: "text-cta", href: "/admin/pagos" },
+    { title: "Revenue", value: formatCOP(stats.totalRevenue + stats.totalRevenueWompi), icon: CreditCard, color: "text-cta", href: "/admin/pagos" },
     { title: "Socios", value: stats.resellers, icon: Handshake, color: "text-purple-500", href: "/admin/socios", subtitle: stats.pendingResellers > 0 ? `${stats.pendingResellers} por revisar` : undefined, subtitleColor: "text-yellow-600" },
     { title: "CRM", value: stats.contacts, icon: Contact2, color: "text-indigo-500", href: "/admin/contactos", subtitle: stats.unreadContacts > 0 ? `${stats.unreadContacts} sin leer` : undefined, subtitleColor: "text-primary" },
   ];
+
+  // Funnel data
+  const funnelSteps = [
+    { label: "Leads", value: stats.leads, color: "bg-blue-500" },
+    { label: "Demo Activa", value: stats.activeTrials, color: "bg-yellow-500" },
+    { label: "Contactados", value: stats.contactedLeads, color: "bg-orange-500" },
+    { label: "Convertidos", value: stats.convertedLeads, color: "bg-primary" },
+    { label: "Clientes", value: stats.licenses, color: "bg-whatsapp" },
+  ];
+
+  const funnelMax = Math.max(1, ...funnelSteps.map(s => s.value));
 
   return (
     <div>
@@ -158,7 +192,46 @@ export default function DashboardOverview() {
         ))}
       </div>
 
-      {/* AI KPIs */}
+      {/* Conversion Funnel */}
+      {!loading && (
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle className="text-sm flex items-center gap-2">
+              <TrendingUp className="h-4 w-4 text-primary" />
+              Embudo de Conversión
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-end gap-2">
+              {funnelSteps.map((step, i) => {
+                const pct = Math.max(8, (step.value / funnelMax) * 100);
+                const convRate = i > 0 && funnelSteps[i - 1].value > 0
+                  ? ((step.value / funnelSteps[i - 1].value) * 100).toFixed(0)
+                  : null;
+                return (
+                  <div key={step.label} className="flex-1 flex flex-col items-center gap-1">
+                    {i > 0 && (
+                      <div className="flex items-center gap-0.5 text-[10px] text-muted-foreground mb-1">
+                        <ArrowRight className="h-3 w-3" />
+                        <span>{convRate}%</span>
+                      </div>
+                    )}
+                    {i === 0 && <div className="h-5" />}
+                    <div
+                      className={`w-full rounded-t-lg ${step.color} transition-all duration-500`}
+                      style={{ height: `${pct * 1.5}px`, minHeight: "12px" }}
+                    />
+                    <span className="text-lg font-bold">{step.value}</span>
+                    <span className="text-[10px] text-muted-foreground text-center leading-tight">{step.label}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* AI KPIs + Expiring */}
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         <Card className="border-primary/20 bg-primary/5">
           <CardContent className="flex items-center gap-3 pt-6">
@@ -194,7 +267,7 @@ export default function DashboardOverview() {
       {!loading && (
         <div className="mt-6 grid gap-4 lg:grid-cols-2">
           <Card>
-            <CardHeader><CardTitle className="text-sm">Revenue Mensual</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="text-sm">Revenue Mensual (Manual + Wompi)</CardTitle></CardHeader>
             <CardContent>
               <ChartContainer config={{ revenue: { label: "Revenue", color: "hsl(var(--primary))" } }} className="h-48">
                 <AreaChart data={revenueData}>

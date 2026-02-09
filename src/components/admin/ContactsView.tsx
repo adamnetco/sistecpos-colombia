@@ -5,15 +5,17 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Users, Bot, Eye, EyeOff, Search, Plus, Mail, Phone,
-  Building2, MapPin, Filter, RefreshCw, Kanban, List,
+  Building2, MapPin, Filter, RefreshCw, Kanban, List, ClipboardList,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
 const ContactPipelineView = lazy(() => import("./ContactPipelineView"));
+const LeadsView = lazy(() => import("./LeadsView"));
 
 interface Contact {
   id: string;
@@ -160,9 +162,9 @@ export default function ContactsView() {
         <div>
           <h1 className="text-2xl font-bold font-display flex items-center gap-2">
             <Users className="h-6 w-6 text-primary" />
-            CRM — Contactos
+            CRM
           </h1>
-          <p className="text-sm text-muted-foreground mt-1">Gestión unificada de prospectos, clientes y socios</p>
+          <p className="text-sm text-muted-foreground mt-1">Gestión unificada de prospectos, leads, clientes y socios</p>
         </div>
         <div className="flex items-center gap-2">
           <div className="flex border rounded-lg overflow-hidden">
@@ -193,186 +195,205 @@ export default function ContactsView() {
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="mb-4 flex flex-wrap items-end gap-3 rounded-lg border bg-card p-4">
-        <Filter className="h-4 w-4 text-muted-foreground" />
-        <span className="text-sm font-medium">Filtros</span>
-        <div className="flex-1" />
+      <Tabs defaultValue="contacts" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="contacts" className="gap-1.5">
+            <Users className="h-3.5 w-3.5" /> Contactos ({contacts.length})
+          </TabsTrigger>
+          <TabsTrigger value="leads" className="gap-1.5">
+            <ClipboardList className="h-3.5 w-3.5" /> Leads / Demos
+          </TabsTrigger>
+        </TabsList>
 
-        <div className="w-48">
-          <Select value={filterSource} onValueChange={setFilterSource}>
-            <SelectTrigger className="h-9 text-xs"><SelectValue placeholder="Fuente" /></SelectTrigger>
-            <SelectContent>
-              {sourceOptions.map((o) => (
-                <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        <TabsContent value="contacts">
+          {/* Filters */}
+          <div className="mb-4 flex flex-wrap items-end gap-3 rounded-lg border bg-card p-4">
+            <Filter className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm font-medium">Filtros</span>
+            <div className="flex-1" />
 
-        <div className="w-44">
-          <Select value={filterType} onValueChange={setFilterType}>
-            <SelectTrigger className="h-9 text-xs"><SelectValue placeholder="Tipo" /></SelectTrigger>
-            <SelectContent>
-              {typeOptions.map((o) => (
-                <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+            <div className="w-48">
+              <Select value={filterSource} onValueChange={setFilterSource}>
+                <SelectTrigger className="h-9 text-xs"><SelectValue placeholder="Fuente" /></SelectTrigger>
+                <SelectContent>
+                  {sourceOptions.map((o) => (
+                    <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-        <div className="w-36">
-          <Select value={filterRead} onValueChange={setFilterRead}>
-            <SelectTrigger className="h-9 text-xs"><SelectValue placeholder="Estado" /></SelectTrigger>
-            <SelectContent>
-              {readOptions.map((o) => (
-                <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+            <div className="w-44">
+              <Select value={filterType} onValueChange={setFilterType}>
+                <SelectTrigger className="h-9 text-xs"><SelectValue placeholder="Tipo" /></SelectTrigger>
+                <SelectContent>
+                  {typeOptions.map((o) => (
+                    <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-        <div className="relative w-56">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Buscar nombre, email..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="h-9 pl-8 text-xs"
-          />
-        </div>
+            <div className="w-36">
+              <Select value={filterRead} onValueChange={setFilterRead}>
+                <SelectTrigger className="h-9 text-xs"><SelectValue placeholder="Estado" /></SelectTrigger>
+                <SelectContent>
+                  {readOptions.map((o) => (
+                    <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-        <Button size="sm" variant="outline" onClick={load} className="h-9">
-          <RefreshCw className="h-3.5 w-3.5" />
-        </Button>
+            <div className="relative w-56">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Buscar nombre, email..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="h-9 pl-8 text-xs"
+              />
+            </div>
 
-        <Dialog open={showForm} onOpenChange={setShowForm}>
-          <DialogTrigger asChild>
-            <Button size="sm" className="h-9">
-              <Plus className="h-3.5 w-3.5 mr-1" /> Nuevo
+            <Button size="sm" variant="outline" onClick={load} className="h-9">
+              <RefreshCw className="h-3.5 w-3.5" />
             </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Nuevo Contacto</DialogTitle>
-            </DialogHeader>
-            <NewContactForm onSuccess={() => { setShowForm(false); load(); }} />
-          </DialogContent>
-        </Dialog>
-      </div>
 
-      {/* Kanban View */}
-      {viewMode === "kanban" ? (
-        <Suspense fallback={<div className="flex h-64 items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" /></div>}>
-          <ContactPipelineView />
-        </Suspense>
-      ) : (
-        /* Table View */
-        <div className="rounded-lg border bg-card overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b bg-muted/50">
-                <th className="px-3 py-3 text-left font-medium w-8"></th>
-                <th className="px-3 py-3 text-left font-medium">Nombre</th>
-                <th className="px-3 py-3 text-left font-medium">Contacto</th>
-                <th className="px-3 py-3 text-left font-medium">Negocio</th>
-                <th className="px-3 py-3 text-left font-medium">Fuente</th>
-                <th className="px-3 py-3 text-left font-medium">Tipo</th>
-                <th className="px-3 py-3 text-left font-medium">Fecha</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr><td colSpan={7} className="py-8 text-center text-muted-foreground">Cargando...</td></tr>
-              ) : filtered.length === 0 ? (
-                <tr><td colSpan={7} className="py-8 text-center text-muted-foreground">No hay contactos</td></tr>
-              ) : (
-                filtered.map((c) => (
-                  <tr
-                    key={c.id}
-                    className={`border-b hover:bg-muted/30 transition-colors ${!c.is_read ? "bg-primary/5 font-medium" : ""}`}
-                  >
-                    <td className="px-3 py-3">
-                      <button
-                        onClick={() => toggleRead(c.id, c.is_read)}
-                        className="hover:text-primary transition-colors"
-                        title={c.is_read ? "Marcar como no leído" : "Marcar como leído"}
-                      >
-                        {c.is_read ? (
-                          <Eye className="h-4 w-4 text-muted-foreground" />
-                        ) : (
-                          <EyeOff className="h-4 w-4 text-primary" />
-                        )}
-                      </button>
-                    </td>
-                    <td className="px-3 py-3">
-                      <div className="flex items-center gap-2">
-                        <span>{c.full_name}</span>
-                        {c.captured_by_ai && (
-                          <Badge className="bg-purple-500/10 text-purple-700 border-purple-200 text-[10px] px-1.5 py-0">
-                            <Bot className="h-3 w-3 mr-0.5" /> IA
-                          </Badge>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-3 py-3">
-                      {c.email && (
-                        <div className="flex items-center gap-1 text-xs">
-                          <Mail className="h-3 w-3 text-muted-foreground" /> {c.email}
-                        </div>
-                      )}
-                      {c.phone && (
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                          <Phone className="h-3 w-3" /> {c.phone}
-                        </div>
-                      )}
-                    </td>
-                    <td className="px-3 py-3">
-                      {c.business_name && (
-                        <div className="flex items-center gap-1 text-xs">
-                          <Building2 className="h-3 w-3 text-muted-foreground" /> {c.business_name}
-                        </div>
-                      )}
-                      {c.city && (
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                          <MapPin className="h-3 w-3" /> {c.city}
-                        </div>
-                      )}
-                      {(c.ai_conversation_count || 0) > 0 && (
-                        <Badge variant="outline" className="text-[10px] mt-1 bg-purple-500/10 text-purple-700 border-purple-200">
-                          <Bot className="h-3 w-3 mr-0.5" /> {c.ai_conversation_count} conv.
-                        </Badge>
-                      )}
-                    </td>
-                    <td className="px-3 py-3">
-                      <Badge variant="outline" className={`text-[10px] ${sourceLabels[c.source]?.color || ""}`}>
-                        {sourceLabels[c.source]?.label || c.source}
-                      </Badge>
-                    </td>
-                    <td className="px-3 py-3">
-                      <Select value={c.contact_type} onValueChange={(v) => updateType(c.id, v)}>
-                        <SelectTrigger className="w-32 h-7 text-xs border-none bg-transparent p-0">
-                          <Badge className={`text-[10px] ${typeLabels[c.contact_type]?.color || ""}`}>
-                            {typeLabels[c.contact_type]?.label || c.contact_type}
-                          </Badge>
-                        </SelectTrigger>
-                        <SelectContent>
-                          {typeOptions.filter((o) => o.value !== "all").map((o) => (
-                            <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </td>
-                    <td className="px-3 py-3 text-xs text-muted-foreground whitespace-nowrap">
-                      {new Date(c.created_at).toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" })}
-                    </td>
+            <Dialog open={showForm} onOpenChange={setShowForm}>
+              <DialogTrigger asChild>
+                <Button size="sm" className="h-9">
+                  <Plus className="h-3.5 w-3.5 mr-1" /> Nuevo
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Nuevo Contacto</DialogTitle>
+                </DialogHeader>
+                <NewContactForm onSuccess={() => { setShowForm(false); load(); }} />
+              </DialogContent>
+            </Dialog>
+          </div>
+
+          {/* Kanban View */}
+          {viewMode === "kanban" ? (
+            <Suspense fallback={<div className="flex h-64 items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" /></div>}>
+              <ContactPipelineView />
+            </Suspense>
+          ) : (
+            /* Table View */
+            <div className="rounded-lg border bg-card overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b bg-muted/50">
+                    <th className="px-3 py-3 text-left font-medium w-8"></th>
+                    <th className="px-3 py-3 text-left font-medium">Nombre</th>
+                    <th className="px-3 py-3 text-left font-medium">Contacto</th>
+                    <th className="px-3 py-3 text-left font-medium">Negocio</th>
+                    <th className="px-3 py-3 text-left font-medium">Fuente</th>
+                    <th className="px-3 py-3 text-left font-medium">Tipo</th>
+                    <th className="px-3 py-3 text-left font-medium">Fecha</th>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      )}
+                </thead>
+                <tbody>
+                  {loading ? (
+                    <tr><td colSpan={7} className="py-8 text-center text-muted-foreground">Cargando...</td></tr>
+                  ) : filtered.length === 0 ? (
+                    <tr><td colSpan={7} className="py-8 text-center text-muted-foreground">No hay contactos</td></tr>
+                  ) : (
+                    filtered.map((c) => (
+                      <tr
+                        key={c.id}
+                        className={`border-b hover:bg-muted/30 transition-colors ${!c.is_read ? "bg-primary/5 font-medium" : ""}`}
+                      >
+                        <td className="px-3 py-3">
+                          <button
+                            onClick={() => toggleRead(c.id, c.is_read)}
+                            className="hover:text-primary transition-colors"
+                            title={c.is_read ? "Marcar como no leído" : "Marcar como leído"}
+                          >
+                            {c.is_read ? (
+                              <Eye className="h-4 w-4 text-muted-foreground" />
+                            ) : (
+                              <EyeOff className="h-4 w-4 text-primary" />
+                            )}
+                          </button>
+                        </td>
+                        <td className="px-3 py-3">
+                          <div className="flex items-center gap-2">
+                            <span>{c.full_name}</span>
+                            {c.captured_by_ai && (
+                              <Badge className="bg-purple-500/10 text-purple-700 border-purple-200 text-[10px] px-1.5 py-0">
+                                <Bot className="h-3 w-3 mr-0.5" /> IA
+                              </Badge>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-3 py-3">
+                          {c.email && (
+                            <div className="flex items-center gap-1 text-xs">
+                              <Mail className="h-3 w-3 text-muted-foreground" /> {c.email}
+                            </div>
+                          )}
+                          {c.phone && (
+                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                              <Phone className="h-3 w-3" /> {c.phone}
+                            </div>
+                          )}
+                        </td>
+                        <td className="px-3 py-3">
+                          {c.business_name && (
+                            <div className="flex items-center gap-1 text-xs">
+                              <Building2 className="h-3 w-3 text-muted-foreground" /> {c.business_name}
+                            </div>
+                          )}
+                          {c.city && (
+                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                              <MapPin className="h-3 w-3" /> {c.city}
+                            </div>
+                          )}
+                          {(c.ai_conversation_count || 0) > 0 && (
+                            <Badge variant="outline" className="text-[10px] mt-1 bg-purple-500/10 text-purple-700 border-purple-200">
+                              <Bot className="h-3 w-3 mr-0.5" /> {c.ai_conversation_count} conv.
+                            </Badge>
+                          )}
+                        </td>
+                        <td className="px-3 py-3">
+                          <Badge variant="outline" className={`text-[10px] ${sourceLabels[c.source]?.color || ""}`}>
+                            {sourceLabels[c.source]?.label || c.source}
+                          </Badge>
+                        </td>
+                        <td className="px-3 py-3">
+                          <Select value={c.contact_type} onValueChange={(v) => updateType(c.id, v)}>
+                            <SelectTrigger className="w-32 h-7 text-xs border-none bg-transparent p-0">
+                              <Badge className={`text-[10px] ${typeLabels[c.contact_type]?.color || ""}`}>
+                                {typeLabels[c.contact_type]?.label || c.contact_type}
+                              </Badge>
+                            </SelectTrigger>
+                            <SelectContent>
+                              {typeOptions.filter((o) => o.value !== "all").map((o) => (
+                                <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </td>
+                        <td className="px-3 py-3 text-xs text-muted-foreground whitespace-nowrap">
+                          {new Date(c.created_at).toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" })}
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="leads">
+          <Suspense fallback={<div className="flex h-64 items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" /></div>}>
+            <LeadsView />
+          </Suspense>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

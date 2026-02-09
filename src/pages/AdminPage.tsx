@@ -6,7 +6,7 @@ import { AdminLayout } from "@/components/admin/AdminLayout";
 
 const DashboardOverview = lazy(() => import("@/components/admin/DashboardOverview"));
 const LicensesView = lazy(() => import("@/components/admin/LicensesView"));
-const LeadsView = lazy(() => import("@/components/admin/LeadsView"));
+// LeadsView merged into CRM (ContactsView)
 const CertificatesView = lazy(() => import("@/components/admin/CertificatesView"));
 const PaymentsView = lazy(() => import("@/components/admin/PaymentsView"));
 const ResellersView = lazy(() => import("@/components/admin/ResellersView"));
@@ -40,7 +40,7 @@ export default function AdminPage() {
             <Route path="marcas" element={<BrandsView />} />
             <Route path="categorias" element={<CategoriesView />} />
             <Route path="licencias" element={<LicensesView />} />
-            <Route path="leads" element={<LeadsView />} />
+            <Route path="leads" element={<Navigate to="/admin/contactos" replace />} />
             <Route path="certificados" element={<CertificatesView />} />
             <Route path="pagos" element={<PaymentsView />} />
             <Route path="socios" element={<ResellersView />} />
