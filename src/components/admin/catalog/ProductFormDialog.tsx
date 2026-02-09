@@ -1,0 +1,382 @@
+import { useState, useEffect } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Separator } from "@/components/ui/separator";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
+} from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { toast } from "sonner";
+import { Plus, X, Upload } from "lucide-react";
+
+interface Props {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  editing: any | null;
+  onSaved: () => void;
+}
+
+const defaultForm = {
+  name: "", slug: "", sku: "", brand_id: "", category_id: "",
+  description: "", long_description: "",
+  price_cop: 0, original_price_cop: 0, price_usd: 0, original_price_usd: 0, cost_cop: 0,
+  image_url: "", stock: 0, is_active: true, is_featured: false, is_offer: false,
+  product_type: "hardware", sort_order: 0,
+  features: [] as string[], includes: [] as string[],
+  specifications: [] as { label: string; value: string }[],
+};
+
+export default function ProductFormDialog({ open, onOpenChange, editing, onSaved }: Props) {
+  const [form, setForm] = useState(defaultForm);
+  const [newFeature, setNewFeature] = useState("");
+  const [newInclude, setNewInclude] = useState("");
+  const [newSpecLabel, setNewSpecLabel] = useState("");
+  const [newSpecValue, setNewSpecValue] = useState("");
+  const [uploading, setUploading] = useState(false);
+
+  const { data: brands = [] } = useQuery({
+    queryKey: ["catalog_brands_select"],
+    queryFn: async () => {
+      const { data } = await supabase.from("catalog_brands").select("id, name").order("name");
+      return data || [];
+    },
+  });
+
+  const { data: categories = [] } = useQuery({
+    queryKey: ["catalog_categories_select"],
+    queryFn: async () => {
+      const { data } = await supabase.from("catalog_categories").select("id, name").order("sort_order");
+      return data || [];
+    },
+  });
+
+  useEffect(() => {
+    if (editing) {
+      setForm({
+        name: editing.name, slug: editing.slug, sku: editing.sku || "",
+        brand_id: editing.brand_id || "", category_id: editing.category_id || "",
+        description: editing.description || "", long_description: editing.long_description || "",
+        price_cop: editing.price_cop, original_price_cop: editing.original_price_cop || 0,
+        price_usd: editing.price_usd || 0, original_price_usd: editing.original_price_usd || 0,
+        cost_cop: editing.cost_cop || 0, image_url: editing.image_url || "",
+        stock: editing.stock, is_active: editing.is_active, is_featured: editing.is_featured,
+        is_offer: editing.is_offer, product_type: editing.product_type, sort_order: editing.sort_order,
+        features: editing.features || [], includes: editing.includes || [],
+        specifications: editing.specifications || [],
+      });
+    } else {
+      setForm(defaultForm);
+    }
+  }, [editing, open]);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    const ext = file.name.split(".").pop();
+    const path = `products/${Date.now()}.${ext}`;
+    const { error } = await supabase.storage.from("product-images").upload(path, file);
+    if (error) {
+      toast.error("Error subiendo imagen");
+      setUploading(false);
+      return;
+    }
+    const { data: urlData } = supabase.storage.from("product-images").getPublicUrl(path);
+    setForm(f => ({ ...f, image_url: urlData.publicUrl }));
+    setUploading(false);
+    toast.success("Imagen subida");
+  };
+
+  const saveMutation = useMutation({
+    mutationFn: async () => {
+      const slug = form.slug || form.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+      const payload = {
+        name: form.name,
+        slug,
+        sku: form.sku || null,
+        brand_id: form.brand_id || null,
+        category_id: form.category_id || null,
+        description: form.description || null,
+        long_description: form.long_description || null,
+        price_cop: form.price_cop,
+        original_price_cop: form.original_price_cop || null,
+        price_usd: form.price_usd || null,
+        original_price_usd: form.original_price_usd || null,
+        cost_cop: form.cost_cop || null,
+        image_url: form.image_url || null,
+        features: form.features,
+        specifications: form.specifications,
+        includes: form.includes,
+        stock: form.stock,
+        is_active: form.is_active,
+        is_featured: form.is_featured,
+        is_offer: form.is_offer,
+        product_type: form.product_type,
+        sort_order: form.sort_order,
+      };
+      if (editing) {
+        const { error } = await supabase.from("catalog_products").update(payload).eq("id", editing.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("catalog_products").insert(payload);
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      toast.success(editing ? "Producto actualizado" : "Producto creado");
+      onSaved();
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  const set = (key: string, value: any) => setForm(f => ({ ...f, [key]: value }));
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-3xl max-h-[90vh] p-0">
+        <DialogHeader className="px-6 pt-6">
+          <DialogTitle>{editing ? "Editar Producto" : "Nuevo Producto"}</DialogTitle>
+        </DialogHeader>
+        <ScrollArea className="max-h-[70vh] px-6">
+          <div className="space-y-6 pb-6">
+            {/* Basic Info */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="col-span-2">
+                <Label>Nombre *</Label>
+                <Input value={form.name} onChange={e => set("name", e.target.value)} placeholder="Impresora Térmica 80mm" />
+              </div>
+              <div>
+                <Label>Slug</Label>
+                <Input value={form.slug} onChange={e => set("slug", e.target.value)} placeholder="Auto-generado" />
+              </div>
+              <div>
+                <Label>SKU</Label>
+                <Input value={form.sku} onChange={e => set("sku", e.target.value)} placeholder="IMP-80MM-001" />
+              </div>
+              <div>
+                <Label>Categoría</Label>
+                <Select value={form.category_id} onValueChange={v => set("category_id", v)}>
+                  <SelectTrigger><SelectValue placeholder="Seleccionar..." /></SelectTrigger>
+                  <SelectContent>
+                    {categories.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Marca</Label>
+                <Select value={form.brand_id} onValueChange={v => set("brand_id", v)}>
+                  <SelectTrigger><SelectValue placeholder="Seleccionar..." /></SelectTrigger>
+                  <SelectContent>
+                    {brands.map(b => <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Tipo</Label>
+                <Select value={form.product_type} onValueChange={v => set("product_type", v)}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="hardware">Hardware</SelectItem>
+                    <SelectItem value="software">Software</SelectItem>
+                    <SelectItem value="servicio">Servicio</SelectItem>
+                    <SelectItem value="certificado">Certificado</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Stock</Label>
+                <Input type="number" value={form.stock} onChange={e => set("stock", parseInt(e.target.value) || 0)} />
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Image */}
+            <div>
+              <Label>Imagen del Producto</Label>
+              <div className="flex items-center gap-4 mt-2">
+                {form.image_url ? (
+                  <div className="relative h-24 w-24 rounded-lg overflow-hidden border">
+                    <img src={form.image_url} alt="Preview" className="h-full w-full object-cover" />
+                    <button
+                      onClick={() => set("image_url", "")}
+                      className="absolute top-1 right-1 bg-destructive text-destructive-foreground rounded-full p-0.5"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                ) : (
+                  <label className="h-24 w-24 rounded-lg border-2 border-dashed flex flex-col items-center justify-center cursor-pointer hover:border-primary transition-colors">
+                    <Upload className="h-5 w-5 text-muted-foreground" />
+                    <span className="text-[10px] text-muted-foreground mt-1">Subir</span>
+                    <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                  </label>
+                )}
+                <div className="flex-1">
+                  <Input
+                    value={form.image_url}
+                    onChange={e => set("image_url", e.target.value)}
+                    placeholder="O pegar URL de imagen..."
+                  />
+                </div>
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Pricing */}
+            <div>
+              <h3 className="font-semibold mb-3">Precios</h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div>
+                  <Label>Precio COP *</Label>
+                  <Input type="number" value={form.price_cop} onChange={e => set("price_cop", parseInt(e.target.value) || 0)} />
+                </div>
+                <div>
+                  <Label>Precio Original COP</Label>
+                  <Input type="number" value={form.original_price_cop} onChange={e => set("original_price_cop", parseInt(e.target.value) || 0)} />
+                </div>
+                <div>
+                  <Label>Costo COP</Label>
+                  <Input type="number" value={form.cost_cop} onChange={e => set("cost_cop", parseInt(e.target.value) || 0)} />
+                </div>
+                <div>
+                  <Label>Precio USD</Label>
+                  <Input type="number" step="0.01" value={form.price_usd} onChange={e => set("price_usd", parseFloat(e.target.value) || 0)} />
+                </div>
+                <div>
+                  <Label>Precio Original USD</Label>
+                  <Input type="number" step="0.01" value={form.original_price_usd} onChange={e => set("original_price_usd", parseFloat(e.target.value) || 0)} />
+                </div>
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Descriptions */}
+            <div className="space-y-4">
+              <div>
+                <Label>Descripción Corta</Label>
+                <Textarea value={form.description} onChange={e => set("description", e.target.value)} rows={2} />
+              </div>
+              <div>
+                <Label>Descripción Larga</Label>
+                <Textarea value={form.long_description} onChange={e => set("long_description", e.target.value)} rows={4} />
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Features */}
+            <div>
+              <Label>Características</Label>
+              <div className="flex gap-2 mt-2">
+                <Input value={newFeature} onChange={e => setNewFeature(e.target.value)} placeholder="Nueva característica" onKeyDown={e => {
+                  if (e.key === "Enter" && newFeature.trim()) {
+                    set("features", [...form.features, newFeature.trim()]);
+                    setNewFeature("");
+                  }
+                }} />
+                <Button variant="outline" size="icon" onClick={() => {
+                  if (newFeature.trim()) { set("features", [...form.features, newFeature.trim()]); setNewFeature(""); }
+                }}><Plus className="h-4 w-4" /></Button>
+              </div>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {form.features.map((f, i) => (
+                  <span key={i} className="inline-flex items-center gap-1 bg-muted px-2 py-1 rounded text-xs">
+                    {f}
+                    <button onClick={() => set("features", form.features.filter((_, j) => j !== i))}><X className="h-3 w-3" /></button>
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Specifications */}
+            <div>
+              <Label>Especificaciones Técnicas</Label>
+              <div className="flex gap-2 mt-2">
+                <Input value={newSpecLabel} onChange={e => setNewSpecLabel(e.target.value)} placeholder="Etiqueta" className="flex-1" />
+                <Input value={newSpecValue} onChange={e => setNewSpecValue(e.target.value)} placeholder="Valor" className="flex-1" />
+                <Button variant="outline" size="icon" onClick={() => {
+                  if (newSpecLabel.trim() && newSpecValue.trim()) {
+                    set("specifications", [...form.specifications, { label: newSpecLabel.trim(), value: newSpecValue.trim() }]);
+                    setNewSpecLabel(""); setNewSpecValue("");
+                  }
+                }}><Plus className="h-4 w-4" /></Button>
+              </div>
+              <div className="mt-2 space-y-1">
+                {form.specifications.map((s: any, i: number) => (
+                  <div key={i} className="flex items-center gap-2 bg-muted px-3 py-1.5 rounded text-xs">
+                    <span className="font-medium">{s.label}:</span>
+                    <span className="flex-1">{s.value}</span>
+                    <button onClick={() => set("specifications", form.specifications.filter((_, j) => j !== i))}><X className="h-3 w-3" /></button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Includes */}
+            <div>
+              <Label>¿Qué incluye?</Label>
+              <div className="flex gap-2 mt-2">
+                <Input value={newInclude} onChange={e => setNewInclude(e.target.value)} placeholder="Elemento incluido" onKeyDown={e => {
+                  if (e.key === "Enter" && newInclude.trim()) {
+                    set("includes", [...form.includes, newInclude.trim()]);
+                    setNewInclude("");
+                  }
+                }} />
+                <Button variant="outline" size="icon" onClick={() => {
+                  if (newInclude.trim()) { set("includes", [...form.includes, newInclude.trim()]); setNewInclude(""); }
+                }}><Plus className="h-4 w-4" /></Button>
+              </div>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {form.includes.map((f, i) => (
+                  <span key={i} className="inline-flex items-center gap-1 bg-muted px-2 py-1 rounded text-xs">
+                    {f}
+                    <button onClick={() => set("includes", form.includes.filter((_, j) => j !== i))}><X className="h-3 w-3" /></button>
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Toggles */}
+            <div className="flex flex-wrap gap-6">
+              <div className="flex items-center gap-2">
+                <Switch checked={form.is_active} onCheckedChange={v => set("is_active", v)} />
+                <Label>Activo</Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <Switch checked={form.is_featured} onCheckedChange={v => set("is_featured", v)} />
+                <Label>Destacado</Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <Switch checked={form.is_offer} onCheckedChange={v => set("is_offer", v)} />
+                <Label>Oferta</Label>
+              </div>
+              <div className="w-20">
+                <Label>Orden</Label>
+                <Input type="number" value={form.sort_order} onChange={e => set("sort_order", parseInt(e.target.value) || 0)} />
+              </div>
+            </div>
+          </div>
+        </ScrollArea>
+        <DialogFooter className="px-6 pb-6">
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
+          <Button onClick={() => saveMutation.mutate()} disabled={!form.name || saveMutation.isPending}>
+            {saveMutation.isPending ? "Guardando..." : editing ? "Actualizar" : "Crear Producto"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
