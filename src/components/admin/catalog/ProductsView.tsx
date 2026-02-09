@@ -25,6 +25,7 @@ import {
   Star, Sparkles, Grid3X3, List,
 } from "lucide-react";
 import ProductFormDialog from "./ProductFormDialog";
+import ProductCSVTools from "./ProductCSVTools";
 
 interface Product {
   id: string;
@@ -128,9 +129,12 @@ export default function ProductsView() {
           </h1>
           <p className="text-sm text-muted-foreground">Gestiona tu catálogo de productos, precios e inventario</p>
         </div>
-        <Button onClick={handleNew} className="gap-2">
-          <Plus className="h-4 w-4" /> Nuevo Producto
-        </Button>
+        <div className="flex gap-2 flex-wrap">
+          <ProductCSVTools products={filtered} />
+          <Button onClick={handleNew} className="gap-2">
+            <Plus className="h-4 w-4" /> Nuevo Producto
+          </Button>
+        </div>
       </div>
 
       {/* Stats */}
