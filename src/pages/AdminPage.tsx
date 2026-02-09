@@ -13,6 +13,7 @@ const ResellersView = lazy(() => import("@/components/admin/ResellersView"));
 const ContactsView = lazy(() => import("@/components/admin/ContactsView"));
 const CentralIAView = lazy(() => import("@/components/admin/CentralIAView"));
 const TrackingView = lazy(() => import("@/components/admin/TrackingView"));
+const SuppliersView = lazy(() => import("@/components/admin/SuppliersView"));
 
 function Loader() {
   return (
@@ -37,6 +38,7 @@ export default function AdminPage() {
             <Route path="contactos" element={<ContactsView />} />
             <Route path="central-ia" element={<CentralIAView />} />
             <Route path="tracking" element={<TrackingView />} />
+            <Route path="proveedores" element={<SuppliersView />} />
           </Routes>
         </Suspense>
       </AdminLayout>

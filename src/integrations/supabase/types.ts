@@ -231,6 +231,41 @@ export type Database = {
         }
         Relationships: []
       }
+      contact_activities: {
+        Row: {
+          activity_type: string
+          contact_id: string
+          created_at: string
+          created_by: string | null
+          description: string
+          id: string
+        }
+        Insert: {
+          activity_type?: string
+          contact_id: string
+          created_at?: string
+          created_by?: string | null
+          description: string
+          id?: string
+        }
+        Update: {
+          activity_type?: string
+          contact_id?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_activities_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contacts: {
         Row: {
           business_name: string | null
@@ -244,9 +279,11 @@ export type Database = {
           id: string
           is_read: boolean
           lead_id: string | null
+          lead_score: number
           license_id: string | null
           notes: string | null
           phone: string | null
+          pipeline_stage: string
           reseller_id: string | null
           source: string
           tags: string[] | null
@@ -267,9 +304,11 @@ export type Database = {
           id?: string
           is_read?: boolean
           lead_id?: string | null
+          lead_score?: number
           license_id?: string | null
           notes?: string | null
           phone?: string | null
+          pipeline_stage?: string
           reseller_id?: string | null
           source?: string
           tags?: string[] | null
@@ -290,9 +329,11 @@ export type Database = {
           id?: string
           is_read?: boolean
           lead_id?: string | null
+          lead_score?: number
           license_id?: string | null
           notes?: string | null
           phone?: string | null
+          pipeline_stage?: string
           reseller_id?: string | null
           source?: string
           tags?: string[] | null
@@ -783,6 +824,51 @@ export type Database = {
           title?: string
           updated_at?: string
           video_url?: string | null
+        }
+        Relationships: []
+      }
+      suppliers: {
+        Row: {
+          city: string | null
+          contact_name: string | null
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          notes: string | null
+          phone: string | null
+          status: string
+          supplier_type: string
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          city?: string | null
+          contact_name?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          phone?: string | null
+          status?: string
+          supplier_type?: string
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          city?: string | null
+          contact_name?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          status?: string
+          supplier_type?: string
+          updated_at?: string
+          website?: string | null
         }
         Relationships: []
       }

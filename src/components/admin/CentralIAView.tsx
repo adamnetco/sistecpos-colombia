@@ -12,9 +12,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import {
   Bot, Plus, Pencil, Trash2, GripVertical, FileText, HelpCircle, MessageSquareText,
-  Eye, EyeOff, MessagesSquare, Users, Settings2,
+  MessagesSquare, Settings2, BarChart3, Wand2, TestTube2,
 } from "lucide-react";
 import ChatbotSettingsTab from "./ChatbotSettingsTab";
+import { Suspense, lazy } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
+
+const AIMetricsTab = lazy(() => import("./AIMetricsTab"));
+const PromptStudioTab = lazy(() => import("./PromptStudioTab"));
+const AITestTab = lazy(() => import("./AITestTab"));
 
 interface KBEntry {
   id: string;
@@ -51,6 +57,10 @@ const entryTypeConfig: Record<string, { label: string; icon: typeof HelpCircle; 
   custom_text: { label: "Texto Libre", icon: MessageSquareText, color: "bg-purple-500/10 text-purple-700" },
 };
 
+function TabLoader() {
+  return <Skeleton className="h-64 w-full" />;
+}
+
 export default function CentralIAView() {
   return (
     <div>
@@ -58,14 +68,23 @@ export default function CentralIAView() {
         <Bot className="h-6 w-6 text-primary" />
         <div>
           <h1 className="text-2xl font-bold font-display">Central IA</h1>
-          <p className="text-sm text-muted-foreground">Entrenamiento del chatbot y gestión de conversaciones</p>
+          <p className="text-sm text-muted-foreground">Entrenamiento, métricas y pruebas del chatbot</p>
         </div>
       </div>
 
-      <Tabs defaultValue="knowledge" className="space-y-4">
-        <TabsList>
+      <Tabs defaultValue="metrics" className="space-y-4">
+        <TabsList className="flex-wrap">
+          <TabsTrigger value="metrics" className="gap-1.5">
+            <BarChart3 className="h-4 w-4" /> Métricas
+          </TabsTrigger>
           <TabsTrigger value="knowledge" className="gap-1.5">
             <FileText className="h-4 w-4" /> Base de Conocimiento
+          </TabsTrigger>
+          <TabsTrigger value="prompt" className="gap-1.5">
+            <Wand2 className="h-4 w-4" /> Prompt Studio
+          </TabsTrigger>
+          <TabsTrigger value="test" className="gap-1.5">
+            <TestTube2 className="h-4 w-4" /> Test en Vivo
           </TabsTrigger>
           <TabsTrigger value="conversations" className="gap-1.5">
             <MessagesSquare className="h-4 w-4" /> Conversaciones
@@ -75,7 +94,16 @@ export default function CentralIAView() {
           </TabsTrigger>
         </TabsList>
 
+        <TabsContent value="metrics">
+          <Suspense fallback={<TabLoader />}><AIMetricsTab /></Suspense>
+        </TabsContent>
         <TabsContent value="knowledge"><KnowledgeBaseTab /></TabsContent>
+        <TabsContent value="prompt">
+          <Suspense fallback={<TabLoader />}><PromptStudioTab /></Suspense>
+        </TabsContent>
+        <TabsContent value="test">
+          <Suspense fallback={<TabLoader />}><AITestTab /></Suspense>
+        </TabsContent>
         <TabsContent value="conversations"><ConversationsTab /></TabsContent>
         <TabsContent value="settings"><ChatbotSettingsTab /></TabsContent>
       </Tabs>
@@ -114,16 +142,8 @@ function KnowledgeBaseTab() {
     toast({ title: "Entrada eliminada" });
   };
 
-  const openEdit = (entry: KBEntry) => {
-    setEditing(entry);
-    setShowForm(true);
-  };
-
-  const handleFormClose = () => {
-    setShowForm(false);
-    setEditing(null);
-    load();
-  };
+  const openEdit = (entry: KBEntry) => { setEditing(entry); setShowForm(true); };
+  const handleFormClose = () => { setShowForm(false); setEditing(null); load(); };
 
   return (
     <div>
@@ -142,15 +162,12 @@ function KnowledgeBaseTab() {
             {entries.filter((e) => e.is_active).length} activas / {entries.length} total
           </Badge>
         </div>
-
         <Dialog open={showForm} onOpenChange={(open) => { if (!open) handleFormClose(); else setShowForm(true); }}>
           <DialogTrigger asChild>
             <Button size="sm"><Plus className="h-3.5 w-3.5 mr-1" /> Nueva Entrada</Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>{editing ? "Editar Entrada" : "Nueva Entrada"}</DialogTitle>
-            </DialogHeader>
+            <DialogHeader><DialogTitle>{editing ? "Editar Entrada" : "Nueva Entrada"}</DialogTitle></DialogHeader>
             <KBEntryForm entry={editing} onSuccess={handleFormClose} />
           </DialogContent>
         </Dialog>
@@ -158,48 +175,31 @@ function KnowledgeBaseTab() {
 
       <div className="space-y-2">
         {loading ? (
-          <div className="py-8 text-center text-muted-foreground">Cargando...</div>
+          Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-20 w-full" />)
         ) : entries.length === 0 ? (
           <div className="py-12 text-center">
             <Bot className="h-12 w-12 mx-auto text-muted-foreground/50 mb-3" />
             <p className="text-muted-foreground">No hay entradas en la base de conocimiento</p>
-            <p className="text-xs text-muted-foreground mt-1">Agrega FAQs, documentos o textos para entrenar el chatbot</p>
           </div>
         ) : (
           entries.map((entry) => {
             const config = entryTypeConfig[entry.entry_type] || entryTypeConfig.faq;
             const Icon = config.icon;
             return (
-              <div
-                key={entry.id}
-                className={`flex items-start gap-3 rounded-lg border p-4 transition-colors ${
-                  entry.is_active ? "bg-card" : "bg-muted/30 opacity-60"
-                }`}
-              >
+              <div key={entry.id} className={`flex items-start gap-3 rounded-lg border p-4 transition-colors ${entry.is_active ? "bg-card" : "bg-muted/30 opacity-60"}`}>
                 <GripVertical className="h-4 w-4 mt-1 text-muted-foreground/40 cursor-grab" />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <Badge className={`text-[10px] ${config.color}`}>
-                      <Icon className="h-3 w-3 mr-0.5" /> {config.label}
-                    </Badge>
-                    {entry.category && (
-                      <Badge variant="outline" className="text-[10px]">{entry.category}</Badge>
-                    )}
+                    <Badge className={`text-[10px] ${config.color}`}><Icon className="h-3 w-3 mr-0.5" /> {config.label}</Badge>
+                    {entry.category && <Badge variant="outline" className="text-[10px]">{entry.category}</Badge>}
                   </div>
                   <h3 className="font-medium text-sm">{entry.title}</h3>
                   <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{entry.content}</p>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  <Switch
-                    checked={entry.is_active}
-                    onCheckedChange={() => toggleActive(entry.id, entry.is_active)}
-                  />
-                  <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => openEdit(entry)}>
-                    <Pencil className="h-3.5 w-3.5" />
-                  </Button>
-                  <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive" onClick={() => deleteEntry(entry.id)}>
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
+                  <Switch checked={entry.is_active} onCheckedChange={() => toggleActive(entry.id, entry.is_active)} />
+                  <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => openEdit(entry)}><Pencil className="h-3.5 w-3.5" /></Button>
+                  <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive" onClick={() => deleteEntry(entry.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
                 </div>
               </div>
             );
@@ -226,27 +226,13 @@ function KBEntryForm({ entry, onSuccess }: { entry: KBEntry | null; onSuccess: (
     e.preventDefault();
     if (!form.title.trim() || !form.content.trim()) return;
     setSaving(true);
-
-    const payload = {
-      entry_type: form.entry_type,
-      title: form.title,
-      content: form.content,
-      category: form.category || null,
-      is_active: form.is_active,
-      sort_order: form.sort_order,
-    };
-
+    const payload = { entry_type: form.entry_type, title: form.title, content: form.content, category: form.category || null, is_active: form.is_active, sort_order: form.sort_order };
     const { error } = entry
       ? await supabase.from("ai_knowledge_base").update(payload).eq("id", entry.id)
       : await supabase.from("ai_knowledge_base").insert(payload);
-
     setSaving(false);
-    if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    } else {
-      toast({ title: entry ? "Entrada actualizada" : "Entrada creada" });
-      onSuccess();
-    }
+    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
+    else { toast({ title: entry ? "Entrada actualizada" : "Entrada creada" }); onSuccess(); }
   };
 
   const set = (k: string, v: any) => setForm((p) => ({ ...p, [k]: v }));
@@ -265,31 +251,13 @@ function KBEntryForm({ entry, onSuccess }: { entry: KBEntry | null; onSuccess: (
             </SelectContent>
           </Select>
         </div>
-        <div>
-          <Label className="text-xs">Categoría</Label>
-          <Input value={form.category} onChange={(e) => set("category", e.target.value)} placeholder="Ej: Precios" className="h-9" />
-        </div>
-        <div>
-          <Label className="text-xs">Orden</Label>
-          <Input type="number" value={form.sort_order} onChange={(e) => set("sort_order", parseInt(e.target.value) || 0)} className="h-9" />
-        </div>
+        <div><Label className="text-xs">Categoría</Label><Input value={form.category} onChange={(e) => set("category", e.target.value)} placeholder="Ej: Precios" className="h-9" /></div>
+        <div><Label className="text-xs">Orden</Label><Input type="number" value={form.sort_order} onChange={(e) => set("sort_order", parseInt(e.target.value) || 0)} className="h-9" /></div>
       </div>
-
-      <div>
-        <Label className="text-xs">{form.entry_type === "faq" ? "Pregunta *" : "Título *"}</Label>
-        <Input value={form.title} onChange={(e) => set("title", e.target.value)} required className="h-9" />
-      </div>
-
-      <div>
-        <Label className="text-xs">{form.entry_type === "faq" ? "Respuesta *" : "Contenido *"}</Label>
-        <Textarea value={form.content} onChange={(e) => set("content", e.target.value)} required rows={6} />
-      </div>
-
+      <div><Label className="text-xs">{form.entry_type === "faq" ? "Pregunta *" : "Título *"}</Label><Input value={form.title} onChange={(e) => set("title", e.target.value)} required className="h-9" /></div>
+      <div><Label className="text-xs">{form.entry_type === "faq" ? "Respuesta *" : "Contenido *"}</Label><Textarea value={form.content} onChange={(e) => set("content", e.target.value)} required rows={6} /></div>
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Switch checked={form.is_active} onCheckedChange={(v) => set("is_active", v)} />
-          <Label className="text-xs">Activa</Label>
-        </div>
+        <div className="flex items-center gap-2"><Switch checked={form.is_active} onCheckedChange={(v) => set("is_active", v)} /><Label className="text-xs">Activa</Label></div>
         <Button type="submit" disabled={saving}>{saving ? "Guardando..." : entry ? "Actualizar" : "Crear"}</Button>
       </div>
     </form>
@@ -305,11 +273,7 @@ function ConversationsTab() {
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase
-        .from("ai_conversations")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(50);
+      const { data } = await supabase.from("ai_conversations").select("*").order("created_at", { ascending: false }).limit(50);
       setConversations((data as Conversation[]) || []);
       setLoading(false);
     })();
@@ -318,11 +282,7 @@ function ConversationsTab() {
   const loadMessages = async (convId: string) => {
     setSelectedConv(convId);
     setLoadingMsgs(true);
-    const { data } = await supabase
-      .from("ai_messages")
-      .select("*")
-      .eq("conversation_id", convId)
-      .order("created_at");
+    const { data } = await supabase.from("ai_messages").select("*").eq("conversation_id", convId).order("created_at");
     setMessages((data as Message[]) || []);
     setLoadingMsgs(false);
   };
@@ -331,49 +291,23 @@ function ConversationsTab() {
     const conv = conversations.find((c) => c.id === selectedConv);
     return (
       <div>
-        <Button variant="ghost" size="sm" onClick={() => setSelectedConv(null)} className="mb-4">
-          ← Volver a conversaciones
-        </Button>
+        <Button variant="ghost" size="sm" onClick={() => setSelectedConv(null)} className="mb-4">← Volver</Button>
         <div className="mb-4 flex items-center gap-3">
-          <h2 className="font-medium text-sm">
-            {conv?.visitor_name || "Visitante anónimo"}
-          </h2>
-          {conv?.is_lead_captured && (
-            <Badge className="bg-whatsapp/10 text-whatsapp text-[10px]">
-              <Users className="h-3 w-3 mr-0.5" /> Lead capturado
-            </Badge>
-          )}
-          {conv?.source_page && (
-            <Badge variant="outline" className="text-[10px]">{conv.source_page}</Badge>
-          )}
+          <h2 className="font-medium text-sm">{conv?.visitor_name || "Visitante anónimo"}</h2>
+          {conv?.is_lead_captured && <Badge className="bg-whatsapp/10 text-whatsapp text-[10px]">Lead capturado</Badge>}
+          {conv?.source_page && <Badge variant="outline" className="text-[10px]">{conv.source_page}</Badge>}
         </div>
-
         <div className="space-y-3 rounded-lg border bg-card p-4 max-h-[60vh] overflow-y-auto">
-          {loadingMsgs ? (
-            <p className="text-center text-muted-foreground text-sm">Cargando...</p>
-          ) : messages.length === 0 ? (
+          {loadingMsgs ? <Skeleton className="h-32 w-full" /> : messages.length === 0 ? (
             <p className="text-center text-muted-foreground text-sm">Sin mensajes</p>
-          ) : (
-            messages.map((m) => (
-              <div
-                key={m.id}
-                className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
-              >
-                <div
-                  className={`max-w-[75%] rounded-lg px-4 py-2 text-sm ${
-                    m.role === "user"
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted"
-                  }`}
-                >
-                  <p className="whitespace-pre-wrap">{m.content.replace(/\[LEAD_DATA:[^\]]*\]/g, "")}</p>
-                  <p className="text-[10px] opacity-60 mt-1">
-                    {new Date(m.created_at).toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" })}
-                  </p>
-                </div>
+          ) : messages.map((m) => (
+            <div key={m.id} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+              <div className={`max-w-[75%] rounded-lg px-4 py-2 text-sm ${m.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"}`}>
+                <p className="whitespace-pre-wrap">{m.content.replace(/\[LEAD_DATA:[^\]]*\]/g, "")}</p>
+                <p className="text-[10px] opacity-60 mt-1">{new Date(m.created_at).toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" })}</p>
               </div>
-            ))
-          )}
+            </div>
+          ))}
         </div>
       </div>
     );
@@ -382,12 +316,11 @@ function ConversationsTab() {
   return (
     <div>
       {loading ? (
-        <div className="py-8 text-center text-muted-foreground">Cargando...</div>
+        <div className="space-y-2">{Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-12 w-full" />)}</div>
       ) : conversations.length === 0 ? (
         <div className="py-12 text-center">
           <MessagesSquare className="h-12 w-12 mx-auto text-muted-foreground/50 mb-3" />
           <p className="text-muted-foreground">No hay conversaciones aún</p>
-          <p className="text-xs text-muted-foreground mt-1">Las conversaciones aparecerán aquí cuando los visitantes usen el chatbot</p>
         </div>
       ) : (
         <div className="rounded-lg border bg-card overflow-x-auto">
@@ -403,29 +336,12 @@ function ConversationsTab() {
             </thead>
             <tbody>
               {conversations.map((c) => (
-                <tr
-                  key={c.id}
-                  className="border-b hover:bg-muted/30 cursor-pointer transition-colors"
-                  onClick={() => loadMessages(c.id)}
-                >
-                  <td className="px-4 py-3 font-medium">
-                    {c.visitor_name || "Anónimo"}
-                    {c.visitor_email && <div className="text-xs text-muted-foreground">{c.visitor_email}</div>}
-                  </td>
+                <tr key={c.id} className="border-b hover:bg-muted/30 cursor-pointer transition-colors" onClick={() => loadMessages(c.id)}>
+                  <td className="px-4 py-3 font-medium">{c.visitor_name || "Anónimo"}{c.visitor_email && <div className="text-xs text-muted-foreground">{c.visitor_email}</div>}</td>
                   <td className="px-4 py-3 text-xs text-muted-foreground">{c.source_page || "—"}</td>
-                  <td className="px-4 py-3">
-                    <Badge variant="outline" className="text-xs">{c.message_count}</Badge>
-                  </td>
-                  <td className="px-4 py-3">
-                    {c.is_lead_captured ? (
-                      <Badge className="bg-whatsapp/10 text-whatsapp text-[10px]">✓ Capturado</Badge>
-                    ) : (
-                      <span className="text-xs text-muted-foreground">—</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-xs text-muted-foreground whitespace-nowrap">
-                    {new Date(c.created_at).toLocaleDateString("es-CO", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
-                  </td>
+                  <td className="px-4 py-3"><Badge variant="outline" className="text-xs">{c.message_count}</Badge></td>
+                  <td className="px-4 py-3">{c.is_lead_captured ? <Badge className="bg-whatsapp/10 text-whatsapp text-[10px]">✓ Capturado</Badge> : <span className="text-xs text-muted-foreground">—</span>}</td>
+                  <td className="px-4 py-3 text-xs text-muted-foreground whitespace-nowrap">{new Date(c.created_at).toLocaleDateString("es-CO", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}</td>
                 </tr>
               ))}
             </tbody>
