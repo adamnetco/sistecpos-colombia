@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import {
   LayoutDashboard, KeyRound, Users, FileCheck, CreditCard,
   Handshake, LogOut, ChevronLeft, Contact2, Bot, Code2,
-  Package, Menu, X, ShoppingBag, Tag, FolderOpen,
+  Package, Menu, X, ShoppingBag, Tag, FolderOpen, BarChart3,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -23,7 +23,9 @@ const navItems = [
   { name: "Socios", href: "/admin/socios", icon: Handshake },
   { name: "CRM", href: "/admin/contactos", icon: Contact2 },
   { name: "Proveedores", href: "/admin/proveedores", icon: Package },
+  { name: "Analytics Tienda", href: "/admin/analytics", icon: BarChart3 },
   { name: "Central IA", href: "/admin/central-ia", icon: Bot },
+  { name: "Tracking", href: "/admin/tracking", icon: Code2 },
   { name: "Tracking", href: "/admin/tracking", icon: Code2 },
 ];
 

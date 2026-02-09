@@ -14,6 +14,7 @@ const ContactsView = lazy(() => import("@/components/admin/ContactsView"));
 const CentralIAView = lazy(() => import("@/components/admin/CentralIAView"));
 const TrackingView = lazy(() => import("@/components/admin/TrackingView"));
 const SuppliersView = lazy(() => import("@/components/admin/SuppliersView"));
+const StoreAnalyticsView = lazy(() => import("@/components/admin/StoreAnalyticsView"));
 const ProductsView = lazy(() => import("@/components/admin/catalog/ProductsView"));
 const BrandsView = lazy(() => import("@/components/admin/catalog/BrandsView"));
 const CategoriesView = lazy(() => import("@/components/admin/catalog/CategoriesView"));
@@ -45,6 +46,7 @@ export default function AdminPage() {
             <Route path="central-ia" element={<CentralIAView />} />
             <Route path="tracking" element={<TrackingView />} />
             <Route path="proveedores" element={<SuppliersView />} />
+            <Route path="analytics" element={<StoreAnalyticsView />} />
           </Routes>
         </Suspense>
       </AdminLayout>

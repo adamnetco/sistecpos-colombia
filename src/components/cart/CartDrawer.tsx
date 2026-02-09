@@ -2,15 +2,44 @@ import { useCart } from "@/hooks/useCart";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { ShoppingCart, Plus, Minus, Trash2, MessageCircle, X } from "lucide-react";
+import { ShoppingCart, Plus, Minus, Trash2, MessageCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { useState } from "react";
 
 const formatCOP = (n: number) =>
   new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0 }).format(n);
 
 export function CartDrawer() {
   const { items, removeItem, updateQuantity, clearCart, totalCOP, itemCount, getWhatsAppUrl } = useCart();
+  const [sending, setSending] = useState(false);
+
+  const handleSendQuote = async () => {
+    setSending(true);
+    try {
+      const sessionId = sessionStorage.getItem("sp_session_id") || undefined;
+      await supabase.functions.invoke("register-quote", {
+        body: {
+          items: items.map(i => ({
+            product_id: i.id,
+            product_name: i.name,
+            quantity: i.quantity,
+            price_cop: i.price_cop,
+          })),
+          total_cop: totalCOP,
+          session_id: sessionId,
+        },
+      });
+    } catch (e) {
+      console.error("Quote registration error:", e);
+    }
+    setSending(false);
+
+    // Open WhatsApp
+    window.open(getWhatsAppUrl(), "_blank");
+    toast.success("Cotización enviada. ¡Te contactaremos pronto!");
+  };
 
   return (
     <Sheet>
@@ -104,12 +133,11 @@ export function CartDrawer() {
               <Button
                 size="lg"
                 className="w-full bg-whatsapp hover:bg-whatsapp/90 text-white gap-2"
-                asChild
+                onClick={handleSendQuote}
+                disabled={sending}
               >
-                <a href={getWhatsAppUrl()} target="_blank" rel="noopener noreferrer">
-                  <MessageCircle className="h-5 w-5" />
-                  Enviar Cotización por WhatsApp
-                </a>
+                <MessageCircle className="h-5 w-5" />
+                {sending ? "Registrando..." : "Enviar Cotización por WhatsApp"}
               </Button>
               <Button variant="ghost" size="sm" onClick={clearCart} className="w-full text-muted-foreground">
                 Vaciar cotización
