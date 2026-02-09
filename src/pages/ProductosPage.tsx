@@ -195,7 +195,7 @@ const ProductosPage = () => {
       <DynamicMeta
         title="Productos y Hardware POS | Impresoras, Lectores, Cajones | SistecPOS"
         description="Encuentra impresoras térmicas, lectores de códigos de barras, cajones monederos y papel térmico para tu punto de venta. Envío a toda Colombia."
-        canonical="https://sistecpos.lovable.app/productos"
+        canonical="https://sistecpos.com/productos"
       />
       {/* Hero Section */}
       <section className="relative py-16 md:py-20 overflow-hidden">

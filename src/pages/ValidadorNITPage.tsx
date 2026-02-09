@@ -81,7 +81,7 @@ export default function ValidadorNITPage() {
       <SEO
         title="Validador de NIT Colombia: Verifica el Dígito de Verificación | SistecPOS"
         description="Verifica si un NIT colombiano tiene el dígito de verificación correcto. Herramienta gratuita con el algoritmo oficial de la DIAN."
-        canonical="https://sistecpos.lovable.app/herramientas/validador-nit"
+        canonical="https://sistecpos.com/herramientas/validador-nit"
       />
       <JsonLd data={faqSchema(faqs)} />
       <Breadcrumbs

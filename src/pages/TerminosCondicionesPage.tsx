@@ -8,7 +8,7 @@ export default function TerminosCondicionesPage() {
       <SEO
         title="Términos y Condiciones | SistecPOS"
         description="Términos y condiciones de uso del software POS SistecPOS. Modelo de suscripción SaaS mensual y anual."
-        canonical="https://sistecpos.lovable.app/terminos-condiciones"
+        canonical="https://sistecpos.com/terminos-condiciones"
       />
       <Breadcrumbs items={[{ label: "Términos y Condiciones" }]} />
 

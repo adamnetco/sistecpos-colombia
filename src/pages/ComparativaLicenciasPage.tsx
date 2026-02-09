@@ -131,7 +131,7 @@ const ComparativaLicenciasPage = () => {
       <DynamicMeta
         title="Comparativa de Software POS en Colombia | SistecPOS vs Competencia"
         description="Compara SistecPOS con otros proveedores POS en Colombia. Funcionalidades, precios y soporte. Encuentra el mejor software para tu negocio."
-        canonical="https://sistecpos.lovable.app/comparativa-licencias"
+        canonical="https://sistecpos.com/comparativa-licencias"
       />
       {/* Breadcrumb-like link to pillar page */}
       <div className="container px-4 py-3">

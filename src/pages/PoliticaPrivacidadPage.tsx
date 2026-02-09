@@ -8,7 +8,7 @@ export default function PoliticaPrivacidadPage() {
       <SEO
         title="Política de Privacidad y Habeas Data | SistecPOS"
         description="Conoce nuestra política de tratamiento de datos personales conforme a la Ley 1581 de 2012 de Colombia."
-        canonical="https://sistecpos.lovable.app/politica-privacidad"
+        canonical="https://sistecpos.com/politica-privacidad"
       />
       <Breadcrumbs items={[{ label: "Política de Privacidad" }]} />
 

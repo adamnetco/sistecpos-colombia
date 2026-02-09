@@ -13,4 +13,4 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://sistecpos.lovable.app/sitemap.xml
+Sitemap: https://sistecpos.com/sitemap.xml

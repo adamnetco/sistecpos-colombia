@@ -40,7 +40,7 @@ export default function SolucionNegocioPage() {
       <DynamicMeta
         title={business.metaTitle}
         description={business.metaDescription}
-        canonical={`https://sistecpos.lovable.app/soluciones/${slug}`}
+        canonical={`https://sistecpos.com/soluciones/${slug}`}
       />
       <Breadcrumbs items={[
         { label: "Software POS Colombia", href: "/software-pos-colombia" },

@@ -73,7 +73,7 @@ export default function CalculadoraUVTPage() {
       <SEO
         title={`Calculadora UVT ${currentYear}: Convierte Pesos a UVT | SistecPOS`}
         description={`Convierte pesos colombianos a UVT y viceversa. Valor UVT ${currentYear}: $${uvtValue.toLocaleString("es-CO")}. Herramienta gratuita de SistecPOS.`}
-        canonical="https://sistecpos.lovable.app/herramientas/calculadora-uvt"
+        canonical="https://sistecpos.com/herramientas/calculadora-uvt"
       />
       <JsonLd data={faqSchema(faqs)} />
       <Breadcrumbs

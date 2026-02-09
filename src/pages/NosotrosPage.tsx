@@ -52,7 +52,7 @@ export default function NosotrosPage() {
       <DynamicMeta
         title="Sobre Nosotros | SistecPOS - Software POS en Santander"
         description="Conoce a SistecPOS: empresa de software POS con soporte presencial en Bucaramanga y el Área Metropolitana. Compromiso local, calidad garantizada."
-        canonical="https://sistecpos.lovable.app/nosotros"
+        canonical="https://sistecpos.com/nosotros"
       />
       {/* Hero Section */}
       <section className="relative py-20 md:py-28 overflow-hidden">

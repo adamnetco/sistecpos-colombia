@@ -52,7 +52,7 @@ const RestaurantesPage = () => {
       <DynamicMeta
         title="Software POS para Restaurantes en Bucaramanga | SistecPOS"
         description="Sistema POS especializado para restaurantes, bares y cafeterías. Gestión de comandas, mesas, recetas y división de cuentas. Instalación presencial en Bucaramanga."
-        canonical="https://sistecpos.lovable.app/pos-para-restaurantes"
+        canonical="https://sistecpos.com/pos-para-restaurantes"
       />
       {/* Hero Section */}
       <section className="relative py-20 md:py-28 overflow-hidden">
