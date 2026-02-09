@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import {
   LayoutDashboard, KeyRound, Users, FileCheck, CreditCard,
   Handshake, LogOut, ChevronLeft, Contact2, Bot, Code2,
-  Package, Menu, X,
+  Package, Menu, X, ShoppingBag, Tag, FolderOpen,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -13,6 +13,9 @@ import { useIsMobile } from "@/hooks/use-mobile";
 
 const navItems = [
   { name: "Resumen", href: "/admin", icon: LayoutDashboard, exact: true },
+  { name: "Productos", href: "/admin/productos", icon: ShoppingBag },
+  { name: "Marcas", href: "/admin/marcas", icon: Tag },
+  { name: "Categorías", href: "/admin/categorias", icon: FolderOpen },
   { name: "Licencias", href: "/admin/licencias", icon: KeyRound },
   { name: "Leads / Demos", href: "/admin/leads", icon: Users },
   { name: "Certificados", href: "/admin/certificados", icon: FileCheck },

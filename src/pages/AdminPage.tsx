@@ -14,6 +14,9 @@ const ContactsView = lazy(() => import("@/components/admin/ContactsView"));
 const CentralIAView = lazy(() => import("@/components/admin/CentralIAView"));
 const TrackingView = lazy(() => import("@/components/admin/TrackingView"));
 const SuppliersView = lazy(() => import("@/components/admin/SuppliersView"));
+const ProductsView = lazy(() => import("@/components/admin/catalog/ProductsView"));
+const BrandsView = lazy(() => import("@/components/admin/catalog/BrandsView"));
+const CategoriesView = lazy(() => import("@/components/admin/catalog/CategoriesView"));
 
 function Loader() {
   return (
@@ -30,6 +33,9 @@ export default function AdminPage() {
         <Suspense fallback={<Loader />}>
           <Routes>
             <Route index element={<DashboardOverview />} />
+            <Route path="productos" element={<ProductsView />} />
+            <Route path="marcas" element={<BrandsView />} />
+            <Route path="categorias" element={<CategoriesView />} />
             <Route path="licencias" element={<LicensesView />} />
             <Route path="leads" element={<LeadsView />} />
             <Route path="certificados" element={<CertificatesView />} />
