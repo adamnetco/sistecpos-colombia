@@ -396,12 +396,14 @@ export type Database = {
           contact_name: string
           contact_phone: string | null
           created_at: string
+          created_by_reseller_id: string | null
           expires_at: string | null
           id: string
           license_key: string
           notes: string | null
           plan_type: string
           price_paid: number
+          rut_url: string | null
           start_date: string
           status: string
           updated_at: string
@@ -413,12 +415,14 @@ export type Database = {
           contact_name: string
           contact_phone?: string | null
           created_at?: string
+          created_by_reseller_id?: string | null
           expires_at?: string | null
           id?: string
           license_key?: string
           notes?: string | null
           plan_type: string
           price_paid?: number
+          rut_url?: string | null
           start_date?: string
           status?: string
           updated_at?: string
@@ -430,17 +434,27 @@ export type Database = {
           contact_name?: string
           contact_phone?: string | null
           created_at?: string
+          created_by_reseller_id?: string | null
           expires_at?: string | null
           id?: string
           license_key?: string
           notes?: string | null
           plan_type?: string
           price_paid?: number
+          rut_url?: string | null
           start_date?: string
           status?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "licenses_created_by_reseller_id_fkey"
+            columns: ["created_by_reseller_id"]
+            isOneToOne: false
+            referencedRelation: "reseller_applications"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       otp_codes: {
         Row: {
@@ -607,6 +621,168 @@ export type Database = {
           utm_campaign?: string | null
           utm_medium?: string | null
           utm_source?: string | null
+        }
+        Relationships: []
+      }
+      reseller_commissions: {
+        Row: {
+          commission_type: string
+          commission_value: number
+          created_at: string
+          id: string
+          is_active: boolean
+          max_amount: number | null
+          min_amount: number | null
+          product_type: string
+          reseller_id: string
+          updated_at: string
+        }
+        Insert: {
+          commission_type?: string
+          commission_value?: number
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          max_amount?: number | null
+          min_amount?: number | null
+          product_type: string
+          reseller_id: string
+          updated_at?: string
+        }
+        Update: {
+          commission_type?: string
+          commission_value?: number
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          max_amount?: number | null
+          min_amount?: number | null
+          product_type?: string
+          reseller_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reseller_commissions_reseller_id_fkey"
+            columns: ["reseller_id"]
+            isOneToOne: false
+            referencedRelation: "reseller_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reseller_modules: {
+        Row: {
+          created_at: string
+          id: string
+          is_enabled: boolean
+          module_key: string
+          reseller_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          module_key: string
+          reseller_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          module_key?: string
+          reseller_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reseller_modules_reseller_id_fkey"
+            columns: ["reseller_id"]
+            isOneToOne: false
+            referencedRelation: "reseller_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reseller_tickets: {
+        Row: {
+          admin_response: string | null
+          created_at: string
+          description: string
+          id: string
+          priority: string
+          reseller_id: string
+          status: string
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          admin_response?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          priority?: string
+          reseller_id: string
+          status?: string
+          subject: string
+          updated_at?: string
+        }
+        Update: {
+          admin_response?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          priority?: string
+          reseller_id?: string
+          status?: string
+          subject?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reseller_tickets_reseller_id_fkey"
+            columns: ["reseller_id"]
+            isOneToOne: false
+            referencedRelation: "reseller_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reseller_trainings: {
+        Row: {
+          category: string | null
+          content: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_published: boolean
+          sort_order: number | null
+          title: string
+          updated_at: string
+          video_url: string | null
+        }
+        Insert: {
+          category?: string | null
+          content?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_published?: boolean
+          sort_order?: number | null
+          title: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Update: {
+          category?: string | null
+          content?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_published?: boolean
+          sort_order?: number | null
+          title?: string
+          updated_at?: string
+          video_url?: string | null
         }
         Relationships: []
       }
