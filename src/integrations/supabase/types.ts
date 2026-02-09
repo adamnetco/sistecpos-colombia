@@ -244,6 +244,7 @@ export type Database = {
           name: string
           original_price_cop: number | null
           original_price_usd: number | null
+          pdf_urls: Json | null
           price_cop: number
           price_usd: number | null
           product_type: string
@@ -253,6 +254,7 @@ export type Database = {
           specifications: Json | null
           stock: number
           updated_at: string
+          video_urls: string[] | null
         }
         Insert: {
           brand_id?: string | null
@@ -272,6 +274,7 @@ export type Database = {
           name: string
           original_price_cop?: number | null
           original_price_usd?: number | null
+          pdf_urls?: Json | null
           price_cop?: number
           price_usd?: number | null
           product_type?: string
@@ -281,6 +284,7 @@ export type Database = {
           specifications?: Json | null
           stock?: number
           updated_at?: string
+          video_urls?: string[] | null
         }
         Update: {
           brand_id?: string | null
@@ -300,6 +304,7 @@ export type Database = {
           name?: string
           original_price_cop?: number | null
           original_price_usd?: number | null
+          pdf_urls?: Json | null
           price_cop?: number
           price_usd?: number | null
           product_type?: string
@@ -309,6 +314,7 @@ export type Database = {
           specifications?: Json | null
           stock?: number
           updated_at?: string
+          video_urls?: string[] | null
         }
         Relationships: [
           {
@@ -543,6 +549,42 @@ export type Database = {
           },
         ]
       }
+      dynamic_faqs: {
+        Row: {
+          answer: string
+          category: string
+          created_at: string
+          id: string
+          is_active: boolean
+          page_slug: string | null
+          question: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          answer: string
+          category?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          page_slug?: string | null
+          question: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          answer?: string
+          category?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          page_slug?: string | null
+          question?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       leads_trials: {
         Row: {
           business_name: string
@@ -670,6 +712,53 @@ export type Database = {
             columns: ["created_by_reseller_id"]
             isOneToOne: false
             referencedRelation: "reseller_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      nav_items: {
+        Row: {
+          created_at: string
+          href: string
+          id: string
+          is_active: boolean
+          is_external: boolean
+          label: string
+          parent_id: string | null
+          position: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          href: string
+          id?: string
+          is_active?: boolean
+          is_external?: boolean
+          label: string
+          parent_id?: string | null
+          position?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          href?: string
+          id?: string
+          is_active?: boolean
+          is_external?: boolean
+          label?: string
+          parent_id?: string | null
+          position?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nav_items_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "nav_items"
             referencedColumns: ["id"]
           },
         ]
@@ -1036,6 +1125,114 @@ export type Database = {
           id?: string
           is_published?: boolean
           sort_order?: number | null
+          title?: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Relationships: []
+      }
+      site_settings: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          setting_group: string
+          setting_key: string
+          setting_value: Json
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          setting_group: string
+          setting_key: string
+          setting_value?: Json
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          setting_group?: string
+          setting_key?: string
+          setting_value?: Json
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      success_stories: {
+        Row: {
+          business_name: string
+          business_type: string
+          challenge: string | null
+          city: string | null
+          contact_name: string | null
+          contact_role: string | null
+          created_at: string
+          id: string
+          image_url: string | null
+          is_featured: boolean
+          is_published: boolean
+          logo_url: string | null
+          metrics: Json | null
+          quote: string | null
+          results: string | null
+          slug: string
+          solution: string | null
+          sort_order: number
+          tags: string[] | null
+          title: string
+          updated_at: string
+          video_url: string | null
+        }
+        Insert: {
+          business_name: string
+          business_type: string
+          challenge?: string | null
+          city?: string | null
+          contact_name?: string | null
+          contact_role?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          is_featured?: boolean
+          is_published?: boolean
+          logo_url?: string | null
+          metrics?: Json | null
+          quote?: string | null
+          results?: string | null
+          slug: string
+          solution?: string | null
+          sort_order?: number
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Update: {
+          business_name?: string
+          business_type?: string
+          challenge?: string | null
+          city?: string | null
+          contact_name?: string | null
+          contact_role?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          is_featured?: boolean
+          is_published?: boolean
+          logo_url?: string | null
+          metrics?: Json | null
+          quote?: string | null
+          results?: string | null
+          slug?: string
+          solution?: string | null
+          sort_order?: number
+          tags?: string[] | null
           title?: string
           updated_at?: string
           video_url?: string | null

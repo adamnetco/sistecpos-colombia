@@ -40,6 +40,8 @@ const AdminPage = lazy(() => import("./pages/AdminPage"));
 const ResellerPage = lazy(() => import("./pages/ResellerPage"));
 const LandingDemoPage = lazy(() => import("./pages/LandingDemoPage"));
 const LandingRepresentantesPage = lazy(() => import("./pages/LandingRepresentantesPage"));
+const CasosExitoPage = lazy(() => import("./pages/CasosExitoPage"));
+const CasoExitoDetallePage = lazy(() => import("./pages/CasoExitoDetallePage"));
 
 const queryClient = new QueryClient();
 
@@ -81,6 +83,8 @@ const App = () => (
                 <Route path="/guias-dian/:slug" element={<GuiaDianPage />} />
                 <Route path="/herramientas/calculadora-uvt" element={<CalculadoraUVTPage />} />
                 <Route path="/herramientas/validador-nit" element={<ValidadorNITPage />} />
+                <Route path="/casos-de-exito" element={<CasosExitoPage />} />
+                <Route path="/casos-de-exito/:slug" element={<CasoExitoDetallePage />} />
                 <Route path="/contacto" element={<ContactoPage />} />
                 <Route path="/gracias" element={<GraciasPage />} />
                 <Route path="/politica-privacidad" element={<PoliticaPrivacidadPage />} />
