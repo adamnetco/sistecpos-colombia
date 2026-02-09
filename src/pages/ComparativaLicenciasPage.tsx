@@ -211,14 +211,23 @@ const ComparativaLicenciasPage = () => {
                   </CardHeader>
                   <CardContent className="text-center">
                     <p className="text-sm text-muted-foreground mb-3">{provider.description}</p>
-                    <a
-                      href={provider.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs text-primary hover:underline"
-                    >
-                      Visitar sitio →
-                    </a>
+                    {provider.id !== "sistecpos" ? (
+                      <Link
+                        to={`/comparar/${provider.id}`}
+                        className="text-xs text-primary hover:underline"
+                      >
+                        Ver comparativa →
+                      </Link>
+                    ) : (
+                      <a
+                        href={provider.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-primary hover:underline"
+                      >
+                        Visitar sitio →
+                      </a>
+                    )}
                   </CardContent>
                 </Card>
               </motion.div>
