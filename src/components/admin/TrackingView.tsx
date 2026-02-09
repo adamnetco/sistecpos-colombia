@@ -20,6 +20,7 @@ interface TrackingScript {
   script_type: string;
   placement: string;
   code: string;
+  noscript_code: string;
   is_enabled: boolean;
   sort_order: number;
   created_at: string;
@@ -188,6 +189,7 @@ function TrackingScriptForm({ entry, onSuccess }: { entry: TrackingScript | null
     script_type: entry?.script_type || "custom",
     placement: entry?.placement || "head",
     code: entry?.code || "",
+    noscript_code: entry?.noscript_code || "",
     is_enabled: entry?.is_enabled ?? true,
     sort_order: entry?.sort_order ?? 0,
   });
@@ -196,7 +198,7 @@ function TrackingScriptForm({ entry, onSuccess }: { entry: TrackingScript | null
 
   // Template helper
   const applyTemplate = (type: string) => {
-    const templates: Record<string, { name: string; code: string; placement: string }> = {
+    const templates: Record<string, { name: string; code: string; placement: string; noscript_code?: string }> = {
       google_analytics: {
         name: "Google Analytics 4",
         code: `<!-- Google tag (gtag.js) -->\n<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>\n<script>\n  window.dataLayer = window.dataLayer || [];\n  function gtag(){dataLayer.push(arguments);}\n  gtag('js', new Date());\n  gtag('config', 'G-XXXXXXXXXX');\n</script>`,
@@ -206,6 +208,7 @@ function TrackingScriptForm({ entry, onSuccess }: { entry: TrackingScript | null
         name: "Google Tag Manager",
         code: `<!-- Google Tag Manager -->\n<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':\nnew Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],\nj=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=\n'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);\n})(window,document,'script','dataLayer','GTM-XXXXXXX');</script>\n<!-- End Google Tag Manager -->`,
         placement: "head",
+        noscript_code: `<!-- Google Tag Manager (noscript) -->\n<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-XXXXXXX"\nheight="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>\n<!-- End Google Tag Manager (noscript) -->`,
       },
       facebook_pixel: {
         name: "Facebook Pixel",
@@ -221,6 +224,7 @@ function TrackingScriptForm({ entry, onSuccess }: { entry: TrackingScript | null
         name: templates[type].name,
         code: templates[type].code,
         placement: templates[type].placement,
+        noscript_code: templates[type].noscript_code || "",
       }));
     }
   };
@@ -235,6 +239,7 @@ function TrackingScriptForm({ entry, onSuccess }: { entry: TrackingScript | null
       script_type: form.script_type,
       placement: form.placement,
       code: form.code,
+      noscript_code: form.noscript_code,
       is_enabled: form.is_enabled,
       sort_order: form.sort_order,
     };
@@ -316,15 +321,29 @@ function TrackingScriptForm({ entry, onSuccess }: { entry: TrackingScript | null
       </div>
 
       <div>
-        <Label className="text-xs">Código (HTML/JavaScript) *</Label>
+        <Label className="text-xs">Código para &lt;head&gt; (HTML/JavaScript) *</Label>
         <Textarea
           value={form.code}
           onChange={(e) => set("code", e.target.value)}
           required
-          rows={8}
+          rows={6}
           className="font-mono text-xs"
-          placeholder="Pega aquí el código de tracking..."
+          placeholder="Pega aquí el código principal (se inyecta en la ubicación seleccionada)..."
         />
+      </div>
+
+      <div>
+        <Label className="text-xs">Código &lt;noscript&gt; para &lt;body&gt; (opcional, requerido por GTM)</Label>
+        <Textarea
+          value={form.noscript_code}
+          onChange={(e) => set("noscript_code", e.target.value)}
+          rows={3}
+          className="font-mono text-xs"
+          placeholder="Código noscript/iframe que va al inicio del <body> (ej: GTM noscript)..."
+        />
+        <p className="text-[10px] text-muted-foreground mt-1">
+          Google Tag Manager requiere un segundo fragmento que se inyecta justo después de &lt;body&gt;. Pégalo aquí.
+        </p>
       </div>
 
       <div className="flex items-center justify-between">
