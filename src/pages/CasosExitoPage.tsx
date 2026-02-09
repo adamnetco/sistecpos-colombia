@@ -133,7 +133,7 @@ export default function CasosExitoPage() {
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-2xl md:text-3xl font-bold mb-4">¿Quieres ser nuestro próximo caso de éxito?</h2>
             <p className="text-muted-foreground mb-6">Contacta a nuestro equipo y descubre cómo SistecPOS puede transformar tu negocio.</p>
-            <Button size="lg" className="bg-whatsapp hover:bg-whatsapp/90 text-white gap-2" asChild>
+            <Button size="lg" className="btn-whatsapp gap-2" asChild>
               <a href="https://wa.me/573176268307?text=Hola,%20quiero%20saber%20cómo%20SistecPOS%20puede%20ayudar%20a%20mi%20negocio" target="_blank" rel="noopener noreferrer">
                 <MessageCircle className="h-5 w-5" />Hablar con un Asesor
               </a>

@@ -137,7 +137,7 @@ export default function RepresentantesPage() {
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button size="lg" className="bg-whatsapp hover:bg-whatsapp/90 text-white gap-2" asChild>
+              <Button size="lg" className="btn-whatsapp gap-2" asChild>
                 <a href="https://wa.me/573176268307?text=Hola%2C%20quiero%20ser%20representante%20de%20SistecPOS%20en%20mi%20ciudad" target="_blank" rel="noopener noreferrer">
                   Quiero Ser Representante
                   <ArrowRight className="h-4 w-4" />
@@ -369,7 +369,7 @@ export default function RepresentantesPage() {
             <p className="text-primary-foreground/70 mb-6">
               Completa el formulario arriba o escríbenos directamente por WhatsApp.
             </p>
-            <Button size="lg" className="bg-whatsapp hover:bg-whatsapp/90 text-white gap-2" asChild>
+            <Button size="lg" className="btn-whatsapp gap-2" asChild>
               <a
                 href="https://wa.me/573176268307?text=Hola%2C%20quiero%20ser%20representante%20de%20SistecPOS%20en%20mi%20ciudad"
                 target="_blank"

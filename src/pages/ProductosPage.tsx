@@ -313,7 +313,7 @@ const ProductosPage = () => {
                 <h3 className="font-semibold text-lg mb-4">¿No sabes cuál licencia elegir?</h3>
                 <p className="text-sm text-muted-foreground mb-4">Te asesoramos gratis según el tamaño de tu negocio, cantidad de usuarios y necesidades específicas.</p>
                 <div className="space-y-3">
-                  <Button size="lg" className="w-full bg-whatsapp hover:bg-whatsapp/90 text-white gap-2" asChild>
+                  <Button size="lg" className="w-full btn-whatsapp gap-2" asChild>
                     <a href="https://wa.me/573176268307?text=Hola,%20necesito%20asesoría%20para%20elegir%20la%20licencia%20correcta%20para%20mi%20negocio" target="_blank" rel="noopener noreferrer">
                       <MessageCircle className="h-5 w-5" />Asesoría Gratuita
                     </a>
@@ -336,7 +336,7 @@ const ProductosPage = () => {
             </div>
             <h2 className="text-2xl md:text-3xl font-bold mb-4">Todos los productos incluyen instalación</h2>
             <p className="text-muted-foreground mb-6">Vamos a tu negocio en el Área Metropolitana de Bucaramanga, instalamos y configuramos todo para que funcione perfectamente.</p>
-            <Button size="lg" className="bg-whatsapp hover:bg-whatsapp/90 text-white gap-2" asChild>
+            <Button size="lg" className="btn-whatsapp gap-2" asChild>
               <a href="https://wa.me/573176268307?text=Hola,%20quiero%20cotizar%20equipos%20para%20mi%20negocio" target="_blank" rel="noopener noreferrer">
                 <MessageCircle className="h-5 w-5" />Solicitar Cotización Completa
               </a>

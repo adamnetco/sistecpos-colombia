@@ -242,7 +242,7 @@ export default function ValidadorNITPage() {
             SistecPOS valida el dígito de verificación automáticamente al registrar clientes y proveedores. Cero errores en tus facturas electrónicas.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="bg-whatsapp hover:bg-whatsapp/90 text-white gap-2" asChild>
+            <Button size="lg" className="btn-whatsapp gap-2" asChild>
               <a href="https://wa.me/573176268307?text=Hola,%20quiero%20un%20POS%20que%20valide%20NITs%20automáticamente" target="_blank" rel="noopener noreferrer">
                 <MessageCircle className="h-5 w-5" />
                 Prueba Gratis 7 Días

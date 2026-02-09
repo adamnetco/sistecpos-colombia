@@ -111,7 +111,7 @@ export default function SoftwarePosColombiaPage() {
                 Software punto de venta con facturación electrónica DIAN, modo offline hasta 8 días, 16+ módulos especializados y soporte en todo el país. Desde $12 USD/mes.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button size="lg" className="bg-whatsapp hover:bg-whatsapp/90 text-white gap-2" asChild>
+                <Button size="lg" className="btn-whatsapp gap-2" asChild>
                   <a href="https://wa.me/573176268307?text=Hola,%20quiero%20información%20sobre%20el%20software%20POS" target="_blank" rel="noopener noreferrer">
                     <MessageCircle className="h-5 w-5" />
                     Cotizar Gratis
@@ -336,7 +336,7 @@ export default function SoftwarePosColombiaPage() {
               Únete a cientos de negocios en Colombia que ya usan SistecPOS. Cotización gratuita y sin compromiso.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="bg-whatsapp hover:bg-whatsapp/90 text-white gap-2" asChild>
+              <Button size="lg" className="btn-whatsapp gap-2" asChild>
                 <a href="https://wa.me/573176268307?text=Hola,%20quiero%20cotizar%20el%20software%20POS%20para%20mi%20negocio%20en%20Colombia" target="_blank" rel="noopener noreferrer">
                   <MessageCircle className="h-5 w-5" />
                   Cotizar Ahora por WhatsApp

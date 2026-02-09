@@ -119,7 +119,7 @@ export default function ComparacionCompetidorPage() {
               {competitor.type === "open-source" ? "🔓 Open Source" : competitor.type === "gobierno" ? "🏛️ Gobierno" : "☁️ SaaS"} · Origen: {competitor.origin}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="bg-whatsapp hover:bg-whatsapp/90 text-white gap-2" asChild>
+              <Button size="lg" className="btn-whatsapp gap-2" asChild>
                 <a
                   href={`https://wa.me/573176268307?text=Hola,%20estoy%20comparando%20${competitor.name}%20vs%20SistecPOS%20y%20quiero%20más%20información`}
                   target="_blank"
@@ -344,7 +344,7 @@ export default function ComparacionCompetidorPage() {
                   Migrar Ahora — Prueba Gratis
                 </Link>
               </Button>
-              <Button size="lg" className="bg-whatsapp hover:bg-whatsapp/90 text-white gap-2" asChild>
+              <Button size="lg" className="btn-whatsapp gap-2" asChild>
                 <a
                   href={`https://wa.me/573176268307?text=Hola,%20quiero%20migrar%20de%20${encodeURIComponent(competitor.name)}%20a%20SistecPOS`}
                   target="_blank"

@@ -190,7 +190,7 @@ const ProductoDetallePage = () => {
                 >
                   <ShoppingCart className="h-5 w-5" />Agregar a Cotización
                 </Button>
-                <Button size="lg" className="flex-1 bg-whatsapp hover:bg-whatsapp/90 text-white gap-2" asChild>
+                <Button size="lg" className="flex-1 btn-whatsapp gap-2" asChild>
                   <a href={`https://wa.me/573176268307?text=Hola,%20quiero%20cotizar:%20${encodeURIComponent(product.name)}`} target="_blank" rel="noopener noreferrer">
                     <MessageCircle className="h-5 w-5" />WhatsApp
                   </a>
@@ -348,7 +348,7 @@ const ProductoDetallePage = () => {
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-2xl md:text-3xl font-bold mb-4">¿Tienes preguntas sobre este producto?</h2>
             <p className="text-muted-foreground mb-6">Escríbenos por WhatsApp y te asesoramos sin compromiso. Estamos en el Área Metropolitana de Bucaramanga.</p>
-            <Button size="lg" className="bg-whatsapp hover:bg-whatsapp/90 text-white gap-2" asChild>
+            <Button size="lg" className="btn-whatsapp gap-2" asChild>
               <a href={`https://wa.me/573176268307?text=Hola,%20tengo%20preguntas%20sobre:%20${encodeURIComponent(product.name)}`} target="_blank" rel="noopener noreferrer">
                 <MessageCircle className="h-5 w-5" />Preguntar por WhatsApp
               </a>

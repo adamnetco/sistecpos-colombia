@@ -151,4 +151,8 @@
   .shadow-card {
     box-shadow: var(--shadow-card);
   }
+
+  .btn-whatsapp {
+    @apply bg-whatsapp hover:bg-whatsapp/90 text-white shadow-lg shadow-whatsapp/25 transition-all hover:scale-105;
+  }
 }
