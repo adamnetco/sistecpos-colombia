@@ -233,6 +233,9 @@ export type Database = {
           source: string
           tags: string[] | null
           updated_at: string
+          utm_campaign: string | null
+          utm_medium: string | null
+          utm_source: string | null
         }
         Insert: {
           business_name?: string | null
@@ -253,6 +256,9 @@ export type Database = {
           source?: string
           tags?: string[] | null
           updated_at?: string
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
         }
         Update: {
           business_name?: string | null
@@ -273,6 +279,9 @@ export type Database = {
           source?: string
           tags?: string[] | null
           updated_at?: string
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
         }
         Relationships: [
           {
@@ -313,6 +322,11 @@ export type Database = {
           status: string
           trial_ends_at: string | null
           updated_at: string
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          utm_term: string | null
         }
         Insert: {
           business_name: string
@@ -328,6 +342,11 @@ export type Database = {
           status?: string
           trial_ends_at?: string | null
           updated_at?: string
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
         }
         Update: {
           business_name?: string
@@ -343,6 +362,11 @@ export type Database = {
           status?: string
           trial_ends_at?: string | null
           updated_at?: string
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
         }
         Relationships: []
       }
@@ -530,6 +554,9 @@ export type Database = {
           status: string
           updated_at: string
           user_id: string | null
+          utm_campaign: string | null
+          utm_medium: string | null
+          utm_source: string | null
         }
         Insert: {
           city: string
@@ -543,6 +570,9 @@ export type Database = {
           status?: string
           updated_at?: string
           user_id?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
         }
         Update: {
           city?: string
@@ -556,6 +586,45 @@ export type Database = {
           status?: string
           updated_at?: string
           user_id?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Relationships: []
+      }
+      tracking_scripts: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          is_enabled: boolean
+          name: string
+          placement: string
+          script_type: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          name: string
+          placement?: string
+          script_type?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          name?: string
+          placement?: string
+          script_type?: string
+          sort_order?: number
+          updated_at?: string
         }
         Relationships: []
       }
