@@ -549,6 +549,72 @@ export type Database = {
           },
         ]
       }
+      dian_articles: {
+        Row: {
+          created_at: string
+          cta_text: string
+          cta_whatsapp_message: string
+          faqs: Json
+          h1: string
+          hero_badge: string
+          hero_icon: string
+          hero_subtitle: string
+          id: string
+          is_published: boolean
+          keyword: string
+          meta_description: string
+          meta_title: string
+          pain_vs_solution: Json | null
+          related_links: Json
+          sections: Json
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          cta_text?: string
+          cta_whatsapp_message?: string
+          faqs?: Json
+          h1: string
+          hero_badge?: string
+          hero_icon?: string
+          hero_subtitle?: string
+          id?: string
+          is_published?: boolean
+          keyword?: string
+          meta_description?: string
+          meta_title?: string
+          pain_vs_solution?: Json | null
+          related_links?: Json
+          sections?: Json
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          cta_text?: string
+          cta_whatsapp_message?: string
+          faqs?: Json
+          h1?: string
+          hero_badge?: string
+          hero_icon?: string
+          hero_subtitle?: string
+          id?: string
+          is_published?: boolean
+          keyword?: string
+          meta_description?: string
+          meta_title?: string
+          pain_vs_solution?: Json | null
+          related_links?: Json
+          sections?: Json
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       dynamic_faqs: {
         Row: {
           answer: string
@@ -1303,6 +1369,7 @@ export type Database = {
           id: string
           is_enabled: boolean
           name: string
+          noscript_code: string | null
           placement: string
           script_type: string
           sort_order: number
@@ -1314,6 +1381,7 @@ export type Database = {
           id?: string
           is_enabled?: boolean
           name: string
+          noscript_code?: string | null
           placement?: string
           script_type?: string
           sort_order?: number
@@ -1325,6 +1393,7 @@ export type Database = {
           id?: string
           is_enabled?: boolean
           name?: string
+          noscript_code?: string | null
           placement?: string
           script_type?: string
           sort_order?: number

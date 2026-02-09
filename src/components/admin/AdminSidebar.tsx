@@ -5,6 +5,7 @@ import {
   LayoutDashboard, KeyRound, Users, FileCheck, CreditCard,
   Handshake, LogOut, ChevronLeft, Contact2, Bot, Code2,
   Package, Menu, X, ShoppingBag, Tag, FolderOpen, BarChart3, Settings2,
+  FileText,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -26,6 +27,7 @@ const navItems = [
   { name: "Analytics Tienda", href: "/admin/analytics", icon: BarChart3 },
   { name: "Central IA", href: "/admin/central-ia", icon: Bot },
   { name: "Tracking", href: "/admin/tracking", icon: Code2 },
+  { name: "Artículos DIAN", href: "/admin/articulos-dian", icon: FileText },
   { name: "Configuración", href: "/admin/configuracion", icon: Settings2 },
 ];
 

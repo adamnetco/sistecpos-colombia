@@ -5,6 +5,7 @@ interface TrackingScript {
   id: string;
   placement: string;
   code: string;
+  noscript_code: string | null;
 }
 
 /**
@@ -21,7 +22,7 @@ export function TrackingScriptInjector() {
     (async () => {
       const { data } = await supabase
         .from("tracking_scripts")
-        .select("id, placement, code")
+        .select("id, placement, code, noscript_code")
         .eq("is_enabled", true)
         .order("sort_order");
 
@@ -29,6 +30,10 @@ export function TrackingScriptInjector() {
 
       data.forEach((script: TrackingScript) => {
         injectScript(script.code, script.placement);
+        // Inject noscript code at body_start (required by GTM)
+        if (script.noscript_code) {
+          injectScript(script.noscript_code, "body_start");
+        }
       });
     })();
   }, []);
