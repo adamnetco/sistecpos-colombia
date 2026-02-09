@@ -1,121 +1,80 @@
 
 
-# Plan: Rediseno Integral del Panel Admin + IA + UX/UI (Inspirado en Nubeyne)
+# Plan: Deduplicacion de Contactos y Trazabilidad en CRM
 
-## Contexto y Diagnostico
+## Problema actual
 
-Tras auditar todo el panel actual de SistecPOS (`/admin`) y el portal de socios (`/socio`), se identificaron las siguientes brechas frente al modelo Nubeyne y al modelo de negocio real (socios, clientes directos/indirectos, proveedores de software/hardware/certificados):
+Cada vez que el chatbot detecta un `[LEAD_DATA:...]` en la respuesta de la IA, **inserta un nuevo registro** en la tabla `contacts` sin verificar si ese email o telefono ya existe. Esto genera los duplicados visibles en la captura (Eduardo Tobacia x5).
 
-### Lo que ya funciona bien
-- Central IA con base de conocimiento (FAQs, documentos, texto libre)
-- Conversaciones del chatbot con captura de leads automatica
-- CRM unificado con filtros por fuente y tipo
-- Kanban de certificados con gestion documental
-- Tracking scripts (GA, GTM, Pixel)
-- Portal de socios con licencias, tickets, comisiones y entrenamientos
+Adicionalmente, no existe una relacion formal entre negocios y contactos: `business_name` es solo un campo de texto plano en `contacts`.
 
-### Brechas detectadas
+## Solucion propuesta
 
-| Area | Brecha |
-|------|--------|
-| Dashboard Admin | Sin graficos de tendencia, sin metricas de IA, sin revenue |
-| Central IA | Sin metricas de uso (conversaciones/dia, tasa de captura), sin test en vivo, sin prompt editor avanzado |
-| CRM | Sin pipeline visual (Kanban), sin actividad/notas por contacto, sin scoring |
-| Proveedores | No existe modulo de proveedores (software, hardware, certificados) |
-| Socios | Dashboard basico sin graficos, sin historial de comisiones ganadas |
-| UX/UI Sidebar | Sin responsive mobile (hamburger menu), sin notificaciones |
-| Pagos | Sin graficos de revenue, sin exportacion |
+### 1. Nueva tabla `businesses` (Negocios)
 
----
+Crear una tabla dedicada para negocios, permitiendo que un negocio tenga muchos contactos:
 
-## Alcance de Implementacion (7 bloques)
+```text
+businesses
+  id          uuid PK
+  name        text NOT NULL
+  nit         text (nullable, unique)
+  city        text
+  type        text (restaurante, farmacia, etc.)
+  created_at  timestamp
+  updated_at  timestamp
+```
 
-### Bloque 1: Dashboard Admin Rediseñado
-- Agregar fila de graficos con recharts: Revenue mensual, Leads por semana, Conversiones
-- KPIs de IA: conversaciones del chatbot hoy, leads capturados por IA, tasa de conversion
-- Mini-calendario de licencias por vencer en los proximos 7 dias
-- Alertas activas mejoradas con iconos y urgencia visual
+- Se agrega una columna `business_id` (FK) a la tabla `contacts`, manteniendo `business_name` como texto de respaldo para compatibilidad.
+- RLS: lectura/escritura solo para admins; insert publico para el chatbot.
 
-### Bloque 2: Central IA Avanzada
-- **Tab "Metricas IA"**: grafico de conversaciones/dia (ultimos 30 dias), leads capturados por IA, tasa de captura, paginas con mas interaccion
-- **Tab "Prompt Studio"**: editor del system prompt del chatbot directamente desde el admin (guardado en `app_settings`), con preview en tiempo real
-- **Tab "Test en Vivo"**: mini-chatbot embebido en el admin para probar cambios al prompt y KB sin salir del panel
-- Indicador de tokens/coste estimado por conversacion
+### 2. Logica de deduplicacion en el Edge Function `chat-ai`
 
-### Bloque 3: CRM con Pipeline Kanban
-- Vista Kanban con columnas: Nuevo > Contactado > Demo Activa > Negociacion > Cerrado/Perdido
-- Drag & drop para mover contactos entre etapas
-- Panel lateral al hacer click en un contacto: historial de notas, actividades, archivos
-- Lead scoring basico (automatico por interaccion: visito web +1, chatbot +2, solicito demo +5)
-- Tabla `contact_activities` para registrar llamadas, emails, notas
+Reemplazar el `INSERT` directo por una logica "upsert inteligente":
 
-### Bloque 4: Modulo de Proveedores
-- Nueva seccion `/admin/proveedores` en el sidebar
-- Tabla `suppliers` con campos: nombre, tipo (software/hardware/certificados), contacto, email, telefono, ciudad, estado, notas
-- Vista con filtros por tipo de proveedor
-- Formulario de alta/edicion
-- RLS: solo admins pueden ver/editar
+1. Buscar contacto existente por **email** (prioridad) o por **telefono**.
+2. Si existe: **actualizar** datos faltantes (nombre, telefono, etc.) y vincular la conversacion al contacto existente.
+3. Si no existe: crear el contacto nuevo.
+4. Si viene nombre de negocio: buscar o crear el registro en `businesses` y asociarlo al contacto via `business_id`.
+5. Registrar una actividad automatica en `contact_activities` indicando "Interaccion con chatbot IA" con link a la conversacion.
 
-### Bloque 5: Portal Socio Mejorado
-- Dashboard con graficos: licencias creadas por mes, comisiones acumuladas
-- Historial de comisiones con estado (pendiente/pagada/rechazada) y total acumulado
-- Notificaciones simples (banner) cuando hay entrenamientos nuevos o tickets resueltos
-- Sidebar responsive con hamburger menu en mobile
+### 3. Limpiar duplicados existentes
 
-### Bloque 6: UX/UI Global del Admin
-- Sidebar responsive: colapsable en desktop, drawer/hamburger en mobile
-- Header con breadcrumbs + indicador de notificaciones (licencias por vencer, socios pendientes, certificados sin procesar)
-- Tema consistente: cards con hover mejorado, transiciones suaves
-- Skeleton loaders en lugar de "Cargando..." en todas las tablas
-- Todos los formularios con validacion visual (bordes rojos, mensajes inline)
+Ejecutar una migracion SQL que:
+- Identifique duplicados por email/telefono en contactos con `source = 'chatbot_ai'`.
+- Conserve el registro mas antiguo (primera interaccion).
+- Migre las conversaciones vinculadas (`ai_conversations.contact_id`) al registro conservado.
+- Elimine los duplicados.
 
-### Bloque 7: Pagos Enriquecidos
-- Graficos de revenue mensual con recharts
-- Filtros por metodo de pago, rango de fechas, estado
-- Subtotales visibles (total confirmado, pendiente)
-- Vinculacion visual: click en pago abre el detalle de la licencia o certificado asociado
+### 4. Constraint de unicidad parcial
+
+Agregar un indice unico parcial para prevenir futuros duplicados:
+
+```text
+UNIQUE INDEX ON contacts (email) WHERE email IS NOT NULL
+UNIQUE INDEX ON contacts (phone) WHERE phone IS NOT NULL AND email IS NULL
+```
+
+Esto impide dos contactos con el mismo email, y dos contactos con el mismo telefono cuando no tienen email.
+
+### 5. Actualizar la vista de CRM (ContactsView)
+
+- Mostrar la columna "Negocio" como un enlace al registro del negocio.
+- Mostrar un badge con el conteo de conversaciones del chatbot por contacto.
+- En el panel de detalle (ContactDetailPanel), agregar seccion de "Conversaciones IA" mostrando el historial de sesiones vinculadas.
 
 ---
 
-## Cambios en Base de Datos
+## Secuencia tecnica de implementacion
 
-1. **Nueva tabla `suppliers`**: id, name, supplier_type (enum: software/hardware/certificados/otro), contact_name, email, phone, city, status, notes, created_at
-2. **Nueva tabla `contact_activities`**: id, contact_id (FK), activity_type (call/email/note/meeting), description, created_by, created_at
-3. **Agregar columna `lead_score`** (integer, default 0) a tabla `contacts`
-4. **Agregar fila `chatbot_system_prompt`** a `app_settings`
-5. RLS en `suppliers`: solo usuarios con rol admin
-6. RLS en `contact_activities`: solo usuarios con rol admin
-
----
-
-## Seccion Tecnica
-
-### Archivos a crear
-- `src/components/admin/SuppliersView.tsx` - CRUD de proveedores
-- `src/components/admin/AIMetricsTab.tsx` - Metricas de IA con recharts
-- `src/components/admin/PromptStudioTab.tsx` - Editor del prompt del chatbot
-- `src/components/admin/AITestTab.tsx` - Chat de prueba embebido
-- `src/components/admin/ContactPipelineView.tsx` - Kanban CRM
-- `src/components/admin/ContactDetailPanel.tsx` - Panel lateral de contacto
-- `src/components/admin/AdminHeader.tsx` - Header con breadcrumbs y notificaciones
-- `src/components/admin/AdminSidebar.tsx` - Sidebar responsive extraido
+1. **Migracion SQL**: Crear tabla `businesses`, agregar `business_id` FK a `contacts`, limpiar duplicados, crear indices unicos parciales, agregar RLS.
+2. **Edge Function `chat-ai`**: Reescribir la seccion de captura de leads (lineas 231-264) con logica de deduplicacion y asociacion de negocios.
+3. **Frontend `ContactsView`**: Mostrar datos del negocio vinculado y conteo de interacciones IA.
+4. **Frontend `ContactDetailPanel`**: Agregar seccion de conversaciones IA vinculadas al contacto.
 
 ### Archivos a modificar
-- `src/components/admin/AdminLayout.tsx` - Sidebar responsive + header
-- `src/components/admin/DashboardOverview.tsx` - Graficos y KPIs de IA
-- `src/components/admin/CentralIAView.tsx` - Nuevos tabs (Metricas, Prompt Studio, Test)
-- `src/components/admin/ContactsView.tsx` - Agregar vista Kanban toggle
-- `src/components/admin/PaymentsView.tsx` - Graficos y filtros
-- `src/pages/AdminPage.tsx` - Nueva ruta /admin/proveedores
-- `src/components/reseller/ResellerDashboard.tsx` - Graficos
-- `src/components/reseller/ResellerLayout.tsx` - Sidebar responsive
-- `src/components/reseller/ResellerCommissionsView.tsx` - Historial con estados
-- `supabase/functions/chat-ai/index.ts` - Leer prompt desde app_settings
-
-### Dependencias
-- `recharts` ya esta instalado
-- No se necesitan dependencias adicionales
-
-### Migracion SQL
-Una sola migracion con: tabla `suppliers`, tabla `contact_activities`, columna `lead_score` en `contacts`, fila en `app_settings`, y politicas RLS correspondientes.
+- **Nuevo**: Migracion SQL (via herramienta de migracion)
+- **Modificar**: `supabase/functions/chat-ai/index.ts` (logica de deduplicacion)
+- **Modificar**: `src/components/admin/ContactsView.tsx` (mostrar negocio vinculado)
+- **Modificar**: `src/components/admin/ContactDetailPanel.tsx` (conversaciones IA)
 
