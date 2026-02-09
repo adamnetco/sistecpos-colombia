@@ -228,37 +228,102 @@ ${knowledgeContext}`;
                 .update({ message_count: count || 0 })
                 .eq("id", conv.id);
 
-              // Check for lead capture
+              // Check for lead capture with deduplication
               const leadMatch = fullAssistantResponse.match(
                 /\[LEAD_DATA:([^|]*)\|([^|]*)\|([^\]]*)\]/
               );
               if (leadMatch) {
                 const [, name, email, phone] = leadMatch;
                 if (name || email || phone) {
-                  const { data: newContact } = await supabase
-                    .from("contacts")
-                    .insert({
-                      full_name: name || "Visitante chatbot",
-                      email: email || null,
-                      phone: phone || null,
-                      source: "chatbot_ai",
-                      contact_type: "prospect",
-                      captured_by_ai: true,
-                    })
-                    .select("id")
-                    .maybeSingle();
+                  let contactId: string | null = null;
+                  const trimEmail = email?.trim() || null;
+                  const trimPhone = phone?.trim() || null;
+                  const trimName = name?.trim() || "Visitante chatbot";
 
-                  if (newContact) {
+                  // 1. Search existing contact by email (priority) or phone
+                  if (trimEmail) {
+                    const { data: existing } = await supabase
+                      .from("contacts")
+                      .select("id")
+                      .eq("email", trimEmail)
+                      .maybeSingle();
+                    if (existing) {
+                      contactId = existing.id;
+                      // Update missing fields
+                      const updates: Record<string, string> = {};
+                      if (trimPhone) updates.phone = trimPhone;
+                      if (trimName && trimName !== "Visitante chatbot") updates.full_name = trimName;
+                      if (Object.keys(updates).length > 0) {
+                        await supabase.from("contacts").update(updates).eq("id", contactId);
+                      }
+                    }
+                  }
+                  if (!contactId && trimPhone) {
+                    const { data: existing } = await supabase
+                      .from("contacts")
+                      .select("id")
+                      .eq("phone", trimPhone)
+                      .maybeSingle();
+                    if (existing) {
+                      contactId = existing.id;
+                      const updates: Record<string, string> = {};
+                      if (trimEmail) updates.email = trimEmail;
+                      if (trimName && trimName !== "Visitante chatbot") updates.full_name = trimName;
+                      if (Object.keys(updates).length > 0) {
+                        await supabase.from("contacts").update(updates).eq("id", contactId);
+                      }
+                    }
+                  }
+
+                  // 2. Create new contact if not found
+                  if (!contactId) {
+                    const { data: newContact } = await supabase
+                      .from("contacts")
+                      .insert({
+                        full_name: trimName,
+                        email: trimEmail,
+                        phone: trimPhone,
+                        source: "chatbot_ai",
+                        contact_type: "prospect",
+                        captured_by_ai: true,
+                      })
+                      .select("id")
+                      .maybeSingle();
+                    if (newContact) contactId = newContact.id;
+                  }
+
+                  // 3. Link conversation to contact
+                  if (contactId) {
                     await supabase
                       .from("ai_conversations")
                       .update({
                         is_lead_captured: true,
-                        contact_id: newContact.id,
-                        visitor_name: name || null,
-                        visitor_email: email || null,
-                        visitor_phone: phone || null,
+                        contact_id: contactId,
+                        visitor_name: trimName || null,
+                        visitor_email: trimEmail,
+                        visitor_phone: trimPhone,
                       })
                       .eq("id", conv.id);
+
+                    // 4. Auto-register activity
+                    await supabase.from("contact_activities").insert({
+                      contact_id: contactId,
+                      activity_type: "note",
+                      description: `Interacción con chatbot IA (sesión: ${session_id})`,
+                    });
+
+                    // 5. Increment lead score
+                    const { data: currentContact } = await supabase
+                      .from("contacts")
+                      .select("lead_score")
+                      .eq("id", contactId)
+                      .maybeSingle();
+                    if (currentContact) {
+                      await supabase
+                        .from("contacts")
+                        .update({ lead_score: (currentContact.lead_score || 0) + 1 })
+                        .eq("id", contactId);
+                    }
                   }
                 }
               }

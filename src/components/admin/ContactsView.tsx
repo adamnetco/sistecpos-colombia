@@ -33,6 +33,7 @@ interface Contact {
   license_id: string | null;
   reseller_id: string | null;
   created_at: string;
+  ai_conversation_count?: number;
 }
 
 const sourceLabels: Record<string, { label: string; color: string }> = {
@@ -104,7 +105,23 @@ export default function ContactsView() {
     if (error) {
       toast({ title: "Error cargando contactos", variant: "destructive" });
     }
-    setContacts((data as Contact[]) || []);
+    // Fetch AI conversation counts
+    const contactsData = (data as Contact[]) || [];
+    if (contactsData.length > 0) {
+      const contactIds = contactsData.map(c => c.id);
+      const { data: convCounts } = await supabase
+        .from("ai_conversations")
+        .select("contact_id")
+        .in("contact_id", contactIds);
+      if (convCounts) {
+        const countMap: Record<string, number> = {};
+        convCounts.forEach(c => {
+          if (c.contact_id) countMap[c.contact_id] = (countMap[c.contact_id] || 0) + 1;
+        });
+        contactsData.forEach(c => { c.ai_conversation_count = countMap[c.id] || 0; });
+      }
+    }
+    setContacts(contactsData);
     setLoading(false);
   };
 
@@ -320,6 +337,11 @@ export default function ContactsView() {
                         <div className="flex items-center gap-1 text-xs text-muted-foreground">
                           <MapPin className="h-3 w-3" /> {c.city}
                         </div>
+                      )}
+                      {(c.ai_conversation_count || 0) > 0 && (
+                        <Badge variant="outline" className="text-[10px] mt-1 bg-purple-500/10 text-purple-700 border-purple-200">
+                          <Bot className="h-3 w-3 mr-0.5" /> {c.ai_conversation_count} conv.
+                        </Badge>
                       )}
                     </td>
                     <td className="px-3 py-3">
