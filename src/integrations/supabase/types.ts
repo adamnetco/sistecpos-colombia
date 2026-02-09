@@ -1350,6 +1350,71 @@ export type Database = {
         }
         Relationships: []
       }
+      wompi_transactions: {
+        Row: {
+          amount_cents: number
+          cart_quote_id: string | null
+          certificate_order_id: string | null
+          created_at: string
+          currency: string
+          customer_email: string | null
+          customer_name: string | null
+          customer_phone: string | null
+          id: string
+          metadata: Json
+          payment_method: string | null
+          reference: string
+          status: string
+          updated_at: string
+          wompi_id: string | null
+          wompi_response: Json
+        }
+        Insert: {
+          amount_cents: number
+          cart_quote_id?: string | null
+          certificate_order_id?: string | null
+          created_at?: string
+          currency?: string
+          customer_email?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
+          id?: string
+          metadata?: Json
+          payment_method?: string | null
+          reference: string
+          status?: string
+          updated_at?: string
+          wompi_id?: string | null
+          wompi_response?: Json
+        }
+        Update: {
+          amount_cents?: number
+          cart_quote_id?: string | null
+          certificate_order_id?: string | null
+          created_at?: string
+          currency?: string
+          customer_email?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
+          id?: string
+          metadata?: Json
+          payment_method?: string | null
+          reference?: string
+          status?: string
+          updated_at?: string
+          wompi_id?: string | null
+          wompi_response?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wompi_transactions_certificate_order_id_fkey"
+            columns: ["certificate_order_id"]
+            isOneToOne: false
+            referencedRelation: "certificate_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { WompiCheckoutButton } from "@/components/payments/WompiCheckoutButton";
 import {
   Dialog,
   DialogContent,
@@ -95,6 +96,9 @@ export function CertificatePurchaseDialog({ open, onOpenChange, plan, priceCop }
     uploadFile(file, folder, setState);
   }
 
+  const [orderId, setOrderId] = useState<string | null>(null);
+  const [showPayment, setShowPayment] = useState(false);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
@@ -110,7 +114,7 @@ export function CertificatePurchaseDialog({ open, onOpenChange, plan, priceCop }
 
     setSubmitting(true);
 
-    const { error } = await supabase.from("certificate_orders").insert({
+    const { data, error } = await supabase.from("certificate_orders").insert({
       full_name: fullName.trim(),
       nit: nit.trim(),
       email: email.trim(),
@@ -121,11 +125,11 @@ export function CertificatePurchaseDialog({ open, onOpenChange, plan, priceCop }
       camara_comercio_url: camaraFile.url,
       cedula_url: cedulaFile.url,
       soporte_pago_url: soporteFile.url ?? null,
-    });
+    }).select("id").single();
 
     setSubmitting(false);
 
-    if (error) {
+    if (error || !data) {
       toast({ title: "Error al enviar la solicitud", description: "Intenta nuevamente", variant: "destructive" });
       return;
     }
@@ -142,10 +146,10 @@ export function CertificatePurchaseDialog({ open, onOpenChange, plan, priceCop }
       },
     }).then(({ error: notifError }) => {
       if (notifError) console.error("WhatsApp notification failed:", notifError);
-      else console.log("WhatsApp notification sent to sales team");
     });
 
-    setSuccess(true);
+    setOrderId(data.id);
+    setShowPayment(true);
   }
 
   function handleClose() {
@@ -175,10 +179,40 @@ export function CertificatePurchaseDialog({ open, onOpenChange, plan, priceCop }
               Hemos recibido tu solicitud de certificado digital ({planLabel} - ${priceFormatted} COP).
             </p>
             <p className="text-sm text-muted-foreground mb-6">
-              Te contactaremos por WhatsApp al <strong>{phone}</strong> con los datos de transferencia bancaria y los siguientes pasos.
+              Te contactaremos por WhatsApp al <strong>{phone}</strong> para confirmar tu pedido.
             </p>
             <Button onClick={handleClose} className="btn-whatsapp">
               Entendido
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  if (showPayment && orderId) {
+    return (
+      <Dialog open={open} onOpenChange={handleClose}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Pagar Certificado Digital — {planLabel}</DialogTitle>
+            <DialogDescription>
+              Solicitud creada. Ahora puedes pagar en línea de forma segura con Wompi.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="text-center py-4 space-y-4">
+            <p className="text-2xl font-bold text-primary">${priceFormatted} COP</p>
+            <WompiCheckoutButton
+              amountCents={priceCop * 100}
+              customerEmail={email}
+              customerName={fullName}
+              customerPhone={phone}
+              certificateOrderId={orderId}
+              onSuccess={() => setSuccess(true)}
+              className="w-full"
+            />
+            <Button variant="ghost" size="sm" onClick={() => setSuccess(true)} className="text-muted-foreground">
+              Pagar después por transferencia
             </Button>
           </div>
         </DialogContent>
