@@ -1,58 +1,79 @@
 import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { Layout } from "@/components/layout/Layout";
 import { DynamicMeta } from "@/components/seo/DynamicMeta";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { 
-  Printer, 
-  Tag, 
-  CircleDollarSign, 
-  Barcode, 
-  ScrollText,
-  MessageCircle,
-  CheckCircle2,
-  FileText,
-  ArrowRight,
-  Sparkles,
-  Crown,
-  Building2
+  Printer, Tag, CircleDollarSign, Barcode, ScrollText,
+  MessageCircle, CheckCircle2, FileText, ArrowRight,
+  Sparkles, Crown, Building2
 } from "lucide-react";
 import { motion } from "framer-motion";
-import { categories, products, formatPrice, formatPriceUSD, Product } from "@/data/products";
 
-const getCategoryIcon = (category: string) => {
-  const icons: Record<string, typeof Printer> = {
-    impresoras: Printer,
-    etiquetas: Tag,
-    cajones: CircleDollarSign,
-    lectores: Barcode,
-    papel: ScrollText,
-    licencias: FileText,
-    modulos: FileText
-  };
-  return icons[category] || Printer;
-};
+interface DBProduct {
+  id: string;
+  slug: string;
+  name: string;
+  description: string | null;
+  long_description: string | null;
+  price_cop: number;
+  original_price_cop: number | null;
+  price_usd: number | null;
+  original_price_usd: number | null;
+  features: string[] | null;
+  image_url: string | null;
+  is_featured: boolean;
+  is_offer: boolean;
+  is_active: boolean;
+  product_type: string;
+  stock: number;
+  sort_order: number;
+  catalog_categories: { name: string; slug: string } | null;
+  catalog_brands: { name: string } | null;
+}
 
-const getLicenseIcon = (product: Product) => {
-  if (product.name.includes("Multitienda") || product.name.includes("sucursales")) {
-    return Building2;
-  }
-  if (product.name.includes("PREMIUM") || product.name.includes("Premium")) {
-    return Crown;
-  }
+const categoryTabs = [
+  { id: "all", name: "Todos", icon: null },
+  { id: "licencias", name: "Licencias", icon: FileText },
+  { id: "modulos", name: "Módulos", icon: FileText },
+  { id: "impresoras", name: "Impresoras", icon: Printer },
+  { id: "etiquetas", name: "Etiquetas", icon: Tag },
+  { id: "cajones", name: "Cajones", icon: CircleDollarSign },
+  { id: "lectores", name: "Lectores", icon: Barcode },
+  { id: "papel", name: "Papel", icon: ScrollText },
+];
+
+const formatPrice = (price: number) =>
+  new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0 }).format(price);
+
+const formatPriceUSD = (price: number) =>
+  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0 }).format(price);
+
+const getLicenseIcon = (name: string) => {
+  if (name.includes("Multitienda") || name.includes("sucursales")) return Building2;
+  if (name.includes("PREMIUM") || name.includes("Premium")) return Crown;
   return FileText;
 };
 
-const ProductCard = ({ product, index }: { product: Product; index: number }) => {
-  const CategoryIcon = product.category === "licencias" || product.category === "modulos" 
-    ? getLicenseIcon(product) 
-    : getCategoryIcon(product.category);
-  
-  const isLicense = product.category === "licencias" || product.category === "modulos";
-  const hasImage = product.image && !isLicense;
-  
+const getCategoryIcon = (slug: string) => {
+  const icons: Record<string, typeof Printer> = {
+    impresoras: Printer, etiquetas: Tag, cajones: CircleDollarSign,
+    lectores: Barcode, papel: ScrollText, licencias: FileText, modulos: FileText,
+  };
+  return icons[slug] || Printer;
+};
+
+const ProductCard = ({ product, index }: { product: DBProduct; index: number }) => {
+  const catSlug = product.catalog_categories?.slug || "";
+  const isLicense = catSlug === "licencias" || catSlug === "modulos";
+  const CategoryIcon = isLicense ? getLicenseIcon(product.name) : getCategoryIcon(catSlug);
+  const hasImage = product.image_url && !isLicense;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -60,97 +81,70 @@ const ProductCard = ({ product, index }: { product: Product; index: number }) =>
       transition={{ duration: 0.3, delay: index * 0.05 }}
     >
       <Card className="h-full flex flex-col border-0 shadow-card hover:shadow-card-hover transition-all hover:-translate-y-1 relative overflow-hidden">
-        {product.isOffer && (
+        {product.is_offer && (
           <div className="absolute top-0 right-0 z-10">
             <Badge className="rounded-none rounded-bl-lg bg-destructive text-destructive-foreground font-bold px-3 py-1">
-              <Sparkles className="h-3 w-3 mr-1" />
-              ¡Oferta!
+              <Sparkles className="h-3 w-3 mr-1" />¡Oferta!
             </Badge>
           </div>
         )}
-        
         <CardContent className="p-6 flex-1">
           {hasImage ? (
             <div className="relative mb-4 bg-muted/30 rounded-xl p-4 flex items-center justify-center">
-              <img 
-                src={product.image} 
-                alt={product.name}
-                className="h-32 w-auto object-contain"
-              />
-              {product.popular && (
+              <img src={product.image_url!} alt={product.name} className="h-32 w-auto object-contain" />
+              {product.is_featured && (
                 <Badge className="absolute top-2 left-2 bg-whatsapp/10 text-whatsapp border-0">
-                  <Crown className="h-3 w-3 mr-1" />
-                  Popular
+                  <Crown className="h-3 w-3 mr-1" />Popular
                 </Badge>
               )}
             </div>
           ) : (
             <div className="flex items-start justify-between mb-4">
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                isLicense 
-                  ? "bg-gradient-to-br from-primary/20 to-primary/5" 
-                  : "bg-primary/10"
-              }`}>
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${isLicense ? "bg-gradient-to-br from-primary/20 to-primary/5" : "bg-primary/10"}`}>
                 <CategoryIcon className="h-6 w-6 text-primary" />
               </div>
-              {product.popular && (
+              {product.is_featured && (
                 <Badge className="bg-whatsapp/10 text-whatsapp border-0">
-                  <Crown className="h-3 w-3 mr-1" />
-                  Popular
+                  <Crown className="h-3 w-3 mr-1" />Popular
                 </Badge>
               )}
             </div>
           )}
-
           <h3 className="font-semibold text-lg mb-2">{product.name}</h3>
           <p className="text-muted-foreground text-sm mb-4">{product.description}</p>
-
           <div className="space-y-2 mb-4">
-            {product.features.slice(0, 4).map((feature) => (
-              <div key={feature} className="flex items-center gap-2 text-sm">
+            {(product.features || []).slice(0, 4).map((f) => (
+              <div key={f} className="flex items-center gap-2 text-sm">
                 <CheckCircle2 className="h-4 w-4 text-whatsapp shrink-0" />
-                <span>{feature}</span>
+                <span>{f}</span>
               </div>
             ))}
           </div>
-
           <div className="pt-4 border-t">
-            {isLicense && product.priceUSD ? (
+            {isLicense && product.price_usd ? (
               <div className="space-y-1">
                 <div className="flex items-baseline gap-2">
-                  {product.originalPriceUSD && (
-                    <span className="text-sm text-muted-foreground line-through">
-                      {formatPriceUSD(product.originalPriceUSD)}
-                    </span>
+                  {product.original_price_usd && (
+                    <span className="text-sm text-muted-foreground line-through">{formatPriceUSD(product.original_price_usd)}</span>
                   )}
-                  <span className="text-2xl font-bold text-primary">
-                    {formatPriceUSD(product.priceUSD)}
-                  </span>
+                  <span className="text-2xl font-bold text-primary">{formatPriceUSD(product.price_usd)}</span>
                   <span className="text-sm text-muted-foreground">USD</span>
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  ≈ {formatPrice(product.price)} COP
-                </p>
+                <p className="text-xs text-muted-foreground">≈ {formatPrice(product.price_cop)} COP</p>
                 {product.slug === "licencia-software-pos-vitalicia" ? (
-                  <p className="text-xs text-primary font-medium mt-1">
-                    + Hosting anual: $99 USD
-                  </p>
+                  <p className="text-xs text-primary font-medium mt-1">+ Hosting anual: $99 USD</p>
                 ) : (
                   <p className="text-xs text-muted-foreground">
-                    ≈ {formatPriceUSD(Math.round(product.priceUSD / (product.slug.includes("2-anos") ? 26 : 12)))}/mes USD
+                    ≈ {formatPriceUSD(Math.round(product.price_usd / (product.slug.includes("2-anos") ? 26 : 12)))}/mes USD
                   </p>
                 )}
               </div>
             ) : (
               <>
-                {product.originalPrice && (
-                  <p className="text-sm text-muted-foreground line-through">
-                    {formatPrice(product.originalPrice)}
-                  </p>
+                {product.original_price_cop && (
+                  <p className="text-sm text-muted-foreground line-through">{formatPrice(product.original_price_cop)}</p>
                 )}
-                <p className="text-2xl font-bold text-primary">
-                  {formatPrice(product.price)}
-                </p>
+                <p className="text-2xl font-bold text-primary">{formatPrice(product.price_cop)}</p>
               </>
             )}
             <p className="text-xs text-muted-foreground mt-1">
@@ -158,29 +152,13 @@ const ProductCard = ({ product, index }: { product: Product; index: number }) =>
             </p>
           </div>
         </CardContent>
-
         <CardFooter className="p-6 pt-0 flex gap-2">
-          <Button 
-            variant="outline"
-            className="flex-1 gap-1"
-            asChild
-          >
-            <Link to={`/productos/${product.slug}`}>
-              Ver más
-              <ArrowRight className="h-4 w-4" />
-            </Link>
+          <Button variant="outline" className="flex-1 gap-1" asChild>
+            <Link to={`/productos/${product.slug}`}>Ver más <ArrowRight className="h-4 w-4" /></Link>
           </Button>
-          <Button 
-            className="flex-1 bg-whatsapp hover:bg-whatsapp/90 text-white gap-1"
-            asChild
-          >
-            <a 
-              href={`https://wa.me/573176268307?text=Hola,%20quiero%20cotizar:%20${encodeURIComponent(product.name)}`}
-              target="_blank" 
-              rel="noopener noreferrer"
-            >
-              <MessageCircle className="h-4 w-4" />
-              Cotizar
+          <Button className="flex-1 bg-whatsapp hover:bg-whatsapp/90 text-white gap-1" asChild>
+            <a href={`https://wa.me/573176268307?text=Hola,%20quiero%20cotizar:%20${encodeURIComponent(product.name)}`} target="_blank" rel="noopener noreferrer">
+              <MessageCircle className="h-4 w-4" />Cotizar
             </a>
           </Button>
         </CardFooter>
@@ -190,6 +168,19 @@ const ProductCard = ({ product, index }: { product: Product; index: number }) =>
 };
 
 const ProductosPage = () => {
+  const { data: products = [], isLoading } = useQuery({
+    queryKey: ["public_catalog_products"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("catalog_products")
+        .select("*, catalog_categories(name, slug), catalog_brands(name)")
+        .eq("is_active", true)
+        .order("sort_order");
+      if (error) throw error;
+      return data as DBProduct[];
+    },
+  });
+
   return (
     <Layout>
       <DynamicMeta
@@ -197,23 +188,16 @@ const ProductosPage = () => {
         description="Encuentra impresoras térmicas, lectores de códigos de barras, cajones monederos y papel térmico para tu punto de venta. Envío a toda Colombia."
         canonical="https://sistecpos.com/productos"
       />
-      {/* Hero Section */}
       <section className="relative py-16 md:py-20 overflow-hidden">
         <div className="absolute inset-0 gradient-bg opacity-5" />
         <div className="container px-4 md:px-6 relative">
           <div className="max-w-3xl mx-auto text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
               <Badge className="mb-4 bg-destructive/10 text-destructive border-0 px-4 py-1">
-                <Sparkles className="h-3 w-3 mr-1" />
-                Ofertas Especiales Disponibles
+                <Sparkles className="h-3 w-3 mr-1" />Ofertas Especiales Disponibles
               </Badge>
               <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
-                Licencias y{" "}
-                <span className="gradient-text">Equipos POS</span>
+                Licencias y <span className="gradient-text">Equipos POS</span>
               </h1>
               <p className="text-lg text-muted-foreground">
                 Licencias de software y hardware con instalación presencial en tu negocio
@@ -223,106 +207,62 @@ const ProductosPage = () => {
         </div>
       </section>
 
-      {/* Products Section */}
       <section className="py-8 md:py-12">
         <div className="container px-4 md:px-6">
-          <Tabs defaultValue="licencias" className="w-full">
-            <div className="flex justify-center mb-8 overflow-x-auto pb-2">
-              <TabsList className="h-auto flex-wrap">
-                {categories.map((category) => (
-                  <TabsTrigger 
-                    key={category.id} 
-                    value={category.id}
-                    className="px-4 py-2"
-                  >
-                    {category.name}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
+          {isLoading ? (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {[1, 2, 3, 4, 5, 6].map(i => <Skeleton key={i} className="h-96 rounded-xl" />)}
             </div>
-
-            {categories.map((category) => (
-              <TabsContent key={category.id} value={category.id}>
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {products
-                    .filter(p => category.id === "all" || p.category === category.id)
-                    .map((product, index) => (
-                      <ProductCard key={product.id} product={product} index={index} />
-                    ))}
-                </div>
-              </TabsContent>
-            ))}
-          </Tabs>
+          ) : (
+            <Tabs defaultValue="licencias" className="w-full">
+              <div className="flex justify-center mb-8 overflow-x-auto pb-2">
+                <TabsList className="h-auto flex-wrap">
+                  {categoryTabs.map(c => (
+                    <TabsTrigger key={c.id} value={c.id} className="px-4 py-2">{c.name}</TabsTrigger>
+                  ))}
+                </TabsList>
+              </div>
+              {categoryTabs.map(cat => (
+                <TabsContent key={cat.id} value={cat.id}>
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {products
+                      .filter(p => cat.id === "all" || p.catalog_categories?.slug === cat.id)
+                      .map((product, index) => (
+                        <ProductCard key={product.id} product={product} index={index} />
+                      ))}
+                  </div>
+                </TabsContent>
+              ))}
+            </Tabs>
+          )}
         </div>
       </section>
 
-      {/* Licenses CTA */}
       <section className="py-12 md:py-16 bg-gradient-to-br from-primary/5 to-background">
         <div className="container px-4 md:px-6">
           <div className="max-w-4xl mx-auto">
             <div className="grid md:grid-cols-2 gap-8 items-center">
               <div>
-                <Badge className="mb-4 bg-primary/10 text-primary border-0">
-                  <Crown className="h-3 w-3 mr-1" />
-                  Distribuidor Autorizado
-                </Badge>
-                <h2 className="text-2xl md:text-3xl font-bold mb-4">
-                  Licencias con{" "}
-                  <span className="gradient-text">Instalación Incluida</span>
-                </h2>
-                <p className="text-muted-foreground mb-6">
-                  Somos distribuidores autorizados del software POS en la nube más completo de Colombia. 
-                  Precios directos de fábrica con servicio local en Santander.
-                </p>
+                <Badge className="mb-4 bg-primary/10 text-primary border-0"><Crown className="h-3 w-3 mr-1" />Distribuidor Autorizado</Badge>
+                <h2 className="text-2xl md:text-3xl font-bold mb-4">Licencias con <span className="gradient-text">Instalación Incluida</span></h2>
+                <p className="text-muted-foreground mb-6">Somos distribuidores autorizados del software POS en la nube más completo de Colombia. Precios directos de fábrica con servicio local en Santander.</p>
                 <ul className="space-y-3">
-                  <li className="flex items-center gap-2 text-sm">
-                    <CheckCircle2 className="h-4 w-4 text-whatsapp" />
-                    <span>Instalación y configuración presencial incluida</span>
-                  </li>
-                  <li className="flex items-center gap-2 text-sm">
-                    <CheckCircle2 className="h-4 w-4 text-whatsapp" />
-                    <span>Capacitación a tu equipo de trabajo</span>
-                  </li>
-                  <li className="flex items-center gap-2 text-sm">
-                    <CheckCircle2 className="h-4 w-4 text-whatsapp" />
-                    <span>Soporte técnico local y remoto</span>
-                  </li>
-                  <li className="flex items-center gap-2 text-sm">
-                    <CheckCircle2 className="h-4 w-4 text-whatsapp" />
-                    <span>Precios en USD, pagas en pesos colombianos</span>
-                  </li>
+                  {["Instalación y configuración presencial incluida", "Capacitación a tu equipo de trabajo", "Soporte técnico local y remoto", "Precios en USD, pagas en pesos colombianos"].map(t => (
+                    <li key={t} className="flex items-center gap-2 text-sm"><CheckCircle2 className="h-4 w-4 text-whatsapp" /><span>{t}</span></li>
+                  ))}
                 </ul>
               </div>
               <div className="bg-card rounded-2xl p-6 shadow-card">
                 <h3 className="font-semibold text-lg mb-4">¿No sabes cuál licencia elegir?</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Te asesoramos gratis según el tamaño de tu negocio, cantidad de usuarios y necesidades específicas.
-                </p>
+                <p className="text-sm text-muted-foreground mb-4">Te asesoramos gratis según el tamaño de tu negocio, cantidad de usuarios y necesidades específicas.</p>
                 <div className="space-y-3">
-                  <Button 
-                    size="lg"
-                    className="w-full bg-whatsapp hover:bg-whatsapp/90 text-white gap-2"
-                    asChild
-                  >
-                    <a 
-                      href="https://wa.me/573176268307?text=Hola,%20necesito%20asesoría%20para%20elegir%20la%20licencia%20correcta%20para%20mi%20negocio"
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                    >
-                      <MessageCircle className="h-5 w-5" />
-                      Asesoría Gratuita
+                  <Button size="lg" className="w-full bg-whatsapp hover:bg-whatsapp/90 text-white gap-2" asChild>
+                    <a href="https://wa.me/573176268307?text=Hola,%20necesito%20asesoría%20para%20elegir%20la%20licencia%20correcta%20para%20mi%20negocio" target="_blank" rel="noopener noreferrer">
+                      <MessageCircle className="h-5 w-5" />Asesoría Gratuita
                     </a>
                   </Button>
-                  <Button 
-                    variant="outline"
-                    size="lg"
-                    className="w-full gap-2"
-                    asChild
-                  >
-                    <Link to="/comparativa-licencias">
-                      <ArrowRight className="h-5 w-5" />
-                      Comparar con otros POS
-                    </Link>
+                  <Button variant="outline" size="lg" className="w-full gap-2" asChild>
+                    <Link to="/comparativa-licencias"><ArrowRight className="h-5 w-5" />Comparar con otros POS</Link>
                   </Button>
                 </div>
               </div>
@@ -331,33 +271,17 @@ const ProductosPage = () => {
         </div>
       </section>
 
-      {/* Installation Notice */}
       <section className="py-12 md:py-16 bg-muted/30">
         <div className="container px-4 md:px-6">
           <div className="max-w-3xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-whatsapp/10 text-whatsapp mb-4">
-              <CheckCircle2 className="h-4 w-4" />
-              <span className="text-sm font-medium">Servicio Incluido</span>
+              <CheckCircle2 className="h-4 w-4" /><span className="text-sm font-medium">Servicio Incluido</span>
             </div>
-            <h2 className="text-2xl md:text-3xl font-bold mb-4">
-              Todos los productos incluyen instalación
-            </h2>
-            <p className="text-muted-foreground mb-6">
-              Vamos a tu negocio en el Área Metropolitana de Bucaramanga, 
-              instalamos y configuramos todo para que funcione perfectamente.
-            </p>
-            <Button 
-              size="lg"
-              className="bg-whatsapp hover:bg-whatsapp/90 text-white gap-2"
-              asChild
-            >
-              <a 
-                href="https://wa.me/573176268307?text=Hola,%20quiero%20cotizar%20equipos%20para%20mi%20negocio"
-                target="_blank" 
-                rel="noopener noreferrer"
-              >
-                <MessageCircle className="h-5 w-5" />
-                Solicitar Cotización Completa
+            <h2 className="text-2xl md:text-3xl font-bold mb-4">Todos los productos incluyen instalación</h2>
+            <p className="text-muted-foreground mb-6">Vamos a tu negocio en el Área Metropolitana de Bucaramanga, instalamos y configuramos todo para que funcione perfectamente.</p>
+            <Button size="lg" className="bg-whatsapp hover:bg-whatsapp/90 text-white gap-2" asChild>
+              <a href="https://wa.me/573176268307?text=Hola,%20quiero%20cotizar%20equipos%20para%20mi%20negocio" target="_blank" rel="noopener noreferrer">
+                <MessageCircle className="h-5 w-5" />Solicitar Cotización Completa
               </a>
             </Button>
           </div>
