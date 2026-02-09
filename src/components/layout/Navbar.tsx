@@ -45,7 +45,7 @@
    },
     {
       name: "Farmacias",
-      href: "/soluciones/farmacias",
+      href: "/soluciones/farmacia",
       icon: Pill,
       description: "Droguerías y medicamentos"
    },
