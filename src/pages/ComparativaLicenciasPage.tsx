@@ -471,7 +471,7 @@ const ComparativaLicenciasPage = () => {
               tu negocio.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" variant="secondary" className="gap-2" asChild>
+              <Button size="lg" className="gap-2 bg-whatsapp hover:bg-whatsapp/90 text-white shadow-lg shadow-whatsapp/25 transition-all hover:scale-105" asChild>
                 <a
                   href="https://wa.me/573176268307?text=Hola,%20quiero%20asesoría%20para%20elegir%20el%20mejor%20POS"
                   target="_blank"
@@ -481,7 +481,7 @@ const ComparativaLicenciasPage = () => {
                   Asesoría por WhatsApp
                 </a>
               </Button>
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10" asChild>
+              <Button size="lg" variant="outline" className="border-white/60 text-white hover:bg-white hover:text-primary transition-all hover:scale-105" asChild>
                 <a href="/productos">Ver Todos los Productos</a>
               </Button>
             </div>
