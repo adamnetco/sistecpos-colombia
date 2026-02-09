@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import AIConversationsSection from "./AIConversationsSection";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -150,6 +151,11 @@ export default function ContactDetailPanel({
           <p className="text-sm mt-1 bg-muted/50 rounded-lg p-3">{contact.notes}</p>
         </div>
       )}
+
+      <Separator />
+
+      {/* AI Conversations */}
+      <AIConversationsSection contactId={contact.id} />
 
       <Separator />
 
