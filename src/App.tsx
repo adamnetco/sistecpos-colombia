@@ -3,8 +3,13 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
+
+function NicheRedirect() {
+  const { slug } = useParams<{ slug: string }>();
+  return <Navigate to={`/soluciones/${slug}`} replace />;
+}
 
 import { ScrollToTop } from "./components/ScrollToTop";
 
@@ -13,8 +18,6 @@ import Index from "./pages/Index";
 
 // Lazy load all other pages for code splitting
 const SolucionesPage = lazy(() => import("./pages/SolucionesPage"));
-const RestaurantesPage = lazy(() => import("./pages/RestaurantesPage"));
-const NicheLandingPage = lazy(() => import("./pages/NicheLandingPage"));
 const RetailPage = lazy(() => import("./pages/RetailPage"));
 const ProductosPage = lazy(() => import("./pages/ProductosPage"));
 const ProductoDetallePage = lazy(() => import("./pages/ProductoDetallePage"));
@@ -67,9 +70,9 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/soluciones" element={<SolucionesPage />} />
-                <Route path="/pos-para-restaurantes" element={<RestaurantesPage />} />
-                <Route path="/pos-para/:slug" element={<NicheLandingPage />} />
-                <Route path="/pos-para-retail" element={<RetailPage />} />
+                <Route path="/pos-para-restaurantes" element={<Navigate to="/soluciones/restaurantes" replace />} />
+                <Route path="/pos-para/:slug" element={<NicheRedirect />} />
+                <Route path="/pos-para-retail" element={<Navigate to="/soluciones/mini-market" replace />} />
                 <Route path="/soluciones/:slug" element={<SolucionNegocioPage />} />
                 <Route path="/software-pos-colombia" element={<SoftwarePosColombiaPage />} />
                 <Route path="/facturacion-electronica" element={<FacturacionElectronicaPage />} />
