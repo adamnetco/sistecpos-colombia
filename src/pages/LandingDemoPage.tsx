@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useUTMParams } from "@/hooks/useUTMParams";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -42,6 +43,7 @@ export default function LandingDemoPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const utm = useUTMParams();
 
   const form = useForm<DemoFormValues>({
     resolver: zodResolver(demoSchema),
@@ -67,6 +69,11 @@ export default function LandingDemoPage() {
         city: data.city,
         source: "landing_campana",
         status: "new",
+        utm_source: utm.utm_source,
+        utm_medium: utm.utm_medium,
+        utm_campaign: utm.utm_campaign,
+        utm_term: utm.utm_term,
+        utm_content: utm.utm_content,
       });
 
       if (dbError) {

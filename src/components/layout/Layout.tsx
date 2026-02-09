@@ -3,6 +3,7 @@ import { Navbar } from "./Navbar";
 import { Footer } from "./Footer";
 import { WhatsAppButton } from "./WhatsAppButton";
 import { ChatbotWidget } from "@/components/chatbot/ChatbotWidget";
+import { TrackingScriptInjector } from "@/components/tracking/TrackingScriptInjector";
 
 interface LayoutProps {
   children: ReactNode;
@@ -16,6 +17,7 @@ export function Layout({ children }: LayoutProps) {
       <Footer />
       <WhatsAppButton />
       <ChatbotWidget />
+      <TrackingScriptInjector />
     </div>
   );
 }
