@@ -1,13 +1,14 @@
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { motion } from "framer-motion";
-import { ArrowRight, BookOpen, Calculator, Hash } from "lucide-react";
+import { ArrowRight, BookOpen, Calculator, Hash, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { SEO } from "@/components/seo/SEO";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { dianArticles } from "@/data/dianArticles";
+import { useDianArticles } from "@/hooks/useDianArticles";
 
 const tools = [
   {
@@ -25,6 +26,12 @@ const tools = [
 ];
 
 export default function GuiasDianHubPage() {
+  const { dbArticles } = useDianArticles();
+
+  // DB articles whose slug doesn't match any static cluster slug
+  const staticSlugs = new Set(dianArticles.map((a) => a.slug));
+  const cmsOnlyArticles = dbArticles.filter((a) => !staticSlugs.has(a.slug));
+
   return (
     <Layout>
       <SEO
@@ -264,6 +271,47 @@ export default function GuiasDianHubPage() {
           </div>
         </div>
       </section>
+
+      {/* CMS-Only Articles (from database, not in static clusters) */}
+      {cmsOnlyArticles.length > 0 && (
+        <section className="py-12 md:py-16 bg-muted/30">
+          <div className="container px-4">
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-8">
+              <h2 className="text-2xl md:text-3xl font-bold tracking-tight">
+                Más <span className="gradient-text">Recursos</span>
+              </h2>
+              <p className="text-muted-foreground mt-2">
+                Artículos adicionales para ayudarte con tus trámites ante la DIAN.
+              </p>
+            </motion.div>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto">
+              {cmsOnlyArticles.map((article, i) => (
+                <motion.div key={article.slug} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }}>
+                  <Link to={`/guias-dian/${article.slug}`}>
+                    <Card className="h-full hover:shadow-md transition-shadow cursor-pointer group">
+                      <CardContent className="p-6">
+                        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                          <article.heroIcon className="h-5 w-5 text-primary" />
+                        </div>
+                        <Badge variant="secondary" className="mb-3 text-xs">{article.heroBadge}</Badge>
+                        <h3 className="font-semibold mb-2 group-hover:text-primary transition-colors text-sm leading-tight">
+                          {article.h1}
+                        </h3>
+                        <p className="text-xs text-muted-foreground line-clamp-2">
+                          {article.metaDescription}
+                        </p>
+                        <span className="inline-flex items-center gap-1 text-xs text-primary mt-3 font-medium">
+                          Leer guía <ArrowRight className="h-3 w-3" />
+                        </span>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* CTA */}
       <section className="py-16 md:py-20">
