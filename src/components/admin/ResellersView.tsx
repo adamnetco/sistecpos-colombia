@@ -8,7 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { Settings2, DollarSign, Plus, Trash2 } from "lucide-react";
+import { Settings2, DollarSign, Plus, Trash2, Download } from "lucide-react";
+import { exportToCsv } from "@/lib/exportCsv";
 
 interface Reseller {
   id: string;
@@ -139,9 +140,22 @@ export default function ResellersView() {
     <div>
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold font-display">Socios</h1>
-        <Badge variant="outline" className="text-xs">
-          {apps.filter((a) => a.status === "pending").length} pendientes
-        </Badge>
+        <div className="flex items-center gap-2">
+          <Button size="sm" variant="outline" onClick={() => exportToCsv(apps as any[], [
+            { key: "full_name", label: "Nombre" },
+            { key: "email", label: "Email" },
+            { key: "phone", label: "Teléfono" },
+            { key: "city", label: "Ciudad" },
+            { key: "experience_summary", label: "Experiencia" },
+            { key: "status", label: "Estado" },
+            { key: "created_at", label: "Fecha" },
+          ], "socios")}>
+            <Download className="h-3.5 w-3.5 mr-1" /> Exportar
+          </Button>
+          <Badge variant="outline" className="text-xs">
+            {apps.filter((a) => a.status === "pending").length} pendientes
+          </Badge>
+        </div>
       </div>
 
       <div className="rounded-lg border bg-card overflow-x-auto">

@@ -8,8 +8,9 @@ import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Users, Bot, Eye, EyeOff, Search, Plus, Mail, Phone,
-  Building2, MapPin, Filter, RefreshCw, Kanban, List, ClipboardList,
+  Building2, MapPin, Filter, RefreshCw, Kanban, List, ClipboardList, Download,
 } from "lucide-react";
+import { exportToCsv } from "@/lib/exportCsv";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -257,6 +258,21 @@ export default function ContactsView() {
 
             <Button size="sm" variant="outline" onClick={load} className="h-9">
               <RefreshCw className="h-3.5 w-3.5" />
+            </Button>
+
+            <Button size="sm" variant="outline" className="h-9" onClick={() => exportToCsv(filtered as any[], [
+              { key: "full_name", label: "Nombre" },
+              { key: "email", label: "Email" },
+              { key: "phone", label: "Teléfono" },
+              { key: "city", label: "Ciudad" },
+              { key: "business_name", label: "Negocio" },
+              { key: "business_type", label: "Tipo Negocio" },
+              { key: "contact_type", label: "Tipo Contacto" },
+              { key: "source", label: "Fuente" },
+              { key: "is_read", label: "Leído" },
+              { key: "created_at", label: "Fecha" },
+            ], "contactos")}>
+              <Download className="h-3.5 w-3.5 mr-1" /> Exportar
             </Button>
 
             <Dialog open={showForm} onOpenChange={setShowForm}>
