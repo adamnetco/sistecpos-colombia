@@ -1112,44 +1112,73 @@ export const dianArticles: DianArticle[] = [
       {
         title: "¿La DIAN ofrece firma digital gratis?",
         content:
-          "No. La DIAN no emite ni regala firmas digitales. El facturador gratuito de la DIAN te permite emitir facturas, pero aún así necesitas adquirir tu certificado digital con un proveedor autorizado (Certicámara, Andes SCD, GSE). El costo oscila entre $150.000 y $400.000 COP al año.",
+          "Sí, pero con limitaciones importantes. La DIAN otorga un certificado de firma digital sin costo a través de un convenio con la entidad certificadora GSE, exclusivamente para quienes usan el Software Solución Gratuita de la DIAN. Este certificado se asocia a tu cuenta en la nube de la DIAN y solo funciona dentro de ese software básico.",
+      },
+      {
+        title: "Cómo solicitar el certificado gratuito paso a paso",
+        content:
+          "Si decides usar el Software Gratuito de la DIAN, puedes obtener tu certificado digital sin costo siguiendo estos pasos en el portal oficial.",
+        bullets: [
+          "1. Habilitación: Ingresa al portal DIAN → Factura Electrónica → Habilitación y regístrate como facturador",
+          "2. Selección del Modo: Dentro del tablero de control, elige el modo 'Software Solución Gratuita'",
+          "3. Solicitud del Certificado: En la solución gratuita, ve a Configuración → Certificado Digital → 'Solicitar certificado gratuito'",
+          "4. Validación con el Certificador: Recibirás un correo de GSE para cargar RUT actualizado, cédula del representante legal y, si aplica, Certificado de Existencia y Representación",
+          "5. Instalación: Una vez aprobado, el certificado se asocia automáticamente a tu cuenta en la nube de la DIAN",
+        ],
+      },
+      {
+        title: "Datos clave del certificado gratuito DIAN",
+        content:
+          "El certificado gratuito tiene condiciones específicas que debes conocer antes de solicitarlo.",
+        bullets: [
+          "Vigencia: 1 a 2 años (dependiendo del convenio vigente entre DIAN y GSE)",
+          "Renovación gratuita: puedes renovarlo hasta 3 meses antes de su vencimiento sin costo",
+          "Requisito indispensable: RUT actualizado con el correo electrónico correcto (allí llegarán las instrucciones de activación)",
+          "Limitación principal: solo funciona con el Software Solución Gratuita de la DIAN, no con otros sistemas POS ni contables",
+        ],
       },
       {
         title: "Proveedores de firma digital autorizados en Colombia",
         content:
-          "En Colombia existen varias entidades de certificación digital autorizadas por la ONAC para emitir certificados válidos ante la DIAN.",
+          "Si necesitas un certificado para usar con un sistema POS profesional (no el software gratuito DIAN), debes adquirirlo con un proveedor autorizado por la ONAC.",
         bullets: [
           "Certicámara: la más conocida, desde $250.000 COP/año",
           "Andes SCD: opción económica, desde $150.000 COP/año",
-          "GSE (Gestión de Seguridad Electrónica): desde $180.000 COP/año",
+          "GSE: desde $180.000 COP/año (también emite certificados gratuitos vía convenio DIAN para el Software Gratuito)",
           "Thomas Signe: especializada en sector salud y gobierno",
         ],
       },
       {
-        title: "La alternativa real: certificado incluido con SistecPOS",
+        title: "¿El certificado gratuito es suficiente? Lo que no incluye el Software DIAN",
         content:
-          "SistecPOS incluye el certificado digital en todos los planes con facturación electrónica. No pagas adicional por la firma, no tramitas nada con terceros y nuestro equipo lo configura por ti. Además, la renovación es automática para que nunca se venza tu certificado.",
+          "La DIAN ofrece un certificado gratuito, pero solo funciona con su software básico que no incluye las herramientas esenciales para un negocio que vende a diario. Con SistecPOS tienes un POS profesional completo MÁS el certificado digital incluido.",
         bullets: [
-          "Certificado digital incluido sin costo adicional",
-          "Configuración realizada por nuestro equipo de ingenieros",
-          "Renovación automática: nunca se vence tu firma",
-          "Compatible con factura electrónica, notas crédito y documento soporte",
-          "Desde $12 USD/mes todo incluido",
+          "El Software Gratuito DIAN NO incluye control de inventario",
+          "NO tiene punto de venta (POS) ni escaneo de códigos de barras",
+          "NO genera reportes de ventas, rotación ni inteligencia de negocio",
+          "NO soporta gestión multi-tienda ni multi-caja",
+          "NO ofrece modo offline (si la DIAN se cae, no facturas)",
+          "NO cuenta con soporte técnico personalizado",
+          "Con SistecPOS: certificado incluido + POS completo desde $12 USD/mes",
         ],
       },
     ],
     painVsSolution: [
       {
-        pain: "Certificado digital: $150.000 - $400.000 COP/año adicional",
-        solution: "Certificado incluido en tu plan SistecPOS",
+        pain: "Software Gratuito DIAN: sin inventario ni control de stock",
+        solution: "SistecPOS: inventario en tiempo real con alertas automáticas",
       },
       {
-        pain: "Tramitar y renovar manualmente cada año",
-        solution: "Renovación automática sin intervención tuya",
+        pain: "Software Gratuito DIAN: sin punto de venta ni escaneo de códigos",
+        solution: "POS completo con código de barras y cobro en 10 segundos",
       },
       {
-        pain: "Configurar la firma en el portal DIAN",
-        solution: "Nuestros ingenieros lo configuran por ti",
+        pain: "Software Gratuito DIAN: sin reportes ni modo offline",
+        solution: "Reportes avanzados + modo offline hasta 8 días",
+      },
+      {
+        pain: "Software Gratuito DIAN: sin soporte técnico personalizado",
+        solution: "Soporte presencial y por WhatsApp de lunes a sábado",
       },
     ],
     ctaText: "Obtén tu certificado digital incluido con SistecPOS",
@@ -1170,6 +1199,11 @@ export const dianArticles: DianArticle[] = [
         question: "¿Qué pasa si se vence mi firma digital?",
         answer:
           "Si se vence, no podrás emitir facturas electrónicas hasta renovarla. Con SistecPOS esto no pasa porque la renovación es automática.",
+      },
+      {
+        question: "¿Cuál es la diferencia entre el certificado gratuito DIAN y un certificado comercial?",
+        answer:
+          "El certificado gratuito de la DIAN (vía convenio con GSE) solo funciona dentro del Software Solución Gratuita de la DIAN, que es un facturador básico sin inventario, POS ni reportes. Un certificado comercial (Andes SCD, GSE, Certicámara) funciona con cualquier software profesional. Con SistecPOS, el certificado comercial está incluido en tu plan sin costo adicional.",
       },
     ],
     relatedLinks: [
@@ -1217,6 +1251,7 @@ export const dianArticles: DianArticle[] = [
         content:
           "Los precios varían según el proveedor, el tipo de certificado y la vigencia. Aquí un comparativo actualizado para 2026.",
         bullets: [
+          "Software Gratuito DIAN + GSE (convenio): $0 COP (solo funciona con el facturador básico de la DIAN, sin inventario ni POS)",
           "Certicámara: $250.000 - $450.000 COP/año (la más reconocida)",
           "Andes SCD: $150.000 - $280.000 COP/año (mejor relación precio-calidad)",
           "GSE: $180.000 - $350.000 COP/año (buen soporte técnico)",
@@ -1224,15 +1259,20 @@ export const dianArticles: DianArticle[] = [
         ],
       },
       {
+        title: "Opción gratuita: certificado vía Software DIAN",
+        content:
+          "Existe una opción sin costo: la DIAN otorga un certificado digital gratuito a través de un convenio con GSE, pero exclusivamente para quienes usan el Software Solución Gratuita de la DIAN. Este software es un facturador web básico que no incluye inventario, punto de venta, reportes avanzados ni modo offline. Para negocios con operación diaria, esta opción resulta insuficiente.",
+      },
+      {
         title: "SistecPOS: certificado incluido en tu suscripción",
         content:
-          "Con SistecPOS no necesitas comprar el certificado por separado. Está incluido en todos los planes con facturación electrónica. Nuestro equipo lo gestiona, lo instala y lo renueva automáticamente. Tú te concentras en vender.",
+          "Con SistecPOS no necesitas comprar el certificado por separado ni limitarte al facturador básico de la DIAN. El certificado está incluido en todos los planes con facturación electrónica, junto con un POS completo. Nuestro equipo lo gestiona, lo instala y lo renueva automáticamente.",
         bullets: [
           "Certificado digital incluido sin costo adicional",
           "No necesitas tramitar con Certicámara ni Andes SCD",
           "Instalación y configuración por nuestros ingenieros",
           "Renovación automática antes de vencimiento",
-          "Ahorras $150.000 - $450.000 COP/año",
+          "A diferencia del certificado gratuito DIAN, funciona con un POS profesional completo",
         ],
       },
     ],
@@ -1294,7 +1334,7 @@ export const dianArticles: DianArticle[] = [
           "Andes SCD y GSE son dos entidades de certificación digital autorizadas por la ONAC para emitir certificados de firma digital en Colombia. Ambas son ampliamente usadas por comerciantes que necesitan facturar electrónicamente ante la DIAN.",
         bullets: [
           "Andes SCD: Autoridad de Certificación Digital con sede en Bogotá",
-          "GSE (Gestión de Seguridad Electrónica): proveedor con fuerte presencia en pymes",
+          "GSE (Gestión de Seguridad Electrónica): proveedor con fuerte presencia en pymes. Además, tiene un convenio con la DIAN para emitir certificados gratuitos a quienes usan el Software Solución Gratuita",
           "Ambas emiten certificados válidos para facturación electrónica DIAN",
           "Ambas están autorizadas por la ONAC",
         ],
@@ -1304,10 +1344,11 @@ export const dianArticles: DianArticle[] = [
         content:
           "Los precios pueden variar según promociones y el tipo de certificado (persona natural o jurídica). Esta es la comparativa base para 2026.",
         bullets: [
+          "GSE vía convenio DIAN (Software Gratuito): $0 COP (solo para usuarios del facturador básico de la DIAN)",
           "Andes SCD: desde $150.000 COP/año (persona natural) — $220.000 COP/año (persona jurídica)",
-          "GSE: desde $180.000 COP/año (persona natural) — $280.000 COP/año (persona jurídica)",
+          "GSE (compra directa): desde $180.000 COP/año (persona natural) — $280.000 COP/año (persona jurídica)",
           "Certicámara (referencia): desde $250.000 COP/año",
-          "SistecPOS: $0 adicional (incluido en tu plan)",
+          "SistecPOS: $0 adicional (incluido en tu plan con POS profesional completo)",
         ],
       },
       {
@@ -1387,9 +1428,14 @@ export const dianArticles: DianArticle[] = [
       "Paso a paso para conseguir tu firma o certificado digital, configurarlo correctamente y empezar a emitir facturas electrónicas válidas ante la DIAN.",
     sections: [
       {
+        title: "Paso 0: ¿Vas a usar el Software Gratuito de la DIAN?",
+        content:
+          "Si planeas usar el Software Solución Gratuita de la DIAN para facturar, puedes obtener un certificado digital sin costo a través del convenio DIAN-GSE. Solo debes habilitarte en el portal DIAN, seleccionar el modo 'Software Solución Gratuita' y solicitar el certificado gratuito desde la configuración. Ten en cuenta que este certificado solo funciona con el facturador básico de la DIAN (sin inventario, sin POS, sin reportes). Si necesitas un sistema profesional, continúa con los siguientes pasos.",
+      },
+      {
         title: "Paso 1: Determina qué tipo de certificado necesitas",
         content:
-          "Antes de comprar, identifica si necesitas un certificado de persona natural o jurídica. Esto depende de cómo estés registrado ante la DIAN.",
+          "Si vas a usar un software POS profesional (como SistecPOS), necesitas adquirir un certificado comercial. Identifica si necesitas uno de persona natural o jurídica.",
         bullets: [
           "Persona Natural: si facturas con tu cédula de ciudadanía",
           "Persona Jurídica: si facturas con NIT de empresa",
@@ -1404,7 +1450,7 @@ export const dianArticles: DianArticle[] = [
         bullets: [
           "Certicámara: la más conocida y costosa ($250.000+/año)",
           "Andes SCD: la más económica ($150.000+/año)",
-          "GSE: buen balance precio-soporte ($180.000+/año)",
+          "GSE: buen balance precio-soporte ($180.000+/año) — también emite certificados gratuitos vía convenio DIAN (solo para el Software Gratuito)",
           "Visita el sitio web del proveedor y sigue su proceso de compra",
         ],
       },
