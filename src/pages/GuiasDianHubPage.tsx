@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { motion } from "framer-motion";
-import { ArrowRight, BookOpen, Calculator, Hash, FileText } from "lucide-react";
+import { ArrowRight, BookOpen, Calculator, Hash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -9,6 +9,7 @@ import { SEO } from "@/components/seo/SEO";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { dianArticles } from "@/data/dianArticles";
 import { useDianArticles } from "@/hooks/useDianArticles";
+import { CLUSTER_HUB_CONFIG } from "@/components/admin/dian/clusterConfig";
 
 const tools = [
   {
@@ -25,12 +26,75 @@ const tools = [
   },
 ];
 
-export default function GuiasDianHubPage() {
-  const { dbArticles } = useDianArticles();
+/* Cluster render order */
+const CLUSTER_ORDER = ["facturador_gratuito", "habilitacion_normativa", "firma_digital", "comercial"] as const;
 
-  // DB articles whose slug doesn't match any static cluster slug
-  const staticSlugs = new Set(dianArticles.map((a) => a.slug));
-  const cmsOnlyArticles = dbArticles.filter((a) => !staticSlugs.has(a.slug));
+function ArticleCard({ article, index }: { article: { slug: string; heroIcon: any; heroBadge: string; h1: string; metaDescription: string }; index: number }) {
+  return (
+    <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.05 }}>
+      <Link to={`/guias-dian/${article.slug}`}>
+        <Card className="h-full hover:shadow-md transition-shadow cursor-pointer group">
+          <CardContent className="p-6">
+            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+              <article.heroIcon className="h-5 w-5 text-primary" />
+            </div>
+            <Badge variant="secondary" className="mb-3 text-xs">{article.heroBadge}</Badge>
+            <h3 className="font-semibold mb-2 group-hover:text-primary transition-colors text-sm leading-tight">
+              {article.h1}
+            </h3>
+            <p className="text-xs text-muted-foreground line-clamp-2">{article.metaDescription}</p>
+            <span className="inline-flex items-center gap-1 text-xs text-primary mt-3 font-medium">
+              Leer guía <ArrowRight className="h-3 w-3" />
+            </span>
+          </CardContent>
+        </Card>
+      </Link>
+    </motion.div>
+  );
+}
+
+export default function GuiasDianHubPage() {
+  const { allArticles, dbArticles, isLoading } = useDianArticles();
+
+  // Group articles by cluster. DB articles have cluster field; static ones use a fallback map.
+  const staticClusterMap: Record<string, string> = {
+    "facturacion-gratuita-dian": "facturador_gratuito",
+    "facturador-gratuito-dian-no-funciona": "facturador_gratuito",
+    "como-facturar-electronicamente-gratis-dian": "facturador_gratuito",
+    "registro-facturador-gratuito-dian": "facturador_gratuito",
+    "micrositio-facturacion-electronica-dian": "facturador_gratuito",
+    "habilitar-facturacion-electronica-dian": "habilitacion_normativa",
+    "resolucion-facturacion-electronica-2025": "habilitacion_normativa",
+    "calendario-tributario-dian-2026": "habilitacion_normativa",
+    "sanciones-no-facturar-electronicamente": "habilitacion_normativa",
+    "limite-uvt-pos-2026": "habilitacion_normativa",
+    "documento-soporte-electronico-dian": "habilitacion_normativa",
+    "firma-digital-dian-gratis": "firma_digital",
+    "certificados-digitales-facturacion-electronica": "firma_digital",
+    "andes-scd-vs-gse": "firma_digital",
+    "obtener-firma-electronica-dian": "firma_digital",
+    "renovacion-certificado-digital-dian": "firma_digital",
+    "facturacion-electronica-pymes-colombia": "comercial",
+    "software-inventario-facturacion-electronica": "comercial",
+    "top-10-software-pos-colombia": "comercial",
+  };
+
+  // Build cluster groups from allArticles
+  const clusterGroups: Record<string, typeof allArticles> = {};
+  const dbSlugSet = new Set(dbArticles.map((a) => a.slug));
+
+  for (const article of allArticles) {
+    // If article comes from DB, use its cluster field
+    const dbMatch = dbArticles.find((d) => d.slug === article.slug);
+    const cluster = dbMatch
+      ? ((dbMatch as any).cluster || "otros")
+      : (staticClusterMap[article.slug] || "otros");
+
+    if (!clusterGroups[cluster]) clusterGroups[cluster] = [];
+    clusterGroups[cluster].push(article);
+  }
+
+  const otherArticles = clusterGroups["otros"] || [];
 
   return (
     <Layout>
@@ -93,220 +157,44 @@ export default function GuiasDianHubPage() {
         </div>
       </section>
 
-      {/* Cluster 1: Facturador Gratuito */}
-      <section className="py-12 md:py-16 bg-muted/30">
-        <div className="container px-4">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-8">
-            <h2 className="text-2xl md:text-3xl font-bold tracking-tight">
-              Guías sobre el <span className="gradient-text">Facturador Gratuito DIAN</span>
-            </h2>
-            <p className="text-muted-foreground mt-2">
-              ¿Usas la solución gratuita de la DIAN? Descubre sus limitaciones y las alternativas.
-            </p>
-          </motion.div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto">
-            {dianArticles.filter(a => [
-              "facturacion-gratuita-dian",
-              "facturador-gratuito-dian-no-funciona",
-              "como-facturar-electronicamente-gratis-dian",
-              "registro-facturador-gratuito-dian",
-              "micrositio-facturacion-electronica-dian",
-            ].includes(a.slug)).map((article, i) => (
-              <motion.div key={article.slug} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }}>
-                <Link to={`/guias-dian/${article.slug}`}>
-                  <Card className="h-full hover:shadow-md transition-shadow cursor-pointer group">
-                    <CardContent className="p-6">
-                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center mb-3">
-                        <article.heroIcon className="h-5 w-5 text-primary" />
-                      </div>
-                      <Badge variant="secondary" className="mb-3 text-xs">{article.heroBadge}</Badge>
-                      <h3 className="font-semibold mb-2 group-hover:text-primary transition-colors text-sm leading-tight">
-                        {article.h1}
-                      </h3>
-                      <p className="text-xs text-muted-foreground line-clamp-2">
-                        {article.metaDescription}
-                      </p>
-                      <span className="inline-flex items-center gap-1 text-xs text-primary mt-3 font-medium">
-                        Leer guía <ArrowRight className="h-3 w-3" />
-                      </span>
-                    </CardContent>
-                  </Card>
-                </Link>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Dynamic Cluster Sections */}
+      {CLUSTER_ORDER.map((clusterKey, sectionIdx) => {
+        const config = CLUSTER_HUB_CONFIG[clusterKey];
+        const articles = clusterGroups[clusterKey] || [];
+        if (articles.length === 0) return null;
 
-      {/* Cluster 2: Habilitación y Normativa */}
-      <section className="py-12 md:py-16">
-        <div className="container px-4">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-8">
-            <h2 className="text-2xl md:text-3xl font-bold tracking-tight">
-              Habilitación y <span className="gradient-text">Normativa DIAN</span>
-            </h2>
-            <p className="text-muted-foreground mt-2">
-              Sanciones, calendarios, límites de UVT y todo lo que necesitas para cumplir con la DIAN.
-            </p>
-          </motion.div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto">
-            {dianArticles.filter(a => [
-              "habilitar-facturacion-electronica-dian",
-              "resolucion-facturacion-electronica-2025",
-              "calendario-tributario-dian-2026",
-              "sanciones-no-facturar-electronicamente",
-              "limite-uvt-pos-2026",
-              "documento-soporte-electronico-dian",
-            ].includes(a.slug)).map((article, i) => (
-              <motion.div key={article.slug} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }}>
-                <Link to={`/guias-dian/${article.slug}`}>
-                  <Card className="h-full hover:shadow-md transition-shadow cursor-pointer group">
-                    <CardContent className="p-6">
-                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center mb-3">
-                        <article.heroIcon className="h-5 w-5 text-primary" />
-                      </div>
-                      <Badge variant="secondary" className="mb-3 text-xs">{article.heroBadge}</Badge>
-                      <h3 className="font-semibold mb-2 group-hover:text-primary transition-colors text-sm leading-tight">
-                        {article.h1}
-                      </h3>
-                      <p className="text-xs text-muted-foreground line-clamp-2">
-                        {article.metaDescription}
-                      </p>
-                      <span className="inline-flex items-center gap-1 text-xs text-primary mt-3 font-medium">
-                        Leer guía <ArrowRight className="h-3 w-3" />
-                      </span>
-                    </CardContent>
-                  </Card>
-                </Link>
+        return (
+          <section key={clusterKey} className={`py-12 md:py-16 ${sectionIdx % 2 === 0 ? "bg-muted/30" : ""}`}>
+            <div className="container px-4">
+              <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-8">
+                <h2 className="text-2xl md:text-3xl font-bold tracking-tight">
+                  {config.title} <span className="gradient-text">{config.highlight}</span>
+                </h2>
+                <p className="text-muted-foreground mt-2">{config.subtitle}</p>
               </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto">
+                {articles.map((article, i) => (
+                  <ArticleCard key={article.slug} article={article} index={i} />
+                ))}
+              </div>
+            </div>
+          </section>
+        );
+      })}
 
-      {/* Cluster 3: Firma Digital y Certificados */}
-      <section className="py-12 md:py-16 bg-muted/30">
-        <div className="container px-4">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-8">
-            <h2 className="text-2xl md:text-3xl font-bold tracking-tight">
-              Firma Digital y <span className="gradient-text">Certificados</span>
-            </h2>
-            <p className="text-muted-foreground mt-2">
-              Todo sobre certificados digitales, firma electrónica y cómo obtenerlos sin costo adicional.
-            </p>
-          </motion.div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto">
-            {dianArticles.filter(a => [
-              "firma-digital-dian-gratis",
-              "certificados-digitales-facturacion-electronica",
-              "andes-scd-vs-gse",
-              "obtener-firma-electronica-dian",
-              "renovacion-certificado-digital-dian",
-            ].includes(a.slug)).map((article, i) => (
-              <motion.div key={article.slug} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }}>
-                <Link to={`/guias-dian/${article.slug}`}>
-                  <Card className="h-full hover:shadow-md transition-shadow cursor-pointer group">
-                    <CardContent className="p-6">
-                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center mb-3">
-                        <article.heroIcon className="h-5 w-5 text-primary" />
-                      </div>
-                      <Badge variant="secondary" className="mb-3 text-xs">{article.heroBadge}</Badge>
-                      <h3 className="font-semibold mb-2 group-hover:text-primary transition-colors text-sm leading-tight">
-                        {article.h1}
-                      </h3>
-                      <p className="text-xs text-muted-foreground line-clamp-2">
-                        {article.metaDescription}
-                      </p>
-                      <span className="inline-flex items-center gap-1 text-xs text-primary mt-3 font-medium">
-                        Leer guía <ArrowRight className="h-3 w-3" />
-                      </span>
-                    </CardContent>
-                  </Card>
-                </Link>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Cluster 4: Páginas Comerciales */}
-      <section className="py-12 md:py-16">
-        <div className="container px-4">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-8">
-            <h2 className="text-2xl md:text-3xl font-bold tracking-tight">
-              Guías <span className="gradient-text">Comerciales</span>
-            </h2>
-            <p className="text-muted-foreground mt-2">
-              Facturación para PYMES, inventario integrado y rankings de software POS en Colombia.
-            </p>
-          </motion.div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto">
-            {dianArticles.filter(a => [
-              "facturacion-electronica-pymes-colombia",
-              "software-inventario-facturacion-electronica",
-              "top-10-software-pos-colombia",
-            ].includes(a.slug)).map((article, i) => (
-              <motion.div key={article.slug} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }}>
-                <Link to={`/guias-dian/${article.slug}`}>
-                  <Card className="h-full hover:shadow-md transition-shadow cursor-pointer group">
-                    <CardContent className="p-6">
-                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center mb-3">
-                        <article.heroIcon className="h-5 w-5 text-primary" />
-                      </div>
-                      <Badge variant="secondary" className="mb-3 text-xs">{article.heroBadge}</Badge>
-                      <h3 className="font-semibold mb-2 group-hover:text-primary transition-colors text-sm leading-tight">
-                        {article.h1}
-                      </h3>
-                      <p className="text-xs text-muted-foreground line-clamp-2">
-                        {article.metaDescription}
-                      </p>
-                      <span className="inline-flex items-center gap-1 text-xs text-primary mt-3 font-medium">
-                        Leer guía <ArrowRight className="h-3 w-3" />
-                      </span>
-                    </CardContent>
-                  </Card>
-                </Link>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CMS-Only Articles (from database, not in static clusters) */}
-      {cmsOnlyArticles.length > 0 && (
+      {/* Other / unclustered articles */}
+      {otherArticles.length > 0 && (
         <section className="py-12 md:py-16 bg-muted/30">
           <div className="container px-4">
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-8">
               <h2 className="text-2xl md:text-3xl font-bold tracking-tight">
                 Más <span className="gradient-text">Recursos</span>
               </h2>
-              <p className="text-muted-foreground mt-2">
-                Artículos adicionales para ayudarte con tus trámites ante la DIAN.
-              </p>
+              <p className="text-muted-foreground mt-2">Artículos adicionales para ayudarte con tus trámites ante la DIAN.</p>
             </motion.div>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto">
-              {cmsOnlyArticles.map((article, i) => (
-                <motion.div key={article.slug} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }}>
-                  <Link to={`/guias-dian/${article.slug}`}>
-                    <Card className="h-full hover:shadow-md transition-shadow cursor-pointer group">
-                      <CardContent className="p-6">
-                        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center mb-3">
-                          <article.heroIcon className="h-5 w-5 text-primary" />
-                        </div>
-                        <Badge variant="secondary" className="mb-3 text-xs">{article.heroBadge}</Badge>
-                        <h3 className="font-semibold mb-2 group-hover:text-primary transition-colors text-sm leading-tight">
-                          {article.h1}
-                        </h3>
-                        <p className="text-xs text-muted-foreground line-clamp-2">
-                          {article.metaDescription}
-                        </p>
-                        <span className="inline-flex items-center gap-1 text-xs text-primary mt-3 font-medium">
-                          Leer guía <ArrowRight className="h-3 w-3" />
-                        </span>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                </motion.div>
+              {otherArticles.map((article, i) => (
+                <ArticleCard key={article.slug} article={article} index={i} />
               ))}
             </div>
           </div>

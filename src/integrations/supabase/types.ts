@@ -551,6 +551,7 @@ export type Database = {
       }
       dian_articles: {
         Row: {
+          cluster: string
           created_at: string
           cta_text: string
           cta_whatsapp_message: string
@@ -572,6 +573,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          cluster?: string
           created_at?: string
           cta_text?: string
           cta_whatsapp_message?: string
@@ -593,6 +595,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          cluster?: string
           created_at?: string
           cta_text?: string
           cta_whatsapp_message?: string
