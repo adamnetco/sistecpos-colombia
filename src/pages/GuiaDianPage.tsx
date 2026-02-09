@@ -14,12 +14,22 @@ import {
 import { SEO } from "@/components/seo/SEO";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { JsonLd, faqSchema } from "@/components/seo/JsonLd";
-import { dianArticles } from "@/data/dianArticles";
 import { CertificatePricingSection } from "@/components/certificados/CertificatePricingSection";
+import { useDianArticle } from "@/hooks/useDianArticles";
 
 export default function GuiaDianPage() {
   const { slug } = useParams<{ slug: string }>();
-  const article = dianArticles.find((a) => a.slug === slug);
+  const { article, isLoading } = useDianArticle(slug);
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="flex min-h-[60vh] items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+        </div>
+      </Layout>
+    );
+  }
 
   if (!article) return <Navigate to="/guias-dian" replace />;
 
