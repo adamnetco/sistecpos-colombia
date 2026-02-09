@@ -37,6 +37,14 @@ export default function ResellerLicensesView() {
   const [detailTarget, setDetailTarget] = useState<License | null>(null);
   const [rutFile, setRutFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState(LICENSE_PLANS[0].value);
+  const [price, setPrice] = useState(LICENSE_PLANS[0].defaultPriceCOP);
+
+  const handlePlanChange = (value: string) => {
+    setSelectedPlan(value);
+    const plan = LICENSE_PLANS.find((p) => p.value === value);
+    if (plan) setPrice(plan.defaultPriceCOP);
+  };
 
   const load = async () => {
     if (!reseller) return;
@@ -148,13 +156,31 @@ export default function ResellerLicensesView() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label>Plan *</Label>
-                  <select name="plan_type" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" required>
+                  <select
+                    name="plan_type"
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    required
+                    value={selectedPlan}
+                    onChange={(e) => handlePlanChange(e.target.value)}
+                  >
                     {LICENSE_PLANS.map((p) => (
                       <option key={p.value} value={p.value}>{p.label}</option>
                     ))}
                   </select>
                 </div>
-                <div><Label>Precio (COP) *</Label><Input name="price_paid" type="number" required /></div>
+                <div>
+                  <Label>Precio (COP) *</Label>
+                  <Input
+                    name="price_paid"
+                    type="number"
+                    required
+                    value={price}
+                    onChange={(e) => setPrice(Number(e.target.value))}
+                  />
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Sugerido: ${LICENSE_PLANS.find((p) => p.value === selectedPlan)?.defaultPriceCOP.toLocaleString("es-CO")} COP
+                  </p>
+                </div>
               </div>
               <div>
                 <Label>RUT del cliente (obligatorio) *</Label>
