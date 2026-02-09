@@ -37,6 +37,7 @@ const CalculadoraUVTPage = lazy(() => import("./pages/CalculadoraUVTPage"));
 const ValidadorNITPage = lazy(() => import("./pages/ValidadorNITPage"));
 const AuthPage = lazy(() => import("./pages/AuthPage"));
 const AdminPage = lazy(() => import("./pages/AdminPage"));
+const ResellerPage = lazy(() => import("./pages/ResellerPage"));
 const LandingDemoPage = lazy(() => import("./pages/LandingDemoPage"));
 const LandingRepresentantesPage = lazy(() => import("./pages/LandingRepresentantesPage"));
 
@@ -90,6 +91,7 @@ const App = () => (
                 {/* Auth & Admin */}
                 <Route path="/auth" element={<AuthPage />} />
                 <Route path="/admin/*" element={<AdminPage />} />
+                <Route path="/socio/*" element={<ResellerPage />} />
                 {/* Redirects para URLs antiguas indexadas */}
                 <Route path="/hello-world" element={<Navigate to="/software-pos-colombia" replace />} />
                 <Route path="/c/uncategorized" element={<Navigate to="/productos" replace />} />

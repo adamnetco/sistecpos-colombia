@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -57,9 +58,26 @@ export default function AuthPage() {
     return () => subscription.unsubscribe();
   }, []);
 
+  const { isAdmin } = useAuth();
+
   useEffect(() => {
     if (user && !pending2FA && view !== "reset" && view !== "otp") {
-      navigate("/admin");
+      // Check role to redirect accordingly
+      const checkRedirect = async () => {
+        const { data: resellerRole } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", user.id)
+          .eq("role", "reseller")
+          .maybeSingle();
+
+        if (resellerRole) {
+          navigate("/socio");
+        } else {
+          navigate("/admin");
+        }
+      };
+      checkRedirect();
     }
   }, [user, view, pending2FA, navigate]);
 
