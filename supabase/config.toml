@@ -14,3 +14,9 @@ verify_jwt = false
 
 [functions.validate-license]
 verify_jwt = false
+
+[functions.register-quote]
+verify_jwt = false
+
+[functions.cleanup-expired-docs]
+verify_jwt = false

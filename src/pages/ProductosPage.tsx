@@ -5,7 +5,6 @@ import { Layout } from "@/components/layout/Layout";
 import { DynamicMeta } from "@/components/seo/DynamicMeta";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { 
@@ -15,7 +14,10 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useCart } from "@/hooks/useCart";
+import { useProductTracking } from "@/hooks/useProductTracking";
+import { ProductFilters, type ProductFiltersState } from "@/components/productos/ProductFilters";
 import { toast } from "sonner";
+import { useState, useMemo } from "react";
 
 interface DBProduct {
   id: string;
@@ -39,17 +41,6 @@ interface DBProduct {
   catalog_brands: { name: string } | null;
 }
 
-const categoryTabs = [
-  { id: "all", name: "Todos", icon: null },
-  { id: "licencias", name: "Licencias", icon: FileText },
-  { id: "modulos", name: "Módulos", icon: FileText },
-  { id: "impresoras", name: "Impresoras", icon: Printer },
-  { id: "etiquetas", name: "Etiquetas", icon: Tag },
-  { id: "cajones", name: "Cajones", icon: CircleDollarSign },
-  { id: "lectores", name: "Lectores", icon: Barcode },
-  { id: "papel", name: "Papel", icon: ScrollText },
-];
-
 const formatPrice = (price: number) =>
   new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0 }).format(price);
 
@@ -72,6 +63,7 @@ const getCategoryIcon = (slug: string) => {
 
 const ProductCard = ({ product, index }: { product: DBProduct; index: number }) => {
   const { addItem } = useCart();
+  const { trackEvent } = useProductTracking();
   const catSlug = product.catalog_categories?.slug || "";
   const isLicense = catSlug === "licencias" || catSlug === "modulos";
   const CategoryIcon = isLicense ? getLicenseIcon(product.name) : getCategoryIcon(catSlug);
@@ -156,7 +148,12 @@ const ProductCard = ({ product, index }: { product: DBProduct; index: number }) 
           </div>
         </CardContent>
         <CardFooter className="p-6 pt-0 flex gap-2">
-          <Button variant="outline" className="flex-1 gap-1" asChild>
+          <Button
+            variant="outline"
+            className="flex-1 gap-1"
+            asChild
+            onClick={() => trackEvent("view", product.id, product.name)}
+          >
             <Link to={`/productos/${product.slug}`}>Ver más <ArrowRight className="h-4 w-4" /></Link>
           </Button>
           <Button
@@ -170,6 +167,7 @@ const ProductCard = ({ product, index }: { product: DBProduct; index: number }) 
                 price_usd: product.price_usd,
                 image_url: product.image_url,
               });
+              trackEvent("cart_add", product.id, product.name);
               toast.success(`${product.name} agregado a la cotización`);
             }}
           >
@@ -194,6 +192,43 @@ const ProductosPage = () => {
       return data as DBProduct[];
     },
   });
+
+  const maxPrice = useMemo(() => Math.max(...products.map(p => p.price_cop), 1), [products]);
+
+  const [filters, setFilters] = useState<ProductFiltersState>({
+    search: "", category: "all", brand: "all", priceRange: [0, 99999999], offersOnly: false,
+  });
+
+  // When products load, adjust max price
+  const effectiveMaxPrice = maxPrice > 1 ? maxPrice : 99999999;
+
+  const categories = useMemo(() => {
+    const slugs = new Set<string>();
+    return products
+      .filter(p => p.catalog_categories && !slugs.has(p.catalog_categories.slug) && slugs.add(p.catalog_categories.slug))
+      .map(p => ({ slug: p.catalog_categories!.slug, name: p.catalog_categories!.name }));
+  }, [products]);
+
+  const brands = useMemo(() => {
+    const names = new Set<string>();
+    return products
+      .filter(p => p.catalog_brands && !names.has(p.catalog_brands.name) && names.add(p.catalog_brands.name))
+      .map(p => ({ name: p.catalog_brands!.name }));
+  }, [products]);
+
+  const filtered = useMemo(() => {
+    return products.filter(p => {
+      if (filters.search) {
+        const s = filters.search.toLowerCase();
+        if (!p.name.toLowerCase().includes(s) && !p.description?.toLowerCase().includes(s)) return false;
+      }
+      if (filters.category !== "all" && p.catalog_categories?.slug !== filters.category) return false;
+      if (filters.brand !== "all" && p.catalog_brands?.name !== filters.brand) return false;
+      if (filters.offersOnly && !p.is_offer) return false;
+      if (p.price_cop < filters.priceRange[0] || p.price_cop > filters.priceRange[1]) return false;
+      return true;
+    });
+  }, [products, filters]);
 
   return (
     <Layout>
@@ -228,26 +263,34 @@ const ProductosPage = () => {
               {[1, 2, 3, 4, 5, 6].map(i => <Skeleton key={i} className="h-96 rounded-xl" />)}
             </div>
           ) : (
-            <Tabs defaultValue="licencias" className="w-full">
-              <div className="flex justify-center mb-8 overflow-x-auto pb-2">
-                <TabsList className="h-auto flex-wrap">
-                  {categoryTabs.map(c => (
-                    <TabsTrigger key={c.id} value={c.id} className="px-4 py-2">{c.name}</TabsTrigger>
+            <>
+              <ProductFilters
+                filters={filters}
+                onChange={setFilters}
+                categories={categories}
+                brands={brands}
+                maxPrice={effectiveMaxPrice}
+              />
+
+              {filtered.length === 0 ? (
+                <div className="py-16 text-center text-muted-foreground">
+                  <p className="text-lg">No se encontraron productos con esos filtros</p>
+                  <Button variant="outline" className="mt-4" onClick={() => setFilters({ search: "", category: "all", brand: "all", priceRange: [0, effectiveMaxPrice], offersOnly: false })}>
+                    Limpiar filtros
+                  </Button>
+                </div>
+              ) : (
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {filtered.map((product, index) => (
+                    <ProductCard key={product.id} product={product} index={index} />
                   ))}
-                </TabsList>
-              </div>
-              {categoryTabs.map(cat => (
-                <TabsContent key={cat.id} value={cat.id}>
-                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {products
-                      .filter(p => cat.id === "all" || p.catalog_categories?.slug === cat.id)
-                      .map((product, index) => (
-                        <ProductCard key={product.id} product={product} index={index} />
-                      ))}
-                  </div>
-                </TabsContent>
-              ))}
-            </Tabs>
+                </div>
+              )}
+
+              <p className="text-center text-sm text-muted-foreground mt-6">
+                Mostrando {filtered.length} de {products.length} productos
+              </p>
+            </>
           )}
         </div>
       </section>
