@@ -1,45 +1,80 @@
 
+# Cotizaciones Web Inteligentes y Limpieza del CRM
 
-## Plan: Corregir contenido factual del cluster Firma Digital en Guías DIAN
+## Problema Detectado
 
-### Problema
-El sitio afirma incorrectamente que la DIAN no ofrece certificado de firma digital gratuito. La DIAN SI lo ofrece mediante convenio con GSE para quienes usan su Software Gratuito. Esto afecta la credibilidad del sitio y puede impactar negativamente el SEO (Google penaliza contenido inexacto en temas YMYL).
+Actualmente, cada vez que alguien envía una cotización por WhatsApp desde el carrito, se crea un contacto en el CRM con:
+- **Nombre:** "Cotización Web" (genérico, inútil)
+- **Email:** vacío
+- **Teléfono:** vacío
+- **Notas:** solo el detalle de productos
 
-### Cambios en `src/data/dianArticles.ts`
+Esto llena el CRM de registros "fantasma" que no permiten dar seguimiento.
 
-#### 1. Artículo `firma-digital-dian-gratis` (el más afectado)
+## Causa Raíz
 
-- **Sección "¿La DIAN ofrece firma digital gratis?"**: Reescribir completamente. Cambiar de "No" a "Sí, pero con limitaciones". Explicar que la DIAN otorga un certificado sin costo a través de convenios con GSE, exclusivamente para quienes usan el Software Solución Gratuita.
-- **Agregar nueva sección**: "Cómo solicitar el certificado gratuito paso a paso" con los 5 pasos: Habilitación, Selección del Modo, Solicitud del Certificado, Validación con el Certificador, e Instalación.
-- **Agregar nueva sección**: "Datos clave del certificado gratuito" con vigencia (1-2 años), renovación gratuita (hasta 3 meses antes), y requisito del RUT actualizado.
-- **Ajustar sección SistecPOS**: El argumento comercial pasa de "no existe gratis" a "existe gratis pero solo con el software básico de la DIAN que carece de inventario, reportes, multi-tienda, POS y soporte técnico personalizado".
-- **Actualizar FAQs**: Agregar pregunta sobre la diferencia entre el certificado gratuito DIAN y un certificado comercial.
-- **Actualizar `painVsSolution`**: Cambiar los dolores a las limitaciones reales del software gratuito DIAN (sin inventario, sin reportes, sin POS, sin soporte) en vez de decir que no existe opción gratuita.
+1. El `CartDrawer` no pide datos de contacto antes de enviar la cotización
+2. La Edge Function `register-quote` crea un contacto siempre, incluso sin datos identificables
+3. No existe validación de "datos mínimos" para crear un contacto
 
-#### 2. Artículo `certificados-digitales-facturacion-electronica`
+## Solución Propuesta
 
-- **Agregar sección**: "Opción gratuita: certificado vía Software DIAN" explicando que existe esta vía pero limitada al software básico de la DIAN.
-- **Actualizar bullets de precios**: Agregar línea "Software Gratuito DIAN + GSE: $0 COP (solo con el facturador básico de la DIAN)".
+### 1. Mini-formulario de contacto antes de cotizar
 
-#### 3. Artículo `obtener-firma-electronica-dian`
+Agregar un paso previo en el `CartDrawer` que pida:
+- **Nombre** (obligatorio)
+- **WhatsApp** (obligatorio, 10 dígitos)
+- **Email** (opcional)
 
-- **Agregar "Paso 0"**: Antes de los pasos actuales, mencionar que si el usuario planea usar el Software Gratuito de la DIAN, puede obtener el certificado sin costo siguiendo el flujo de solicitud en el portal DIAN.
-- **Aclarar en la sección de proveedores**: Que GSE también emite certificados gratuitos a través del convenio con la DIAN.
+Este formulario se muestra al hacer clic en "Cotizar por WhatsApp", antes de abrir la ventana de WhatsApp. Es un formulario compacto inline, no un dialog extra.
 
-#### 4. Artículo `andes-scd-vs-gse`
+### 2. Refactorizar la Edge Function `register-quote`
 
-- **Agregar mención en sección GSE**: Que GSE tiene un convenio con la DIAN para emitir certificados gratuitos a quienes usan el Software Solución Gratuita.
-- **Actualizar bullet de precios GSE**: Agregar "GSE vía convenio DIAN (Software Gratuito): $0 COP".
+- Aplicar **smart upsert** (igual que ya se hace en `sync_lead_to_contact`): buscar contacto existente por teléfono o email antes de crear uno nuevo
+- Si ya existe, solo agregar una actividad de cotización al historial
+- Si no existe, crear contacto con los datos reales del formulario
+- Marcar la fuente como `"cotizacion_web"` para diferenciarlos en el CRM
 
-### Enfoque comercial actualizado (honesto y efectivo)
+### 3. Limpieza de datos existentes
 
-En todas las secciones de SistecPOS, el argumento cambia a:
+Eliminar los contactos "Cotización Web" que no tienen teléfono ni email (son 2 registros actualmente), ya que no aportan valor.
 
-> "La DIAN ofrece un certificado gratuito, pero solo funciona con su software básico que no incluye: control de inventario, reportes de ventas, punto de venta (POS), soporte técnico personalizado, gestión multi-tienda ni integraciones avanzadas. Con SistecPOS tienes todo esto MAS el certificado incluido."
+### 4. No crear contacto si no hay datos identificables (fallback)
 
-### Impacto
-- Corrige desinformación factual en 4 artículos
-- Mejora la credibilidad SEO (contenido YMYL preciso)
-- Mantiene el argumento comercial de SistecPOS de forma honesta
-- Sin cambios en componentes ni estructura, solo datos en `dianArticles.ts`
+Si por alguna razón se invoca `register-quote` sin nombre ni teléfono, solo registrar los eventos de producto pero NO crear contacto. Esto previene basura futura.
 
+## Flujo Nuevo
+
+```text
+Usuario agrega productos al carrito
+    |
+    v
+Clic en "Cotizar por WhatsApp"
+    |
+    v
+Mini-formulario: Nombre + WhatsApp + Email(opcional)
+    |
+    v
+Se envía a register-quote con datos reales
+    |
+    v
+Edge Function: busca contacto por phone/email
+    |-- Existe --> agrega actividad "nueva cotización"
+    |-- No existe --> crea contacto con datos reales
+    |
+    v
+Abre WhatsApp con mensaje pre-armado
+```
+
+## Cambios Técnicos
+
+| Archivo | Cambio |
+|---------|--------|
+| `src/components/cart/CartDrawer.tsx` | Agregar mini-formulario de contacto (nombre, WhatsApp, email opcional) con validación. Enviar datos al payload de `register-quote`. |
+| `supabase/functions/register-quote/index.ts` | Implementar smart upsert por phone/email. Si no hay datos identificables, saltar creación de contacto. Usar fuente `"cotizacion_web"`. |
+| SQL (limpieza) | Eliminar registros existentes de "Cotización Web" sin phone ni email. |
+| `src/components/admin/ContactsView.tsx` | Agregar `"cotizacion_web"` como fuente reconocida en los labels del CRM. |
+
+## Sobre Leads/Demos
+
+El flujo de Leads/Demos ya captura correctamente nombre, WhatsApp, email y ciudad desde el formulario. El trigger `sync_lead_to_contact` ya sincroniza al CRM con deduplicación. No requiere cambios.
