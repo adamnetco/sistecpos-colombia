@@ -19,10 +19,11 @@ import {
 } from "@/components/ui/accordion";
 import { toast } from "sonner";
 import {
-  FileText, Plus, Pencil, Trash2, Eye, Copy, GripVertical, Search,
+  FileText, Plus, Trash2, GripVertical, Search,
 } from "lucide-react";
 import { DianArticlePreview } from "./dian/DianArticlePreview";
 import { DianImportButton } from "./dian/DianImportButton";
+import { DianArticleList } from "./dian/DianArticleList";
 import { CLUSTER_OPTIONS, CLUSTER_LABELS } from "./dian/clusterConfig";
 
 const iconOptions = [
@@ -203,16 +204,6 @@ export default function DianArticlesView() {
     onError: (e: any) => toast.error(e.message),
   });
 
-  const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase.from("dian_articles").delete().eq("id", id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      toast.success("Artículo eliminado");
-      queryClient.invalidateQueries({ queryKey: ["admin_dian_articles"] });
-    },
-  });
 
   const addSection = () => set("sections", [...form.sections, { title: "", content: "", bullets: [] }]);
   const updateSection = (idx: number, key: string, val: any) => {
@@ -290,49 +281,12 @@ export default function DianArticlesView() {
       {/* List */}
       {isLoading ? (
         <div className="py-8 text-center text-muted-foreground">Cargando...</div>
-      ) : filtered.length === 0 ? (
-        <div className="py-12 text-center">
-          <FileText className="h-12 w-12 mx-auto text-muted-foreground/50 mb-3" />
-          <p className="text-muted-foreground">No hay artículos DIAN</p>
-        </div>
       ) : (
-        <div className="space-y-2">
-          {filtered.map((a) => (
-            <Card key={a.id} className={`border-0 shadow-sm ${!a.is_published ? "opacity-60" : ""}`}>
-              <CardContent className="p-4 flex items-start justify-between gap-4">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1 flex-wrap">
-                    <Badge variant="secondary" className="text-[10px]">{a.hero_badge || "Sin badge"}</Badge>
-                    <Badge variant="outline" className="text-[10px]">/{a.slug}</Badge>
-                    <Badge variant="outline" className="text-[10px]">{CLUSTER_LABELS[a.cluster] || a.cluster}</Badge>
-                    {a.is_published ? (
-                      <Badge className="text-[10px] bg-primary/10 text-primary">Publicado</Badge>
-                    ) : (
-                      <Badge variant="destructive" className="text-[10px]">Borrador</Badge>
-                    )}
-                    <span className="text-[10px] text-muted-foreground">
-                      {a.sections?.length || 0} secciones · {a.faqs?.length || 0} FAQs
-                    </span>
-                  </div>
-                  <h3 className="font-medium text-sm line-clamp-1">{a.h1}</h3>
-                  <p className="text-xs text-muted-foreground mt-1 line-clamp-1">{a.meta_description}</p>
-                </div>
-                <div className="flex items-center gap-1 shrink-0">
-                  <Button size="icon" variant="ghost" className="h-8 w-8" asChild>
-                    <a href={`/guias-dian/${a.slug}`} target="_blank" rel="noopener noreferrer">
-                      <Eye className="h-3.5 w-3.5" />
-                    </a>
-                  </Button>
-                  <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => duplicateArticle(a)}><Copy className="h-3.5 w-3.5" /></Button>
-                  <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => openEdit(a)}><Pencil className="h-3.5 w-3.5" /></Button>
-                  <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive" onClick={() => { if (confirm("¿Eliminar?")) deleteMutation.mutate(a.id); }}>
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <DianArticleList
+          articles={filtered}
+          onEdit={openEdit}
+          onDuplicate={duplicateArticle}
+        />
       )}
 
       {/* Editor Dialog with Preview */}
