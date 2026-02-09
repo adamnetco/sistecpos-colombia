@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Quote, MessageCircle, Trophy, Target, Lightbulb, TrendingUp } from "lucide-react";
+import { ArrowLeft, Quote, MessageCircle, Trophy, Target, Lightbulb, TrendingUp, Instagram, Globe, ExternalLink } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function CasoExitoDetallePage() {
@@ -83,7 +83,33 @@ export default function CasoExitoDetallePage() {
             </div>
 
             <h1 className="text-3xl md:text-4xl font-bold mb-2">{story.title}</h1>
-            <p className="text-lg text-muted-foreground mb-8">{story.business_name}{story.contact_name && ` — ${story.contact_name}`}{story.contact_role && `, ${story.contact_role}`}</p>
+            <p className="text-lg text-muted-foreground mb-4">{story.business_name}{story.contact_name && ` — ${story.contact_name}`}{story.contact_role && `, ${story.contact_role}`}</p>
+
+            {/* Social links */}
+            {(story.instagram_url || story.website_url || story.tiktok_url || ((story.social_links as any[])?.length > 0)) && (
+              <div className="flex flex-wrap gap-3 mb-8">
+                {story.instagram_url && (
+                  <a href={story.instagram_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors border rounded-full px-3 py-1.5">
+                    <Instagram className="h-4 w-4" /> Instagram
+                  </a>
+                )}
+                {story.website_url && (
+                  <a href={story.website_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors border rounded-full px-3 py-1.5">
+                    <Globe className="h-4 w-4" /> Sitio Web
+                  </a>
+                )}
+                {story.tiktok_url && (
+                  <a href={story.tiktok_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors border rounded-full px-3 py-1.5">
+                    TikTok
+                  </a>
+                )}
+                {((story.social_links as any[]) || []).map((link: any, i: number) => (
+                  <a key={i} href={link.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors border rounded-full px-3 py-1.5">
+                    <ExternalLink className="h-3.5 w-3.5" /> {link.label}
+                  </a>
+                ))}
+              </div>
+            )}
 
             {story.quote && (
               <Card className="border-0 shadow-card mb-8 bg-primary/5">

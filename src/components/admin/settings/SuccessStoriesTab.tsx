@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, Upload, X, Trophy } from "lucide-react";
+import { Plus, Pencil, Trash2, Upload, X, Trophy, Instagram, Globe, ExternalLink } from "lucide-react";
 
 const businessTypes = [
   "restaurante", "tienda", "minimercado", "ferretería", "droguería",
@@ -25,6 +25,8 @@ const defaultForm = {
   city: "", contact_name: "", contact_role: "", quote: "",
   challenge: "", solution: "", results: "",
   image_url: "", logo_url: "", video_url: "",
+  instagram_url: "", website_url: "", tiktok_url: "",
+  social_links: [] as { label: string; url: string }[],
   metrics: [] as { label: string; value: string }[],
   tags: [] as string[],
   is_featured: false, is_published: false, sort_order: 0,
@@ -37,6 +39,8 @@ export default function SuccessStoriesTab() {
   const [form, setForm] = useState(defaultForm);
   const [newMetricLabel, setNewMetricLabel] = useState("");
   const [newMetricValue, setNewMetricValue] = useState("");
+  const [newSocialLabel, setNewSocialLabel] = useState("");
+  const [newSocialUrl, setNewSocialUrl] = useState("");
 
   const { data: stories = [], isLoading } = useQuery({
     queryKey: ["admin_success_stories"],
@@ -61,6 +65,9 @@ export default function SuccessStoriesTab() {
       solution: s.solution || "", results: s.results || "",
       image_url: s.image_url || "", logo_url: s.logo_url || "",
       video_url: s.video_url || "",
+      instagram_url: s.instagram_url || "", website_url: s.website_url || "",
+      tiktok_url: s.tiktok_url || "",
+      social_links: (s.social_links as any[]) || [],
       metrics: (s.metrics as any[]) || [],
       tags: s.tags || [],
       is_featured: s.is_featured, is_published: s.is_published,
@@ -72,7 +79,7 @@ export default function SuccessStoriesTab() {
   const saveMutation = useMutation({
     mutationFn: async () => {
       const slug = form.slug || form.title.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
-      const payload = { ...form, slug, metrics: form.metrics as any };
+      const payload = { ...form, slug, metrics: form.metrics as any, social_links: form.social_links as any };
       if (editing) {
         const { error } = await supabase.from("success_stories").update(payload).eq("id", editing.id);
         if (error) throw error;
@@ -258,6 +265,47 @@ export default function SuccessStoriesTab() {
               <div>
                 <Label>URL de Video</Label>
                 <Input value={form.video_url} onChange={e => set("video_url", e.target.value)} placeholder="https://youtube.com/..." />
+              </div>
+
+              {/* Social Media Links */}
+              <div className="space-y-3">
+                <Label className="font-medium">Redes Sociales</Label>
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <Label className="text-xs flex items-center gap-1"><Instagram className="h-3 w-3" /> Instagram</Label>
+                    <Input value={form.instagram_url} onChange={e => set("instagram_url", e.target.value)} placeholder="https://instagram.com/..." className="mt-1" />
+                  </div>
+                  <div>
+                    <Label className="text-xs flex items-center gap-1"><Globe className="h-3 w-3" /> Sitio Web</Label>
+                    <Input value={form.website_url} onChange={e => set("website_url", e.target.value)} placeholder="https://..." className="mt-1" />
+                  </div>
+                  <div>
+                    <Label className="text-xs flex items-center gap-1">TikTok</Label>
+                    <Input value={form.tiktok_url} onChange={e => set("tiktok_url", e.target.value)} placeholder="https://tiktok.com/@..." className="mt-1" />
+                  </div>
+                </div>
+                {/* Custom social links */}
+                <div>
+                  <Label className="text-xs">Enlaces personalizados</Label>
+                  <div className="flex gap-2 mt-1">
+                    <Input value={newSocialLabel} onChange={e => setNewSocialLabel(e.target.value)} placeholder="Ej: Facebook" className="flex-1" />
+                    <Input value={newSocialUrl} onChange={e => setNewSocialUrl(e.target.value)} placeholder="https://..." className="flex-1" />
+                    <Button variant="outline" size="icon" onClick={() => {
+                      if (newSocialLabel.trim() && newSocialUrl.trim()) {
+                        set("social_links", [...form.social_links, { label: newSocialLabel.trim(), url: newSocialUrl.trim() }]);
+                        setNewSocialLabel(""); setNewSocialUrl("");
+                      }
+                    }}><Plus className="h-4 w-4" /></Button>
+                  </div>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {form.social_links.map((s, i) => (
+                      <span key={i} className="inline-flex items-center gap-1 bg-muted px-2 py-1 rounded text-xs">
+                        <ExternalLink className="h-3 w-3" />{s.label}
+                        <button onClick={() => set("social_links", form.social_links.filter((_, j) => j !== i))}><X className="h-3 w-3" /></button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
               </div>
 
               {/* Toggles */}
