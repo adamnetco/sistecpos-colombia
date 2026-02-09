@@ -2,11 +2,12 @@ import { useCart } from "@/hooks/useCart";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ShoppingCart, Plus, Minus, Trash2, MessageCircle } from "lucide-react";
+import { ShoppingCart, Plus, Minus, Trash2, MessageCircle, CreditCard } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useState } from "react";
+import { WompiCheckoutButton } from "@/components/payments/WompiCheckoutButton";
 
 const formatCOP = (n: number) =>
   new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0 }).format(n);
@@ -130,14 +131,31 @@ export function CartDrawer() {
               <p className="text-xs text-muted-foreground">
                 * Precio final sujeto a confirmación. Incluye instalación y configuración.
               </p>
+              <WompiCheckoutButton
+                amountCents={totalCOP * 100}
+                cartItems={items.map(i => ({
+                  product_name: i.name,
+                  quantity: i.quantity,
+                  price_cop: i.price_cop,
+                }))}
+                onSuccess={() => {
+                  clearCart();
+                  toast.success("¡Pago iniciado! Te redirigiremos al resultado.");
+                }}
+                className="w-full gap-2"
+              >
+                <CreditCard className="h-5 w-5" />
+                Pagar en línea
+              </WompiCheckoutButton>
               <Button
                 size="lg"
-                className="w-full btn-whatsapp gap-2"
+                variant="outline"
+                className="w-full gap-2"
                 onClick={handleSendQuote}
                 disabled={sending}
               >
                 <MessageCircle className="h-5 w-5" />
-                {sending ? "Registrando..." : "Enviar Cotización por WhatsApp"}
+                {sending ? "Registrando..." : "Cotizar por WhatsApp"}
               </Button>
               <Button variant="ghost" size="sm" onClick={clearCart} className="w-full text-muted-foreground">
                 Vaciar cotización
