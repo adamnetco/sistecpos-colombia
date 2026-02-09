@@ -3,6 +3,7 @@ export interface LicensePlan {
   label: string;
   description: string;
   isAnnual: boolean;
+  defaultPriceCOP: number;
 }
 
 export const LICENSE_PLANS: LicensePlan[] = [
@@ -11,18 +12,21 @@ export const LICENSE_PLANS: LicensePlan[] = [
     label: "Plan Emprendedor",
     description: "Ideal para pequeños negocios (1 punto de venta)",
     isAnnual: true,
+    defaultPriceCOP: 549000,
   },
   {
     value: "negocio",
     label: "Plan Negocio",
     description: "Para empresas con procesos de inventario más detallados",
     isAnnual: true,
+    defaultPriceCOP: 999000,
   },
   {
     value: "empresarial",
     label: "Plan Empresarial",
     description: "Para negocios con múltiples sedes o bodegas",
     isAnnual: true,
+    defaultPriceCOP: 1479000,
   },
 ];
 
