@@ -23,7 +23,7 @@ Deno.serve(async (req) => {
     }
 
     const publicKey = Deno.env.get("WOMPI_PUBLIC_KEY")!;
-    const integritySecret = Deno.env.get("WOMPI_EVENTS_SECRET")!;
+    const integritySecret = Deno.env.get("WOMPI_INTEGRITY_SECRET")!;
     const environment = Deno.env.get("WOMPI_ENVIRONMENT") || "sandbox";
     const currency = "COP";
 
