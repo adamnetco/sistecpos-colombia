@@ -22,6 +22,7 @@ import {
   AlertTriangle,
   Clock,
 } from "lucide-react";
+import { exportToCsv } from "@/lib/exportCsv";
 
 interface CertOrder {
   id: string;
@@ -215,9 +216,23 @@ export default function CertificatesView() {
     <div>
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold font-display">Órdenes de Certificados</h1>
-        <Button variant="outline" size="sm" onClick={() => setShowSettings(true)}>
-          <Settings2 className="h-3.5 w-3.5 mr-1" /> Retención de Docs
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button size="sm" variant="outline" onClick={() => exportToCsv(orders as any[], [
+            { key: "full_name", label: "Nombre" },
+            { key: "nit", label: "NIT" },
+            { key: "email", label: "Email" },
+            { key: "phone", label: "Teléfono" },
+            { key: "plan", label: "Plan" },
+            { key: "price_cop", label: "Precio COP" },
+            { key: "status", label: "Estado" },
+            { key: "created_at", label: "Fecha" },
+          ], "certificados")}>
+            <Download className="h-3.5 w-3.5 mr-1" /> Exportar
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => setShowSettings(true)}>
+            <Settings2 className="h-3.5 w-3.5 mr-1" /> Retención de Docs
+          </Button>
+        </div>
       </div>
 
       {loading ? (

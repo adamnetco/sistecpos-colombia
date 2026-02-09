@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { RefreshCw, Search, Eye, Pause, Play } from "lucide-react";
+import { RefreshCw, Search, Eye, Pause, Play, Download } from "lucide-react";
+import { exportToCsv } from "@/lib/exportCsv";
 import { LicenseCreateDialog } from "./licenses/LicenseCreateDialog";
 import { LicenseRenewDialog } from "./licenses/LicenseRenewDialog";
 import { LicenseDetailsDialog } from "./licenses/LicenseDetailsDialog";
@@ -90,7 +91,24 @@ export default function LicensesView() {
       {/* Header */}
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-2xl font-bold font-display">Licencias</h1>
-        <LicenseCreateDialog open={showAdd} onOpenChange={setShowAdd} onCreated={load} />
+        <div className="flex items-center gap-2">
+          <Button size="sm" variant="outline" onClick={() => exportToCsv(filtered, [
+            { key: "business_name", label: "Negocio" },
+            { key: "business_nit", label: "NIT" },
+            { key: "contact_name", label: "Contacto" },
+            { key: "contact_email", label: "Email" },
+            { key: "contact_phone", label: "Teléfono" },
+            { key: "plan_type", label: "Plan" },
+            { key: "status", label: "Estado" },
+            { key: "start_date", label: "Inicio" },
+            { key: "expires_at", label: "Vencimiento" },
+            { key: "license_key", label: "Clave" },
+            { key: "price_paid", label: "Precio" },
+          ], "licencias")}>
+            <Download className="h-3.5 w-3.5 mr-1" /> Exportar
+          </Button>
+          <LicenseCreateDialog open={showAdd} onOpenChange={setShowAdd} onCreated={load} />
+        </div>
       </div>
 
       {/* Stats */}

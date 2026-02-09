@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ChartContainer } from "@/components/ui/chart";
 import { BarChart, Bar } from "recharts";
-import { CreditCard, DollarSign, Clock, Wallet, CheckCircle2, XCircle, AlertTriangle } from "lucide-react";
+import { CreditCard, DollarSign, Clock, Wallet, CheckCircle2, XCircle, AlertTriangle, Download } from "lucide-react";
+import { exportToCsv } from "@/lib/exportCsv";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -121,6 +123,25 @@ export default function PaymentsView() {
       <div className="mb-6 flex items-center gap-3">
         <CreditCard className="h-6 w-6 text-primary" />
         <h1 className="text-2xl font-bold font-display">Pagos</h1>
+        <div className="ml-auto">
+          <Button size="sm" variant="outline" onClick={() => {
+            const allData = [
+              ...payments.map(p => ({ fecha: new Date(p.created_at).toLocaleDateString("es-CO"), cliente: "—", monto: p.amount, metodo: p.payment_method || "—", referencia: p.reference || "—", estado: p.status, tipo: "Manual" })),
+              ...wompiTxs.map(t => ({ fecha: new Date(t.created_at).toLocaleDateString("es-CO"), cliente: t.customer_name || "—", monto: t.amount_cents / 100, metodo: t.payment_method || "—", referencia: t.reference, estado: t.status, tipo: "Wompi" })),
+            ];
+            exportToCsv(allData, [
+              { key: "fecha", label: "Fecha" },
+              { key: "cliente", label: "Cliente" },
+              { key: "monto", label: "Monto COP" },
+              { key: "metodo", label: "Método" },
+              { key: "referencia", label: "Referencia" },
+              { key: "estado", label: "Estado" },
+              { key: "tipo", label: "Tipo" },
+            ], "pagos");
+          }}>
+            <Download className="h-3.5 w-3.5 mr-1" /> Exportar
+          </Button>
+        </div>
       </div>
 
       {/* Summary cards */}

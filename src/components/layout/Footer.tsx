@@ -2,6 +2,7 @@ import { forwardRef } from "react";
 import { Link } from "react-router-dom";
 import { Mail, Phone, MapPin } from "lucide-react";
 import logoSistecPOSWhite from "@/assets/logo-sistecpos-white.png";
+import { useNavItems } from "@/hooks/useNavItems";
 
 const footerLinks = {
   soluciones: [
@@ -31,7 +32,7 @@ const footerLinks = {
     { name: "POS Valledupar", href: "/software-pos/valledupar" },
     { name: "POS Cúcuta", href: "/software-pos/cucuta" },
   ],
-  empresa: [
+  empresaFallback: [
     { name: "Soluciones por Industria", href: "/soluciones" },
     { name: "Software POS Colombia", href: "/software-pos-colombia" },
     { name: "Facturación Electrónica", href: "/facturacion-electronica" },
@@ -54,6 +55,11 @@ const presencialCities = [
 ];
 
 export const Footer = forwardRef<HTMLElement>((_props, ref) => {
+  const { topItems: footerNavItems } = useNavItems("footer");
+  const empresaLinks = footerNavItems.length > 0
+    ? footerNavItems.map((n) => ({ name: n.label, href: n.href }))
+    : footerLinks.empresaFallback;
+
   return (
     <footer ref={ref} className="bg-foreground text-primary-foreground" id="contacto">
       <div className="container px-4 py-12 md:py-16">
@@ -153,7 +159,7 @@ export const Footer = forwardRef<HTMLElement>((_props, ref) => {
           <div>
             <h3 className="font-semibold mb-4">Empresa</h3>
             <ul className="space-y-2">
-              {footerLinks.empresa.map((link) => (
+              {empresaLinks.map((link) => (
                 <li key={link.name}>
                   <Link
                     to={link.href}

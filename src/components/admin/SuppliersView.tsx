@@ -8,7 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Package, Plus, Pencil, Trash2, Search, Globe, Mail, Phone, MapPin } from "lucide-react";
+import { Package, Plus, Pencil, Trash2, Search, Globe, Mail, Phone, MapPin, Download } from "lucide-react";
+import { exportToCsv } from "@/lib/exportCsv";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface Supplier {
@@ -75,15 +76,29 @@ export default function SuppliersView() {
             <p className="text-sm text-muted-foreground">Software, hardware y certificados digitales</p>
           </div>
         </div>
-        <Dialog open={showForm} onOpenChange={(o) => { if (!o) { setEditing(null); } setShowForm(o); }}>
-          <DialogTrigger asChild>
-            <Button size="sm"><Plus className="h-3.5 w-3.5 mr-1" /> Nuevo Proveedor</Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-lg">
-            <DialogHeader><DialogTitle>{editing ? "Editar Proveedor" : "Nuevo Proveedor"}</DialogTitle></DialogHeader>
-            <SupplierForm supplier={editing} onSuccess={() => { setShowForm(false); setEditing(null); load(); }} />
-          </DialogContent>
-        </Dialog>
+        <div className="flex items-center gap-2">
+          <Button size="sm" variant="outline" onClick={() => exportToCsv(filtered as any[], [
+            { key: "name", label: "Nombre" },
+            { key: "supplier_type", label: "Tipo" },
+            { key: "contact_name", label: "Contacto" },
+            { key: "email", label: "Email" },
+            { key: "phone", label: "Teléfono" },
+            { key: "city", label: "Ciudad" },
+            { key: "website", label: "Web" },
+            { key: "status", label: "Estado" },
+          ], "proveedores")}>
+            <Download className="h-3.5 w-3.5 mr-1" /> Exportar
+          </Button>
+          <Dialog open={showForm} onOpenChange={(o) => { if (!o) { setEditing(null); } setShowForm(o); }}>
+            <DialogTrigger asChild>
+              <Button size="sm"><Plus className="h-3.5 w-3.5 mr-1" /> Nuevo Proveedor</Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-lg">
+              <DialogHeader><DialogTitle>{editing ? "Editar Proveedor" : "Nuevo Proveedor"}</DialogTitle></DialogHeader>
+              <SupplierForm supplier={editing} onSuccess={() => { setShowForm(false); setEditing(null); load(); }} />
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       <div className="mb-4 flex flex-wrap items-center gap-3">
