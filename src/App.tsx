@@ -18,7 +18,6 @@ import Index from "./pages/Index";
 
 // Lazy load all other pages for code splitting
 const SolucionesPage = lazy(() => import("./pages/SolucionesPage"));
-const RetailPage = lazy(() => import("./pages/RetailPage"));
 const ProductosPage = lazy(() => import("./pages/ProductosPage"));
 const ProductoDetallePage = lazy(() => import("./pages/ProductoDetallePage"));
 const NosotrosPage = lazy(() => import("./pages/NosotrosPage"));
