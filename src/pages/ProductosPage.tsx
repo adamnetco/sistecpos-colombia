@@ -11,9 +11,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { 
   Printer, Tag, CircleDollarSign, Barcode, ScrollText,
   MessageCircle, CheckCircle2, FileText, ArrowRight,
-  Sparkles, Crown, Building2
+  Sparkles, Crown, Building2, ShoppingCart,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { useCart } from "@/hooks/useCart";
+import { toast } from "sonner";
 
 interface DBProduct {
   id: string;
@@ -69,6 +71,7 @@ const getCategoryIcon = (slug: string) => {
 };
 
 const ProductCard = ({ product, index }: { product: DBProduct; index: number }) => {
+  const { addItem } = useCart();
   const catSlug = product.catalog_categories?.slug || "";
   const isLicense = catSlug === "licencias" || catSlug === "modulos";
   const CategoryIcon = isLicense ? getLicenseIcon(product.name) : getCategoryIcon(catSlug);
@@ -156,10 +159,21 @@ const ProductCard = ({ product, index }: { product: DBProduct; index: number }) 
           <Button variant="outline" className="flex-1 gap-1" asChild>
             <Link to={`/productos/${product.slug}`}>Ver más <ArrowRight className="h-4 w-4" /></Link>
           </Button>
-          <Button className="flex-1 bg-whatsapp hover:bg-whatsapp/90 text-white gap-1" asChild>
-            <a href={`https://wa.me/573176268307?text=Hola,%20quiero%20cotizar:%20${encodeURIComponent(product.name)}`} target="_blank" rel="noopener noreferrer">
-              <MessageCircle className="h-4 w-4" />Cotizar
-            </a>
+          <Button
+            className="flex-1 gap-1"
+            onClick={() => {
+              addItem({
+                id: product.id,
+                slug: product.slug,
+                name: product.name,
+                price_cop: product.price_cop,
+                price_usd: product.price_usd,
+                image_url: product.image_url,
+              });
+              toast.success(`${product.name} agregado a la cotización`);
+            }}
+          >
+            <ShoppingCart className="h-4 w-4" />Agregar
           </Button>
         </CardFooter>
       </Card>

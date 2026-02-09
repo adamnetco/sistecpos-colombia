@@ -9,11 +9,13 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { 
   MessageCircle, CheckCircle2, ArrowLeft, Printer, Tag,
-  CircleDollarSign, Barcode, ScrollText, FileText, Package, Settings, Truck
+  CircleDollarSign, Barcode, ScrollText, FileText, Package, Settings, Truck, ShoppingCart
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { SEO } from "@/components/seo/SEO";
 import { JsonLd, productSchema } from "@/components/seo/JsonLd";
+import { useCart } from "@/hooks/useCart";
+import { toast } from "sonner";
 
 const formatPrice = (price: number) =>
   new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0 }).format(price);
@@ -28,6 +30,7 @@ const getCategoryIcon = (slug: string) => {
 
 const ProductoDetallePage = () => {
   const { slug } = useParams<{ slug: string }>();
+  const { addItem } = useCart();
 
   const { data: product, isLoading } = useQuery({
     queryKey: ["public_product", slug],
@@ -167,13 +170,27 @@ const ProductoDetallePage = () => {
                 </p>
               </div>
               <div className="flex flex-col sm:flex-row gap-3">
+                <Button
+                  size="lg"
+                  className="flex-1 gap-2"
+                  onClick={() => {
+                    addItem({
+                      id: product.id,
+                      slug: product.slug,
+                      name: product.name,
+                      price_cop: product.price_cop,
+                      price_usd: product.price_usd,
+                      image_url: product.image_url,
+                    });
+                    toast.success(`${product.name} agregado a la cotización`);
+                  }}
+                >
+                  <ShoppingCart className="h-5 w-5" />Agregar a Cotización
+                </Button>
                 <Button size="lg" className="flex-1 bg-whatsapp hover:bg-whatsapp/90 text-white gap-2" asChild>
                   <a href={`https://wa.me/573176268307?text=Hola,%20quiero%20cotizar:%20${encodeURIComponent(product.name)}`} target="_blank" rel="noopener noreferrer">
-                    <MessageCircle className="h-5 w-5" />Cotizar por WhatsApp
+                    <MessageCircle className="h-5 w-5" />WhatsApp
                   </a>
-                </Button>
-                <Button size="lg" variant="outline" className="flex-1 gap-2" asChild>
-                  <a href="tel:+573176268307">Llamar ahora</a>
                 </Button>
               </div>
             </motion.div>
