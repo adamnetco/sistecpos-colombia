@@ -1,80 +1,78 @@
 
-# Cotizaciones Web Inteligentes y Limpieza del CRM
 
-## Problema Detectado
+# Auditoría del Sitio y Mejoras del Portal de Socios
 
-Actualmente, cada vez que alguien envía una cotización por WhatsApp desde el carrito, se crea un contacto en el CRM con:
-- **Nombre:** "Cotización Web" (genérico, inútil)
-- **Email:** vacío
-- **Teléfono:** vacío
-- **Notas:** solo el detalle de productos
+## 1. Problema: Ruta /analytics da 404
 
-Esto llena el CRM de registros "fantasma" que no permiten dar seguimiento.
+La ruta `/analytics` NO existe como pagina publica. La pagina de Analytics de la tienda vive en `/admin/analytics` y requiere sesion de administrador. No hay ninguna ruta publica registrada en `App.tsx` para `/analytics`.
 
-## Causa Raíz
+**Solucion:** Agregar un redirect `/analytics` -> `/admin/analytics` en `App.tsx` para que si alguien navega directamente, sea redirigido al panel admin donde se valida el acceso.
 
-1. El `CartDrawer` no pide datos de contacto antes de enviar la cotización
-2. La Edge Function `register-quote` crea un contacto siempre, incluso sin datos identificables
-3. No existe validación de "datos mínimos" para crear un contacto
+## 2. Rutas del Portal de Socios
 
-## Solución Propuesta
+Las rutas del portal de socios son `/socio/*`, NO `/reseller/*`. Las rutas correctas son:
+- `/socio` - Dashboard
+- `/socio/licencias` - Licencias
+- `/socio/entrenamientos` - Entrenamientos
+- `/socio/tickets` - Tickets
+- `/socio/comisiones` - Comisiones
 
-### 1. Mini-formulario de contacto antes de cotizar
+Todas funcionan correctamente en el codigo. Solo que la URL base es `/socio`, no `/reseller`.
 
-Agregar un paso previo en el `CartDrawer` que pida:
-- **Nombre** (obligatorio)
-- **WhatsApp** (obligatorio, 10 dígitos)
-- **Email** (opcional)
+## 3. Mejoras del Portal de Socios
 
-Este formulario se muestra al hacer clic en "Cotizar por WhatsApp", antes de abrir la ventana de WhatsApp. Es un formulario compacto inline, no un dialog extra.
+### 3.1 Licencias (`/socio/licencias`)
+- Agregar **contadores resumen** en la parte superior (Total, Activas, Vencidas, Por vencer en 30 dias)
+- Agregar boton de **Exportar CSV** (reutilizando `exportCsv.ts`)
+- Agregar **filtro por estado** (Todas, Activas, Vencidas, Suspendidas)
 
-### 2. Refactorizar la Edge Function `register-quote`
+### 3.2 Entrenamientos (`/socio/entrenamientos`)
+- Agregar **filtro por categoria** (tabs o select)
+- Mostrar **badge de conteo** por categoria
+- Agregar indicador de **contenido nuevo** si el entrenamiento fue creado hace menos de 7 dias
 
-- Aplicar **smart upsert** (igual que ya se hace en `sync_lead_to_contact`): buscar contacto existente por teléfono o email antes de crear uno nuevo
-- Si ya existe, solo agregar una actividad de cotización al historial
-- Si no existe, crear contacto con los datos reales del formulario
-- Marcar la fuente como `"cotizacion_web"` para diferenciarlos en el CRM
+### 3.3 Tickets (`/socio/tickets`)
+- Agregar **filtro por estado** (Todos, Abiertos, Resueltos)
+- Mostrar **badge de conteo** de tickets abiertos en el encabezado
+- Agregar **fecha de respuesta** cuando el admin responde
 
-### 3. Limpieza de datos existentes
+### 3.4 Comisiones (`/socio/comisiones`)
+- Agregar **resumen total** de comisiones estimadas basado en licencias vendidas vs reglas de comision
+- Agregar una seccion de **historial de pagos** (tabla `reseller_commission_payments` nueva)
+- Mostrar **estado de pago** (Pendiente, Pagado) con totales
 
-Eliminar los contactos "Cotización Web" que no tienen teléfono ni email (son 2 registros actualmente), ya que no aportan valor.
+### 3.5 Dashboard (`/socio`)
+- Agregar card de **Licencias por vencer** (proximos 30 dias) con alerta visual
+- Agregar **accesos rapidos** a las secciones mas usadas
+- Mostrar **comisiones pendientes** en el KPI
 
-### 4. No crear contacto si no hay datos identificables (fallback)
-
-Si por alguna razón se invoca `register-quote` sin nombre ni teléfono, solo registrar los eventos de producto pero NO crear contacto. Esto previene basura futura.
-
-## Flujo Nuevo
-
-```text
-Usuario agrega productos al carrito
-    |
-    v
-Clic en "Cotizar por WhatsApp"
-    |
-    v
-Mini-formulario: Nombre + WhatsApp + Email(opcional)
-    |
-    v
-Se envía a register-quote con datos reales
-    |
-    v
-Edge Function: busca contacto por phone/email
-    |-- Existe --> agrega actividad "nueva cotización"
-    |-- No existe --> crea contacto con datos reales
-    |
-    v
-Abre WhatsApp con mensaje pre-armado
-```
-
-## Cambios Técnicos
+## 4. Cambios Tecnicos
 
 | Archivo | Cambio |
 |---------|--------|
-| `src/components/cart/CartDrawer.tsx` | Agregar mini-formulario de contacto (nombre, WhatsApp, email opcional) con validación. Enviar datos al payload de `register-quote`. |
-| `supabase/functions/register-quote/index.ts` | Implementar smart upsert por phone/email. Si no hay datos identificables, saltar creación de contacto. Usar fuente `"cotizacion_web"`. |
-| SQL (limpieza) | Eliminar registros existentes de "Cotización Web" sin phone ni email. |
-| `src/components/admin/ContactsView.tsx` | Agregar `"cotizacion_web"` como fuente reconocida en los labels del CRM. |
+| `src/App.tsx` | Redirect `/analytics` -> `/admin/analytics` |
+| `src/components/reseller/ResellerLicensesView.tsx` | Cards KPI, filtro por estado, exportar CSV |
+| `src/components/reseller/ResellerTrainingsView.tsx` | Filtro por categoria, badge "nuevo" |
+| `src/components/reseller/ResellerTicketsView.tsx` | Filtro por estado, conteo abiertos, fecha respuesta |
+| `src/components/reseller/ResellerCommissionsView.tsx` | Resumen estimado, seccion historial de pagos |
+| `src/components/reseller/ResellerDashboard.tsx` | Card licencias por vencer, accesos rapidos, comisiones pendientes |
+| SQL Migration | Crear tabla `reseller_commission_payments` (id, reseller_id, amount, period, status, paid_at, notes) con RLS |
 
-## Sobre Leads/Demos
+## 5. Nueva tabla: reseller_commission_payments
 
-El flujo de Leads/Demos ya captura correctamente nombre, WhatsApp, email y ciudad desde el formulario. El trigger `sync_lead_to_contact` ya sincroniza al CRM con deduplicación. No requiere cambios.
+```text
+reseller_commission_payments
+  id (uuid, PK)
+  reseller_id (uuid, FK -> reseller_applications)
+  amount (numeric, NOT NULL)
+  period (text, e.g. "2026-01")
+  status (text, default 'pending': pending/paid)
+  paid_at (timestamptz, nullable)
+  notes (text, nullable)
+  created_at (timestamptz, default now())
+```
+
+Con politicas RLS:
+- Socios pueden leer sus propios registros
+- Admins tienen acceso completo
+
