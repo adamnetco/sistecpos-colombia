@@ -14,6 +14,7 @@ import Index from "./pages/Index";
 // Lazy load all other pages for code splitting
 const SolucionesPage = lazy(() => import("./pages/SolucionesPage"));
 const RestaurantesPage = lazy(() => import("./pages/RestaurantesPage"));
+const NicheLandingPage = lazy(() => import("./pages/NicheLandingPage"));
 const RetailPage = lazy(() => import("./pages/RetailPage"));
 const ProductosPage = lazy(() => import("./pages/ProductosPage"));
 const ProductoDetallePage = lazy(() => import("./pages/ProductoDetallePage"));
@@ -67,6 +68,7 @@ const App = () => (
                 <Route path="/" element={<Index />} />
                 <Route path="/soluciones" element={<SolucionesPage />} />
                 <Route path="/pos-para-restaurantes" element={<RestaurantesPage />} />
+                <Route path="/pos-para/:slug" element={<NicheLandingPage />} />
                 <Route path="/pos-para-retail" element={<RetailPage />} />
                 <Route path="/soluciones/:slug" element={<SolucionNegocioPage />} />
                 <Route path="/software-pos-colombia" element={<SoftwarePosColombiaPage />} />
