@@ -12,8 +12,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import {
   Bot, Plus, Pencil, Trash2, GripVertical, FileText, HelpCircle, MessageSquareText,
-  Eye, EyeOff, MessagesSquare, Users,
+  Eye, EyeOff, MessagesSquare, Users, Settings2,
 } from "lucide-react";
+import ChatbotSettingsTab from "./ChatbotSettingsTab";
 
 interface KBEntry {
   id: string;
@@ -69,10 +70,14 @@ export default function CentralIAView() {
           <TabsTrigger value="conversations" className="gap-1.5">
             <MessagesSquare className="h-4 w-4" /> Conversaciones
           </TabsTrigger>
+          <TabsTrigger value="settings" className="gap-1.5">
+            <Settings2 className="h-4 w-4" /> Configuración
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="knowledge"><KnowledgeBaseTab /></TabsContent>
         <TabsContent value="conversations"><ConversationsTab /></TabsContent>
+        <TabsContent value="settings"><ChatbotSettingsTab /></TabsContent>
       </Tabs>
     </div>
   );

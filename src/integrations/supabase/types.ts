@@ -189,6 +189,30 @@ export type Database = {
         }
         Relationships: []
       }
+      chatbot_settings: {
+        Row: {
+          created_at: string
+          id: string
+          is_enabled: boolean
+          page_label: string
+          page_path: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          page_label: string
+          page_path: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          page_label?: string
+          page_path?: string
+        }
+        Relationships: []
+      }
       contacts: {
         Row: {
           business_name: string | null
