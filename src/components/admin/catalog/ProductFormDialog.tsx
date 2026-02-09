@@ -32,6 +32,8 @@ const defaultForm = {
   product_type: "hardware", sort_order: 0,
   features: [] as string[], includes: [] as string[],
   specifications: [] as { label: string; value: string }[],
+  video_urls: [] as string[],
+  pdf_urls: [] as { name: string; url: string }[],
 };
 
 export default function ProductFormDialog({ open, onOpenChange, editing, onSaved }: Props) {
@@ -40,6 +42,8 @@ export default function ProductFormDialog({ open, onOpenChange, editing, onSaved
   const [newInclude, setNewInclude] = useState("");
   const [newSpecLabel, setNewSpecLabel] = useState("");
   const [newSpecValue, setNewSpecValue] = useState("");
+  const [newVideoUrl, setNewVideoUrl] = useState("");
+  const [newPdfName, setNewPdfName] = useState("");
   const [uploading, setUploading] = useState(false);
 
   const { data: brands = [] } = useQuery({
@@ -71,6 +75,8 @@ export default function ProductFormDialog({ open, onOpenChange, editing, onSaved
         is_offer: editing.is_offer, product_type: editing.product_type, sort_order: editing.sort_order,
         features: editing.features || [], includes: editing.includes || [],
         specifications: editing.specifications || [],
+        video_urls: editing.video_urls || [],
+        pdf_urls: (editing.pdf_urls as any[]) || [],
       });
     } else {
       setForm(defaultForm);
@@ -115,6 +121,8 @@ export default function ProductFormDialog({ open, onOpenChange, editing, onSaved
         features: form.features,
         specifications: form.specifications,
         includes: form.includes,
+        video_urls: form.video_urls,
+        pdf_urls: form.pdf_urls,
         stock: form.stock,
         is_active: form.is_active,
         is_featured: form.is_featured,
@@ -342,6 +350,60 @@ export default function ProductFormDialog({ open, onOpenChange, editing, onSaved
                   <span key={i} className="inline-flex items-center gap-1 bg-muted px-2 py-1 rounded text-xs">
                     {f}
                     <button onClick={() => set("includes", form.includes.filter((_, j) => j !== i))}><X className="h-3 w-3" /></button>
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Videos */}
+            <div>
+              <Label>Videos Demostrativos</Label>
+              <div className="flex gap-2 mt-2">
+                <Input value={newVideoUrl} onChange={e => setNewVideoUrl(e.target.value)} placeholder="https://youtube.com/watch?v=..." onKeyDown={e => {
+                  if (e.key === "Enter" && newVideoUrl.trim()) {
+                    set("video_urls", [...form.video_urls, newVideoUrl.trim()]);
+                    setNewVideoUrl("");
+                  }
+                }} />
+                <Button variant="outline" size="icon" onClick={() => {
+                  if (newVideoUrl.trim()) { set("video_urls", [...form.video_urls, newVideoUrl.trim()]); setNewVideoUrl(""); }
+                }}><Plus className="h-4 w-4" /></Button>
+              </div>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {form.video_urls.map((v, i) => (
+                  <span key={i} className="inline-flex items-center gap-1 bg-muted px-2 py-1 rounded text-xs max-w-xs truncate">
+                    🎥 {v}
+                    <button onClick={() => set("video_urls", form.video_urls.filter((_, j) => j !== i))}><X className="h-3 w-3" /></button>
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* PDFs */}
+            <div>
+              <Label>Catálogos / PDFs</Label>
+              <div className="flex gap-2 mt-2">
+                <Input value={newPdfName} onChange={e => setNewPdfName(e.target.value)} placeholder="Nombre del PDF" className="flex-1" />
+                <label className="cursor-pointer">
+                  <Button variant="outline" size="sm" asChild><span><Upload className="h-4 w-4 mr-1" />Subir PDF</span></Button>
+                  <input type="file" accept=".pdf" className="hidden" onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    const path = `pdfs/${Date.now()}-${file.name}`;
+                    const { error } = await supabase.storage.from("product-docs").upload(path, file);
+                    if (error) { toast.error("Error subiendo PDF"); return; }
+                    const { data: urlData } = supabase.storage.from("product-docs").getPublicUrl(path);
+                    set("pdf_urls", [...form.pdf_urls, { name: newPdfName || file.name, url: urlData.publicUrl }]);
+                    setNewPdfName("");
+                    toast.success("PDF subido");
+                  }} />
+                </label>
+              </div>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {form.pdf_urls.map((p, i) => (
+                  <span key={i} className="inline-flex items-center gap-1 bg-muted px-2 py-1 rounded text-xs">
+                    📄 {p.name}
+                    <button onClick={() => set("pdf_urls", form.pdf_urls.filter((_, j) => j !== i))}><X className="h-3 w-3" /></button>
                   </span>
                 ))}
               </div>

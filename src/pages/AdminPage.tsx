@@ -18,6 +18,7 @@ const StoreAnalyticsView = lazy(() => import("@/components/admin/StoreAnalyticsV
 const ProductsView = lazy(() => import("@/components/admin/catalog/ProductsView"));
 const BrandsView = lazy(() => import("@/components/admin/catalog/BrandsView"));
 const CategoriesView = lazy(() => import("@/components/admin/catalog/CategoriesView"));
+const SettingsView = lazy(() => import("@/components/admin/SettingsView"));
 
 function Loader() {
   return (
@@ -47,6 +48,7 @@ export default function AdminPage() {
             <Route path="tracking" element={<TrackingView />} />
             <Route path="proveedores" element={<SuppliersView />} />
             <Route path="analytics" element={<StoreAnalyticsView />} />
+            <Route path="configuracion" element={<SettingsView />} />
           </Routes>
         </Suspense>
       </AdminLayout>

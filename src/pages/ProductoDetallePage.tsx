@@ -9,7 +9,8 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { 
   MessageCircle, CheckCircle2, ArrowLeft, Printer, Tag,
-  CircleDollarSign, Barcode, ScrollText, FileText, Package, Settings, Truck, ShoppingCart
+  CircleDollarSign, Barcode, ScrollText, FileText, Package, Settings, Truck, ShoppingCart,
+  Play, Download,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { SEO } from "@/components/seo/SEO";
@@ -89,6 +90,8 @@ const ProductoDetallePage = () => {
   const specs = (product.specifications as any[]) || [];
   const features = (product.features as string[]) || [];
   const includes = (product.includes as string[]) || [];
+  const videoUrls = (product.video_urls as string[]) || [];
+  const pdfUrls = (product.pdf_urls as any[]) || [];
 
   return (
     <Layout>
@@ -248,6 +251,64 @@ const ProductoDetallePage = () => {
           </div>
         </div>
       </section>
+
+      {/* Videos */}
+      {videoUrls.length > 0 && (
+        <section className="py-12 md:py-16">
+          <div className="container px-4 md:px-6">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="w-10 h-10 rounded-lg bg-destructive/10 flex items-center justify-center">
+                <Play className="h-5 w-5 text-destructive" />
+              </div>
+              <h2 className="text-2xl font-bold">Videos Demostrativos</h2>
+            </div>
+            <div className="grid md:grid-cols-2 gap-6">
+              {videoUrls.map((url, i) => (
+                <div key={i} className="aspect-video rounded-2xl overflow-hidden shadow-card">
+                  <iframe
+                    src={url.replace("watch?v=", "embed/")}
+                    title={`Video ${i + 1}`}
+                    className="w-full h-full"
+                    allowFullScreen
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* PDFs */}
+      {pdfUrls.length > 0 && (
+        <section className="py-12 md:py-16 bg-muted/30">
+          <div className="container px-4 md:px-6">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Download className="h-5 w-5 text-primary" />
+              </div>
+              <h2 className="text-2xl font-bold">Catálogos y Documentación</h2>
+            </div>
+            <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {pdfUrls.map((pdf: any, i: number) => (
+                <a
+                  key={i}
+                  href={pdf.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 p-4 rounded-xl border bg-card hover:shadow-card transition-all"
+                >
+                  <FileText className="h-8 w-8 text-destructive shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm truncate">{pdf.name}</p>
+                    <p className="text-xs text-muted-foreground">Descargar PDF</p>
+                  </div>
+                  <Download className="h-4 w-4 text-muted-foreground" />
+                </a>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {relatedProducts.length > 0 && (
         <section className="py-12 md:py-16">
