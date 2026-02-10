@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { useAuth } from "@/hooks/useAuth";
@@ -9,8 +9,9 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Lock, Chrome, ArrowLeft, ShieldCheck } from "lucide-react";
+import { Mail, Lock, Chrome, ArrowLeft, ShieldCheck, Eye, EyeOff, Home } from "lucide-react";
 import { SEO } from "@/components/seo/SEO";
+import { motion } from "framer-motion";
 import type { User, Session } from "@supabase/supabase-js";
 
 type AuthView = "login" | "signup" | "forgot" | "reset" | "otp";
@@ -26,11 +27,12 @@ export default function AuthPage() {
   const [session, setSession] = useState<Session | null>(null);
   const [pendingEmail, setPendingEmail] = useState("");
   const [pending2FA, setPending2FA] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
 
-  // Check if this is a password reset callback
   useEffect(() => {
     const type = searchParams.get("type");
     if (type === "recovery") {
@@ -43,7 +45,6 @@ export default function AuthPage() {
       (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
-
         if (event === "PASSWORD_RECOVERY") {
           setView("reset");
         }
@@ -62,7 +63,6 @@ export default function AuthPage() {
 
   useEffect(() => {
     if (user && !pending2FA && view !== "reset" && view !== "otp") {
-      // Check role to redirect accordingly
       const checkRedirect = async () => {
         const { data: resellerRole } = await supabase
           .from("user_roles")
@@ -104,12 +104,9 @@ export default function AuthPage() {
         return;
       }
 
-      // After successful login, send 2FA OTP
       setPendingEmail(email);
       setView("otp");
       await send2FACode(email);
-      
-      // Sign out temporarily until OTP is verified
       await supabase.auth.signOut();
     } finally {
       setLoading(false);
@@ -137,7 +134,6 @@ export default function AuthPage() {
 
     setLoading(true);
     try {
-      // Verify OTP via edge function
       const { data, error } = await supabase.functions.invoke("send-otp", {
         body: { email: pendingEmail, type: "verify", code: otpCode },
       });
@@ -147,7 +143,6 @@ export default function AuthPage() {
         return;
       }
 
-      // OTP verified, sign in again
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email: pendingEmail,
         password,
@@ -264,317 +259,394 @@ export default function AuthPage() {
     }
   };
 
+  const PasswordInput = ({
+    id,
+    value,
+    onChange,
+    placeholder,
+    show,
+    onToggle,
+  }: {
+    id: string;
+    value: string;
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    placeholder: string;
+    show: boolean;
+    onToggle: () => void;
+  }) => (
+    <div className="relative">
+      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+      <Input
+        id={id}
+        type={show ? "text" : "password"}
+        placeholder={placeholder}
+        value={value}
+        onChange={onChange}
+        className="pl-10 pr-10"
+        minLength={6}
+        required
+      />
+      <button
+        type="button"
+        onClick={onToggle}
+        className="absolute right-3 top-3 text-muted-foreground hover:text-foreground transition-colors"
+        tabIndex={-1}
+        aria-label={show ? "Ocultar contraseña" : "Mostrar contraseña"}
+      >
+        {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+      </button>
+    </div>
+  );
+
+  const BackToHome = () => (
+    <div className="text-center pt-2">
+      <Link
+        to="/"
+        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors"
+      >
+        <Home className="h-3.5 w-3.5" />
+        Volver al inicio
+      </Link>
+    </div>
+  );
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-secondary to-background px-4">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-secondary via-background to-secondary/50 px-4 py-8">
       <SEO title="Iniciar Sesión | SistecPOS" description="Accede al panel de gestión de SistecPOS" />
-      <Card className="w-full max-w-md shadow-card">
-        <CardHeader className="text-center">
-          <img
-            src="/lovable-uploads/43a24c53-78c0-4ca3-b642-99a376d90a0f.png"
-            alt="SistecPOS"
-            className="mx-auto mb-4 h-10"
-          />
 
-          {view === "login" && (
-            <>
-              <CardTitle className="text-2xl font-display">Iniciar Sesión</CardTitle>
-              <CardDescription>Accede al panel de gestión</CardDescription>
-            </>
-          )}
-          {view === "signup" && (
-            <>
-              <CardTitle className="text-2xl font-display">Crear Cuenta</CardTitle>
-              <CardDescription>Regístrate para comenzar</CardDescription>
-            </>
-          )}
-          {view === "forgot" && (
-            <>
-              <CardTitle className="text-2xl font-display">Restablecer Contraseña</CardTitle>
-              <CardDescription>Te enviaremos un enlace para restablecer tu contraseña</CardDescription>
-            </>
-          )}
-          {view === "reset" && (
-            <>
-              <CardTitle className="text-2xl font-display">Nueva Contraseña</CardTitle>
-              <CardDescription>Ingresa tu nueva contraseña</CardDescription>
-            </>
-          )}
-          {view === "otp" && (
-            <>
-              <CardTitle className="text-2xl font-display">Verificación de Seguridad</CardTitle>
-              <CardDescription>Ingresa el código de 6 dígitos enviado a <strong>{pendingEmail}</strong></CardDescription>
-            </>
-          )}
-        </CardHeader>
+      {/* Decorative blurred circles */}
+      <div className="pointer-events-none fixed inset-0 overflow-hidden">
+        <div className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-primary/5 blur-3xl" />
+        <div className="absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-accent/5 blur-3xl" />
+      </div>
 
-        <CardContent className="space-y-4">
-          {/* OTP verification view */}
-          {view === "otp" && (
-            <div className="space-y-6">
-              <div className="flex justify-center">
-                <ShieldCheck className="h-16 w-16 text-primary" />
-              </div>
-              <div className="flex justify-center">
-                <InputOTP maxLength={6} value={otpCode} onChange={setOtpCode}>
-                  <InputOTPGroup>
-                    <InputOTPSlot index={0} />
-                    <InputOTPSlot index={1} />
-                    <InputOTPSlot index={2} />
-                    <InputOTPSlot index={3} />
-                    <InputOTPSlot index={4} />
-                    <InputOTPSlot index={5} />
-                  </InputOTPGroup>
-                </InputOTP>
-              </div>
-              <Button
-                onClick={handleVerifyOTP}
-                disabled={loading || otpCode.length !== 6}
-                className="w-full h-12 text-base gradient-bg text-primary-foreground"
+      <motion.div
+        initial={{ opacity: 0, y: 20, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
+        className="w-full max-w-md relative z-10"
+      >
+        <Card className="shadow-xl border-border/50 backdrop-blur-sm">
+          <CardHeader className="text-center pb-2">
+            <Link to="/" className="inline-block mx-auto mb-4 hover:opacity-80 transition-opacity">
+              <img
+                src="/lovable-uploads/43a24c53-78c0-4ca3-b642-99a376d90a0f.png"
+                alt="SistecPOS"
+                className="h-10"
+              />
+            </Link>
+
+            <motion.div
+              key={view}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.25 }}
+            >
+              {view === "login" && (
+                <>
+                  <CardTitle className="text-2xl font-display">Bienvenido de nuevo</CardTitle>
+                  <CardDescription>Accede al panel de gestión</CardDescription>
+                </>
+              )}
+              {view === "signup" && (
+                <>
+                  <CardTitle className="text-2xl font-display">Crear Cuenta</CardTitle>
+                  <CardDescription>Regístrate para comenzar</CardDescription>
+                </>
+              )}
+              {view === "forgot" && (
+                <>
+                  <CardTitle className="text-2xl font-display">Restablecer Contraseña</CardTitle>
+                  <CardDescription>Te enviaremos un enlace para restablecer tu contraseña</CardDescription>
+                </>
+              )}
+              {view === "reset" && (
+                <>
+                  <CardTitle className="text-2xl font-display">Nueva Contraseña</CardTitle>
+                  <CardDescription>Ingresa tu nueva contraseña</CardDescription>
+                </>
+              )}
+              {view === "otp" && (
+                <>
+                  <CardTitle className="text-2xl font-display">Verificación de Seguridad</CardTitle>
+                  <CardDescription>
+                    Ingresa el código de 6 dígitos enviado a <strong>{pendingEmail}</strong>
+                  </CardDescription>
+                </>
+              )}
+            </motion.div>
+          </CardHeader>
+
+          <CardContent className="space-y-4 pt-2">
+            {/* OTP verification view */}
+            {view === "otp" && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="space-y-6"
               >
-                {loading ? "Verificando..." : "Verificar Código"}
-              </Button>
-              <div className="text-center space-y-2">
-                <button
-                  type="button"
-                  className="text-sm text-primary hover:underline"
-                  onClick={() => send2FACode(pendingEmail)}
-                >
-                  Reenviar código
-                </button>
-                <br />
-                <button
-                  type="button"
-                  className="text-sm text-muted-foreground hover:underline flex items-center gap-1 mx-auto"
-                  onClick={() => { setView("login"); setOtpCode(""); setPending2FA(false); }}
-                >
-                  <ArrowLeft className="h-3 w-3" /> Volver al inicio de sesión
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Login view */}
-          {view === "login" && (
-            <>
-              <Button
-                variant="outline"
-                className="w-full h-12 text-base"
-                onClick={handleGoogleLogin}
-                disabled={loading}
-              >
-                <Chrome className="mr-2 h-5 w-5" />
-                Continuar con Google
-              </Button>
-
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-card px-2 text-muted-foreground">o con email</span>
-                </div>
-              </div>
-
-              <form onSubmit={handleLogin} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="tu@email.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="pl-10"
-                      required
-                    />
+                <div className="flex justify-center">
+                  <div className="rounded-full bg-primary/10 p-4">
+                    <ShieldCheck className="h-12 w-12 text-primary" />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="password">Contraseña</Label>
+                <div className="flex justify-center">
+                  <InputOTP maxLength={6} value={otpCode} onChange={setOtpCode}>
+                    <InputOTPGroup>
+                      <InputOTPSlot index={0} />
+                      <InputOTPSlot index={1} />
+                      <InputOTPSlot index={2} />
+                      <InputOTPSlot index={3} />
+                      <InputOTPSlot index={4} />
+                      <InputOTPSlot index={5} />
+                    </InputOTPGroup>
+                  </InputOTP>
+                </div>
+                <Button
+                  onClick={handleVerifyOTP}
+                  disabled={loading || otpCode.length !== 6}
+                  className="w-full h-12 text-base gradient-bg text-primary-foreground"
+                >
+                  {loading ? "Verificando..." : "Verificar Código"}
+                </Button>
+                <div className="text-center space-y-2">
+                  <button
+                    type="button"
+                    className="text-sm text-primary hover:underline"
+                    onClick={() => send2FACode(pendingEmail)}
+                  >
+                    Reenviar código
+                  </button>
+                  <br />
+                  <button
+                    type="button"
+                    className="text-sm text-muted-foreground hover:underline flex items-center gap-1 mx-auto"
+                    onClick={() => { setView("login"); setOtpCode(""); setPending2FA(false); }}
+                  >
+                    <ArrowLeft className="h-3 w-3" /> Volver al inicio de sesión
+                  </button>
+                </div>
+                <BackToHome />
+              </motion.div>
+            )}
+
+            {/* Login view */}
+            {view === "login" && (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
+                <Button
+                  variant="outline"
+                  className="w-full h-12 text-base font-medium border-border/80 hover:bg-secondary/60"
+                  onClick={handleGoogleLogin}
+                  disabled={loading}
+                >
+                  <Chrome className="mr-2 h-5 w-5" />
+                  Continuar con Google
+                </Button>
+
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-card px-2 text-muted-foreground">o con email</span>
+                  </div>
+                </div>
+
+                <form onSubmit={handleLogin} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="tu@email.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="pl-10"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="password">Contraseña</Label>
+                      <button
+                        type="button"
+                        className="text-xs text-primary hover:underline"
+                        onClick={() => setView("forgot")}
+                      >
+                        ¿Olvidaste tu contraseña?
+                      </button>
+                    </div>
+                    <PasswordInput
+                      id="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Mínimo 6 caracteres"
+                      show={showPassword}
+                      onToggle={() => setShowPassword(!showPassword)}
+                    />
+                  </div>
+                  <Button type="submit" className="w-full h-12 text-base gradient-bg text-primary-foreground" disabled={loading}>
+                    {loading ? "Cargando..." : "Iniciar Sesión"}
+                  </Button>
+                </form>
+
+                <div className="text-center text-sm">
+                  <button type="button" className="text-primary hover:underline" onClick={() => setView("signup")}>
+                    ¿No tienes cuenta? Regístrate
+                  </button>
+                </div>
+
+                <BackToHome />
+              </motion.div>
+            )}
+
+            {/* Signup view */}
+            {view === "signup" && (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
+                <Button
+                  variant="outline"
+                  className="w-full h-12 text-base font-medium border-border/80 hover:bg-secondary/60"
+                  onClick={handleGoogleLogin}
+                  disabled={loading}
+                >
+                  <Chrome className="mr-2 h-5 w-5" />
+                  Continuar con Google
+                </Button>
+
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-card px-2 text-muted-foreground">o con email</span>
+                  </div>
+                </div>
+
+                <form onSubmit={handleSignUp} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-email">Email</Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="signup-email"
+                        type="email"
+                        placeholder="tu@email.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="pl-10"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-password">Contraseña</Label>
+                    <PasswordInput
+                      id="signup-password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Mínimo 6 caracteres"
+                      show={showPassword}
+                      onToggle={() => setShowPassword(!showPassword)}
+                    />
+                  </div>
+                  <Button type="submit" className="w-full h-12 text-base gradient-bg text-primary-foreground" disabled={loading}>
+                    {loading ? "Cargando..." : "Registrarse"}
+                  </Button>
+                </form>
+
+                <p className="text-xs text-center text-muted-foreground">
+                  Al registrarte, recibirás un correo de verificación para activar tu cuenta.
+                </p>
+
+                <div className="text-center text-sm">
+                  <button type="button" className="text-primary hover:underline" onClick={() => setView("login")}>
+                    ¿Ya tienes cuenta? Inicia sesión
+                  </button>
+                </div>
+
+                <BackToHome />
+              </motion.div>
+            )}
+
+            {/* Forgot password view */}
+            {view === "forgot" && (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                <form onSubmit={handleForgotPassword} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="forgot-email">Email</Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="forgot-email"
+                        type="email"
+                        placeholder="tu@email.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="pl-10"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <Button type="submit" className="w-full h-12 text-base gradient-bg text-primary-foreground" disabled={loading}>
+                    {loading ? "Enviando..." : "Enviar Enlace de Recuperación"}
+                  </Button>
+                  <div className="text-center">
                     <button
                       type="button"
-                      className="text-xs text-primary hover:underline"
-                      onClick={() => setView("forgot")}
+                      className="text-sm text-muted-foreground hover:underline flex items-center gap-1 mx-auto"
+                      onClick={() => setView("login")}
                     >
-                      ¿Olvidaste tu contraseña?
+                      <ArrowLeft className="h-3 w-3" /> Volver al inicio de sesión
                     </button>
                   </div>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="password"
-                      type="password"
-                      placeholder="Mínimo 6 caracteres"
+                  <BackToHome />
+                </form>
+              </motion.div>
+            )}
+
+            {/* Reset password view */}
+            {view === "reset" && (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                <form onSubmit={handleResetPassword} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="new-password">Nueva Contraseña</Label>
+                    <PasswordInput
+                      id="new-password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="pl-10"
-                      minLength={6}
-                      required
-                    />
-                  </div>
-                </div>
-                <Button type="submit" className="w-full h-12 text-base gradient-bg text-primary-foreground" disabled={loading}>
-                  {loading ? "Cargando..." : "Iniciar Sesión"}
-                </Button>
-              </form>
-
-              <div className="text-center text-sm">
-                <button type="button" className="text-primary hover:underline" onClick={() => setView("signup")}>
-                  ¿No tienes cuenta? Regístrate
-                </button>
-              </div>
-            </>
-          )}
-
-          {/* Signup view */}
-          {view === "signup" && (
-            <>
-              <Button
-                variant="outline"
-                className="w-full h-12 text-base"
-                onClick={handleGoogleLogin}
-                disabled={loading}
-              >
-                <Chrome className="mr-2 h-5 w-5" />
-                Continuar con Google
-              </Button>
-
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-card px-2 text-muted-foreground">o con email</span>
-                </div>
-              </div>
-
-              <form onSubmit={handleSignUp} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="signup-email">Email</Label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="signup-email"
-                      type="email"
-                      placeholder="tu@email.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="pl-10"
-                      required
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="signup-password">Contraseña</Label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="signup-password"
-                      type="password"
                       placeholder="Mínimo 6 caracteres"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="pl-10"
-                      minLength={6}
-                      required
+                      show={showPassword}
+                      onToggle={() => setShowPassword(!showPassword)}
                     />
                   </div>
-                </div>
-                <Button type="submit" className="w-full h-12 text-base gradient-bg text-primary-foreground" disabled={loading}>
-                  {loading ? "Cargando..." : "Registrarse"}
-                </Button>
-              </form>
+                  <div className="space-y-2">
+                    <Label htmlFor="confirm-password">Confirmar Contraseña</Label>
+                    <PasswordInput
+                      id="confirm-password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Repite la contraseña"
+                      show={showConfirmPassword}
+                      onToggle={() => setShowConfirmPassword(!showConfirmPassword)}
+                    />
+                  </div>
+                  <Button type="submit" className="w-full h-12 text-base gradient-bg text-primary-foreground" disabled={loading}>
+                    {loading ? "Actualizando..." : "Guardar Nueva Contraseña"}
+                  </Button>
+                  <BackToHome />
+                </form>
+              </motion.div>
+            )}
+          </CardContent>
+        </Card>
 
-              <p className="text-xs text-center text-muted-foreground">
-                Al registrarte, recibirás un correo de verificación para activar tu cuenta.
-              </p>
-
-              <div className="text-center text-sm">
-                <button type="button" className="text-primary hover:underline" onClick={() => setView("login")}>
-                  ¿Ya tienes cuenta? Inicia sesión
-                </button>
-              </div>
-            </>
-          )}
-
-          {/* Forgot password view */}
-          {view === "forgot" && (
-            <form onSubmit={handleForgotPassword} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="forgot-email">Email</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="forgot-email"
-                    type="email"
-                    placeholder="tu@email.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10"
-                    required
-                  />
-                </div>
-              </div>
-              <Button type="submit" className="w-full h-12 text-base gradient-bg text-primary-foreground" disabled={loading}>
-                {loading ? "Enviando..." : "Enviar Enlace de Recuperación"}
-              </Button>
-              <div className="text-center">
-                <button
-                  type="button"
-                  className="text-sm text-muted-foreground hover:underline flex items-center gap-1 mx-auto"
-                  onClick={() => setView("login")}
-                >
-                  <ArrowLeft className="h-3 w-3" /> Volver al inicio de sesión
-                </button>
-              </div>
-            </form>
-          )}
-
-          {/* Reset password view */}
-          {view === "reset" && (
-            <form onSubmit={handleResetPassword} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="new-password">Nueva Contraseña</Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="new-password"
-                    type="password"
-                    placeholder="Mínimo 6 caracteres"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10"
-                    minLength={6}
-                    required
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="confirm-password">Confirmar Contraseña</Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="confirm-password"
-                    type="password"
-                    placeholder="Repite la contraseña"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="pl-10"
-                    minLength={6}
-                    required
-                  />
-                </div>
-              </div>
-              <Button type="submit" className="w-full h-12 text-base gradient-bg text-primary-foreground" disabled={loading}>
-                {loading ? "Actualizando..." : "Guardar Nueva Contraseña"}
-              </Button>
-            </form>
-          )}
-        </CardContent>
-      </Card>
+        <p className="text-center text-xs text-muted-foreground mt-4">
+          © {new Date().getFullYear()} SistecPOS · Todos los derechos reservados
+        </p>
+      </motion.div>
     </div>
   );
 }
