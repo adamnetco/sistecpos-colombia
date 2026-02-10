@@ -259,21 +259,14 @@ export default function AuthPage() {
     }
   };
 
-  const PasswordInput = ({
-    id,
-    value,
-    onChange,
-    placeholder,
-    show,
-    onToggle,
-  }: {
-    id: string;
-    value: string;
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    placeholder: string;
-    show: boolean;
-    onToggle: () => void;
-  }) => (
+  const renderPasswordInput = (
+    id: string,
+    value: string,
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void,
+    placeholder: string,
+    show: boolean,
+    onToggle: () => void,
+  ) => (
     <div className="relative">
       <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
       <Input
@@ -298,7 +291,7 @@ export default function AuthPage() {
     </div>
   );
 
-  const BackToHome = () => (
+  const renderBackToHome = () => (
     <div className="text-center pt-2">
       <Link
         to="/"
@@ -426,7 +419,7 @@ export default function AuthPage() {
                     <ArrowLeft className="h-3 w-3" /> Volver al inicio de sesión
                   </button>
                 </div>
-                <BackToHome />
+                {renderBackToHome()}
               </motion.div>
             )}
 
@@ -479,14 +472,7 @@ export default function AuthPage() {
                         ¿Olvidaste tu contraseña?
                       </button>
                     </div>
-                    <PasswordInput
-                      id="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Mínimo 6 caracteres"
-                      show={showPassword}
-                      onToggle={() => setShowPassword(!showPassword)}
-                    />
+                    {renderPasswordInput("password", password, (e) => setPassword(e.target.value), "Mínimo 6 caracteres", showPassword, () => setShowPassword(!showPassword))}
                   </div>
                   <Button type="submit" className="w-full h-12 text-base gradient-bg text-primary-foreground" disabled={loading}>
                     {loading ? "Cargando..." : "Iniciar Sesión"}
@@ -499,7 +485,7 @@ export default function AuthPage() {
                   </button>
                 </div>
 
-                <BackToHome />
+                {renderBackToHome()}
               </motion.div>
             )}
 
@@ -543,14 +529,7 @@ export default function AuthPage() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="signup-password">Contraseña</Label>
-                    <PasswordInput
-                      id="signup-password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Mínimo 6 caracteres"
-                      show={showPassword}
-                      onToggle={() => setShowPassword(!showPassword)}
-                    />
+                    {renderPasswordInput("signup-password", password, (e) => setPassword(e.target.value), "Mínimo 6 caracteres", showPassword, () => setShowPassword(!showPassword))}
                   </div>
                   <Button type="submit" className="w-full h-12 text-base gradient-bg text-primary-foreground" disabled={loading}>
                     {loading ? "Cargando..." : "Registrarse"}
@@ -567,7 +546,7 @@ export default function AuthPage() {
                   </button>
                 </div>
 
-                <BackToHome />
+                {renderBackToHome()}
               </motion.div>
             )}
 
@@ -602,7 +581,7 @@ export default function AuthPage() {
                       <ArrowLeft className="h-3 w-3" /> Volver al inicio de sesión
                     </button>
                   </div>
-                  <BackToHome />
+                  {renderBackToHome()}
                 </form>
               </motion.div>
             )}
@@ -613,30 +592,16 @@ export default function AuthPage() {
                 <form onSubmit={handleResetPassword} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="new-password">Nueva Contraseña</Label>
-                    <PasswordInput
-                      id="new-password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Mínimo 6 caracteres"
-                      show={showPassword}
-                      onToggle={() => setShowPassword(!showPassword)}
-                    />
+                    {renderPasswordInput("new-password", password, (e) => setPassword(e.target.value), "Mínimo 6 caracteres", showPassword, () => setShowPassword(!showPassword))}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="confirm-password">Confirmar Contraseña</Label>
-                    <PasswordInput
-                      id="confirm-password"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      placeholder="Repite la contraseña"
-                      show={showConfirmPassword}
-                      onToggle={() => setShowConfirmPassword(!showConfirmPassword)}
-                    />
+                    {renderPasswordInput("confirm-password", confirmPassword, (e) => setConfirmPassword(e.target.value), "Repite la contraseña", showConfirmPassword, () => setShowConfirmPassword(!showConfirmPassword))}
                   </div>
                   <Button type="submit" className="w-full h-12 text-base gradient-bg text-primary-foreground" disabled={loading}>
                     {loading ? "Actualizando..." : "Guardar Nueva Contraseña"}
                   </Button>
-                  <BackToHome />
+                  {renderBackToHome()}
                 </form>
               </motion.div>
             )}
