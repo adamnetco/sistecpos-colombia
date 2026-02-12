@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { SEO } from "@/components/seo/SEO";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
+import { JsonLd, softwareApplicationSchema } from "@/components/seo/JsonLd";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +18,7 @@ export default function SolucionesPage() {
         description="Software POS especializado para restaurantes, tiendas, ferreterías, farmacias y 20 industrias más. Instalación presencial en Colombia."
         canonical="https://sistecpos.com/soluciones"
       />
+      <JsonLd data={softwareApplicationSchema({ name: "SistecPOS", description: "Soluciones POS especializadas para 24 tipos de negocio en Colombia.", url: "https://sistecpos.com/soluciones" })} />
       <Breadcrumbs items={[{ label: "Soluciones" }]} />
 
       {/* Hero */}

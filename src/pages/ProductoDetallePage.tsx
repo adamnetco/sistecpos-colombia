@@ -15,6 +15,7 @@ import {
 import { motion } from "framer-motion";
 import { SEO } from "@/components/seo/SEO";
 import { JsonLd, productSchema } from "@/components/seo/JsonLd";
+import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { useCart } from "@/hooks/useCart";
 import { toast } from "sonner";
 
@@ -112,17 +113,7 @@ const ProductoDetallePage = () => {
         })}
       />
 
-      <section className="border-b">
-        <div className="container px-4 md:px-6 py-4">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Link to="/" className="hover:text-foreground transition-colors">Inicio</Link>
-            <span>/</span>
-            <Link to="/productos" className="hover:text-foreground transition-colors">Productos</Link>
-            <span>/</span>
-            <span className="text-foreground">{product.name}</span>
-          </div>
-        </div>
-      </section>
+      <Breadcrumbs items={[{ label: "Productos", href: "/productos" }, { label: product.name }]} />
 
       <section className="py-8 md:py-12">
         <div className="container px-4 md:px-6">

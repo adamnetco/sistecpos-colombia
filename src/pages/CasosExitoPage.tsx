@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Layout } from "@/components/layout/Layout";
 import { SEO } from "@/components/seo/SEO";
+import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -33,6 +34,7 @@ export default function CasosExitoPage() {
         description="Descubre cómo restaurantes, tiendas y negocios en Colombia optimizaron sus ventas con nuestro software POS."
         canonical="https://sistecpos.com/casos-de-exito"
       />
+      <Breadcrumbs items={[{ label: "Casos de Éxito" }]} />
 
       <section className="relative py-16 md:py-20 overflow-hidden">
         <div className="absolute inset-0 gradient-bg opacity-5" />

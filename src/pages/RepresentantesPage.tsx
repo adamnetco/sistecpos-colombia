@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
 import { SEO } from "@/components/seo/SEO";
+import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -103,8 +104,9 @@ export default function RepresentantesPage() {
       <SEO
         title="Sé Representante SistecPOS en Tu Ciudad | Gana Comisiones"
         description="Únete como representante comercial de SistecPOS en tu ciudad. Tú vendes, nosotros hacemos el soporte. Comisiones atractivas y exclusividad de zona."
-        canonical="/representantes"
+        canonical="https://sistecpos.com/representantes"
       />
+      <Breadcrumbs items={[{ label: "Representantes" }]} />
 
       {/* Hero */}
       <section className="relative overflow-hidden bg-foreground text-primary-foreground py-20 md:py-28">
