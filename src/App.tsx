@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
+import { CartProvider } from "@/hooks/useCart";
 
 function NicheRedirect() {
   const { slug } = useParams<{ slug: string }>();
@@ -65,6 +66,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <AuthProvider>
+            <CartProvider>
             <ScrollToTop />
             <Suspense fallback={<PageLoader />}>
               <Routes>
@@ -111,6 +113,7 @@ const App = () => (
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
+          </CartProvider>
           </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>
