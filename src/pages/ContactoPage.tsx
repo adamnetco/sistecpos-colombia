@@ -1,5 +1,7 @@
 import { Layout } from "@/components/layout/Layout";
 import { DynamicMeta } from "@/components/seo/DynamicMeta";
+import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
+import { JsonLd, localBusinessSchema } from "@/components/seo/JsonLd";
 import { DemoRequestForm } from "@/components/forms/DemoRequestForm";
 import { motion } from "framer-motion";
 import {
@@ -102,6 +104,8 @@ export default function ContactoPage() {
         description="Contáctanos para una demostración gratuita de nuestro software POS. Estamos en Bucaramanga, Santander. WhatsApp, teléfono y redes sociales."
         canonical="https://sistecpos.com/contacto"
       />
+      <JsonLd data={localBusinessSchema("Bucaramanga", true)} />
+      <Breadcrumbs items={[{ label: "Contacto" }]} />
       {/* Hero Section */}
       <section className="relative py-20 md:py-28 bg-gradient-to-br from-primary/5 via-background to-secondary/5">
         <div className="container px-4">

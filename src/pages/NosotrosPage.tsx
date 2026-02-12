@@ -1,5 +1,7 @@
 import { Layout } from "@/components/layout/Layout";
 import { DynamicMeta } from "@/components/seo/DynamicMeta";
+import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
+import { JsonLd, organizationSchema } from "@/components/seo/JsonLd";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { Target, Eye, Heart, Users, Award, Clock, MapPin, Phone } from "lucide-react";
@@ -54,6 +56,8 @@ export default function NosotrosPage() {
         description="Conoce a SistecPOS: empresa de software POS con soporte presencial en Bucaramanga y el Área Metropolitana. Compromiso local, calidad garantizada."
         canonical="https://sistecpos.com/nosotros"
       />
+      <JsonLd data={organizationSchema()} />
+      <Breadcrumbs items={[{ label: "Nosotros" }]} />
       {/* Hero Section */}
       <section className="relative py-20 md:py-28 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-secondary/50 to-background" />
