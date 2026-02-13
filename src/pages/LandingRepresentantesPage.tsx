@@ -143,6 +143,8 @@ export default function LandingRepresentantesPage() {
             src="/lovable-uploads/43a24c53-78c0-4ca3-b642-99a376d90a0f.png"
             alt="SistecPOS"
             className="h-8"
+            fetchPriority="high"
+            decoding="async"
           />
           <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
             Programa de Socios

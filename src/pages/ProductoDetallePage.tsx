@@ -124,7 +124,7 @@ const ProductoDetallePage = () => {
             <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
               {product.image_url ? (
                 <div className="aspect-square rounded-2xl bg-muted/30 p-8 flex items-center justify-center">
-                  <img src={product.image_url} alt={product.name} className="max-h-full max-w-full object-contain" />
+                  <img src={product.image_url} alt={product.name} className="max-h-full max-w-full object-contain" fetchPriority="high" decoding="async" />
                 </div>
               ) : (
                 <div className="aspect-square rounded-2xl gradient-bg p-12 flex items-center justify-center">

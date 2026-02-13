@@ -94,6 +94,8 @@ export function SoftwarePreviewSection() {
                 src={softwareDashboard} 
                 alt="Vista del Software POS SistecPOS" 
                 className="w-full h-auto"
+                loading="lazy"
+                decoding="async"
               />
               
               {/* Overlay gradient */}
