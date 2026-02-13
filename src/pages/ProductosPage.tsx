@@ -17,7 +17,7 @@ import { useCart } from "@/hooks/useCart";
 import { useProductTracking } from "@/hooks/useProductTracking";
 import { ProductFilters, type ProductFiltersState } from "@/components/productos/ProductFilters";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
-import { JsonLd, softwareApplicationSchema } from "@/components/seo/JsonLd";
+import { JsonLd, collectionPageSchema } from "@/components/seo/JsonLd";
 import { toast } from "sonner";
 import { useState, useMemo } from "react";
 
@@ -239,7 +239,7 @@ const ProductosPage = () => {
         description="Encuentra impresoras térmicas, lectores de códigos de barras, cajones monederos y papel térmico para tu punto de venta. Envío a toda Colombia."
         canonical="https://sistecpos.com/productos"
       />
-      <JsonLd data={softwareApplicationSchema({ name: "SistecPOS", description: "Catálogo de licencias y hardware POS para puntos de venta en Colombia.", url: "https://sistecpos.com/productos" })} />
+      <JsonLd data={collectionPageSchema({ name: "Productos y Hardware POS", description: "Catálogo de licencias, impresoras térmicas, lectores de códigos de barras y cajones monederos para puntos de venta en Colombia.", url: "https://sistecpos.com/productos" })} />
       <Breadcrumbs items={[{ label: "Productos" }]} />
       <section className="relative py-16 md:py-20 overflow-hidden">
         <div className="absolute inset-0 gradient-bg opacity-5" />

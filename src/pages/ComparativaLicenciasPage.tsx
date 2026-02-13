@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { DynamicMeta } from "@/components/seo/DynamicMeta";
+import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
+import { JsonLd, softwareApplicationSchema } from "@/components/seo/JsonLd";
 import { motion } from "framer-motion";
 import { Check, X, Crown, Star, Zap, Building2, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -132,20 +134,11 @@ const ComparativaLicenciasPage = () => {
         description="Compara SistecPOS con otros proveedores POS en Colombia. Funcionalidades, precios y soporte. Encuentra el mejor software para tu negocio."
         canonical="https://sistecpos.com/comparativa-licencias"
       />
-      {/* Breadcrumb-like link to pillar page */}
-      <div className="container px-4 py-3">
-        <nav className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Link to="/" className="hover:text-foreground transition-colors">
-            Inicio
-          </Link>
-          <span>/</span>
-          <Link to="/software-pos-colombia" className="hover:text-foreground transition-colors">
-            Software POS Colombia
-          </Link>
-          <span>/</span>
-          <span className="text-foreground">Comparativa</span>
-        </nav>
-      </div>
+      <JsonLd data={softwareApplicationSchema({ name: "SistecPOS", description: "Comparativa de software POS en Colombia: SistecPOS vs Tiendana, VectorPOS y SitricPOS.", url: "https://sistecpos.com/comparativa-licencias" })} />
+      <Breadcrumbs items={[
+        { label: "Software POS Colombia", href: "/software-pos-colombia" },
+        { label: "Comparativa" },
+      ]} />
 
       {/* Hero Section */}
       <section className="py-16 md:py-24 gradient-bg text-primary-foreground">
