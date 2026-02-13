@@ -17,6 +17,7 @@ import {
 import { Layout } from "@/components/layout/Layout";
 import { SEO } from "@/components/seo/SEO";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
+import { JsonLd, jobPostingSchema } from "@/components/seo/JsonLd";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -106,6 +107,7 @@ export default function RepresentantesPage() {
         description="Únete como representante comercial de SistecPOS en tu ciudad. Tú vendes, nosotros hacemos el soporte. Comisiones atractivas y exclusividad de zona."
         canonical="https://sistecpos.com/representantes"
       />
+      <JsonLd data={jobPostingSchema()} />
       <Breadcrumbs items={[{ label: "Representantes" }]} />
 
       {/* Hero */}

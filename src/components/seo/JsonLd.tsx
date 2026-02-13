@@ -175,3 +175,52 @@ export function productSchema(opts: {
     },
   };
 }
+
+export function jobPostingSchema() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "JobPosting",
+    title: "Representante Comercial SistecPOS",
+    description: "Únete como representante comercial de SistecPOS en tu ciudad. Vende software POS con soporte presencial y gana comisiones atractivas sin inversión inicial.",
+    datePosted: "2025-01-01",
+    validThrough: "2026-12-31",
+    employmentType: "CONTRACTOR",
+    hiringOrganization: {
+      "@type": "Organization",
+      name: "SistecPOS",
+      sameAs: "https://sistecpos.com",
+      logo: "https://sistecpos.com/lovable-uploads/43a24c53-78c0-4ca3-b642-99a376d90a0f.png",
+    },
+    jobLocation: {
+      "@type": "Place",
+      address: {
+        "@type": "PostalAddress",
+        addressCountry: "CO",
+      },
+    },
+    applicantLocationRequirements: {
+      "@type": "Country",
+      name: "Colombia",
+    },
+    jobLocationType: "TELECOMMUTE",
+  };
+}
+
+export function collectionPageSchema(opts: {
+  name: string;
+  description: string;
+  url: string;
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: opts.name,
+    description: opts.description,
+    url: opts.url,
+    provider: {
+      "@type": "Organization",
+      name: "SistecPOS",
+      url: "https://sistecpos.com",
+    },
+  };
+}
