@@ -59,7 +59,7 @@ export function SuccessStoriesSection({ businessType, maxItems = 3, title = "Cas
                 <Card className="h-full border-0 shadow-card hover:shadow-card-hover transition-all hover:-translate-y-1">
                   {story.image_url && (
                     <div className="h-40 overflow-hidden rounded-t-lg">
-                      <img src={story.image_url} alt={story.title} className="w-full h-full object-cover" />
+                      <img src={story.image_url} alt={story.title} className="w-full h-full object-cover" loading="lazy" decoding="async" />
                     </div>
                   )}
                   <CardContent className="p-5">

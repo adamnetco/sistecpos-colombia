@@ -88,7 +88,7 @@ const ProductCard = ({ product, index }: { product: DBProduct; index: number }) 
         <CardContent className="p-6 flex-1">
           {hasImage ? (
             <div className="relative mb-4 bg-muted/30 rounded-xl p-4 flex items-center justify-center">
-              <img src={product.image_url!} alt={product.name} className="h-32 w-auto object-contain" />
+              <img src={product.image_url!} alt={product.name} className="h-32 w-auto object-contain" loading="lazy" decoding="async" />
               {product.is_featured && (
                 <Badge className="absolute top-2 left-2 bg-whatsapp/10 text-whatsapp border-0">
                   <Crown className="h-3 w-3 mr-1" />Popular

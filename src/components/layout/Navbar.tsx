@@ -43,7 +43,7 @@ export function Navbar() {
       <nav className="container flex h-16 items-center justify-between px-4 md:px-6">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
-          <img alt="SistecPOS" className="h-9 w-auto" src="/lovable-uploads/43a24c53-78c0-4ca3-b642-99a376d90a0f.png" />
+          <img alt="SistecPOS" className="h-9 w-auto" src="/lovable-uploads/43a24c53-78c0-4ca3-b642-99a376d90a0f.png" fetchPriority="high" decoding="async" />
         </Link>
 
         {/* Desktop Navigation */}
