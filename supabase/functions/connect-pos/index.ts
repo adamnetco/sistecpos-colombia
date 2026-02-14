@@ -11,11 +11,26 @@ serve(async (req) => {
   }
 
   try {
-    // Credenciales públicas de demo - no son secretas
+    let username = "demo"
+    let password = "demo"
+    let store = "demo"
+
+    // Accept custom credentials from POST body
+    if (req.method === 'POST') {
+      try {
+        const body = await req.json()
+        if (body.username) username = body.username
+        if (body.password) password = body.password
+        if (body.store) store = body.store
+      } catch {
+        // If no JSON body, use demo credentials
+      }
+    }
+
     const formData = new FormData()
-    formData.append("username", "demo")
-    formData.append("password", "demo")
-    formData.append("store", "demo")
+    formData.append("username", username)
+    formData.append("password", password)
+    formData.append("store", store)
     formData.append("remember_user", "1")
 
     const response = await fetch("https://softwarepos.online/index.php/login/index/1", {
@@ -28,7 +43,7 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify({
-        message: "Demo lista",
+        message: username === "demo" ? "Demo lista" : "Sesión iniciada",
         session: setCookie,
         redirect_url: "https://softwarepos.online/index.php/login/index/1",
       }),

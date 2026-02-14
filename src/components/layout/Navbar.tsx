@@ -1,6 +1,6 @@
  import { useState } from "react";
  import { Link, useLocation } from "react-router-dom";
- import { Menu, X, ChevronDown, Utensils, ShoppingBag, Shirt, Wrench, Laptop, Scissors, Pill, Store, PawPrint } from "lucide-react";
+ import { Menu, X, ChevronDown, Utensils, ShoppingBag, Shirt, Wrench, Laptop, Scissors, Pill, Store, PawPrint, User } from "lucide-react";
  import { Button } from "@/components/ui/button";
  import { cn } from "@/lib/utils";
  import { motion, AnimatePresence } from "framer-motion";
@@ -95,6 +95,11 @@ export function Navbar() {
 
         {/* CTA Buttons */}
         <div className="hidden lg:flex lg:items-center lg:gap-2">
+          <Button asChild variant="ghost" size="icon" title="Acceso Clientes">
+            <Link to="/clientes">
+              <User className="h-5 w-5" />
+            </Link>
+          </Button>
           <Button asChild size="sm" className="bg-cta hover:bg-cta/90 text-cta-foreground font-semibold">
             <Link to="/contacto#demo">
               Prueba Gratis 7 Días
@@ -145,6 +150,12 @@ export function Navbar() {
                 );
               })}
 
+              <Button asChild variant="outline" className="w-full gap-2">
+                <Link to="/clientes" onClick={() => setMobileMenuOpen(false)}>
+                  <User className="h-4 w-4" />
+                  Acceso Clientes
+                </Link>
+              </Button>
               <Button asChild className="w-full bg-cta hover:bg-cta/90 text-cta-foreground font-semibold">
                 <Link to="/contacto#demo" onClick={() => setMobileMenuOpen(false)}>
                   Prueba Gratis 7 Días
