@@ -23,6 +23,7 @@ const SettingsView = lazy(() => import("@/components/admin/SettingsView"));
 const SyncPOSSection = lazy(() => import("@/components/admin/SyncPOSSection"));
 const ClientDownloadsView = lazy(() => import("@/components/admin/ClientDownloadsView"));
 const ClientTicketsView = lazy(() => import("@/components/admin/ClientTicketsView"));
+const TrainingVideosView = lazy(() => import("@/components/admin/TrainingVideosView"));
 
 function Loader() {
   return (
@@ -56,6 +57,7 @@ export default function AdminPage() {
             <Route path="sync-pos" element={<SyncPOSSection />} />
             <Route path="descargas-clientes" element={<ClientDownloadsView />} />
             <Route path="tickets-clientes" element={<ClientTicketsView />} />
+            <Route path="capacitacion" element={<TrainingVideosView />} />
             <Route path="configuracion" element={<SettingsView />} />
           </Routes>
         </Suspense>
