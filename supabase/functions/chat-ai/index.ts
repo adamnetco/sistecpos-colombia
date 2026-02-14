@@ -64,12 +64,15 @@ serve(async (req) => {
       }
     }
 
-    // Load custom system prompt from app_settings
-    const { data: promptSetting } = await supabase
+    // Load custom system prompt and temperature from app_settings
+    const { data: settings } = await supabase
       .from("app_settings")
-      .select("value")
-      .eq("key", "chatbot_system_prompt")
-      .maybeSingle();
+      .select("key, value")
+      .in("key", ["chatbot_system_prompt", "chatbot_temperature"]);
+
+    const promptSetting = settings?.find((s: any) => s.key === "chatbot_system_prompt");
+    const tempSetting = settings?.find((s: any) => s.key === "chatbot_temperature");
+    const temperature = tempSetting ? parseFloat(tempSetting.value) : 0;
 
     const basePrompt = promptSetting?.value || `Eres el asistente virtual de SistecPOS, un software POS y de facturación electrónica DIAN para Colombia.
 
@@ -138,9 +141,10 @@ ${knowledgeContext}`;
           model: "google/gemini-3-flash-preview",
           messages: [
             { role: "system", content: systemPrompt },
-            ...messages.slice(-10), // Last 10 messages for context window
+            ...messages.slice(-10),
           ],
           stream: true,
+          temperature,
         }),
       }
     );
