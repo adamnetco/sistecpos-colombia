@@ -46,7 +46,7 @@ export default function SolucionesPage() {
       </section>
 
       {/* Grid de soluciones */}
-      <section className="py-16 md:py-24">
+      <section id="directorio" className="py-16 md:py-24">
         <div className="container px-4">
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 max-w-7xl mx-auto">
             {businessTypes.map((solution, index) => (
@@ -86,7 +86,7 @@ export default function SolucionesPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-16 md:py-24 bg-primary text-primary-foreground">
+      <section id="cta-soluciones" className="py-16 md:py-24 bg-primary text-primary-foreground">
         <div className="container px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

@@ -241,7 +241,7 @@ const ProductosPage = () => {
       />
       <JsonLd data={collectionPageSchema({ name: "Productos y Hardware POS", description: "Catálogo de licencias, impresoras térmicas, lectores de códigos de barras y cajones monederos para puntos de venta en Colombia.", url: "https://sistecpos.com/productos" })} />
       <Breadcrumbs items={[{ label: "Productos" }]} />
-      <section className="relative py-16 md:py-20 overflow-hidden">
+      <section id="titulo" className="relative py-16 md:py-20 overflow-hidden">
         <div className="absolute inset-0 gradient-bg opacity-5" />
         <div className="container px-4 md:px-6 relative">
           <div className="max-w-3xl mx-auto text-center">
@@ -260,7 +260,7 @@ const ProductosPage = () => {
         </div>
       </section>
 
-      <section className="py-8 md:py-12">
+      <section id="catalogo" className="py-8 md:py-12">
         <div className="container px-4 md:px-6">
           {isLoading ? (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -299,7 +299,7 @@ const ProductosPage = () => {
         </div>
       </section>
 
-      <section className="py-12 md:py-16 bg-gradient-to-br from-primary/5 to-background">
+      <section id="distribuidor" className="py-12 md:py-16 bg-gradient-to-br from-primary/5 to-background">
         <div className="container px-4 md:px-6">
           <div className="max-w-4xl mx-auto">
             <div className="grid md:grid-cols-2 gap-8 items-center">
@@ -332,7 +332,7 @@ const ProductosPage = () => {
         </div>
       </section>
 
-      <section className="py-12 md:py-16 bg-muted/30">
+      <section id="instalacion" className="py-12 md:py-16 bg-muted/30">
         <div className="container px-4 md:px-6">
           <div className="max-w-3xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-whatsapp/10 text-whatsapp mb-4">

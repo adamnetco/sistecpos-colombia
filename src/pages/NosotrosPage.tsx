@@ -59,7 +59,7 @@ export default function NosotrosPage() {
       <JsonLd data={organizationSchema()} />
       <Breadcrumbs items={[{ label: "Nosotros" }]} />
       {/* Hero Section */}
-      <section className="relative py-20 md:py-28 overflow-hidden">
+      <section id="titulo" className="relative py-20 md:py-28 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-secondary/50 to-background" />
         <div className="container relative px-4">
           <motion.div
@@ -84,7 +84,7 @@ export default function NosotrosPage() {
       </section>
 
       {/* Founder Section */}
-      <section className="py-16 md:py-24">
+      <section id="fundador" className="py-16 md:py-24">
         <div className="container px-4">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <motion.div
@@ -148,7 +148,7 @@ export default function NosotrosPage() {
       </section>
 
       {/* Mission & Vision */}
-      <section className="py-16 md:py-24 bg-muted/30">
+      <section id="mision-vision" className="py-16 md:py-24 bg-muted/30">
         <div className="container px-4">
           <div className="grid md:grid-cols-2 gap-8">
             <motion.div
@@ -191,7 +191,7 @@ export default function NosotrosPage() {
       </section>
 
       {/* Timeline */}
-      <section className="py-16 md:py-24">
+      <section id="trayectoria" className="py-16 md:py-24">
         <div className="container px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -230,7 +230,7 @@ export default function NosotrosPage() {
       </section>
 
       {/* Values */}
-      <section className="py-16 md:py-24 bg-muted/30">
+      <section id="valores" className="py-16 md:py-24 bg-muted/30">
         <div className="container px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -268,7 +268,7 @@ export default function NosotrosPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-16 md:py-24">
+      <section id="contacto-nosotros" className="py-16 md:py-24">
         <div className="container px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
