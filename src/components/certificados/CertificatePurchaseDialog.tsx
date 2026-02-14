@@ -71,7 +71,7 @@ export function CertificatePurchaseDialog({ open, onOpenChange, plan, priceCop }
 
     setState({ file, uploading: true, url: null, error: null });
     const ext = file.name.split(".").pop();
-    const path = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    const path = `${folder}/${Date.now()}-${crypto.randomUUID()}.${ext}`;
 
     const { error: uploadError } = await supabase.storage
       .from("certificate-docs")
