@@ -6,14 +6,21 @@ export function ScrollToTop() {
 
   useEffect(() => {
     if (hash) {
-      // Wait for DOM to render, then scroll to the element
-      const timeout = setTimeout(() => {
-        const el = document.getElementById(hash.replace("#", ""));
+      const id = hash.replace("#", "");
+      // Try multiple times to find the element (framer-motion may delay rendering)
+      let attempts = 0;
+      const maxAttempts = 10;
+      const tryScroll = () => {
+        const el = document.getElementById(id);
         if (el) {
           el.scrollIntoView({ behavior: "smooth", block: "start" });
+        } else if (attempts < maxAttempts) {
+          attempts++;
+          setTimeout(tryScroll, 150);
         }
-      }, 100);
-      return () => clearTimeout(timeout);
+      };
+      // Initial attempt after a short delay
+      setTimeout(tryScroll, 50);
     } else {
       window.scrollTo({ top: 0, left: 0, behavior: "instant" as ScrollBehavior });
     }
