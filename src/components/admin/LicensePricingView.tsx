@@ -125,12 +125,12 @@ export default function LicensePricingView() {
         <div>
           <h1 className="text-2xl font-bold">Precios de Licencias</h1>
           <p className="text-sm text-muted-foreground">
-            Gestiona precios de venta, implementación y soporte. Los precios oficiales se sincronizan con FacilPOS.
+            Gestiona precios de venta, implementación y soporte. Los precios oficiales se sincronizan con SoftwarePOS.
           </p>
         </div>
         <Button onClick={handleSync} disabled={syncing} className="gap-2">
           <RefreshCw className={`h-4 w-4 ${syncing ? "animate-spin" : ""}`} />
-          {syncing ? "Sincronizando..." : "Sincronizar con FacilPOS"}
+          {syncing ? "Sincronizando..." : "Sincronizar con SoftwarePOS"}
         </Button>
       </div>
 
@@ -173,7 +173,7 @@ export default function LicensePricingView() {
               <CardContent className="space-y-4">
                 {/* Official price (read-only) */}
                 <div>
-                  <Label className="text-xs text-muted-foreground">Precio Oficial FacilPOS (solo lectura)</Label>
+                  <Label className="text-xs text-muted-foreground">Precio Oficial SoftwarePOS (solo lectura)</Label>
                   <div className="flex items-center gap-2 mt-1">
                     <Input
                       value={formatCOP(official)}
