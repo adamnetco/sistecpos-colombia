@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { DynamicPricingSection } from "@/components/pricing/DynamicPricingSection";
 
 const posProviders = [
   {
@@ -96,28 +97,6 @@ const comparisonFeatures = [
   },
 ];
 
-const pricingPlans = {
-  sistecpos: [
-    { name: "Plan Emprendedor", price: "$11 USD/mes", priceCOP: "$129 USD/año", popular: false, desc: "1 punto de venta, ideal para pequeños negocios" },
-    { name: "Plan Negocio", price: "$20 USD/mes", priceCOP: "$237 USD/año", popular: true, desc: "Inventario detallado y reportes avanzados" },
-    { name: "Plan Empresarial", price: "$29 USD/mes", priceCOP: "$347 USD/año", popular: false, desc: "Múltiples sedes o bodegas" },
-    { name: "Licencia Vitalicia", price: "$900 USD (pago único)", priceCOP: "Hosting anual: $99 USD", popular: false, desc: "Pago único, sin mensualidades" },
-  ],
-  tiendana: [
-    { name: "Básico", price: "Gratis", priceCOP: "Limitado", popular: false },
-    { name: "Pro", price: "$29.900 COP/mes", priceCOP: "", popular: true },
-    { name: "Business", price: "$59.900 COP/mes", priceCOP: "", popular: false },
-  ],
-  vectorpos: [
-    { name: "Básico", price: "$35.000 COP/mes", priceCOP: "", popular: false },
-    { name: "Medio", price: "$55.000 COP/mes", priceCOP: "", popular: true },
-    { name: "Avanzado", price: "$75.000 COP/mes", priceCOP: "", popular: false },
-  ],
-  sitricpos: [
-    { name: "Básico", price: "Desde $40.000 COP/mes", priceCOP: "", popular: false },
-    { name: "Pro", price: "Desde $60.000 COP/mes", priceCOP: "", popular: true },
-  ],
-};
 
 const FeatureCheck = ({ value }: { value: boolean }) =>
   value ? (
@@ -302,7 +281,7 @@ const ComparativaLicenciasPage = () => {
         </div>
       </section>
 
-      {/* Pricing Comparison */}
+      {/* SistecPOS Dynamic Pricing */}
       <section className="py-16 md:py-24 bg-muted/30">
         <div className="container px-4">
           <motion.div
@@ -312,52 +291,13 @@ const ComparativaLicenciasPage = () => {
             className="text-center mb-12"
           >
             <h2 className="text-3xl font-bold tracking-tight md:text-4xl mb-4">
-              Compara <span className="gradient-text">Precios</span>
+              Planes y <span className="gradient-text">Precios SistecPOS</span>
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Planes y precios actualizados de cada proveedor.
+              Precios actualizados diariamente. Incluyen instalación, configuración y capacitación presencial.
             </p>
           </motion.div>
-
-          <Tabs defaultValue="sistecpos" className="max-w-4xl mx-auto">
-            <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 mb-8">
-              {posProviders.map((provider) => (
-                <TabsTrigger key={provider.id} value={provider.id} className="gap-2">
-                  {provider.recommended && <Star className="h-3 w-3" />}
-                  {provider.name}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-
-            {Object.entries(pricingPlans).map(([providerId, plans]) => (
-              <TabsContent key={providerId} value={providerId}>
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {plans.map((plan, index) => (
-                    <motion.div
-                      key={plan.name}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3, delay: index * 0.1 }}
-                    >
-                      <Card className={`h-full ${plan.popular ? "border-primary ring-2 ring-primary/20" : ""}`}>
-                        <CardHeader>
-                          {plan.popular && <Badge className="w-fit mb-2">Popular</Badge>}
-                          <CardTitle className="text-lg">{plan.name}</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="text-2xl font-bold text-primary mb-1">{plan.price}</div>
-                          {plan.priceCOP && <div className="text-sm text-muted-foreground">{plan.priceCOP}</div>}
-                          {"desc" in plan && (plan as any).desc && (
-                            <p className="mt-2 text-xs text-muted-foreground">{(plan as any).desc}</p>
-                          )}
-                        </CardContent>
-                      </Card>
-                    </motion.div>
-                  ))}
-                </div>
-              </TabsContent>
-            ))}
-          </Tabs>
+          <DynamicPricingSection />
         </div>
       </section>
 

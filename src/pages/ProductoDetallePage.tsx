@@ -18,6 +18,7 @@ import { JsonLd, productSchema } from "@/components/seo/JsonLd";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { useCart } from "@/hooks/useCart";
 import { toast } from "sonner";
+import { ProductServicesSection } from "@/components/pricing/ProductServicesSection";
 
 const formatPrice = (price: number) =>
   new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0 }).format(price);
@@ -269,6 +270,10 @@ const ProductoDetallePage = () => {
         </section>
       )}
 
+      {/* Services Section for Software Products */}
+      {(catSlug === "licencias" || catSlug === "modulos" || product.product_type === "software") && (
+        <ProductServicesSection />
+      )}
       {/* PDFs */}
       {pdfUrls.length > 0 && (
         <section className="py-12 md:py-16 bg-muted/30">
