@@ -48,7 +48,7 @@ export default function SolucionNegocioPage() {
       ]} />
 
       {/* Hero Section */}
-      <section className="relative py-16 md:py-24 gradient-bg text-primary-foreground overflow-hidden">
+      <section id="titulo" className="relative py-16 md:py-24 gradient-bg text-primary-foreground overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.2),transparent_50%)]" />
         </div>
@@ -111,7 +111,7 @@ export default function SolucionNegocioPage() {
       </section>
 
       {/* Features Section */}
-      <section className="py-16 md:py-24">
+      <section id="funcionalidades" className="py-16 md:py-24">
         <div className="container px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -149,7 +149,7 @@ export default function SolucionNegocioPage() {
       </section>
 
       {/* Modules Section */}
-      <section className="py-16 md:py-24 bg-muted/30">
+      <section id="modulos" className="py-16 md:py-24 bg-muted/30">
         <div className="container px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -187,7 +187,7 @@ export default function SolucionNegocioPage() {
       </section>
 
       {/* Benefits Section */}
-      <section className="py-16 md:py-24">
+      <section id="beneficios" className="py-16 md:py-24">
         <div className="container px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -222,7 +222,7 @@ export default function SolucionNegocioPage() {
       </section>
 
       {/* Why SistecPOS Section */}
-      <section className="py-16 md:py-24 bg-muted/30">
+      <section id="por-que-sistecpos" className="py-16 md:py-24 bg-muted/30">
         <div className="container px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -271,7 +271,7 @@ export default function SolucionNegocioPage() {
       />
 
       {/* Available Cities */}
-      <section className="py-16 md:py-20">
+      <section id="ciudades" className="py-16 md:py-20">
         <div className="container px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -307,7 +307,7 @@ export default function SolucionNegocioPage() {
       </section>
 
       {/* Other Solutions */}
-      <section className="py-16 md:py-24">
+      <section id="otras-soluciones" className="py-16 md:py-24">
         <div className="container px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -361,7 +361,7 @@ export default function SolucionNegocioPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 md:py-24 bg-primary text-primary-foreground">
+      <section id="cta" className="py-16 md:py-24 bg-primary text-primary-foreground">
         <div className="container px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
