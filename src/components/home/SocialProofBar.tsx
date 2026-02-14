@@ -45,7 +45,7 @@ const stats = [
 
 export function SocialProofBar() {
   return (
-    <section className="relative -mt-8 z-10 pb-8">
+    <section id="resultados" className="relative -mt-8 z-10 pb-8">
       <div className="container px-4">
         <motion.div
           initial={{ opacity: 0, y: 30 }}

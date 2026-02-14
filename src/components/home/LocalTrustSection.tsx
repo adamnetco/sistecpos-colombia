@@ -39,7 +39,7 @@ const trustedBusinesses = [
 
 export function LocalTrustSection() {
   return (
-    <section className="py-16 md:py-24 bg-secondary/50" aria-labelledby="soporte-local">
+    <section id="soporte-local" className="py-16 md:py-24 bg-secondary/50" aria-labelledby="soporte-local">
       <div className="container px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

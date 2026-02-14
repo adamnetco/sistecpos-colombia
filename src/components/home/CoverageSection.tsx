@@ -11,7 +11,7 @@
 
 export function CoverageSection() {
   return (
-    <section className="py-16 md:py-20 bg-background">
+    <section id="cobertura" className="py-16 md:py-20 bg-background">
       <div className="container px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

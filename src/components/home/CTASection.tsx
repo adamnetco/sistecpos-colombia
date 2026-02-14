@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 
 export function CTASection() {
   return (
-    <section className="py-16 md:py-24 bg-gradient-to-br from-primary via-primary to-primary-hover relative overflow-hidden">
+    <section id="contacto" className="py-16 md:py-24 bg-gradient-to-br from-primary via-primary to-primary-hover relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-0 right-0 h-64 w-64 rounded-full bg-white/5 blur-3xl" />

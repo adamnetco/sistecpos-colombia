@@ -23,7 +23,7 @@ const features = [
 
 export function SoftwarePreviewSection() {
   return (
-    <section className="py-16 md:py-24 overflow-hidden">
+    <section id="software" className="py-16 md:py-24 overflow-hidden">
       <div className="container px-4">
         <div className="grid gap-12 lg:grid-cols-2 items-center">
           {/* Text Content */}
