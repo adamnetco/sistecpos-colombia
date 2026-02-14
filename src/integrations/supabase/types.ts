@@ -1523,6 +1523,48 @@ export type Database = {
         }
         Relationships: []
       }
+      training_videos: {
+        Row: {
+          category: string
+          created_at: string
+          duration: string | null
+          id: string
+          is_active: boolean
+          is_main: boolean
+          sort_order: number
+          title: string
+          updated_at: string
+          video_type: string
+          video_url: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          duration?: string | null
+          id?: string
+          is_active?: boolean
+          is_main?: boolean
+          sort_order?: number
+          title: string
+          updated_at?: string
+          video_type?: string
+          video_url: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          duration?: string | null
+          id?: string
+          is_active?: boolean
+          is_main?: boolean
+          sort_order?: number
+          title?: string
+          updated_at?: string
+          video_type?: string
+          video_url?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
