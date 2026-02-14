@@ -30,16 +30,16 @@ export function ProductServicesSection() {
           viewport={{ once: true }}
           className="text-center mb-10"
         >
-          <Badge className="mb-3 bg-primary/10 text-primary border-0">
+         <Badge className="mb-3 bg-primary/10 text-primary border-0">
             <Sparkles className="h-3 w-3 mr-1" />
-            Servicios Profesionales
+            Respaldo Total para tu Negocio
           </Badge>
           <h2 className="text-2xl md:text-3xl font-bold mb-3">
-            Más que Software, una <span className="gradient-text">Solución Completa</span>
+            Tu Negocio Operando al <span className="gradient-text">100% desde el Día Uno</span>
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            No solo vendes un programa, obtienes un equipo completo de soporte, implementación y
-            capacitación para que tu negocio funcione desde el día uno.
+            Imagina tener un equipo dedicado que llega a tu local, configura todo por ti 
+            y te acompaña hasta que domines cada función. Eso es exactamente lo que hacemos.
           </p>
         </motion.div>
 
@@ -57,17 +57,17 @@ export function ProductServicesSection() {
                 <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
                   <Wrench className="h-6 w-6 text-primary" />
                 </div>
-                <h3 className="text-lg font-bold mb-2">Implementación Profesional</h3>
+                <h3 className="text-lg font-bold mb-2">Puesta en Marcha Express</h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Configuramos tu sistema completamente en tu local. Migración de datos, 
-                  personalización de categorías, precios, impuestos y todo lo que necesites.
+                  Vamos a tu negocio, configuramos todo y lo dejamos funcionando. 
+                  Tú solo te dedicas a vender mientras nosotros nos encargamos de la tecnología.
                 </p>
                 <ul className="space-y-2 text-sm">
                   {[
-                    "Visita presencial a tu negocio",
-                    "Configuración completa del sistema",
-                    "Migración de datos desde otro POS",
-                    "Personalización de recibos y facturas",
+                    "Instalación directa en tu local",
+                    "Sistema listo para facturar el mismo día",
+                    "Migración segura desde tu sistema anterior",
+                    "Recibos y facturas con tu marca",
                   ].map((item) => (
                     <li key={item} className="flex items-start gap-2">
                       <CheckCircle2 className="h-4 w-4 text-whatsapp shrink-0 mt-0.5" />
@@ -103,17 +103,17 @@ export function ProductServicesSection() {
                   </div>
                   <Badge className="bg-primary text-primary-foreground">Recomendado</Badge>
                 </div>
-                <h3 className="text-lg font-bold mb-2">Soporte Prioritario Mensual</h3>
+                <h3 className="text-lg font-bold mb-2">Tranquilidad Operativa</h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Disponibilidad prioritaria para resolver cualquier duda o incidencia. 
-                  Tu negocio nunca se detiene.
+                  Un técnico real te responde en minutos, no un chatbot. 
+                  Cada hora que tu sistema falla, pierdes ventas. Con nosotros, eso no pasa.
                 </p>
                 <ul className="space-y-2 text-sm">
                   {[
-                    "Atención prioritaria por WhatsApp",
-                    "Soporte remoto ilimitado",
-                    "Actualizaciones del sistema",
-                    "Resolución en menos de 2 horas",
+                    "Respuesta directa por WhatsApp en minutos",
+                    "Conexión remota ilimitada a tu equipo",
+                    "Actualizaciones automáticas incluidas",
+                    "Resolución garantizada en menos de 2 horas",
                   ].map((item) => (
                     <li key={item} className="flex items-start gap-2">
                       <CheckCircle2 className="h-4 w-4 text-whatsapp shrink-0 mt-0.5" />
@@ -126,7 +126,7 @@ export function ProductServicesSection() {
                     <span className="text-3xl font-black text-primary">$120.000</span>
                     <span className="text-sm text-muted-foreground">/mes</span>
                   </div>
-                  <p className="text-xs text-muted-foreground">≈ $30 USD/mes</p>
+                  <p className="text-xs text-muted-foreground">Menos de $4.000/día por la tranquilidad de tu negocio</p>
                 </div>
               </CardContent>
             </Card>
@@ -144,17 +144,17 @@ export function ProductServicesSection() {
                 <div className="w-12 h-12 rounded-xl bg-whatsapp/10 flex items-center justify-center mb-4">
                   <GraduationCap className="h-6 w-6 text-whatsapp" />
                 </div>
-                <h3 className="text-lg font-bold mb-2">Capacitación Incluida</h3>
+                <h3 className="text-lg font-bold mb-2">Domina tu Sistema en Horas</h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Te enseñamos a ti y a tu equipo a usar el sistema de forma eficiente. 
-                  Presencial en tu local + acceso a videos 24/7.
+                  No necesitas ser experto en tecnología. Entrenamos a tu equipo 
+                  en tu propio local hasta que se sientan seguros al 100%.
                 </p>
                 <ul className="space-y-2 text-sm">
                   {[
-                    "Capacitación presencial en tu negocio",
-                    "Acceso a 130+ videos tutoriales",
-                    "Material por categorías específicas",
-                    "Recapacitación si contratas nuevo personal",
+                    "Entrenamiento presencial en tu negocio",
+                    "Biblioteca de 130+ videos paso a paso",
+                    "Guías por tipo de negocio",
+                    "Re-entrenamiento gratis si cambias de personal",
                   ].map((item) => (
                     <li key={item} className="flex items-start gap-2">
                       <CheckCircle2 className="h-4 w-4 text-whatsapp shrink-0 mt-0.5" />
@@ -165,7 +165,7 @@ export function ProductServicesSection() {
                 <div className="mt-4 pt-4 border-t">
                   <Badge variant="secondary" className="gap-1">
                     <Shield className="h-3 w-3" />
-                    Incluido con la licencia
+                    Sin costo adicional — incluido en tu plan
                   </Badge>
                 </div>
               </CardContent>
@@ -182,9 +182,9 @@ export function ProductServicesSection() {
           >
             <Card className="max-w-4xl mx-auto overflow-hidden border-0 shadow-card">
               <div className="bg-primary/5 p-6 text-center">
-                <h3 className="text-xl font-bold mb-1">Planes de Licencia Anual</h3>
+                <h3 className="text-xl font-bold mb-1">Elige tu Plan y Empieza Hoy</h3>
                 <p className="text-sm text-muted-foreground">
-                  Precios actualizados diariamente según TRM
+                  Precios con descuento exclusivo SistecPOS — actualizados diariamente
                 </p>
               </div>
               <CardContent className="p-0">

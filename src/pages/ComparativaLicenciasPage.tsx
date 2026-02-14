@@ -291,10 +291,11 @@ const ComparativaLicenciasPage = () => {
             className="text-center mb-12"
           >
             <h2 className="text-3xl font-bold tracking-tight md:text-4xl mb-4">
-              Planes y <span className="gradient-text">Precios SistecPOS</span>
+              Invierte en tu Negocio, <span className="gradient-text">No en Tecnología Complicada</span>
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Precios actualizados diariamente. Incluyen instalación, configuración y capacitación presencial.
+              Precios transparentes con descuento exclusivo. Cada plan incluye instalación presencial,
+              entrenamiento y puesta en marcha — solo empieza a facturar.
             </p>
           </motion.div>
           <DynamicPricingSection />
@@ -398,10 +399,10 @@ const ComparativaLicenciasPage = () => {
             viewport={{ once: true }}
             className="text-center max-w-3xl mx-auto"
           >
-            <h2 className="text-3xl md:text-4xl font-bold mb-6">¿Necesitas Ayuda para Decidir?</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-6">Cada Día sin un POS Profesional te Cuesta Dinero</h2>
             <p className="text-lg text-primary-foreground/80 mb-8">
-              Agenda una asesoría gratuita y te ayudamos a elegir el mejor sistema para las necesidades específicas de
-              tu negocio.
+              Un asesor de SistecPOS visita tu negocio, evalúa tu operación y te recomienda 
+              el plan exacto que necesitas. Sin compromiso, sin presión.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" className="btn-whatsapp gap-2" asChild>
