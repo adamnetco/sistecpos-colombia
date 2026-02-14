@@ -11,32 +11,27 @@ serve(async (req) => {
   }
 
   try {
-    const POS_USER = Deno.env.get('POS_USER')
-    const POS_PASS = Deno.env.get('POS_PASS')
-    const POS_STORE = Deno.env.get('POS_STORE')
-
-    if (!POS_USER || !POS_PASS || !POS_STORE) {
-      return new Response(
-        JSON.stringify({ error: "Credenciales POS no configuradas" }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
-      )
-    }
-
+    // Credenciales públicas de demo - no son secretas
     const formData = new FormData()
-    formData.append("username", POS_USER)
-    formData.append("password", POS_PASS)
-    formData.append("store", POS_STORE)
+    formData.append("username", "demo")
+    formData.append("password", "demo")
+    formData.append("store", "demo")
     formData.append("remember_user", "1")
 
-    const response = await fetch("https://softwarepos.online/index.php/login", {
+    const response = await fetch("https://softwarepos.online/index.php/login/index/1", {
       method: "POST",
       body: formData,
+      redirect: "manual",
     })
 
     const setCookie = response.headers.get('set-cookie')
 
     return new Response(
-      JSON.stringify({ message: "Conectado al POS exitosamente", session: setCookie }),
+      JSON.stringify({
+        message: "Demo lista",
+        session: setCookie,
+        redirect_url: "https://softwarepos.online/index.php/login/index/1",
+      }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
     )
   } catch (error: unknown) {
