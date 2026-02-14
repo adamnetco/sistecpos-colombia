@@ -174,7 +174,7 @@ export function AdminSidebar() {
     return (
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger asChild>
-          <Button variant="ghost" size="icon" className="fixed top-3 left-3 z-50 md:hidden">
+          <Button variant="outline" size="icon" className="fixed top-3 left-3 z-50 md:hidden bg-card shadow-md border">
             <Menu className="h-5 w-5" />
           </Button>
         </SheetTrigger>
