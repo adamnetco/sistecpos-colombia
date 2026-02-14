@@ -52,9 +52,9 @@ export function DynamicPricingSection() {
                   <h3 className="text-xl font-bold mb-1">{plan.plan_label}</h3>
                   <p className="text-sm text-muted-foreground mb-6">{plan.plan_description}</p>
 
-                  {/* Monthly price - PROMINENT */}
+                   {/* Monthly price - PROMINENT */}
                   <div className="rounded-xl bg-primary/5 border border-primary/10 p-4 mb-4 text-center">
-                    <p className="text-xs text-muted-foreground mb-1">Desde</p>
+                    <p className="text-xs text-muted-foreground mb-1">Tu inversión desde</p>
                     <div className="flex items-baseline justify-center gap-1">
                       <span className="text-4xl font-black text-primary">
                         {formatCOP(monthly)}
@@ -71,7 +71,7 @@ export function DynamicPricingSection() {
                     <div className="flex items-center justify-center gap-2 mb-4">
                       <Badge variant="destructive" className="gap-1">
                         <TrendingDown className="h-3 w-3" />
-                        {discount}% menos que precio oficial
+                        Ahorras {discount}% con SistecPOS
                       </Badge>
                     </div>
                   )}
@@ -80,7 +80,7 @@ export function DynamicPricingSection() {
                   {plan.official_price_cop > 0 && (
                     <p className="text-center text-xs text-muted-foreground mb-4">
                       <span className="line-through">{formatCOP(plan.official_price_cop)}</span>{" "}
-                      precio oficial SoftwarePOS
+                      precio de lista del fabricante
                     </p>
                   )}
 
@@ -89,24 +89,25 @@ export function DynamicPricingSection() {
                     <div className="flex items-center gap-2 text-sm">
                       <Wrench className="h-4 w-4 text-primary shrink-0" />
                       <span>
-                        Implementación:{" "}
+                        Puesta en marcha:{" "}
                         <strong className="text-primary">{formatCOP(plan.implementation_price_cop)}</strong>
+                        <span className="text-muted-foreground text-xs ml-1">(única vez)</span>
                       </span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
                       <Headphones className="h-4 w-4 text-primary shrink-0" />
                       <span>
-                        Soporte prioritario:{" "}
+                        Tranquilidad operativa:{" "}
                         <strong className="text-primary">{formatCOP(plan.support_monthly_cop)}/mes</strong>
                       </span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
                       <Shield className="h-4 w-4 text-whatsapp shrink-0" />
-                      <span>Instalación y configuración incluida</span>
+                      <span>Instalación presencial en tu local</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
                       <CalendarClock className="h-4 w-4 text-whatsapp shrink-0" />
-                      <span>Capacitación presencial incluida</span>
+                      <span>Entrenamiento a tu equipo incluido</span>
                     </div>
                   </div>
 
@@ -142,8 +143,8 @@ export function DynamicPricingSection() {
         className="text-center max-w-2xl mx-auto"
       >
         <p className="text-xs text-muted-foreground">
-          * Precios basados en la TRM del día. Se actualizan diariamente a las 12:00 AM según los precios oficiales de SoftwarePOS.
-          Los precios de facturación se rigen estrictamente por los precios oficiales del fabricante.
+          * Precios en COP actualizados diariamente según la TRM oficial. Los precios de facturación 
+          se rigen por las tarifas vigentes del fabricante. Los descuentos mostrados son exclusivos de SistecPOS.
           {plans[0]?.last_synced_at && (
             <span className="block mt-1">
               Última actualización: {new Date(plans[0].last_synced_at).toLocaleDateString("es-CO")}
