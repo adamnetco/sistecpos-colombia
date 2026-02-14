@@ -80,7 +80,7 @@ export function DynamicPricingSection() {
                   {plan.official_price_cop > 0 && (
                     <p className="text-center text-xs text-muted-foreground mb-4">
                       <span className="line-through">{formatCOP(plan.official_price_cop)}</span>{" "}
-                      precio oficial FacilPOS
+                      precio oficial SoftwarePOS
                     </p>
                   )}
 
@@ -142,7 +142,7 @@ export function DynamicPricingSection() {
         className="text-center max-w-2xl mx-auto"
       >
         <p className="text-xs text-muted-foreground">
-          * Precios basados en la TRM del día. Se actualizan diariamente a las 12:00 AM según los precios oficiales de FacilPOS.
+          * Precios basados en la TRM del día. Se actualizan diariamente a las 12:00 AM según los precios oficiales de SoftwarePOS.
           Los precios de facturación se rigen estrictamente por los precios oficiales del fabricante.
           {plans[0]?.last_synced_at && (
             <span className="block mt-1">
