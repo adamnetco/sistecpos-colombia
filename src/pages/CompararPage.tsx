@@ -32,7 +32,7 @@ export default function CompararPage() {
       <Breadcrumbs items={[{ label: "Comparar Software POS" }]} />
 
       {/* Hero */}
-      <section className="py-16 md:py-24 gradient-bg text-primary-foreground overflow-hidden relative">
+      <section id="titulo" className="py-16 md:py-24 gradient-bg text-primary-foreground overflow-hidden relative">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.2),transparent_50%)]" />
         </div>
@@ -61,7 +61,7 @@ export default function CompararPage() {
       </section>
 
       {/* Key advantages */}
-      <section className="py-12 md:py-16 bg-muted/30">
+      <section id="ventajas" className="py-12 md:py-16 bg-muted/30">
         <div className="container px-4">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 max-w-5xl mx-auto">
             {keyAdvantages.map((a, i) => (
@@ -88,7 +88,7 @@ export default function CompararPage() {
       </section>
 
       {/* SaaS Competitors */}
-      <section className="py-16 md:py-20">
+      <section id="vs-saas" className="py-16 md:py-20">
         <div className="container px-4">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
             <div className="flex items-center justify-center gap-2 mb-4">
@@ -134,7 +134,7 @@ export default function CompararPage() {
       </section>
 
       {/* Open Source Competitors */}
-      <section className="py-16 md:py-20 bg-muted/30">
+      <section id="vs-open-source" className="py-16 md:py-20 bg-muted/30">
         <div className="container px-4">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
             <div className="flex items-center justify-center gap-2 mb-4">
@@ -181,7 +181,7 @@ export default function CompararPage() {
 
       {/* Gobierno Competitors */}
       {gobiernoCompetitors.length > 0 && (
-        <section className="py-16 md:py-20">
+        <section id="vs-gobierno" className="py-16 md:py-20">
           <div className="container px-4">
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
               <div className="flex items-center justify-center gap-2 mb-4">
@@ -228,7 +228,7 @@ export default function CompararPage() {
       )}
 
       {/* Link to existing comparativa-licencias */}
-      <section className="py-12 md:py-16">
+      <section id="comparativa-licencias" className="py-12 md:py-16">
         <div className="container px-4 text-center">
           <Card className="max-w-2xl mx-auto border-primary/20">
             <CardContent className="p-8">
@@ -249,7 +249,7 @@ export default function CompararPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-16 md:py-24 bg-primary text-primary-foreground">
+      <section id="cta-comparar" className="py-16 md:py-24 bg-primary text-primary-foreground">
         <div className="container px-4">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center max-w-3xl mx-auto">
             <h2 className="text-3xl md:text-4xl font-bold mb-6">

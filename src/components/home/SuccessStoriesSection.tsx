@@ -34,7 +34,7 @@ export function SuccessStoriesSection({ businessType, maxItems = 3, title = "Cas
   if (stories.length === 0) return null;
 
   return (
-    <section className="py-12 md:py-16">
+    <section id="casos-exito" className="py-12 md:py-16">
       <div className="container px-4 md:px-6">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">

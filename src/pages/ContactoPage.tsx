@@ -107,7 +107,7 @@ export default function ContactoPage() {
       <JsonLd data={localBusinessSchema("Bucaramanga", true)} />
       <Breadcrumbs items={[{ label: "Contacto" }]} />
       {/* Hero Section */}
-      <section className="relative py-20 md:py-28 bg-gradient-to-br from-primary/5 via-background to-secondary/5">
+      <section id="titulo" className="relative py-20 md:py-28 bg-gradient-to-br from-primary/5 via-background to-secondary/5">
         <div className="container px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -172,7 +172,7 @@ export default function ContactoPage() {
       </section>
 
       {/* Contact Info Cards */}
-      <section className="py-16">
+      <section id="informacion" className="py-16">
         <div className="container px-4">
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             {contactInfo.map((item, index) => (
@@ -219,7 +219,7 @@ export default function ContactoPage() {
       </section>
 
       {/* Agendar Cita Section */}
-      <section className="py-16 bg-muted/30">
+      <section id="agendar-cita" className="py-16 bg-muted/30">
         <div className="container px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -262,7 +262,7 @@ export default function ContactoPage() {
       </section>
 
       {/* Map Section */}
-      <section className="py-16">
+      <section id="ubicacion" className="py-16">
         <div className="container px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -318,7 +318,7 @@ export default function ContactoPage() {
       </section>
 
       {/* Social Media Section */}
-      <section className="py-16 bg-muted/30">
+      <section id="redes-sociales" className="py-16 bg-muted/30">
         <div className="container px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -357,7 +357,7 @@ export default function ContactoPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16">
+      <section id="cta-contacto" className="py-16">
         <div className="container px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
