@@ -1,12 +1,11 @@
 import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Monitor, LogIn, Loader2, Download, HeadphonesIcon } from "lucide-react";
+import { Monitor, LogIn, Download, HeadphonesIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
@@ -17,30 +16,34 @@ export function ClientPOSLogin() {
   const [store, setStore] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handlePOSLogin = async (e: React.FormEvent) => {
+  const handlePOSLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (!username || !password || !store) {
       toast({ title: "Completa todos los campos", variant: "destructive" });
       return;
     }
 
-    setLoading(true);
-    try {
-      const { data, error } = await supabase.functions.invoke("connect-pos", {
-        body: { username, password, store },
-      });
+    // Create a hidden form that POSTs directly to the POS login endpoint
+    // This way the browser handles cookies natively (no cross-origin issues)
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = "https://softwarepos.online/index.php/login/index/1";
+    form.target = "_blank";
 
-      if (error) throw error;
-
-      if (data?.redirect_url) {
-        window.open(data.redirect_url, "_blank");
-        toast({ title: "Redirigiendo al sistema POS..." });
-      }
-    } catch {
-      toast({ title: "Error al conectar con el sistema", variant: "destructive" });
-    } finally {
-      setLoading(false);
+    const fields = { username, password, store, remember_user: "1" };
+    for (const [key, value] of Object.entries(fields)) {
+      const input = document.createElement("input");
+      input.type = "hidden";
+      input.name = key;
+      input.value = value;
+      form.appendChild(input);
     }
+
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
+
+    toast({ title: "Abriendo tu sistema POS..." });
   };
 
   const handleGoogleLogin = async () => {
@@ -78,22 +81,22 @@ export function ClientPOSLogin() {
               <CardContent>
                 <form onSubmit={handlePOSLogin} className="space-y-4">
                   <div>
-                    <Label htmlFor="store">Empresa</Label>
-                    <Input
-                      id="store"
-                      placeholder="Nombre de tu empresa"
-                      value={store}
-                      onChange={(e) => setStore(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div>
                     <Label htmlFor="username">Usuario</Label>
                     <Input
                       id="username"
                       placeholder="Tu usuario"
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="store">Empresa</Label>
+                    <Input
+                      id="store"
+                      placeholder="Nombre de tu empresa"
+                      value={store}
+                      onChange={(e) => setStore(e.target.value)}
                       required
                     />
                   </div>
@@ -108,17 +111,12 @@ export function ClientPOSLogin() {
                       required
                     />
                   </div>
-                  <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    ) : (
-                      <LogIn className="mr-2 h-4 w-4" />
-                    )}
+                  <Button type="submit" className="w-full">
+                    <LogIn className="mr-2 h-4 w-4" />
                     Ingresar al Sistema
                   </Button>
                   <p className="text-xs text-muted-foreground text-center">
-                    Al hacer clic, serás redirigido al panel del sistema POS.
-                    <br />Haz clic en el botón azul "Iniciar Sesión" en la página siguiente.
+                    Se abrirá una nueva pestaña e ingresarás directamente a tu panel POS.
                   </p>
                 </form>
               </CardContent>
