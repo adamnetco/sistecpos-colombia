@@ -6,6 +6,19 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { MessageCircle, Shield, Wrench, Headphones, TrendingDown, CalendarClock } from "lucide-react";
 import { motion } from "framer-motion";
 
+// Fallback images per plan_key
+import boxEmprendedor from "@/assets/license-box-emprendedor.png";
+import boxNegocio from "@/assets/license-box-negocio.png";
+import boxEmpresarial from "@/assets/license-box-empresarial.png";
+import boxVitalicia from "@/assets/license-box-vitalicia.png";
+
+const fallbackImages: Record<string, string> = {
+  emprendedor: boxEmprendedor,
+  negocio: boxNegocio,
+  empresarial: boxEmpresarial,
+  vitalicia: boxVitalicia,
+};
+
 export function DynamicPricingSection() {
   const { data: plans = [], isLoading } = useLicensePricing();
 
@@ -29,6 +42,7 @@ export function DynamicPricingSection() {
           const monthly = monthlyPrice(plan.selling_price_cop);
           const discount = discountPct(plan.official_price_cop, plan.selling_price_cop);
           const isPopular = index === popularIndex;
+          const imageSrc = plan.image_url || fallbackImages[plan.plan_key] || boxEmprendedor;
 
           return (
             <motion.div
@@ -44,13 +58,24 @@ export function DynamicPricingSection() {
                 }`}
               >
                 {isPopular && (
-                  <div className="absolute top-0 left-0 right-0 bg-primary text-primary-foreground text-center py-1.5 text-xs font-bold uppercase tracking-wider">
+                  <div className="absolute top-0 left-0 right-0 bg-primary text-primary-foreground text-center py-1.5 text-xs font-bold uppercase tracking-wider z-10">
                     Más Popular
                   </div>
                 )}
                 <CardContent className={`p-6 ${isPopular ? "pt-10" : ""}`}>
-                  <h3 className="text-xl font-bold mb-1">{plan.plan_label}</h3>
-                  <p className="text-sm text-muted-foreground mb-6">{plan.plan_description}</p>
+                  {/* Product Box Image */}
+                  <div className="flex justify-center mb-4">
+                    <img
+                      src={imageSrc}
+                      alt={`Licencia ${plan.plan_label} SistecPOS`}
+                      className="h-40 w-auto object-contain drop-shadow-lg"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </div>
+
+                  <h3 className="text-xl font-bold mb-1 text-center">{plan.plan_label}</h3>
+                  <p className="text-sm text-muted-foreground mb-6 text-center">{plan.plan_description}</p>
 
                    {/* Monthly price - PROMINENT */}
                   <div className="rounded-xl bg-primary/5 border border-primary/10 p-4 mb-4 text-center">

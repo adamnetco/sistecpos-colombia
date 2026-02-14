@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { formatCOP } from "@/hooks/useLicensePricing";
@@ -17,6 +17,8 @@ import {
   CheckCircle2,
   ExternalLink,
   Clock,
+  ImagePlus,
+  Trash2,
 } from "lucide-react";
 
 interface PricingRow {
@@ -31,12 +33,15 @@ interface PricingRow {
   facilpos_product_url: string | null;
   last_synced_at: string | null;
   sort_order: number;
+  image_url: string | null;
 }
 
 export default function LicensePricingView() {
   const queryClient = useQueryClient();
   const [editing, setEditing] = useState<Record<string, Partial<PricingRow>>>({});
   const [syncing, setSyncing] = useState(false);
+  const [uploading, setUploading] = useState<string | null>(null);
+  const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   const { data: plans = [], isLoading } = useQuery({
     queryKey: ["admin_license_pricing"],
@@ -107,6 +112,70 @@ export default function LicensePricingView() {
     return editing[plan.id]?.[field] ?? plan[field];
   };
 
+  const handleImageUpload = async (plan: PricingRow, file: File) => {
+    if (!file.type.startsWith("image/")) {
+      toast.error("Solo se permiten imágenes");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("La imagen no puede superar 5MB");
+      return;
+    }
+
+    setUploading(plan.id);
+    try {
+      const ext = file.name.split(".").pop() || "png";
+      const path = `${plan.plan_key}-${Date.now()}.${ext}`;
+
+      // Delete old image if exists
+      if (plan.image_url) {
+        const oldPath = plan.image_url.split("/license-images/")[1];
+        if (oldPath) {
+          await supabase.storage.from("license-images").remove([oldPath]);
+        }
+      }
+
+      const { error: uploadError } = await supabase.storage
+        .from("license-images")
+        .upload(path, file, { upsert: true });
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage
+        .from("license-images")
+        .getPublicUrl(path);
+
+      const { error: updateError } = await supabase
+        .from("license_pricing")
+        .update({ image_url: urlData.publicUrl })
+        .eq("id", plan.id);
+      if (updateError) throw updateError;
+
+      queryClient.invalidateQueries({ queryKey: ["admin_license_pricing"] });
+      queryClient.invalidateQueries({ queryKey: ["license_pricing"] });
+      toast.success("Imagen actualizada");
+    } catch (err: any) {
+      toast.error("Error subiendo imagen: " + err.message);
+    } finally {
+      setUploading(null);
+    }
+  };
+
+  const handleImageRemove = async (plan: PricingRow) => {
+    if (!plan.image_url) return;
+    try {
+      const oldPath = plan.image_url.split("/license-images/")[1];
+      if (oldPath) {
+        await supabase.storage.from("license-images").remove([oldPath]);
+      }
+      await supabase.from("license_pricing").update({ image_url: null }).eq("id", plan.id);
+      queryClient.invalidateQueries({ queryKey: ["admin_license_pricing"] });
+      queryClient.invalidateQueries({ queryKey: ["license_pricing"] });
+      toast.success("Imagen eliminada");
+    } catch (err: any) {
+      toast.error(err.message);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -171,6 +240,58 @@ export default function LicensePricingView() {
                 <p className="text-xs text-muted-foreground">{plan.plan_description}</p>
               </CardHeader>
               <CardContent className="space-y-4">
+                {/* Product Image */}
+                <div>
+                  <Label className="text-xs text-muted-foreground mb-2 block">Imagen de Producto</Label>
+                  <div className="flex items-center gap-3">
+                    {plan.image_url ? (
+                      <img
+                        src={plan.image_url}
+                        alt={plan.plan_label}
+                        className="h-20 w-auto object-contain rounded border bg-muted/30 p-1"
+                      />
+                    ) : (
+                      <div className="h-20 w-16 rounded border border-dashed flex items-center justify-center bg-muted/20">
+                        <ImagePlus className="h-5 w-5 text-muted-foreground" />
+                      </div>
+                    )}
+                    <div className="flex flex-col gap-1">
+                      <input
+                        ref={(el) => { fileInputRefs.current[plan.id] = el; }}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleImageUpload(plan, file);
+                          e.target.value = "";
+                        }}
+                      />
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="gap-1 text-xs"
+                        disabled={uploading === plan.id}
+                        onClick={() => fileInputRefs.current[plan.id]?.click()}
+                      >
+                        <ImagePlus className="h-3 w-3" />
+                        {uploading === plan.id ? "Subiendo..." : plan.image_url ? "Cambiar" : "Subir"}
+                      </Button>
+                      {plan.image_url && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="gap-1 text-xs text-destructive hover:text-destructive"
+                          onClick={() => handleImageRemove(plan)}
+                        >
+                          <Trash2 className="h-3 w-3" />
+                          Quitar
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
                 {/* Official price (read-only) */}
                 <div>
                   <Label className="text-xs text-muted-foreground">Precio Oficial SoftwarePOS (solo lectura)</Label>

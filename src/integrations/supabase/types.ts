@@ -800,6 +800,7 @@ export type Database = {
           created_at: string
           facilpos_product_url: string | null
           id: string
+          image_url: string | null
           implementation_price_cop: number
           is_annual: boolean
           last_synced_at: string | null
@@ -816,6 +817,7 @@ export type Database = {
           created_at?: string
           facilpos_product_url?: string | null
           id?: string
+          image_url?: string | null
           implementation_price_cop?: number
           is_annual?: boolean
           last_synced_at?: string | null
@@ -832,6 +834,7 @@ export type Database = {
           created_at?: string
           facilpos_product_url?: string | null
           id?: string
+          image_url?: string | null
           implementation_price_cop?: number
           is_annual?: boolean
           last_synced_at?: string | null
