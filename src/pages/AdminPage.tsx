@@ -24,6 +24,7 @@ const SyncPOSSection = lazy(() => import("@/components/admin/SyncPOSSection"));
 const ClientDownloadsView = lazy(() => import("@/components/admin/ClientDownloadsView"));
 const ClientTicketsView = lazy(() => import("@/components/admin/ClientTicketsView"));
 const TrainingVideosView = lazy(() => import("@/components/admin/TrainingVideosView"));
+const LicensePricingView = lazy(() => import("@/components/admin/LicensePricingView"));
 
 function Loader() {
   return (
@@ -44,6 +45,7 @@ export default function AdminPage() {
             <Route path="marcas" element={<BrandsView />} />
             <Route path="categorias" element={<CategoriesView />} />
             <Route path="licencias" element={<LicensesView />} />
+            <Route path="precios-licencias" element={<LicensePricingView />} />
             <Route path="leads" element={<Navigate to="/admin/contactos" replace />} />
             <Route path="certificados" element={<CertificatesView />} />
             <Route path="pagos" element={<PaymentsView />} />
