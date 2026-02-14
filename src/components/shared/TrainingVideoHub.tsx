@@ -164,7 +164,7 @@ export default function TrainingVideoHub() {
     const matchSearch = !search || v.title.toLowerCase().includes(search.toLowerCase());
     const matchCat = selectedCategory === "all" || v.category === selectedCategory;
     return matchSearch && matchCat;
-  }), [search, selectedCategory, mainVideos]);
+  }).sort((a, b) => (b.view_count ?? 0) - (a.view_count ?? 0)), [search, selectedCategory, mainVideos]);
 
   const totalQuickFiltered = useMemo(() => quickVideosList.filter((v) => {
     const matchSearch = !search || v.title.toLowerCase().includes(search.toLowerCase());
@@ -177,7 +177,7 @@ export default function TrainingVideoHub() {
       const matchSearch = !search || v.title.toLowerCase().includes(search.toLowerCase());
       const matchCat = selectedCategory === "all" || v.category === selectedCategory;
       return matchSearch && matchCat;
-    });
+    }).sort((a, b) => (b.view_count ?? 0) - (a.view_count ?? 0));
     return showAllQuick ? f : f.slice(0, 12);
   }, [search, selectedCategory, showAllQuick, quickVideosList]);
 
