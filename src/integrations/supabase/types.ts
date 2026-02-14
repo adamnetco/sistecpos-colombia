@@ -795,6 +795,57 @@ export type Database = {
         }
         Relationships: []
       }
+      license_pricing: {
+        Row: {
+          created_at: string
+          facilpos_product_url: string | null
+          id: string
+          implementation_price_cop: number
+          is_annual: boolean
+          last_synced_at: string | null
+          official_price_cop: number
+          plan_description: string | null
+          plan_key: string
+          plan_label: string
+          selling_price_cop: number
+          sort_order: number
+          support_monthly_cop: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          facilpos_product_url?: string | null
+          id?: string
+          implementation_price_cop?: number
+          is_annual?: boolean
+          last_synced_at?: string | null
+          official_price_cop?: number
+          plan_description?: string | null
+          plan_key: string
+          plan_label: string
+          selling_price_cop?: number
+          sort_order?: number
+          support_monthly_cop?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          facilpos_product_url?: string | null
+          id?: string
+          implementation_price_cop?: number
+          is_annual?: boolean
+          last_synced_at?: string | null
+          official_price_cop?: number
+          plan_description?: string | null
+          plan_key?: string
+          plan_label?: string
+          selling_price_cop?: number
+          sort_order?: number
+          support_monthly_cop?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       licenses: {
         Row: {
           business_name: string
