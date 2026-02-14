@@ -12,11 +12,12 @@ export interface TrainingVideoRow {
   is_main: boolean;
   is_active: boolean;
   sort_order: number;
+  view_count: number;
   created_at: string;
   updated_at: string;
 }
 
-export type TrainingVideoInsert = Omit<TrainingVideoRow, "id" | "created_at" | "updated_at">;
+export type TrainingVideoInsert = Omit<TrainingVideoRow, "id" | "created_at" | "updated_at" | "view_count">;
 
 export function useTrainingVideos() {
   return useQuery({
@@ -65,4 +66,13 @@ export function useTrainingVideosMutations() {
   });
 
   return { create, update, remove };
+}
+
+export function useIncrementVideoView() {
+  return useMutation({
+    mutationFn: async (videoId: string) => {
+      const { error } = await supabase.rpc("increment_video_view", { video_id: videoId });
+      if (error) throw error;
+    },
+  });
 }
