@@ -1,6 +1,6 @@
 import { forwardRef } from "react";
 import { Link } from "react-router-dom";
-import { Mail, Phone, MapPin } from "lucide-react";
+import { Mail, Phone, MapPin, Download, User } from "lucide-react";
 import logoSistecPOSWhite from "@/assets/logo-sistecpos-white.png";
 import { useNavItems } from "@/hooks/useNavItems";
 
@@ -197,7 +197,17 @@ export const Footer = forwardRef<HTMLElement>((_props, ref) => {
 
         {/* Legal + Copyright */}
         <div className="mt-6 pt-6 border-t border-primary-foreground/10 text-center space-y-3">
-          <div className="flex flex-wrap justify-center gap-4 text-xs">
+          <div className="flex flex-wrap justify-center gap-4 text-xs items-center">
+            <Link to="/clientes" className="inline-flex items-center gap-1 text-primary-foreground/50 hover:text-primary-foreground transition-colors">
+              <User className="h-3 w-3" />
+              Acceso Clientes
+            </Link>
+            <span className="text-primary-foreground/20">|</span>
+            <Link to="/ayuda" className="inline-flex items-center gap-1 text-primary-foreground/50 hover:text-primary-foreground transition-colors">
+              <Download className="h-3 w-3" />
+              Ayuda y Descargas
+            </Link>
+            <span className="text-primary-foreground/20">|</span>
             <Link to="/politica-privacidad" className="text-primary-foreground/50 hover:text-primary-foreground transition-colors">
               Política de Privacidad
             </Link>

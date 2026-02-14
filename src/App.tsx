@@ -47,6 +47,8 @@ const LandingRepresentantesPage = lazy(() => import("./pages/LandingRepresentant
 const CasosExitoPage = lazy(() => import("./pages/CasosExitoPage"));
 const CasoExitoDetallePage = lazy(() => import("./pages/CasoExitoDetallePage"));
 const PagoResultadoPage = lazy(() => import("./pages/PagoResultadoPage"));
+const ClientesPage = lazy(() => import("./pages/ClientesPage"));
+const AyudaPage = lazy(() => import("./pages/AyudaPage"));
 
 const queryClient = new QueryClient();
 
@@ -93,6 +95,8 @@ const App = () => (
                 <Route path="/casos-de-exito" element={<CasosExitoPage />} />
                 <Route path="/casos-de-exito/:slug" element={<CasoExitoDetallePage />} />
                 <Route path="/pago/resultado" element={<PagoResultadoPage />} />
+                <Route path="/clientes" element={<ClientesPage />} />
+                <Route path="/ayuda" element={<AyudaPage />} />
                 <Route path="/contacto" element={<ContactoPage />} />
                 <Route path="/gracias" element={<GraciasPage />} />
                 <Route path="/politica-privacidad" element={<PoliticaPrivacidadPage />} />
