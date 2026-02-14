@@ -1,12 +1,30 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { Monitor, Loader2, XCircle, Smartphone, Info } from "lucide-react";
+import { Monitor, Loader2, XCircle, Info } from "lucide-react";
 import { motion } from "framer-motion";
+
+const GooglePlayIcon = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" className={className} fill="currentColor">
+    <path d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 0 1-.61-.92V2.734a1 1 0 0 1 .609-.92zM14.852 13.06l2.341 2.342-8.19 4.651 5.849-6.993zm3.558-3.413l2.174 1.234a1 1 0 0 1 0 1.74l-2.174 1.233-2.594-2.106 2.594-2.101zM9.003 3.947l8.19 4.651-2.341 2.342-5.849-6.993z" />
+  </svg>
+);
 
 export function ConnectPOSSection() {
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
+  const [playstoreUrl, setPlaystoreUrl] = useState("https://play.google.com/store/apps/details?id=online.softwarepospro");
+
+  useEffect(() => {
+    supabase
+      .from("app_settings")
+      .select("value")
+      .eq("key", "playstore_url")
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data?.value) setPlaystoreUrl(data.value);
+      });
+  }, []);
 
   const handleOpenDemo = async () => {
     setStatus("loading");
@@ -67,11 +85,11 @@ export function ConnectPOSSection() {
                 asChild
               >
                 <a
-                  href="https://play.google.com/store/apps/details?id=com.sistecpos.pos"
+                  href={playstoreUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <Smartphone className="h-5 w-5" />
+                  <GooglePlayIcon className="h-5 w-5" />
                   Descargar en Play Store
                 </a>
               </Button>
