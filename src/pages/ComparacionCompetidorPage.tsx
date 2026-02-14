@@ -95,7 +95,7 @@ export default function ComparacionCompetidorPage() {
       />
 
       {/* Hero */}
-      <section className="py-16 md:py-24 gradient-bg text-primary-foreground overflow-hidden relative">
+      <section id="titulo" className="py-16 md:py-24 gradient-bg text-primary-foreground overflow-hidden relative">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.2),transparent_50%)]" />
         </div>
@@ -154,7 +154,7 @@ export default function ComparacionCompetidorPage() {
 
 
       {/* Key Differentiators */}
-      <section className="py-12 md:py-16 bg-muted/30">
+      <section id="diferenciadores" className="py-12 md:py-16 bg-muted/30">
         <div className="container px-4">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 max-w-5xl mx-auto">
             {differentiators.map((d, i) => (
@@ -181,7 +181,7 @@ export default function ComparacionCompetidorPage() {
       </section>
 
       {/* About competitor */}
-      <section className="py-16 md:py-20">
+      <section id="que-es" className="py-16 md:py-20">
         <div className="container px-4 max-w-4xl mx-auto">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
             <h2 className="text-3xl font-bold tracking-tight md:text-4xl mb-4 text-center">
@@ -240,7 +240,7 @@ export default function ComparacionCompetidorPage() {
       {competitor.slug === "facturador-gratuito-dian" && <TimeLostCalculator />}
 
       {/* Feature Table */}
-      <section className="py-16 md:py-20 bg-muted/30">
+      <section id="comparativa" className="py-16 md:py-20 bg-muted/30">
         <div className="container px-4">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
             <h2 className="text-3xl font-bold tracking-tight md:text-4xl mb-4">
@@ -276,7 +276,7 @@ export default function ComparacionCompetidorPage() {
 
       {/* FAQ */}
       {competitor.faqs.length > 0 && (
-        <section className="py-16 md:py-20">
+        <section id="faqs" className="py-16 md:py-20">
           <div className="container px-4">
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
               <h2 className="text-3xl font-bold tracking-tight md:text-4xl mb-4">
@@ -298,7 +298,7 @@ export default function ComparacionCompetidorPage() {
       )}
 
       {/* Other comparisons */}
-      <section className="py-16 md:py-20 bg-muted/30">
+      <section id="otras-comparativas" className="py-16 md:py-20 bg-muted/30">
         <div className="container px-4">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-8">
             <h2 className="text-2xl font-bold tracking-tight md:text-3xl mb-4">
@@ -326,7 +326,7 @@ export default function ComparacionCompetidorPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-16 md:py-24 bg-primary text-primary-foreground">
+      <section id="cta" className="py-16 md:py-24 bg-primary text-primary-foreground">
         <div className="container px-4">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center max-w-3xl mx-auto">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
