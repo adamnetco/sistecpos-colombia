@@ -12,6 +12,7 @@ export interface LicensePricing {
   support_monthly_cop: number;
   is_annual: boolean;
   last_synced_at: string | null;
+  image_url: string | null;
 }
 
 export function useLicensePricing() {
