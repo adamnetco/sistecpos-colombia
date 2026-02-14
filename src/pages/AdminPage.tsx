@@ -20,6 +20,7 @@ const ProductsView = lazy(() => import("@/components/admin/catalog/ProductsView"
 const BrandsView = lazy(() => import("@/components/admin/catalog/BrandsView"));
 const CategoriesView = lazy(() => import("@/components/admin/catalog/CategoriesView"));
 const SettingsView = lazy(() => import("@/components/admin/SettingsView"));
+const SyncPOSSection = lazy(() => import("@/components/admin/SyncPOSSection"));
 
 function Loader() {
   return (
@@ -50,6 +51,7 @@ export default function AdminPage() {
             <Route path="articulos-dian" element={<DianArticlesView />} />
             <Route path="proveedores" element={<SuppliersView />} />
             <Route path="analytics" element={<StoreAnalyticsView />} />
+            <Route path="sync-pos" element={<SyncPOSSection />} />
             <Route path="configuracion" element={<SettingsView />} />
           </Routes>
         </Suspense>

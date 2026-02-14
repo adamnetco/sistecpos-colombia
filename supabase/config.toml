@@ -26,3 +26,6 @@ verify_jwt = false
 
 [functions.wompi-webhook]
 verify_jwt = false
+
+[functions.connect-pos]
+verify_jwt = false
