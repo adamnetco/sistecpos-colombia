@@ -2,10 +2,11 @@ import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { mainTutorials, quickVideos, getYouTubeId, getLoomEmbedUrl, type TrainingVideo } from "@/data/trainingVideos";
+import { useIncrementVideoView } from "@/hooks/useTrainingVideos";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Search, Play, Clock, ExternalLink, Film, X, ChevronDown, ChevronUp } from "lucide-react";
+import { Search, Play, Clock, ExternalLink, Film, X, ChevronDown, ChevronUp, Eye } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface VideoItem {
@@ -16,6 +17,7 @@ interface VideoItem {
   type: "youtube" | "loom";
   duration?: string | null;
   is_main: boolean;
+  view_count?: number;
 }
 
 function useVideosFromDB() {
@@ -38,11 +40,11 @@ function mapToVideoItems(dbVideos: any[] | undefined): { main: VideoItem[]; quic
   if (dbVideos && dbVideos.length > 0) {
     const main = dbVideos.filter((v: any) => v.is_main).map((v: any) => ({
       id: v.id, title: v.title, category: v.category, video_url: v.video_url,
-      type: v.video_type as "youtube" | "loom", duration: v.duration, is_main: true,
+      type: v.video_type as "youtube" | "loom", duration: v.duration, is_main: true, view_count: v.view_count ?? 0,
     }));
     const quick = dbVideos.filter((v: any) => !v.is_main).map((v: any) => ({
       id: v.id, title: v.title, category: v.category, video_url: v.video_url,
-      type: v.video_type as "youtube" | "loom", duration: v.duration, is_main: false,
+      type: v.video_type as "youtube" | "loom", duration: v.duration, is_main: false, view_count: v.view_count ?? 0,
     }));
     return { main, quick };
   }
@@ -100,6 +102,11 @@ function VideoCard({ video, onSelect, index }: { video: VideoItem; onSelect: (v:
             <Clock className="h-2.5 w-2.5" />{video.duration}
           </span>
         )}
+        {(video.view_count ?? 0) > 0 && (
+          <span className="absolute bottom-2 left-2 rounded-md bg-black/80 px-2 py-0.5 text-[10px] font-mono text-white flex items-center gap-1 backdrop-blur-sm">
+            <Eye className="h-2.5 w-2.5" />{video.view_count}
+          </span>
+        )}
       </div>
       <div className="flex flex-1 flex-col gap-1.5 p-3">
         <h3 className="text-sm font-semibold leading-tight line-clamp-2 group-hover:text-primary transition-colors">{video.title}</h3>
@@ -139,8 +146,14 @@ export default function TrainingVideoHub() {
   const [showAllQuick, setShowAllQuick] = useState(false);
 
   const { data: dbVideos } = useVideosFromDB();
+  const incrementView = useIncrementVideoView();
   const { main: mainVideos, quick: quickVideosList } = useMemo(() => mapToVideoItems(dbVideos), [dbVideos]);
   const allVideos = useMemo(() => [...mainVideos, ...quickVideosList], [mainVideos, quickVideosList]);
+
+  const handleSelectVideo = (v: VideoItem) => {
+    setActiveVideo(v);
+    incrementView.mutate(v.id);
+  };
 
   const allCategories = useMemo(() =>
     Array.from(new Set(allVideos.map((v) => v.category))).sort(),
@@ -248,7 +261,7 @@ export default function TrainingVideoHub() {
           </div>
           <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
             {filteredMain.map((v, i) => (
-              <VideoCard key={v.id} video={v} onSelect={setActiveVideo} index={i} />
+              <VideoCard key={v.id} video={v} onSelect={handleSelectVideo} index={i} />
             ))}
           </div>
         </motion.div>
@@ -264,7 +277,7 @@ export default function TrainingVideoHub() {
           </div>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {filteredQuick.map((v, i) => (
-              <QuickVideoItem key={v.id} video={v} onSelect={setActiveVideo} index={i} />
+              <QuickVideoItem key={v.id} video={v} onSelect={handleSelectVideo} index={i} />
             ))}
           </div>
           <AnimatePresence>

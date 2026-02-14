@@ -1536,6 +1536,7 @@ export type Database = {
           updated_at: string
           video_type: string
           video_url: string
+          view_count: number
         }
         Insert: {
           category?: string
@@ -1549,6 +1550,7 @@ export type Database = {
           updated_at?: string
           video_type?: string
           video_url: string
+          view_count?: number
         }
         Update: {
           category?: string
@@ -1562,6 +1564,7 @@ export type Database = {
           updated_at?: string
           video_type?: string
           video_url?: string
+          view_count?: number
         }
         Relationships: []
       }
@@ -1660,6 +1663,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_video_view: { Args: { video_id: string }; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "customer" | "reseller"

@@ -111,6 +111,7 @@ export default function TrainingVideosView() {
               <TableHead>Título</TableHead>
               <TableHead>Categoría</TableHead>
               <TableHead>Tipo</TableHead>
+              <TableHead>Vistas</TableHead>
               <TableHead>Principal</TableHead>
               <TableHead>Activo</TableHead>
               <TableHead>Orden</TableHead>
@@ -119,9 +120,9 @@ export default function TrainingVideosView() {
           </TableHeader>
           <TableBody>
             {isLoading ? (
-              <TableRow><TableCell colSpan={7} className="text-center py-8">Cargando...</TableCell></TableRow>
+              <TableRow><TableCell colSpan={8} className="text-center py-8">Cargando...</TableCell></TableRow>
             ) : filtered.length === 0 ? (
-              <TableRow><TableCell colSpan={7} className="text-center py-8 text-muted-foreground">Sin videos</TableCell></TableRow>
+              <TableRow><TableCell colSpan={8} className="text-center py-8 text-muted-foreground">Sin videos</TableCell></TableRow>
             ) : filtered.map((v) => (
               <TableRow key={v.id}>
                 <TableCell className="font-medium max-w-[250px] truncate">{v.title}</TableCell>
@@ -133,6 +134,7 @@ export default function TrainingVideosView() {
                     <span className="flex items-center gap-1 text-xs"><Film className="h-3 w-3" /> Loom</span>
                   )}
                 </TableCell>
+                <TableCell className="text-center font-mono text-sm">{v.view_count ?? 0}</TableCell>
                 <TableCell>{v.is_main ? <Badge>Sí</Badge> : <Badge variant="outline">No</Badge>}</TableCell>
                 <TableCell>{v.is_active ? <Badge className="bg-green-600">Activo</Badge> : <Badge variant="destructive">Inactivo</Badge>}</TableCell>
                 <TableCell>{v.sort_order}</TableCell>
