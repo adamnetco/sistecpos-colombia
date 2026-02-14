@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { Monitor, Loader2, XCircle } from "lucide-react";
+import { Monitor, Loader2, XCircle, Smartphone, Info } from "lucide-react";
 import { motion } from "framer-motion";
 
 export function ConnectPOSSection() {
@@ -16,7 +16,6 @@ export function ConnectPOSSection() {
       const { error } = await supabase.functions.invoke("connect-pos");
       if (error) throw error;
 
-      // Abrir la demo del POS en nueva pestaña
       window.open("https://softwarepos.online/index.php/login/index/1", "_blank");
       setStatus("idle");
     } catch (err: unknown) {
@@ -46,19 +45,48 @@ export function ConnectPOSSection() {
             Sin registro, sin compromisos — accede al instante.
           </p>
 
-          <div className="flex flex-col items-center gap-3">
-            <Button
-              size="lg"
-              onClick={handleOpenDemo}
-              disabled={status === "loading"}
-              className="gap-2 text-base px-8"
+          <div className="flex flex-col items-center gap-4">
+            <div className="flex flex-col sm:flex-row items-center gap-3">
+              <Button
+                size="lg"
+                onClick={handleOpenDemo}
+                disabled={status === "loading"}
+                className="gap-2 text-base px-8"
+              >
+                {status === "loading" ? (
+                  <><Loader2 className="h-5 w-5 animate-spin" /> Abriendo demo…</>
+                ) : (
+                  <><Monitor className="h-5 w-5" /> Probar Demo en Vivo</>
+                )}
+              </Button>
+
+              <Button
+                size="lg"
+                variant="outline"
+                className="gap-2 text-base px-8"
+                asChild
+              >
+                <a
+                  href="https://play.google.com/store/apps/details?id=com.sistecpos.pos"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Smartphone className="h-5 w-5" />
+                  Descargar en Play Store
+                </a>
+              </Button>
+            </div>
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.3 }}
+              className="flex items-center gap-2 rounded-lg bg-accent/50 px-4 py-2.5 text-sm text-muted-foreground"
             >
-              {status === "loading" ? (
-                <><Loader2 className="h-5 w-5 animate-spin" /> Abriendo demo…</>
-              ) : (
-                <><Monitor className="h-5 w-5" /> Probar Demo en Vivo</>
-              )}
-            </Button>
+              <Info className="h-4 w-4 shrink-0 text-primary" />
+              <span>Al abrir la demo, haz clic en el <strong className="text-foreground">botón azul "Iniciar Sesión"</strong> para entrar directamente.</span>
+            </motion.div>
 
             {status === "error" && (
               <motion.div
