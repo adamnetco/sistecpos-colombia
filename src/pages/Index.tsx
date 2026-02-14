@@ -9,6 +9,7 @@ import { SoftwarePreviewSection } from "@/components/home/SoftwarePreviewSection
 import { CoverageSection } from "@/components/home/CoverageSection";
 import { LocalTrustSection } from "@/components/home/LocalTrustSection";
 import { CTASection } from "@/components/home/CTASection";
+import { ConnectPOSSection } from "@/components/home/ConnectPOSSection";
 import { JsonLd, organizationSchema } from "@/components/seo/JsonLd";
 import { SEO } from "@/components/seo/SEO";
 
@@ -30,6 +31,7 @@ const Index = () => {
       <LocalTrustSection />
       <SolutionsSection />
       <CoverageSection />
+      <ConnectPOSSection />
       <CTASection />
     </Layout>
   );
