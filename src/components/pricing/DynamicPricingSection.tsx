@@ -80,7 +80,7 @@ export function DynamicPricingSection() {
                   {plan.official_price_cop > 0 && (
                     <p className="text-center text-xs text-muted-foreground mb-4">
                       <span className="line-through">{formatCOP(plan.official_price_cop)}</span>{" "}
-                      precio de lista del fabricante
+                      precio de lista de la casa de desarrollo
                     </p>
                   )}
 
@@ -144,7 +144,7 @@ export function DynamicPricingSection() {
       >
         <p className="text-xs text-muted-foreground">
           * Precios en COP actualizados diariamente según la TRM oficial. Los precios de facturación 
-          se rigen por las tarifas vigentes del fabricante. Los descuentos mostrados son exclusivos de SistecPOS.
+          se rigen por las tarifas vigentes de la casa de desarrollo. Los descuentos mostrados son exclusivos de SistecPOS.
           {plans[0]?.last_synced_at && (
             <span className="block mt-1">
               Última actualización: {new Date(plans[0].last_synced_at).toLocaleDateString("es-CO")}
