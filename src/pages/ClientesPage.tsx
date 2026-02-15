@@ -85,7 +85,7 @@ function ClientRestricted() {
 }
 
 export default function ClientesPage() {
-  const { user, loading, isAdmin, isCustomer } = useAuth();
+  const { user, loading, isAdmin, isCustomer, isReseller } = useAuth();
 
   if (loading) {
     return (
@@ -110,8 +110,8 @@ export default function ClientesPage() {
     );
   }
 
-  // Admins and customers can access the portal
-  if (isAdmin || isCustomer) {
+  // Admins, customers and resellers can access the portal
+  if (isAdmin || isCustomer || isReseller) {
     return (
       <Layout>
         <SEO
