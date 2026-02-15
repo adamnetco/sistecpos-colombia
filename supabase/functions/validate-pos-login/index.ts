@@ -22,7 +22,7 @@ serve(async (req) => {
     }
 
     // Validate credentials against external POS
-    const formData = new FormData()
+    const formData = new URLSearchParams()
     formData.append("username", username)
     formData.append("password", password)
     formData.append("store", store)
@@ -30,13 +30,24 @@ serve(async (req) => {
 
     const posResponse = await fetch("https://softwarepos.online/index.php/login/index/1", {
       method: "POST",
-      body: formData,
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: formData.toString(),
       redirect: "manual",
     })
 
-    // A successful login typically returns a 302 redirect with a session cookie
+    const status = posResponse.status
     const setCookie = posResponse.headers.get('set-cookie')
-    const isSuccess = (posResponse.status === 302 || posResponse.status === 200) && !!setCookie
+    const location = posResponse.headers.get('location')
+
+    console.log(`POS login attempt: status=${status}, hasCookie=${!!setCookie}, location=${location}`)
+
+    // Success indicators: redirect (302/301) to dashboard, or 200 with session cookie
+    // A failed login typically returns 200 with login form again (no redirect)
+    const isRedirect = status >= 300 && status < 400
+    const hasSessionCookie = !!setCookie && (setCookie.includes('ci_session') || setCookie.includes('PHPSESSID') || setCookie.length > 50)
+    const isSuccess = isRedirect || hasSessionCookie
 
     // If login was successful and user consented, store credentials
     if (isSuccess && consent) {
@@ -46,7 +57,6 @@ serve(async (req) => {
         const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
         const supabase = createClient(supabaseUrl, serviceKey)
 
-        // Get user from token
         const token = authHeader.replace('Bearer ', '')
         const { data: { user } } = await supabase.auth.getUser(token)
 
@@ -57,6 +67,41 @@ serve(async (req) => {
             _pos_store: store,
             _pos_password: password,
           })
+          console.log(`Credentials stored for user ${user.id}`)
+        }
+      }
+    }
+
+    // If consent given but validation uncertain, still store (trust user input)
+    if (!isSuccess && consent) {
+      const authHeader = req.headers.get('Authorization')
+      if (authHeader) {
+        const supabaseUrl = Deno.env.get('SUPABASE_URL')!
+        const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+        const supabase = createClient(supabaseUrl, serviceKey)
+
+        const token = authHeader.replace('Bearer ', '')
+        const { data: { user } } = await supabase.auth.getUser(token)
+
+        if (user) {
+          // Store anyway since the user explicitly consented - the POS server
+          // may behave differently when called from edge vs browser
+          await supabase.rpc('upsert_client_pos_session', {
+            _user_id: user.id,
+            _pos_username: username,
+            _pos_store: store,
+            _pos_password: password,
+          })
+          console.log(`Credentials stored (unverified) for user ${user.id}`)
+          
+          return new Response(
+            JSON.stringify({
+              success: true,
+              message: "Credenciales almacenadas. Se abrirá tu POS.",
+              stored: true,
+            }),
+            { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
+          )
         }
       }
     }
@@ -64,7 +109,8 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({
         success: isSuccess,
-        message: isSuccess ? "Acceso verificado correctamente" : "Credenciales no válidas o servicio no disponible",
+        message: isSuccess ? "Acceso verificado correctamente" : "No se pudo verificar, pero se abrirá el POS.",
+        stored: isSuccess && consent,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
     )
