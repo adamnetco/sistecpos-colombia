@@ -1,6 +1,6 @@
 import { forwardRef } from "react";
 import { Link } from "react-router-dom";
-import { Mail, Phone, MapPin, Download, User } from "lucide-react";
+import { Mail, Phone, MapPin, Download, User, Handshake, ShieldCheck } from "lucide-react";
 import logoSistecPOSWhite from "@/assets/logo-sistecpos-white.png";
 import { useNavItems } from "@/hooks/useNavItems";
 
@@ -200,7 +200,17 @@ export const Footer = forwardRef<HTMLElement>((_props, ref) => {
           <div className="flex flex-wrap justify-center gap-4 text-xs items-center">
             <Link to="/clientes" className="inline-flex items-center gap-1 text-primary-foreground/50 hover:text-primary-foreground transition-colors">
               <User className="h-3 w-3" />
-              Acceso Clientes
+              Portal Clientes
+            </Link>
+            <span className="text-primary-foreground/20">|</span>
+            <Link to="/socio" className="inline-flex items-center gap-1 text-primary-foreground/50 hover:text-primary-foreground transition-colors">
+              <Handshake className="h-3 w-3" />
+              Portal Socios
+            </Link>
+            <span className="text-primary-foreground/20">|</span>
+            <Link to="/auth" className="inline-flex items-center gap-1 text-primary-foreground/50 hover:text-primary-foreground transition-colors">
+              <ShieldCheck className="h-3 w-3" />
+              Iniciar Sesión
             </Link>
             <span className="text-primary-foreground/20">|</span>
             <Link to="/ayuda" className="inline-flex items-center gap-1 text-primary-foreground/50 hover:text-primary-foreground transition-colors">
