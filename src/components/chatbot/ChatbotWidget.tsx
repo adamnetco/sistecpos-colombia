@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle, X, Send, RotateCcw, Bot, User } from "lucide-react";
+import ReactMarkdown from "react-markdown";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useChatbot, useChatbotVisibility } from "@/hooks/useChatbot";
@@ -136,7 +137,13 @@ export function ChatbotWidget() {
                         : "bg-muted rounded-bl-md"
                     }`}
                   >
-                    <p className="whitespace-pre-wrap break-words">{m.content}</p>
+                    {m.role === "assistant" ? (
+                      <div className="prose prose-sm prose-slate dark:prose-invert max-w-none break-words [&>p]:m-0 [&>ul]:my-1 [&>ol]:my-1 [&>li]:my-0.5 [&>p+p]:mt-2">
+                        <ReactMarkdown>{m.content}</ReactMarkdown>
+                      </div>
+                    ) : (
+                      <p className="whitespace-pre-wrap break-words">{m.content}</p>
+                    )}
                   </div>
                   {m.role === "user" && (
                     <div className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted">
