@@ -22,7 +22,30 @@ interface ApprovedPayload {
 type Payload = WelcomePayload | ApprovedPayload;
 
 const SITE_URL = "https://sistecpos.lovable.app";
-const WHATSAPP_URL = "https://wa.me/573176268307?text=Hola,%20soy%20socio%20de%20SistecPOS%20y%20necesito%20ayuda";
+const DEFAULT_WHATSAPP = "573176268307";
+
+async function getWhatsAppNumber(): Promise<string> {
+  try {
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const sb = createClient(supabaseUrl, serviceRoleKey);
+    const { data } = await sb
+      .from("site_settings")
+      .select("setting_value")
+      .eq("setting_group", "whatsapp")
+      .eq("setting_key", "main_number")
+      .single();
+    if (data?.setting_value) {
+      const v = data.setting_value;
+      return typeof v === "string" ? v.replace(/^"|"$/g, "") : String(v);
+    }
+  } catch (e) { console.warn("Could not fetch WA number, using default:", e); }
+  return DEFAULT_WHATSAPP;
+}
+
+function buildWaUrl(number: string, msg: string) {
+  return `https://wa.me/${number}?text=${encodeURIComponent(msg)}`;
+}
 
 function welcomeHtml(name: string): string {
   return `
@@ -150,6 +173,9 @@ Deno.serve(async (req) => {
 
   try {
     const payload: Payload = await req.json();
+    const resendKey = Deno.env.get("RESEND_API_KEY");
+    const waNumber = await getWhatsAppNumber();
+    const WHATSAPP_URL = buildWaUrl(waNumber, "Hola, soy socio de SistecPOS y necesito ayuda");
     const resendKey = Deno.env.get("RESEND_API_KEY");
 
     if (!resendKey) {

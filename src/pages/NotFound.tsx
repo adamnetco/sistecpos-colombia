@@ -4,9 +4,11 @@ import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Home, Search, MessageCircle, ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
+import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
 
 const NotFound = () => {
   const location = useLocation();
+  const { buildUrl } = useWhatsAppConfig();
 
   useEffect(() => {
     console.error("404 Error: User attempted to access non-existent route:", location.pathname);
@@ -50,7 +52,7 @@ const NotFound = () => {
               </Button>
               <Button size="lg" className="btn-whatsapp gap-2" asChild>
                 <a
-                  href="https://wa.me/573176268307?text=Hola,%20necesito%20ayuda%20con%20el%20sitio%20web"
+                  href={buildUrl("Hola, necesito ayuda con el sitio web")}
                   target="_blank"
                   rel="noopener noreferrer"
                 >

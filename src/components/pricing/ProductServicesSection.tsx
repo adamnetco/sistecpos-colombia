@@ -1,4 +1,5 @@
 import { useLicensePricing, formatCOP, monthlyPrice } from "@/hooks/useLicensePricing";
+import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,7 @@ import { motion } from "framer-motion";
 /** Services & pricing section shown on software license product detail pages */
 export function ProductServicesSection() {
   const { data: plans = [] } = useLicensePricing();
+  const { buildUrl } = useWhatsAppConfig();
 
   return (
     <section className="py-12 md:py-16">
@@ -207,9 +209,7 @@ export function ProductServicesSection() {
                         </p>
                         <Button size="sm" className="mt-3 gap-1" variant={i === 1 ? "default" : "outline"} asChild>
                           <a
-                            href={`https://wa.me/573176268307?text=${encodeURIComponent(
-                              `Hola, me interesa el ${plan.plan_label}`
-                            )}`}
+                            href={buildUrl(`Hola, me interesa el ${plan.plan_label}`)}
                             target="_blank"
                             rel="noopener noreferrer"
                           >

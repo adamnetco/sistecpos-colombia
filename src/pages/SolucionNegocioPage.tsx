@@ -21,10 +21,13 @@ import { featuredCities } from "@/data/localSeo";
 import { TestimonialsSection } from "@/components/solutions/TestimonialsSection";
 import { DynamicMeta } from "@/components/seo/DynamicMeta";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
+import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
 
 export default function SolucionNegocioPage() {
   const { slug } = useParams<{ slug: string }>();
   const business = slug ? getBusinessTypeBySlug(slug) : undefined;
+
+  const { buildUrl, telHref } = useWhatsAppConfig();
 
   if (!business) {
     return <Navigate to="/" replace />;
@@ -75,7 +78,7 @@ export default function SolucionNegocioPage() {
                   asChild
                 >
                   <a 
-                    href={`https://wa.me/573176268307?text=Hola,%20quiero%20información%20sobre%20el%20POS%20para%20${encodeURIComponent(business.titleShort)}`}
+                    href={buildUrl(`Hola, quiero información sobre el POS para ${business.titleShort}`)}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -88,7 +91,7 @@ export default function SolucionNegocioPage() {
                   variant="secondary"
                   asChild
                 >
-                  <a href="tel:+573176268307">
+                  <a href={telHref}>
                     <Phone className="h-5 w-5 mr-2" />
                     Llamar Ahora
                   </a>
@@ -382,7 +385,7 @@ export default function SolucionNegocioPage() {
                 asChild
               >
                 <a 
-                  href={`https://wa.me/573176268307?text=Hola,%20quiero%20una%20demo%20del%20POS%20para%20${encodeURIComponent(business.titleShort)}`}
+                  href={buildUrl(`Hola, quiero una demo del POS para ${business.titleShort}`)}
                   target="_blank"
                   rel="noopener noreferrer"
                 >

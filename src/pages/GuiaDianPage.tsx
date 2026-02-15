@@ -16,10 +16,12 @@ import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { JsonLd, faqSchema } from "@/components/seo/JsonLd";
 import { CertificatePricingSection } from "@/components/certificados/CertificatePricingSection";
 import { useDianArticle } from "@/hooks/useDianArticles";
+import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
 
 export default function GuiaDianPage() {
   const { slug } = useParams<{ slug: string }>();
   const { article, isLoading } = useDianArticle(slug);
+  const { buildUrl } = useWhatsAppConfig();
 
   if (isLoading) {
     return (
@@ -71,7 +73,7 @@ export default function GuiaDianPage() {
               </p>
               <Button size="lg" className="btn-whatsapp gap-2" asChild>
                 <a
-                  href={`https://wa.me/573176268307?text=${encodeURIComponent(article.ctaWhatsappMessage)}`}
+                  href={buildUrl(article.ctaWhatsappMessage)}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -226,7 +228,7 @@ export default function GuiaDianPage() {
             </p>
             <Button size="lg" className="btn-whatsapp gap-2" asChild>
               <a
-                href={`https://wa.me/573176268307?text=${encodeURIComponent(article.ctaWhatsappMessage)}`}
+                href={buildUrl(article.ctaWhatsappMessage)}
                 target="_blank"
                 rel="noopener noreferrer"
               >
