@@ -1,8 +1,11 @@
 import { motion } from "framer-motion";
 import { ArrowRight, MessageCircle, Cloud, Smartphone, Monitor, Laptop, Shield, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
 
 export function HeroSection() {
+  const wa = useWhatsAppConfig();
+
   return (
     <section id="inicio" className="relative overflow-hidden bg-gradient-to-b from-secondary to-background py-20 md:py-28 lg:py-32">
       {/* Background decoration */}
@@ -86,7 +89,7 @@ export function HeroSection() {
               className="bg-cta hover:bg-cta/90 text-white text-base h-14 px-10 shadow-lg font-bold"
             >
               <a
-                href="https://wa.me/573176268307?text=Hola,%20quiero%20una%20demostración%20de%20SistecPOS"
+                href={wa.buildUrl("Hola, quiero una demostración de SistecPOS")}
                 target="_blank"
                 rel="noopener noreferrer"
               >

@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, ReactNode, useCallback } from "react";
+import { useWhatsAppConfig, buildWhatsAppUrl, WHATSAPP_DEFAULT_NUMBER } from "@/hooks/useWhatsAppConfig";
 
 export interface CartItem {
   id: string;
@@ -23,10 +24,9 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | null>(null);
 
-const WHATSAPP_NUMBER = "573176268307";
-
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
+  const { number: waNumber } = useWhatsAppConfig();
 
   const addItem = useCallback((item: Omit<CartItem, "quantity">) => {
     setItems(prev => {
@@ -63,8 +63,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
       i => `• ${i.name} x${i.quantity} — ${formatCOP(i.price_cop * i.quantity)}`
     );
     const msg = `Hola SistecPOS, quiero cotizar:\n\n${lines.join("\n")}\n\n*Total estimado: ${formatCOP(totalCOP)}*\n\nPor favor confirmar disponibilidad y precio final.`;
-    return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
-  }, [items, totalCOP]);
+    return buildWhatsAppUrl(waNumber, msg);
+  }, [items, totalCOP, waNumber]);
 
   return (
     <CartContext.Provider value={{ items, addItem, removeItem, updateQuantity, clearCart, totalCOP, itemCount, getWhatsAppUrl }}>

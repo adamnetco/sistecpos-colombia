@@ -1,8 +1,11 @@
 import { motion } from "framer-motion";
 import { MessageCircle, ArrowRight, Shield, Clock, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
 
 export function CTASection() {
+  const wa = useWhatsAppConfig();
+
   return (
     <section id="contacto" className="py-16 md:py-24 bg-gradient-to-br from-primary via-primary to-primary-hover relative overflow-hidden">
       {/* Background decoration */}
@@ -63,7 +66,7 @@ export function CTASection() {
               className="bg-cta hover:bg-cta/90 text-white text-base h-14 px-10 shadow-lg font-bold"
             >
               <a
-                href="https://wa.me/573176268307?text=Hola,%20quiero%20agendar%20una%20visita%20para%20conocer%20SistecPOS"
+                href={wa.buildUrl("Hola, quiero agendar una visita para conocer SistecPOS")}
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -78,7 +81,7 @@ export function CTASection() {
               size="lg"
               className="border-primary-foreground/30 text-primary-foreground bg-transparent hover:bg-primary-foreground/10 text-base h-14 px-10"
             >
-              <a href="tel:+573176268307">
+              <a href={wa.telHref}>
                 Llámanos Ahora
                 <ArrowRight className="ml-2 h-5 w-5" />
               </a>

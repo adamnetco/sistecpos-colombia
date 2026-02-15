@@ -1,3 +1,5 @@
+import { WHATSAPP_DEFAULT_NUMBER } from "@/hooks/useWhatsAppConfig";
+
 interface JsonLdProps {
   data: Record<string, unknown> | Record<string, unknown>[];
 }
@@ -11,8 +13,11 @@ export function JsonLd({ data }: JsonLdProps) {
   );
 }
 
-// Schema generators
-export function organizationSchema() {
+// Schema generators – accept optional whatsappNumber for dynamic use
+export function organizationSchema(whatsappNumber?: string) {
+  const num = whatsappNumber || WHATSAPP_DEFAULT_NUMBER;
+  const phone = `+${num.slice(0, 2)}-${num.slice(2, 5)}-${num.slice(5, 8)}-${num.slice(8)}`;
+
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
@@ -23,7 +28,7 @@ export function organizationSchema() {
     contactPoint: [
       {
         "@type": "ContactPoint",
-        telephone: "+57-317-626-8307",
+        telephone: phone,
         contactType: "customer service",
         contactOption: "TollFree",
         availableLanguage: "Spanish",
@@ -31,7 +36,7 @@ export function organizationSchema() {
       },
       {
         "@type": "ContactPoint",
-        telephone: "+57-317-626-8307",
+        telephone: phone,
         contactType: "sales",
         availableLanguage: "Spanish",
         areaServed: "CO",
@@ -46,7 +51,7 @@ export function organizationSchema() {
       addressCountry: "CO",
     },
     sameAs: [
-      "https://wa.me/573176268307",
+      `https://wa.me/${num}`,
       "https://www.instagram.com/sistecpos",
       "https://www.facebook.com/sistecpos",
       "https://www.tiktok.com/@sistecpos",
@@ -55,7 +60,7 @@ export function organizationSchema() {
       "@type": "CommunicateAction",
       target: {
         "@type": "EntryPoint",
-        urlTemplate: "https://wa.me/573176268307?text=Hola%20SistecPOS%2C%20quiero%20informaci%C3%B3n%20sobre%20el%20software",
+        urlTemplate: `https://wa.me/${num}?text=Hola%20SistecPOS%2C%20quiero%20informaci%C3%B3n%20sobre%20el%20software`,
         actionPlatform: [
           "http://schema.org/DesktopWebPlatform",
           "http://schema.org/MobileWebPlatform",
@@ -69,14 +74,17 @@ export function organizationSchema() {
   };
 }
 
-export function localBusinessSchema(city: string, isPresencial: boolean) {
+export function localBusinessSchema(city: string, isPresencial: boolean, whatsappNumber?: string) {
+  const num = whatsappNumber || WHATSAPP_DEFAULT_NUMBER;
+  const phone = `+${num.slice(0, 2)}-${num.slice(2, 5)}-${num.slice(5, 8)}-${num.slice(8)}`;
+
   return {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
     name: `SistecPOS ${city}`,
     description: `Software POS con ${isPresencial ? "instalación presencial" : "instalación remota"} en ${city}`,
     url: `https://sistecpos.com/software-pos/${city.toLowerCase().replace(/\s+/g, "-")}`,
-    telephone: "+57-317-626-8307",
+    telephone: phone,
     image: "https://sistecpos.com/lovable-uploads/43a24c53-78c0-4ca3-b642-99a376d90a0f.png",
     address: {
       "@type": "PostalAddress",
@@ -86,7 +94,7 @@ export function localBusinessSchema(city: string, isPresencial: boolean) {
     priceRange: "$$",
     contactPoint: {
       "@type": "ContactPoint",
-      telephone: "+57-317-626-8307",
+      telephone: phone,
       contactType: "customer service",
       availableLanguage: "Spanish",
       areaServed: "CO",
@@ -101,7 +109,7 @@ export function localBusinessSchema(city: string, isPresencial: boolean) {
       "@type": "CommunicateAction",
       target: {
         "@type": "EntryPoint",
-        urlTemplate: "https://wa.me/573176268307?text=Hola%20SistecPOS%2C%20quiero%20informaci%C3%B3n%20sobre%20el%20software%20POS%20en%20" + encodeURIComponent(city),
+        urlTemplate: `https://wa.me/${num}?text=Hola%20SistecPOS%2C%20quiero%20informaci%C3%B3n%20sobre%20el%20software%20POS%20en%20` + encodeURIComponent(city),
         actionPlatform: [
           "http://schema.org/DesktopWebPlatform",
           "http://schema.org/MobileWebPlatform",
