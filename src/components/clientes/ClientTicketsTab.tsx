@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, MessageSquare } from "lucide-react";
+import { Plus, MessageSquare, Paperclip, X, FileText, Image as ImageIcon } from "lucide-react";
 
 interface Ticket {
   id: string;
@@ -17,6 +17,7 @@ interface Ticket {
   status: string;
   priority: string;
   admin_response: string | null;
+  attachment_url: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -31,6 +32,9 @@ export default function ClientTicketsTab() {
   const [showCreate, setShowCreate] = useState(false);
   const [detailTarget, setDetailTarget] = useState<Ticket | null>(null);
   const [statusFilter, setStatusFilter] = useState<TicketFilter>("all");
+  const [attachFile, setAttachFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const load = async () => {
     if (!user) return;
@@ -53,16 +57,54 @@ export default function ClientTicketsTab() {
     return tickets.filter(t => t.status === statusFilter);
   }, [tickets, statusFilter]);
 
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const allowed = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
+    if (!allowed.includes(file.type)) {
+      toast({ title: "Solo se permiten imágenes (JPG, PNG, WebP) o PDF", variant: "destructive" });
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: "El archivo no debe superar 5 MB", variant: "destructive" });
+      return;
+    }
+    setAttachFile(file);
+  };
+
   const handleCreate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!user) return;
+    setUploading(true);
     const fd = new FormData(e.currentTarget);
+
+    let attachment_url: string | null = null;
+
+    if (attachFile) {
+      const ext = attachFile.name.split(".").pop();
+      const path = `${user.id}/${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage
+        .from("ticket-attachments")
+        .upload(path, attachFile, { upsert: false });
+
+      if (upErr) {
+        toast({ title: "Error al subir archivo", description: upErr.message, variant: "destructive" });
+        setUploading(false);
+        return;
+      }
+
+      const { data: urlData } = supabase.storage
+        .from("ticket-attachments")
+        .getPublicUrl(path);
+      attachment_url = urlData.publicUrl;
+    }
 
     const { error } = await supabase.from("client_tickets").insert({
       user_id: user.id,
       subject: fd.get("subject") as string,
       description: fd.get("description") as string,
       priority: fd.get("priority") as string,
+      attachment_url,
     });
 
     if (error) {
@@ -70,8 +112,10 @@ export default function ClientTicketsTab() {
     } else {
       toast({ title: "Ticket creado ✅" });
       setShowCreate(false);
+      setAttachFile(null);
       load();
     }
+    setUploading(false);
   };
 
   const statusColor = (s: string) => {
@@ -86,6 +130,8 @@ export default function ClientTicketsTab() {
     return s;
   };
 
+  const isImage = (url: string) => /\.(jpg|jpeg|png|webp)$/i.test(url);
+
   return (
     <div>
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -93,7 +139,7 @@ export default function ClientTicketsTab() {
           <h2 className="text-xl font-bold">Tickets de Soporte</h2>
           {openCount > 0 && <Badge className="bg-yellow-500 text-white">{openCount} abiertos</Badge>}
         </div>
-        <Dialog open={showCreate} onOpenChange={setShowCreate}>
+        <Dialog open={showCreate} onOpenChange={(o) => { setShowCreate(o); if (!o) setAttachFile(null); }}>
           <DialogTrigger asChild>
             <Button><Plus className="mr-2 h-4 w-4" />Nuevo Ticket</Button>
           </DialogTrigger>
@@ -110,7 +156,38 @@ export default function ClientTicketsTab() {
                 </select>
               </div>
               <div><Label>Descripción *</Label><Textarea name="description" rows={4} required /></div>
-              <Button type="submit" className="w-full">Enviar Ticket</Button>
+
+              {/* File attachment */}
+              <div>
+                <Label>Adjuntar imagen o PDF (opcional)</Label>
+                <p className="text-xs text-muted-foreground mb-2">
+                  📎 Adjunta capturas de pantalla o documentos para que podamos ayudarte mejor. Máx 5 MB.
+                </p>
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,application/pdf"
+                  className="hidden"
+                  onChange={handleFileSelect}
+                />
+                {attachFile ? (
+                  <div className="flex items-center gap-2 rounded-md border bg-muted/40 px-3 py-2 text-sm">
+                    {attachFile.type === "application/pdf" ? <FileText className="h-4 w-4 text-red-500" /> : <ImageIcon className="h-4 w-4 text-blue-500" />}
+                    <span className="truncate flex-1">{attachFile.name}</span>
+                    <button type="button" onClick={() => setAttachFile(null)} className="text-muted-foreground hover:text-destructive">
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <Button type="button" variant="outline" size="sm" onClick={() => fileRef.current?.click()}>
+                    <Paperclip className="mr-2 h-4 w-4" />Adjuntar archivo
+                  </Button>
+                )}
+              </div>
+
+              <Button type="submit" className="w-full" disabled={uploading}>
+                {uploading ? "Enviando..." : "Enviar Ticket"}
+              </Button>
             </form>
           </DialogContent>
         </Dialog>
@@ -135,7 +212,10 @@ export default function ClientTicketsTab() {
         ) : filtered.map((t) => (
           <div key={t.id} onClick={() => setDetailTarget(t)} className="cursor-pointer rounded-lg border bg-card p-4 hover:bg-muted/30 transition-colors">
             <div className="flex items-center justify-between">
-              <h3 className="font-medium">{t.subject}</h3>
+              <div className="flex items-center gap-2">
+                <h3 className="font-medium">{t.subject}</h3>
+                {t.attachment_url && <Paperclip className="h-3.5 w-3.5 text-muted-foreground" />}
+              </div>
               <Badge className={statusColor(t.status)}>{statusLabel(t.status)}</Badge>
             </div>
             <p className="mt-1 text-xs text-muted-foreground">
@@ -154,6 +234,20 @@ export default function ClientTicketsTab() {
                 <p className="text-sm font-medium text-muted-foreground">Descripción</p>
                 <p className="text-sm whitespace-pre-wrap">{detailTarget.description}</p>
               </div>
+              {detailTarget.attachment_url && (
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground mb-2">Archivo adjunto</p>
+                  {isImage(detailTarget.attachment_url) ? (
+                    <a href={detailTarget.attachment_url} target="_blank" rel="noopener noreferrer">
+                      <img src={detailTarget.attachment_url} alt="Adjunto" className="max-h-48 rounded-md border object-contain" />
+                    </a>
+                  ) : (
+                    <a href={detailTarget.attachment_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-md border bg-muted/40 px-3 py-2 text-sm hover:bg-muted/60 transition-colors">
+                      <FileText className="h-4 w-4 text-red-500" />Ver documento PDF
+                    </a>
+                  )}
+                </div>
+              )}
               {detailTarget.admin_response && (
                 <div className="rounded-md bg-primary/5 p-3">
                   <p className="text-sm font-medium text-primary">Respuesta del equipo</p>
