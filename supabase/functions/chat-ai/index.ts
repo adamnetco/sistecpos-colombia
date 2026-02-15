@@ -64,6 +64,22 @@ serve(async (req) => {
       }
     }
 
+    // Load admin corrections as few-shot retraining examples
+    const { data: corrections } = await supabase
+      .from("ai_messages")
+      .select("content, corrected_content")
+      .not("corrected_content", "is", null)
+      .order("corrected_at", { ascending: false })
+      .limit(20);
+
+    let correctionContext = "";
+    if (corrections && corrections.length > 0) {
+      correctionContext = "\n\n## Correcciones del administrador (usa estas como guía de respuestas correctas):\n";
+      corrections.forEach((c: any) => {
+        correctionContext += `\n- Respuesta original: "${c.content.slice(0, 150)}..."\n  Respuesta corregida: "${c.corrected_content}"\n`;
+      });
+    }
+
     // Load custom system prompt and temperature from app_settings
     const { data: settings } = await supabase
       .from("app_settings")
@@ -115,7 +131,8 @@ El usuario es un ADMINISTRADOR de SistecPOS (email: ${user_email || "desconocido
 
     const systemPrompt = `${basePrompt}
 ${roleContext}
-${knowledgeContext}`;
+${knowledgeContext}
+${correctionContext}`;
 
     // Save/update conversation
     if (session_id) {
