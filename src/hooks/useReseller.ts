@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 
@@ -32,55 +32,62 @@ export function useReseller() {
       return;
     }
 
+    let cancelled = false;
+
     const load = async () => {
       setLoading(true);
 
-      // Check reseller role
-      const { data: roleData } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", user.id)
-        .eq("role", "reseller")
-        .maybeSingle();
+      // Run role check and reseller profile fetch in parallel
+      const [roleRes, resellerRes] = await Promise.all([
+        supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", user.id)
+          .eq("role", "reseller")
+          .maybeSingle(),
+        supabase
+          .from("reseller_applications")
+          .select("id, full_name, email, phone, city, status")
+          .eq("user_id", user.id)
+          .maybeSingle(),
+      ]);
 
-      if (!roleData) {
+      if (cancelled) return;
+
+      if (!roleRes.data) {
         setIsReseller(false);
+        setReseller(null);
+        setModules([]);
         setLoading(false);
         return;
       }
 
       setIsReseller(true);
+      const profile = resellerRes.data as ResellerProfile | null;
+      setReseller(profile);
 
-      // Get reseller application profile
-      const { data: resellerData } = await supabase
-        .from("reseller_applications")
-        .select("id, full_name, email, phone, city, status")
-        .eq("user_id", user.id)
-        .maybeSingle();
-
-      setReseller(resellerData as ResellerProfile | null);
-
-      if (resellerData) {
-        // Get enabled modules
+      if (profile) {
         const { data: modulesData } = await supabase
           .from("reseller_modules")
           .select("module_key, is_enabled")
-          .eq("reseller_id", resellerData.id);
+          .eq("reseller_id", profile.id);
 
-        setModules((modulesData as ResellerModule[]) || []);
+        if (!cancelled) {
+          setModules((modulesData as ResellerModule[]) || []);
+        }
       }
 
-      setLoading(false);
+      if (!cancelled) setLoading(false);
     };
 
     load();
+    return () => { cancelled = true; };
   }, [user]);
 
-  const hasModule = (key: string): boolean => {
-    // "licencias" is always enabled for all resellers
+  const hasModule = useCallback((key: string): boolean => {
     if (key === "licencias") return true;
     return modules.some((m) => m.module_key === key && m.is_enabled);
-  };
+  }, [modules]);
 
   return { reseller, modules, loading, isReseller, hasModule };
 }
