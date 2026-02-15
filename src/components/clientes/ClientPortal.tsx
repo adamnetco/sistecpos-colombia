@@ -1,4 +1,5 @@
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,17 @@ function Loader() {
 
 export function ClientPortal() {
   const { user, signOut } = useAuth();
+  const location = useLocation();
+
+  // Auto-switch to trainings tab when URL has #video-* hash (deep-link from chatbot)
+  const initialTab = location.hash.startsWith("#video-") ? "trainings" : "pos";
+  const [activeTab, setActiveTab] = useState(initialTab);
+
+  useEffect(() => {
+    if (location.hash.startsWith("#video-")) {
+      setActiveTab("trainings");
+    }
+  }, [location.hash]);
 
   return (
     <section className="py-10 md:py-16">
@@ -33,7 +45,7 @@ export function ClientPortal() {
             </Button>
           </div>
 
-          <Tabs defaultValue="pos" className="space-y-6">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             <TabsList className="flex-wrap h-auto gap-1">
               <TabsTrigger value="pos" className="gap-2"><Monitor className="h-4 w-4" />Mi POS</TabsTrigger>
               <TabsTrigger value="tickets" className="gap-2"><TicketCheck className="h-4 w-4" />Soporte</TabsTrigger>
