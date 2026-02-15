@@ -277,6 +277,10 @@ function ConversationsTab() {
   const [selectedConv, setSelectedConv] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [loadingMsgs, setLoadingMsgs] = useState(false);
+  const [editingMsgId, setEditingMsgId] = useState<string | null>(null);
+  const [correctionText, setCorrectionText] = useState("");
+  const [savingCorrection, setSavingCorrection] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     (async () => {
@@ -289,9 +293,50 @@ function ConversationsTab() {
   const loadMessages = async (convId: string) => {
     setSelectedConv(convId);
     setLoadingMsgs(true);
-    const { data } = await supabase.from("ai_messages").select("*").eq("conversation_id", convId).order("created_at");
+    setEditingMsgId(null);
+    const { data } = await supabase.from("ai_messages").select("id, role, content, created_at, corrected_content, corrected_at").eq("conversation_id", convId).order("created_at");
     setMessages((data as Message[]) || []);
     setLoadingMsgs(false);
+  };
+
+  const startCorrection = (msg: Message) => {
+    setEditingMsgId(msg.id);
+    setCorrectionText((msg as any).corrected_content || msg.content.replace(/\[LEAD_DATA:[^\]]*\]/g, ""));
+  };
+
+  const saveCorrection = async (msgId: string) => {
+    if (!correctionText.trim()) return;
+    setSavingCorrection(true);
+    const { error } = await supabase
+      .from("ai_messages")
+      .update({
+        corrected_content: correctionText.trim(),
+        corrected_at: new Date().toISOString(),
+      })
+      .eq("id", msgId);
+    setSavingCorrection(false);
+    if (error) {
+      toast({ title: "Error al guardar", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Corrección guardada", description: "Se usará como ejemplo de reentrenamiento." });
+      setMessages((prev) =>
+        prev.map((m) => (m.id === msgId ? { ...m, corrected_content: correctionText.trim(), corrected_at: new Date().toISOString() } as any : m))
+      );
+      setEditingMsgId(null);
+    }
+  };
+
+  const removeCorrection = async (msgId: string) => {
+    const { error } = await supabase
+      .from("ai_messages")
+      .update({ corrected_content: null, corrected_at: null, corrected_by: null })
+      .eq("id", msgId);
+    if (!error) {
+      toast({ title: "Corrección eliminada" });
+      setMessages((prev) =>
+        prev.map((m) => (m.id === msgId ? { ...m, corrected_content: null, corrected_at: null } as any : m))
+      );
+    }
   };
 
   if (selectedConv) {
@@ -307,14 +352,76 @@ function ConversationsTab() {
         <div className="space-y-3 rounded-lg border bg-card p-4 max-h-[60vh] overflow-y-auto">
           {loadingMsgs ? <Skeleton className="h-32 w-full" /> : messages.length === 0 ? (
             <p className="text-center text-muted-foreground text-sm">Sin mensajes</p>
-          ) : messages.map((m) => (
-            <div key={m.id} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-              <div className={`max-w-[75%] rounded-lg px-4 py-2 text-sm ${m.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"}`}>
-                <p className="whitespace-pre-wrap">{m.content.replace(/\[LEAD_DATA:[^\]]*\]/g, "")}</p>
-                <p className="text-[10px] opacity-60 mt-1">{new Date(m.created_at).toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" })}</p>
+          ) : messages.map((m) => {
+            const msg = m as any;
+            const isAssistant = m.role === "assistant";
+            const isEditing = editingMsgId === m.id;
+            const hasCorrected = !!msg.corrected_content;
+
+            return (
+              <div key={m.id} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+                <div className={`max-w-[80%] rounded-lg px-4 py-2 text-sm ${m.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"}`}>
+                  {isEditing ? (
+                    <div className="space-y-2">
+                      <Textarea
+                        value={correctionText}
+                        onChange={(e) => setCorrectionText(e.target.value)}
+                        rows={5}
+                        className="text-sm bg-background"
+                      />
+                      <div className="flex gap-2 justify-end">
+                        <Button size="sm" variant="ghost" onClick={() => setEditingMsgId(null)} className="h-7 text-xs">Cancelar</Button>
+                        <Button size="sm" onClick={() => saveCorrection(m.id)} disabled={savingCorrection} className="h-7 text-xs">
+                          {savingCorrection ? "Guardando..." : "Guardar corrección"}
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <p className="whitespace-pre-wrap">{m.content.replace(/\[LEAD_DATA:[^\]]*\]/g, "")}</p>
+                      {hasCorrected && (
+                        <div className="mt-2 pt-2 border-t border-border/50">
+                          <div className="flex items-center gap-1.5 mb-1">
+                            <Pencil className="h-3 w-3 text-amber-600" />
+                            <span className="text-[10px] font-medium text-amber-600">Respuesta corregida</span>
+                          </div>
+                          <p className="whitespace-pre-wrap text-xs text-amber-900 dark:text-amber-200 bg-amber-500/10 rounded px-2 py-1.5">
+                            {msg.corrected_content}
+                          </p>
+                        </div>
+                      )}
+                      <div className="flex items-center justify-between mt-1">
+                        <p className="text-[10px] opacity-60">{new Date(m.created_at).toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" })}</p>
+                        {isAssistant && (
+                          <div className="flex gap-1">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-6 px-2 text-[10px] text-muted-foreground hover:text-primary"
+                              onClick={() => startCorrection(m)}
+                            >
+                              <Pencil className="h-3 w-3 mr-1" />
+                              {hasCorrected ? "Editar" : "Corregir"}
+                            </Button>
+                            {hasCorrected && (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-6 px-2 text-[10px] text-destructive"
+                                onClick={() => removeCorrection(m.id)}
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     );

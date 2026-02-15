@@ -104,6 +104,9 @@ export type Database = {
         Row: {
           content: string
           conversation_id: string
+          corrected_at: string | null
+          corrected_by: string | null
+          corrected_content: string | null
           created_at: string
           id: string
           role: string
@@ -111,6 +114,9 @@ export type Database = {
         Insert: {
           content: string
           conversation_id: string
+          corrected_at?: string | null
+          corrected_by?: string | null
+          corrected_content?: string | null
           created_at?: string
           id?: string
           role: string
@@ -118,6 +124,9 @@ export type Database = {
         Update: {
           content?: string
           conversation_id?: string
+          corrected_at?: string | null
+          corrected_by?: string | null
+          corrected_content?: string | null
           created_at?: string
           id?: string
           role?: string
