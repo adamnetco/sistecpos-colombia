@@ -22,7 +22,7 @@ interface VideoItem {
 
 function useVideosFromDB() {
   return useQuery({
-    queryKey: ["training-videos-public"],
+    queryKey: ["training-videos"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("training_videos")
@@ -32,7 +32,8 @@ function useVideosFromDB() {
       if (error) throw error;
       return data;
     },
-    staleTime: 5 * 60 * 1000,
+    staleTime: 30 * 1000,
+    refetchOnWindowFocus: true,
   });
 }
 
