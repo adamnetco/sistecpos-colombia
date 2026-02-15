@@ -112,18 +112,23 @@ export default function AuthPage() {
           }
         }
 
-        // Check if already has reseller role
-        const { data: resellerRole } = await supabase
+        // Fetch all roles and redirect by priority: admin > reseller > customer > home
+        const { data: userRoles } = await supabase
           .from("user_roles")
           .select("role")
-          .eq("user_id", user.id)
-          .eq("role", "reseller")
-          .maybeSingle();
+          .eq("user_id", user.id);
 
-        if (resellerRole) {
-          navigate("/socio");
-        } else {
+        const roles = (userRoles || []).map((r) => r.role);
+
+        if (roles.includes("admin")) {
           navigate("/admin");
+        } else if (roles.includes("reseller")) {
+          navigate("/socio");
+        } else if (roles.includes("customer")) {
+          navigate("/clientes");
+        } else {
+          // No role assigned — go to home
+          navigate("/");
         }
       };
       checkRedirect();
@@ -204,7 +209,7 @@ export default function AuthPage() {
 
       setPending2FA(false);
       toast({ title: "Verificación exitosa ✅" });
-      navigate("/admin");
+      // Redirect will be handled by the useEffect watching `user` + `pending2FA`
     } finally {
       setLoading(false);
     }
