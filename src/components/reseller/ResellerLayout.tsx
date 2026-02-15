@@ -10,6 +10,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
+import { ChatbotWidget } from "@/components/chatbot/ChatbotWidget";
 
 const allNavItems = [
   { name: "Inicio", href: "/socio", icon: LayoutDashboard, exact: true, moduleKey: null },
@@ -122,6 +124,10 @@ export function ResellerLayout({ children }: { children: ReactNode }) {
         <RoleSwitcherBar />
         {children}
       </main>
+
+      {/* Floating buttons for reseller panel */}
+      <WhatsAppButton />
+      <ChatbotWidget />
     </div>
   );
 }

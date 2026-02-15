@@ -44,3 +44,6 @@ verify_jwt = false
 
 [functions.notify-ticket-status]
 verify_jwt = false
+
+[functions.scrape-site]
+verify_jwt = false

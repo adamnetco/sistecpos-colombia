@@ -132,6 +132,45 @@ export type Database = {
           },
         ]
       }
+      ai_scraping_jobs: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          created_by: string | null
+          entries_created: number | null
+          error_message: string | null
+          id: string
+          pages_scraped: number | null
+          started_at: string | null
+          status: string
+          url: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          entries_created?: number | null
+          error_message?: string | null
+          id?: string
+          pages_scraped?: number | null
+          started_at?: string | null
+          status?: string
+          url: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          entries_created?: number | null
+          error_message?: string | null
+          id?: string
+          pages_scraped?: number | null
+          started_at?: string | null
+          status?: string
+          url?: string
+        }
+        Relationships: []
+      }
       app_settings: {
         Row: {
           key: string

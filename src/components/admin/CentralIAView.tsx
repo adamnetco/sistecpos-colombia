@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import {
   Bot, Plus, Pencil, Trash2, GripVertical, FileText, HelpCircle, MessageSquareText,
-  MessagesSquare, Settings2, BarChart3, Wand2, TestTube2,
+  MessagesSquare, Settings2, BarChart3, Wand2, TestTube2, Globe,
 } from "lucide-react";
 import ChatbotSettingsTab from "./ChatbotSettingsTab";
 import { Suspense, lazy } from "react";
@@ -21,6 +21,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 const AIMetricsTab = lazy(() => import("./AIMetricsTab"));
 const PromptStudioTab = lazy(() => import("./PromptStudioTab"));
 const AITestTab = lazy(() => import("./AITestTab"));
+const AIScrapingTab = lazy(() => import("./AIScrapingTab"));
 
 interface KBEntry {
   id: string;
@@ -89,6 +90,9 @@ export default function CentralIAView() {
           <TabsTrigger value="conversations" className="gap-1.5">
             <MessagesSquare className="h-4 w-4" /> Conversaciones
           </TabsTrigger>
+          <TabsTrigger value="scraping" className="gap-1.5">
+            <Globe className="h-4 w-4" /> Scraping Web
+          </TabsTrigger>
           <TabsTrigger value="settings" className="gap-1.5">
             <Settings2 className="h-4 w-4" /> Configuración
           </TabsTrigger>
@@ -105,6 +109,9 @@ export default function CentralIAView() {
           <Suspense fallback={<TabLoader />}><AITestTab /></Suspense>
         </TabsContent>
         <TabsContent value="conversations"><ConversationsTab /></TabsContent>
+        <TabsContent value="scraping">
+          <Suspense fallback={<TabLoader />}><AIScrapingTab /></Suspense>
+        </TabsContent>
         <TabsContent value="settings"><ChatbotSettingsTab /></TabsContent>
       </Tabs>
     </div>
