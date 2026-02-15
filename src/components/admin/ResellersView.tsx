@@ -70,34 +70,42 @@ export default function ResellersView() {
 
   useEffect(() => { load(); }, []);
 
-  const updateStatus = async (id: string, status: string) => {
-    const { error } = await supabase.from("reseller_applications").update({ status }).eq("id", id);
-    if (error) {
-      toast({ title: "Error", variant: "destructive" });
+  const updateStatus = async (id: string, newStatus: string) => {
+    const reseller = apps.find((a) => a.id === id);
+    if (!reseller) return;
+
+    // Prevent re-approving if already approved and user_id already linked
+    if (newStatus === "approved" && reseller.status === "approved" && reseller.user_id) {
+      toast({ title: "Este socio ya fue aprobado y activado previamente" });
       return;
     }
 
-    // When approving, trigger full activation flow (create user, assign role, send email)
-    if (status === "approved") {
-      const reseller = apps.find((a) => a.id === id);
-      if (reseller) {
-        toast({ title: "Activando socio...", description: "Creando cuenta y enviando correo de bienvenida" });
-        try {
-          const { data, error: fnError } = await supabase.functions.invoke("send-reseller-email", {
-            body: {
-              type: "approved",
-              resellerId: reseller.id,
-              name: reseller.full_name,
-              email: reseller.email,
-            },
-          });
-          if (fnError) throw fnError;
-          toast({ title: "✅ Socio activado", description: "Se creó la cuenta y se envió el correo de activación" });
-        } catch (err) {
-          console.error("Activation error:", err);
-          toast({ title: "Estado actualizado, pero hubo un error al enviar el correo", variant: "destructive" });
-        }
+    const { error } = await supabase.from("reseller_applications").update({ status: newStatus }).eq("id", id);
+    if (error) {
+      toast({ title: "Error al actualizar estado", variant: "destructive" });
+      return;
+    }
+
+    // When approving, trigger full activation flow
+    if (newStatus === "approved") {
+      toast({ title: "Activando socio...", description: "Creando cuenta y enviando correo de bienvenida" });
+      try {
+        const { data, error: fnError } = await supabase.functions.invoke("send-reseller-email", {
+          body: {
+            type: "approved",
+            resellerId: reseller.id,
+            name: reseller.full_name,
+            email: reseller.email,
+          },
+        });
+        if (fnError) throw fnError;
+        toast({ title: "✅ Socio activado", description: "Cuenta creada y correo de activación enviado a " + reseller.email });
+      } catch (err) {
+        console.error("Activation error:", err);
+        toast({ title: "Estado actualizado, pero hubo un error al activar", description: String(err), variant: "destructive" });
       }
+    } else {
+      toast({ title: `Estado actualizado a "${statusOptions.find(s => s.value === newStatus)?.label}"` });
     }
 
     load();
