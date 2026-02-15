@@ -7,6 +7,11 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useChatbot, useChatbotVisibility } from "@/hooks/useChatbot";
 
+/** Convert raw phone numbers like +573176268307 into markdown WhatsApp links */
+function linkifyPhones(text: string): string {
+  return text.replace(/\+?(57\d{10})/g, (match, num) => `[+${num}](https://wa.me/${num})`);
+}
+
 export function ChatbotWidget() {
   const location = useLocation();
   const visible = useChatbotVisibility(location.pathname);
@@ -139,7 +144,17 @@ export function ChatbotWidget() {
                   >
                     {m.role === "assistant" ? (
                       <div className="prose prose-sm prose-slate dark:prose-invert max-w-none break-words [&>p]:m-0 [&>ul]:my-1 [&>ol]:my-1 [&>li]:my-0.5 [&>p+p]:mt-2">
-                        <ReactMarkdown components={{ a: ({ href, children }) => <a href={href} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-0.5 text-primary font-medium underline underline-offset-2 decoration-primary/40 hover:decoration-primary transition-colors"><span>{children}</span><ExternalLink className="h-3 w-3 shrink-0" /></a> }}>{m.content}</ReactMarkdown>
+                        <ReactMarkdown components={{
+                          a: ({ href, children }) => {
+                            if (!href) return <>{children}</>;
+                            return (
+                              <a href={href} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-0.5 text-primary font-medium underline underline-offset-2 decoration-primary/40 hover:decoration-primary transition-colors">
+                                <span>{children}</span>
+                                <ExternalLink className="h-3 w-3 shrink-0" />
+                              </a>
+                            );
+                          },
+                        }}>{linkifyPhones(m.content)}</ReactMarkdown>
                       </div>
                     ) : (
                       <p className="whitespace-pre-wrap break-words">{m.content}</p>
