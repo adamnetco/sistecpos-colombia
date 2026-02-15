@@ -33,11 +33,27 @@ export default function AuthPage() {
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
 
+  // Clean up stale session on /auth load (prevents access blocking)
   useEffect(() => {
     const type = searchParams.get("type");
     if (type === "recovery") {
       setView("reset");
+      return;
     }
+
+    // If no recovery flow, clear any stuck session so login is always fresh
+    const cleanup = async () => {
+      const { data: { session: existingSession } } = await supabase.auth.getSession();
+      if (existingSession && !searchParams.get("type")) {
+        // User navigated to /auth explicitly — sign out to prevent stale state
+        // Only if they're not in the middle of a recovery or OAuth callback
+        const hash = window.location.hash;
+        if (!hash.includes("access_token") && !hash.includes("refresh_token")) {
+          await supabase.auth.signOut();
+        }
+      }
+    };
+    cleanup();
   }, [searchParams]);
 
   useEffect(() => {
