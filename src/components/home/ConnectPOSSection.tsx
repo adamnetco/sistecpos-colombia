@@ -26,15 +26,50 @@ export function ConnectPOSSection() {
       });
   }, []);
 
-  const handleOpenDemo = async () => {
+  const [demoCreds, setDemoCreds] = useState({ user: "demo", store: "demo", pass: "demo" });
+
+  useEffect(() => {
+    supabase
+      .from("app_settings")
+      .select("key, value")
+      .in("key", ["demo_pos_user", "demo_pos_store", "demo_pos_pass"])
+      .then(({ data }) => {
+        (data || []).forEach((row) => {
+          if (row.key === "demo_pos_user") setDemoCreds((p) => ({ ...p, user: row.value }));
+          if (row.key === "demo_pos_store") setDemoCreds((p) => ({ ...p, store: row.value }));
+          if (row.key === "demo_pos_pass") setDemoCreds((p) => ({ ...p, pass: row.value }));
+        });
+      });
+  }, []);
+
+  const handleOpenDemo = () => {
     setStatus("loading");
     setErrorMsg("");
 
     try {
-      const { error } = await supabase.functions.invoke("connect-pos");
-      if (error) throw error;
+      // Build a hidden form to POST demo credentials directly
+      const form = document.createElement("form");
+      form.method = "POST";
+      form.action = "https://softwarepos.online/index.php/login/index/1";
+      form.target = "_blank";
 
-      window.open("https://softwarepos.online/index.php/login/index/1", "_blank");
+      const fields = {
+        username: demoCreds.user,
+        password: demoCreds.pass,
+        store: demoCreds.store,
+        remember_user: "1",
+      };
+      for (const [key, value] of Object.entries(fields)) {
+        const input = document.createElement("input");
+        input.type = "hidden";
+        input.name = key;
+        input.value = value;
+        form.appendChild(input);
+      }
+
+      document.body.appendChild(form);
+      form.submit();
+      document.body.removeChild(form);
       setStatus("idle");
     } catch (err: unknown) {
       setStatus("error");
