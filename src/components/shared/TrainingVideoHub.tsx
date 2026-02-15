@@ -155,7 +155,7 @@ function QuickVideoItem({ video, onSelect, index }: { video: VideoItem; onSelect
       whileHover={{ x: 4 }}
       whileTap={{ scale: 0.98 }}
       onClick={() => onSelect(video)}
-      className="flex items-center gap-3 rounded-lg border bg-card p-3 text-left transition-all hover:shadow-md hover:border-primary/30 group scroll-mt-24"
+      className="flex items-center gap-2 rounded-lg border bg-card p-2 text-left transition-all hover:shadow-md hover:border-primary/30 group scroll-mt-24 sm:gap-3 sm:p-3"
     >
       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
         <Play className="h-4 w-4 text-primary" />
@@ -287,7 +287,7 @@ export default function TrainingVideoHub({ userRole }: TrainingVideoHubProps) {
   const hasActiveFilters = search || selectedCategory !== "all" || selectedTag;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4 px-1 sm:space-y-8 sm:px-0">
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="text-center space-y-1">
         <h2 className="text-xl font-bold sm:text-2xl md:text-3xl">Centro de Capacitación</h2>
@@ -402,12 +402,12 @@ export default function TrainingVideoHub({ userRole }: TrainingVideoHubProps) {
       {/* Main Tutorials */}
       {filteredMain.length > 0 && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }}>
-          <div className="mb-4 flex items-center gap-2">
-            <Play className="h-5 w-5 text-primary" />
-            <h3 className="text-lg font-bold">Tutoriales Principales</h3>
-            <Badge>{filteredMain.length}</Badge>
+          <div className="mb-3 flex items-center gap-2 sm:mb-4">
+            <Play className="h-4 w-4 text-primary sm:h-5 sm:w-5" />
+            <h3 className="text-base font-bold sm:text-lg">Tutoriales Principales</h3>
+            <Badge className="text-[10px] sm:text-xs">{filteredMain.length}</Badge>
           </div>
-          <div className="grid gap-2.5 grid-cols-2 sm:gap-4 sm:grid-cols-3 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-2 sm:gap-4 sm:grid-cols-3 lg:grid-cols-4">
             {filteredMain.map((v, i) => (
               <VideoCard key={v.id} video={v} onSelect={handleSelectVideo} index={i} />
             ))}
@@ -418,12 +418,12 @@ export default function TrainingVideoHub({ userRole }: TrainingVideoHubProps) {
       {/* Quick Videos */}
       {filteredQuick.length > 0 && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
-          <div className="mb-4 flex items-center gap-2">
-            <Film className="h-5 w-5 text-primary" />
-            <h3 className="text-lg font-bold">Micro-Tutoriales</h3>
-            <Badge>{totalQuickFiltered}</Badge>
+          <div className="mb-3 flex items-center gap-2 sm:mb-4">
+            <Film className="h-4 w-4 text-primary sm:h-5 sm:w-5" />
+            <h3 className="text-base font-bold sm:text-lg">Micro-Tutoriales</h3>
+            <Badge className="text-[10px] sm:text-xs">{totalQuickFiltered}</Badge>
           </div>
-          <div className="grid gap-2 sm:gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-1.5 sm:gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {filteredQuick.map((v, i) => (
               <QuickVideoItem key={v.id} video={v} onSelect={handleSelectVideo} index={i} />
             ))}
@@ -442,11 +442,11 @@ export default function TrainingVideoHub({ userRole }: TrainingVideoHubProps) {
       )}
 
       {filteredMain.length === 0 && filteredQuick.length === 0 && (
-        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="rounded-2xl border bg-card p-16 text-center">
-          <Search className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
-          <p className="text-lg font-medium">No se encontraron tutoriales</p>
-          <p className="text-muted-foreground mb-4">Intenta con otra búsqueda, categoría o tag</p>
-          <Button variant="outline" onClick={clearFilters}>Limpiar filtros</Button>
+        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="rounded-xl border bg-card p-8 text-center sm:rounded-2xl sm:p-16">
+          <Search className="mx-auto mb-3 h-8 w-8 text-muted-foreground sm:mb-4 sm:h-12 sm:w-12" />
+          <p className="text-sm font-medium sm:text-lg">No se encontraron tutoriales</p>
+          <p className="text-xs text-muted-foreground mb-3 sm:text-base sm:mb-4">Intenta con otra búsqueda, categoría o tag</p>
+          <Button variant="outline" size="sm" onClick={clearFilters}>Limpiar filtros</Button>
         </motion.div>
       )}
     </div>
