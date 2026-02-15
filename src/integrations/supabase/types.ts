@@ -1683,6 +1683,7 @@ export type Database = {
       }
       training_videos: {
         Row: {
+          approval_status: string
           category: string
           created_at: string
           duration: string | null
@@ -1695,8 +1696,11 @@ export type Database = {
           video_type: string
           video_url: string
           view_count: number
+          visible_to_customer: boolean
+          visible_to_reseller: boolean
         }
         Insert: {
+          approval_status?: string
           category?: string
           created_at?: string
           duration?: string | null
@@ -1709,8 +1713,11 @@ export type Database = {
           video_type?: string
           video_url: string
           view_count?: number
+          visible_to_customer?: boolean
+          visible_to_reseller?: boolean
         }
         Update: {
+          approval_status?: string
           category?: string
           created_at?: string
           duration?: string | null
@@ -1723,6 +1730,8 @@ export type Database = {
           video_type?: string
           video_url?: string
           view_count?: number
+          visible_to_customer?: boolean
+          visible_to_reseller?: boolean
         }
         Relationships: []
       }
