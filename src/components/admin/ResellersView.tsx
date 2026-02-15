@@ -80,10 +80,29 @@ export default function ResellersView() {
       return;
     }
 
+    const oldStatus = reseller.status;
     const { error } = await supabase.from("reseller_applications").update({ status: newStatus }).eq("id", id);
     if (error) {
       toast({ title: "Error al actualizar estado", variant: "destructive" });
       return;
+    }
+
+    // Send status change notification (non-approval states)
+    if (newStatus !== "approved" && oldStatus !== newStatus) {
+      try {
+        await supabase.functions.invoke("notify-ticket-status", {
+          body: {
+            type: "reseller_status_changed",
+            reseller_id: reseller.id,
+            name: reseller.full_name,
+            email: reseller.email,
+            old_status: oldStatus,
+            new_status: newStatus,
+          },
+        });
+      } catch (e) {
+        console.error("Notification error:", e);
+      }
     }
 
     // When approving, trigger full activation flow

@@ -59,9 +59,9 @@ const navGroups: NavGroup[] = [
     ],
   },
   {
-    label: "Clientes",
+    label: "Soporte",
     items: [
-      { name: "Tickets Clientes", href: "/admin/tickets-clientes", icon: TicketCheck },
+      { name: "Tickets", href: "/admin/tickets-clientes", icon: TicketCheck },
       { name: "Descargas", href: "/admin/descargas-clientes", icon: Download },
       { name: "Capacitación", href: "/admin/capacitacion", icon: GraduationCap },
     ],
