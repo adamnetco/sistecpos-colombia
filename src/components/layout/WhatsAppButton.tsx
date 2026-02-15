@@ -1,17 +1,17 @@
 import { forwardRef } from "react";
 import { MessageCircle } from "lucide-react";
 import { motion } from "framer-motion";
-
-const WHATSAPP_NUMBER = "573176268307";
-const WHATSAPP_MESSAGE = "Hola Sistecpos, quiero información sobre el software";
+import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
 
 export const WhatsAppButton = forwardRef<HTMLAnchorElement>((_props, ref) => {
-  const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`;
+  const { buildUrl, isEnabled } = useWhatsAppConfig();
+
+  if (!isEnabled) return null;
 
   return (
     <motion.a
       ref={ref}
-      href={whatsappUrl}
+      href={buildUrl()}
       target="_blank"
       rel="noopener noreferrer"
       className="fixed bottom-6 right-6 z-50 flex items-center justify-center"

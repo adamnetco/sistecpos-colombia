@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Mail, Phone, MapPin, Download, User, Handshake, ShieldCheck } from "lucide-react";
 import logoSistecPOSWhite from "@/assets/logo-sistecpos-white.png";
 import { useNavItems } from "@/hooks/useNavItems";
+import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
 
 const footerLinks = {
   soluciones: [
@@ -56,6 +57,7 @@ const presencialCities = [
 
 export const Footer = forwardRef<HTMLElement>((_props, ref) => {
   const { topItems: footerNavItems } = useNavItems("footer");
+  const wa = useWhatsAppConfig();
   const empresaLinks = footerNavItems.length > 0
     ? footerNavItems.map((n) => ({ name: n.label, href: n.href }))
     : footerLinks.empresaFallback;
@@ -81,11 +83,11 @@ export const Footer = forwardRef<HTMLElement>((_props, ref) => {
                 <span>Transversal 112 # 19 - 22, Oficina 309, Viversos de Pronveza, Bucaramanga, Santander</span>
               </div>
               <a
-                href="https://wa.me/573176268307"
+                href={wa.buildUrl()}
                 className="flex items-center gap-2 text-primary-foreground/70 hover:text-whatsapp transition-colors"
               >
                 <Phone className="h-4 w-4 shrink-0" />
-                <span>+57 317 626 8307</span>
+                <span>{wa.displayPhone}</span>
               </a>
               <a
                 href="https://wa.me/573502082108"
@@ -110,12 +112,7 @@ export const Footer = forwardRef<HTMLElement>((_props, ref) => {
             <ul className="space-y-2">
               {footerLinks.soluciones.map((link) => (
                 <li key={link.name}>
-                  <Link
-                    to={link.href}
-                    className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors"
-                  >
-                    {link.name}
-                  </Link>
+                  <Link to={link.href} className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors">{link.name}</Link>
                 </li>
               ))}
             </ul>
@@ -127,12 +124,7 @@ export const Footer = forwardRef<HTMLElement>((_props, ref) => {
             <ul className="space-y-2">
               {footerLinks.productos.map((link) => (
                 <li key={link.name}>
-                  <Link
-                    to={link.href}
-                    className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors"
-                  >
-                    {link.name}
-                  </Link>
+                  <Link to={link.href} className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors">{link.name}</Link>
                 </li>
               ))}
             </ul>
@@ -144,12 +136,7 @@ export const Footer = forwardRef<HTMLElement>((_props, ref) => {
             <ul className="space-y-2">
               {footerLinks.ciudades.map((link) => (
                 <li key={link.name}>
-                  <Link
-                    to={link.href}
-                    className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors"
-                  >
-                    {link.name}
-                  </Link>
+                  <Link to={link.href} className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors">{link.name}</Link>
                 </li>
               ))}
             </ul>
@@ -161,12 +148,7 @@ export const Footer = forwardRef<HTMLElement>((_props, ref) => {
             <ul className="space-y-2">
               {empresaLinks.map((link) => (
                 <li key={link.name}>
-                  <Link
-                    to={link.href}
-                    className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors"
-                  >
-                    {link.name}
-                  </Link>
+                  <Link to={link.href} className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors">{link.name}</Link>
                 </li>
               ))}
             </ul>
@@ -179,9 +161,7 @@ export const Footer = forwardRef<HTMLElement>((_props, ref) => {
             <span className="text-primary-foreground/50">Instalación Presencial:</span>
             {presencialCities.map((city, index) => (
               <span key={city.name} className="flex items-center gap-2">
-                <Link to={city.href} className="text-primary-foreground/70 hover:text-whatsapp transition-colors">
-                  {city.name}
-                </Link>
+                <Link to={city.href} className="text-primary-foreground/70 hover:text-whatsapp transition-colors">{city.name}</Link>
                 {index < presencialCities.length - 1 && <span className="text-primary-foreground/30">•</span>}
               </span>
             ))}
@@ -199,36 +179,26 @@ export const Footer = forwardRef<HTMLElement>((_props, ref) => {
         <div className="mt-6 pt-6 border-t border-primary-foreground/10 text-center space-y-3">
           <div className="flex flex-wrap justify-center gap-4 text-xs items-center">
             <Link to="/clientes" className="inline-flex items-center gap-1 text-primary-foreground/50 hover:text-primary-foreground transition-colors">
-              <User className="h-3 w-3" />
-              Portal Clientes
+              <User className="h-3 w-3" />Portal Clientes
             </Link>
             <span className="text-primary-foreground/20">|</span>
             <Link to="/socio" className="inline-flex items-center gap-1 text-primary-foreground/50 hover:text-primary-foreground transition-colors">
-              <Handshake className="h-3 w-3" />
-              Portal Socios
+              <Handshake className="h-3 w-3" />Portal Socios
             </Link>
             <span className="text-primary-foreground/20">|</span>
             <Link to="/auth" className="inline-flex items-center gap-1 text-primary-foreground/50 hover:text-primary-foreground transition-colors">
-              <ShieldCheck className="h-3 w-3" />
-              Iniciar Sesión
+              <ShieldCheck className="h-3 w-3" />Iniciar Sesión
             </Link>
             <span className="text-primary-foreground/20">|</span>
             <Link to="/ayuda" className="inline-flex items-center gap-1 text-primary-foreground/50 hover:text-primary-foreground transition-colors">
-              <Download className="h-3 w-3" />
-              Ayuda y Descargas
+              <Download className="h-3 w-3" />Ayuda y Descargas
             </Link>
             <span className="text-primary-foreground/20">|</span>
-            <Link to="/politica-privacidad" className="text-primary-foreground/50 hover:text-primary-foreground transition-colors">
-              Política de Privacidad
-            </Link>
+            <Link to="/politica-privacidad" className="text-primary-foreground/50 hover:text-primary-foreground transition-colors">Política de Privacidad</Link>
             <span className="text-primary-foreground/20">|</span>
-            <Link to="/terminos-condiciones" className="text-primary-foreground/50 hover:text-primary-foreground transition-colors">
-              Términos y Condiciones
-            </Link>
+            <Link to="/terminos-condiciones" className="text-primary-foreground/50 hover:text-primary-foreground transition-colors">Términos y Condiciones</Link>
           </div>
-          <p className="text-sm text-primary-foreground/50">
-            © {new Date().getFullYear()} SistecPOS. Todos los derechos reservados.
-          </p>
+          <p className="text-sm text-primary-foreground/50">© {new Date().getFullYear()} SistecPOS. Todos los derechos reservados.</p>
           <p className="text-xs text-primary-foreground/30">Desarrollado por AdamNetCo</p>
         </div>
       </div>
