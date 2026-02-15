@@ -227,9 +227,9 @@ export function DynamicPricingSection() {
             className="space-y-8"
           >
             {/* Warning banner */}
-            <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-center max-w-3xl mx-auto">
-              <p className="text-sm text-destructive-foreground">
-                <Info className="inline h-4 w-4 mr-1 -mt-0.5" />
+            <div className="rounded-xl border border-amber-300 bg-amber-50 dark:bg-amber-950/40 dark:border-amber-700 p-4 text-center max-w-3xl mx-auto">
+              <p className="text-sm text-amber-900 dark:text-amber-100 font-medium">
+                <Info className="inline h-4 w-4 mr-1 -mt-0.5 text-amber-600 dark:text-amber-400" />
                 La licencia por sí sola <strong>no incluye</strong> instalación, capacitación ni soporte.
                 Si eres nuevo, te recomendamos un <strong>Plan Todo Incluido</strong> para arrancar sin complicaciones.
               </p>
