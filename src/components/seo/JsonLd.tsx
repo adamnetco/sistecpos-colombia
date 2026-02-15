@@ -19,20 +19,53 @@ export function organizationSchema() {
     name: "SistecPOS",
     url: "https://sistecpos.com",
     logo: "https://sistecpos.com/lovable-uploads/43a24c53-78c0-4ca3-b642-99a376d90a0f.png",
-    contactPoint: {
-      "@type": "ContactPoint",
-      telephone: "+57-317-626-8307",
-      contactType: "sales",
-      availableLanguage: "Spanish",
-    },
+    description: "Software POS con facturación electrónica DIAN, inventario y soporte presencial en Colombia.",
+    contactPoint: [
+      {
+        "@type": "ContactPoint",
+        telephone: "+57-317-626-8307",
+        contactType: "customer service",
+        contactOption: "TollFree",
+        availableLanguage: "Spanish",
+        areaServed: "CO",
+      },
+      {
+        "@type": "ContactPoint",
+        telephone: "+57-317-626-8307",
+        contactType: "sales",
+        availableLanguage: "Spanish",
+        areaServed: "CO",
+      },
+    ],
     address: {
       "@type": "PostalAddress",
       streetAddress: "Transversal 112 # 19 - 22, Oficina 309, Viveros de Pronveza",
-      addressLocality: "Bucaramanga",
+      addressLocality: "Floridablanca",
       addressRegion: "Santander",
+      postalCode: "681003",
       addressCountry: "CO",
     },
-    sameAs: ["https://wa.me/573176268307"],
+    sameAs: [
+      "https://wa.me/573176268307",
+      "https://www.instagram.com/sistecpos",
+      "https://www.facebook.com/sistecpos",
+      "https://www.tiktok.com/@sistecpos",
+    ],
+    potentialAction: {
+      "@type": "CommunicateAction",
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate: "https://wa.me/573176268307?text=Hola%20SistecPOS%2C%20quiero%20informaci%C3%B3n%20sobre%20el%20software",
+        actionPlatform: [
+          "http://schema.org/DesktopWebPlatform",
+          "http://schema.org/MobileWebPlatform",
+          "http://schema.org/AndroidPlatform",
+          "http://schema.org/IOSPlatform",
+        ],
+      },
+      name: "Cotización por WhatsApp",
+      description: "Solicitar cotización",
+    },
   };
 }
 
@@ -44,17 +77,38 @@ export function localBusinessSchema(city: string, isPresencial: boolean) {
     description: `Software POS con ${isPresencial ? "instalación presencial" : "instalación remota"} en ${city}`,
     url: `https://sistecpos.com/software-pos/${city.toLowerCase().replace(/\s+/g, "-")}`,
     telephone: "+57-317-626-8307",
+    image: "https://sistecpos.com/lovable-uploads/43a24c53-78c0-4ca3-b642-99a376d90a0f.png",
     address: {
       "@type": "PostalAddress",
       addressLocality: city,
       addressCountry: "CO",
     },
     priceRange: "$$",
+    contactPoint: {
+      "@type": "ContactPoint",
+      telephone: "+57-317-626-8307",
+      contactType: "customer service",
+      availableLanguage: "Spanish",
+      areaServed: "CO",
+    },
     openingHoursSpecification: {
       "@type": "OpeningHoursSpecification",
       dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
       opens: "08:00",
       closes: "18:00",
+    },
+    potentialAction: {
+      "@type": "CommunicateAction",
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate: "https://wa.me/573176268307?text=Hola%20SistecPOS%2C%20quiero%20informaci%C3%B3n%20sobre%20el%20software%20POS%20en%20" + encodeURIComponent(city),
+        actionPlatform: [
+          "http://schema.org/DesktopWebPlatform",
+          "http://schema.org/MobileWebPlatform",
+        ],
+      },
+      name: "Cotización por WhatsApp",
+      description: "Solicitar cotización",
     },
   };
 }
