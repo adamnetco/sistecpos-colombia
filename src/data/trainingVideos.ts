@@ -156,6 +156,11 @@ export function getLoomEmbedUrl(url: string): string {
   return url.replace("/share/", "/embed/");
 }
 
+export function getLoomId(url: string): string | null {
+  const match = url.match(/loom\.com\/(?:share|embed)\/([\w]+)/);
+  return match ? match[1] : null;
+}
+
 export const allCategories = Array.from(
   new Set([...mainTutorials, ...quickVideos].map((v) => v.category))
 ).sort();
