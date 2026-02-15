@@ -1,5 +1,6 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { mainTutorials, quickVideos, getYouTubeId, getLoomEmbedUrl } from "@/data/trainingVideos";
 import { useIncrementVideoView } from "@/hooks/useTrainingVideos";
@@ -69,18 +70,28 @@ function YouTubeEmbed({ videoId }: { videoId: string }) {
   );
 }
 
+function videoSlug(title: string) {
+  return title
+    .toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+
 function VideoCard({ video, onSelect, index }: { video: VideoItem; onSelect: (v: VideoItem) => void; index: number }) {
   const ytId = video.type === "youtube" ? getYouTubeId(video.video_url) : null;
+  const anchor = `video-${videoSlug(video.title)}`;
 
   return (
     <motion.button
+      id={anchor}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: index * 0.03 }}
       whileHover={{ y: -4, scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
       onClick={() => onSelect(video)}
-      className="group relative flex flex-col overflow-hidden rounded-xl border bg-card text-left transition-shadow hover:shadow-xl hover:border-primary/40"
+      className="group relative flex flex-col overflow-hidden rounded-xl border bg-card text-left transition-shadow hover:shadow-xl hover:border-primary/40 scroll-mt-24"
     >
       <div className="relative aspect-video w-full bg-muted overflow-hidden">
         {ytId ? (
@@ -123,15 +134,17 @@ function VideoCard({ video, onSelect, index }: { video: VideoItem; onSelect: (v:
 }
 
 function QuickVideoItem({ video, onSelect, index }: { video: VideoItem; onSelect: (v: VideoItem) => void; index: number }) {
+  const anchor = `video-${videoSlug(video.title)}`;
   return (
     <motion.button
+      id={anchor}
       initial={{ opacity: 0, x: -10 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.25, delay: index * 0.02 }}
       whileHover={{ x: 4 }}
       whileTap={{ scale: 0.98 }}
       onClick={() => onSelect(video)}
-      className="flex items-center gap-3 rounded-lg border bg-card p-3 text-left transition-all hover:shadow-md hover:border-primary/30 group"
+      className="flex items-center gap-3 rounded-lg border bg-card p-3 text-left transition-all hover:shadow-md hover:border-primary/30 group scroll-mt-24"
     >
       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
         <Play className="h-4 w-4 text-primary" />
@@ -157,6 +170,9 @@ export default function TrainingVideoHub({ userRole }: TrainingVideoHubProps) {
   const [activeVideo, setActiveVideo] = useState<VideoItem | null>(null);
   const [showAllQuick, setShowAllQuick] = useState(false);
 
+  const location = useLocation();
+  const hasScrolledRef = useRef(false);
+
   const { data: dbVideos } = useVideosFromDB(userRole);
   const incrementView = useIncrementVideoView();
   const allVideos = useMemo(() => mapToVideoItems(dbVideos), [dbVideos]);
@@ -164,7 +180,29 @@ export default function TrainingVideoHub({ userRole }: TrainingVideoHubProps) {
   const handleSelectVideo = useCallback((v: VideoItem) => {
     setActiveVideo(v);
     incrementView.mutate(v.id);
+    // Update hash without scroll
+    const slug = videoSlug(v.title);
+    window.history.replaceState(null, "", `#video-${slug}`);
   }, [incrementView]);
+
+  // Auto-open video from URL hash (deep link)
+  useEffect(() => {
+    if (hasScrolledRef.current || allVideos.length === 0) return;
+    const hash = location.hash.replace("#", "");
+    if (!hash.startsWith("video-")) return;
+    const target = allVideos.find((v) => `video-${videoSlug(v.title)}` === hash);
+    if (target) {
+      hasScrolledRef.current = true;
+      // Ensure quick videos are visible if needed
+      if (!target.is_main) setShowAllQuick(true);
+      setTimeout(() => {
+        setActiveVideo(target);
+        incrementView.mutate(target.id);
+        const el = document.getElementById(hash);
+        el?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 400);
+    }
+  }, [allVideos, location.hash]);
 
   const allCategories = useMemo(() =>
     Array.from(new Set(allVideos.map((v) => v.category))).sort(),
