@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-
 import { AuthProvider } from "@/hooks/useAuth";
 import { CartProvider } from "@/hooks/useCart";
 import { ChatbotProvider } from "@/hooks/useChatbot";
+import { ChatbotWidget } from "@/components/chatbot/ChatbotWidget";
 
 function NicheRedirect() {
   const { slug } = useParams<{ slug: string }>();
@@ -72,6 +73,7 @@ const App = () => (
             <CartProvider>
             <ChatbotProvider>
             <ScrollToTop />
+            <ChatbotWidget />
             <Suspense fallback={<PageLoader />}>
               <Routes>
                 <Route path="/" element={<Index />} />
