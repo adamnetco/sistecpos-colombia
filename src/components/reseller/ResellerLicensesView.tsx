@@ -46,6 +46,27 @@ export default function ResellerLicensesView() {
   const [price, setPrice] = useState(LICENSE_PLANS[0].defaultPriceCOP);
   const [allowedDomains, setAllowedDomains] = useState<string[]>([]);
 
+  // Controlled form fields to prevent state loss on mobile file picker
+  const [formData, setFormData] = useState({
+    business_name: "",
+    business_nit: "",
+    contact_name: "",
+    contact_email: "",
+    contact_phone: "",
+    notes: "",
+  });
+
+  const updateField = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const resetForm = () => {
+    setFormData({ business_name: "", business_nit: "", contact_name: "", contact_email: "", contact_phone: "", notes: "" });
+    setSelectedPlan(LICENSE_PLANS[0].value);
+    setPrice(LICENSE_PLANS[0].defaultPriceCOP);
+    setRutFile(null);
+  };
+
   const handlePlanChange = (value: string) => {
     setSelectedPlan(value);
     const plan = LICENSE_PLANS.find((p) => p.value === value);
@@ -136,8 +157,7 @@ export default function ResellerLicensesView() {
       return;
     }
 
-    const fd = new FormData(e.currentTarget);
-    const contactEmail = (fd.get("contact_email") as string) || null;
+    const contactEmail = formData.contact_email || null;
 
     // Validate domain
     if (contactEmail && allowedDomains.length > 0 && !validateDomain(contactEmail)) {
@@ -162,7 +182,7 @@ export default function ResellerLicensesView() {
         return;
       }
 
-      const planType = fd.get("plan_type") as string;
+      const planType = selectedPlan;
       let expiresAt: string | null = null;
 
       if (planIsAnnual(planType)) {
@@ -172,15 +192,15 @@ export default function ResellerLicensesView() {
       }
 
       const { error } = await supabase.from("licenses").insert({
-        business_name: fd.get("business_name") as string,
-        business_nit: (fd.get("business_nit") as string) || null,
-        contact_name: fd.get("contact_name") as string,
+        business_name: formData.business_name,
+        business_nit: formData.business_nit || null,
+        contact_name: formData.contact_name,
         contact_email: contactEmail,
-        contact_phone: (fd.get("contact_phone") as string) || null,
+        contact_phone: formData.contact_phone || null,
         plan_type: planType,
-        price_paid: Number(fd.get("price_paid")),
+        price_paid: price,
         expires_at: expiresAt,
-        notes: (fd.get("notes") as string) || null,
+        notes: formData.notes || null,
         created_by_reseller_id: reseller.id,
         rut_url: filePath,
         status: "pending_approval",
@@ -191,7 +211,7 @@ export default function ResellerLicensesView() {
       } else {
         toast({ title: "✅ Licencia enviada para aprobación" });
         setShowCreate(false);
-        setRutFile(null);
+        resetForm();
         load();
 
         // Notify admin in background
@@ -199,11 +219,11 @@ export default function ResellerLicensesView() {
           body: {
             reseller_name: reseller.full_name,
             reseller_email: reseller.email,
-            business_name: fd.get("business_name") as string,
-            contact_name: fd.get("contact_name") as string,
+            business_name: formData.business_name,
+            contact_name: formData.contact_name,
             contact_email: contactEmail,
             plan_type: planType,
-            price_paid: Number(fd.get("price_paid")),
+            price_paid: price,
           },
         }).catch(console.error);
       }
@@ -264,22 +284,39 @@ export default function ResellerLicensesView() {
 
               <form onSubmit={handleCreate} className="space-y-3">
                 <div className="grid grid-cols-2 gap-3">
-                  <div><Label>Negocio *</Label><Input name="business_name" required /></div>
-                  <div><Label>NIT</Label><Input name="business_nit" placeholder="900.123.456-7" /></div>
+                  <div>
+                    <Label>Negocio *</Label>
+                    <Input value={formData.business_name} onChange={(e) => updateField("business_name", e.target.value)} required />
+                  </div>
+                  <div>
+                    <Label>NIT</Label>
+                    <Input value={formData.business_nit} onChange={(e) => updateField("business_nit", e.target.value)} placeholder="900.123.456-7" />
+                  </div>
                 </div>
-                <div><Label>Contacto *</Label><Input name="contact_name" required /></div>
+                <div>
+                  <Label>Contacto *</Label>
+                  <Input value={formData.contact_name} onChange={(e) => updateField("contact_name", e.target.value)} required />
+                </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <Label>Email *</Label>
-                    <Input name="contact_email" type="email" required placeholder={allowedDomains.length > 0 ? `nombre@${allowedDomains[0]}` : ""} />
+                    <Input
+                      type="email"
+                      required
+                      value={formData.contact_email}
+                      onChange={(e) => updateField("contact_email", e.target.value)}
+                      placeholder={allowedDomains.length > 0 ? `nombre@${allowedDomains[0]}` : ""}
+                    />
                   </div>
-                  <div><Label>Teléfono</Label><Input name="contact_phone" /></div>
+                  <div>
+                    <Label>Teléfono</Label>
+                    <Input value={formData.contact_phone} onChange={(e) => updateField("contact_phone", e.target.value)} />
+                  </div>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <Label>Plan *</Label>
                     <select
-                      name="plan_type"
                       className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                       required
                       value={selectedPlan}
@@ -293,7 +330,6 @@ export default function ResellerLicensesView() {
                   <div>
                     <Label>Precio (COP) *</Label>
                     <Input
-                      name="price_paid"
                       type="number"
                       required
                       value={price}
@@ -306,15 +342,28 @@ export default function ResellerLicensesView() {
                 </div>
                 <div>
                   <Label>RUT del cliente (obligatorio) *</Label>
-                  <Input
-                    type="file"
-                    accept=".pdf,.jpg,.jpeg,.png"
-                    onChange={(e) => setRutFile(e.target.files?.[0] || null)}
-                    required
-                  />
-                  <p className="mt-1 text-xs text-muted-foreground">PDF o imagen del RUT para facturación electrónica</p>
+                  <div className="mt-1">
+                    <label className="flex cursor-pointer items-center gap-3 rounded-md border border-input bg-background px-3 py-2.5 text-sm transition-colors hover:bg-muted/50">
+                      <span className="shrink-0 rounded bg-primary/10 px-2 py-1 text-xs font-medium text-primary">
+                        Seleccionar archivo
+                      </span>
+                      <span className="truncate text-muted-foreground">
+                        {rutFile ? rutFile.name : "PDF o imagen del RUT"}
+                      </span>
+                      <input
+                        type="file"
+                        className="sr-only"
+                        accept=".pdf,.jpg,.jpeg,.png"
+                        onChange={(e) => setRutFile(e.target.files?.[0] || null)}
+                      />
+                    </label>
+                  </div>
+                  <p className="mt-1 text-xs text-muted-foreground">Requerido para facturación electrónica</p>
                 </div>
-                <div><Label>Notas</Label><Textarea name="notes" rows={2} /></div>
+                <div>
+                  <Label>Notas</Label>
+                  <Textarea value={formData.notes} onChange={(e) => updateField("notes", e.target.value)} rows={2} />
+                </div>
                 <Button type="submit" className="w-full" disabled={submitting}>
                   {submitting ? "Enviando..." : "Enviar para aprobación"}
                 </Button>
