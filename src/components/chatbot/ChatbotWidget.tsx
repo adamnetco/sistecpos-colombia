@@ -109,7 +109,7 @@ export function ChatbotWidget() {
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.2 }}
             className="fixed bottom-0 right-0 z-[60] flex w-full flex-col border bg-card shadow-2xl overflow-hidden sm:bottom-6 sm:right-6 sm:w-[370px] sm:max-w-[calc(100vw-2rem)] sm:rounded-2xl rounded-t-2xl"
-            style={{ height: "min(520px, calc(100vh - 2rem))" }}
+            style={{ height: "min(480px, calc(100dvh - 3.5rem))" }}
           >
             {/* Header */}
             <div className="gradient-bg flex items-center justify-between px-4 py-3 text-primary-foreground">

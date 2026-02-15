@@ -129,12 +129,12 @@ function VideoCard({ video, onSelect, index }: { video: VideoItem; onSelect: (v:
           </span>
         )}
       </div>
-      <div className="flex flex-1 flex-col gap-1.5 p-3">
-        <h3 className="text-sm font-semibold leading-tight line-clamp-2 group-hover:text-primary transition-colors">{video.title}</h3>
+      <div className="flex flex-1 flex-col gap-1 p-2 sm:gap-1.5 sm:p-3">
+        <h3 className="text-xs font-semibold leading-tight line-clamp-2 group-hover:text-primary transition-colors sm:text-sm">{video.title}</h3>
         <div className="flex flex-wrap gap-1 items-center">
-          <Badge variant="secondary" className="text-[10px] capitalize">{video.category}</Badge>
-          {(video.tags || []).slice(0, 2).map((t) => (
-            <span key={t} className="inline-flex items-center rounded bg-primary/10 px-1.5 py-0.5 text-[9px] text-primary font-medium">
+          <Badge variant="secondary" className="text-[9px] capitalize sm:text-[10px]">{video.category}</Badge>
+          {(video.tags || []).filter((t) => t.toLowerCase() !== video.category.toLowerCase()).slice(0, 1).map((t) => (
+            <span key={t} className="hidden sm:inline-flex items-center rounded bg-primary/10 px-1.5 py-0.5 text-[9px] text-primary font-medium">
               {t}
             </span>
           ))}
@@ -289,17 +289,17 @@ export default function TrainingVideoHub({ userRole }: TrainingVideoHubProps) {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="text-center space-y-2">
-        <h2 className="text-2xl font-bold md:text-3xl">Centro de Capacitación</h2>
-        <p className="text-muted-foreground">{allVideos.length} video tutoriales para dominar tu sistema POS</p>
+      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="text-center space-y-1">
+        <h2 className="text-xl font-bold sm:text-2xl md:text-3xl">Centro de Capacitación</h2>
+        <p className="text-sm text-muted-foreground">{allVideos.length} video tutoriales para dominar tu sistema POS</p>
       </motion.div>
 
       {/* Search */}
       <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }} className="relative mx-auto max-w-xl">
-        <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-        <Input placeholder="Buscar por título, categoría o tag... ej: excel, crédito, impresora" value={search}
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground sm:left-4 sm:h-5 sm:w-5" />
+        <Input placeholder="Buscar título, categoría o tag..." value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="h-12 rounded-full pl-12 pr-10 text-base shadow-sm border-2 focus-visible:border-primary" />
+          className="h-10 rounded-full pl-10 pr-9 text-sm shadow-sm border-2 focus-visible:border-primary sm:h-12 sm:pl-12 sm:pr-10 sm:text-base" />
         {search && (
           <button onClick={() => setSearch("")} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
             <X className="h-4 w-4" />
@@ -308,27 +308,27 @@ export default function TrainingVideoHub({ userRole }: TrainingVideoHubProps) {
       </motion.div>
 
       {/* Categories */}
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.15 }} className="flex flex-wrap justify-center gap-2">
-        <Button size="sm" variant={selectedCategory === "all" ? "default" : "outline"} onClick={() => setSelectedCategory("all")} className="rounded-full">
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.15 }} className="flex flex-wrap justify-center gap-1.5 sm:gap-2">
+        <Button size="sm" variant={selectedCategory === "all" ? "default" : "outline"} onClick={() => setSelectedCategory("all")} className="rounded-full text-xs h-7 px-2.5 sm:text-sm sm:h-8 sm:px-3">
           Todos ({allVideos.length})
         </Button>
         {allCategories.map((cat) => (
-          <Button key={cat} size="sm" variant={selectedCategory === cat ? "default" : "outline"} onClick={() => setSelectedCategory(cat)} className="rounded-full capitalize">
+          <Button key={cat} size="sm" variant={selectedCategory === cat ? "default" : "outline"} onClick={() => setSelectedCategory(cat)} className="rounded-full capitalize text-xs h-7 px-2.5 sm:text-sm sm:h-8 sm:px-3">
             {cat}
-            <Badge variant="secondary" className="ml-1.5 text-[10px] px-1.5">{categoryCounts[cat] || 0}</Badge>
+            <Badge variant="secondary" className="ml-1 text-[9px] px-1 sm:ml-1.5 sm:text-[10px] sm:px-1.5">{categoryCounts[cat] || 0}</Badge>
           </Button>
         ))}
       </motion.div>
 
       {/* Tag cloud */}
       {topTags.length > 0 && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="flex flex-wrap justify-center gap-1.5">
-          <span className="flex items-center gap-1 text-xs text-muted-foreground mr-1"><Tag className="h-3 w-3" />Tags:</span>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="flex flex-wrap justify-center gap-1 sm:gap-1.5">
+          <span className="flex items-center gap-1 text-[10px] text-muted-foreground mr-0.5 sm:text-xs sm:mr-1"><Tag className="h-3 w-3" />Tags:</span>
           {topTags.map(([tag, count]) => (
             <button
               key={tag}
               onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
-              className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium transition-all ${
+              className={`inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[10px] font-medium transition-all sm:gap-1 sm:px-2.5 sm:py-1 sm:text-xs ${
                 selectedTag === tag
                   ? "bg-primary text-primary-foreground shadow-sm"
                   : "bg-muted/80 text-muted-foreground hover:bg-primary/10 hover:text-primary"
@@ -359,18 +359,18 @@ export default function TrainingVideoHub({ userRole }: TrainingVideoHubProps) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.95 }}
             transition={{ type: "spring", stiffness: 260, damping: 24 }}
-            className="relative rounded-2xl border-2 border-primary/40 bg-card p-4 md:p-6 shadow-2xl space-y-4 scroll-mt-4 ring-2 ring-primary/20 ring-offset-2 ring-offset-background"
+            className="relative rounded-xl border border-primary/30 bg-card p-2.5 sm:p-4 md:p-6 shadow-xl sm:shadow-2xl space-y-3 sm:space-y-4 scroll-mt-4 sm:rounded-2xl sm:border-2 sm:border-primary/40 sm:ring-2 sm:ring-primary/20 sm:ring-offset-2 sm:ring-offset-background"
           >
             {/* Animated glow effect */}
             <motion.div
-              className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-primary/20 via-primary/10 to-primary/20 blur-md -z-10"
+              className="absolute -inset-0.5 sm:-inset-1 rounded-xl sm:rounded-2xl bg-gradient-to-r from-primary/15 via-primary/5 to-primary/15 sm:from-primary/20 sm:via-primary/10 sm:to-primary/20 blur-sm sm:blur-md -z-10"
               animate={{ opacity: [0.4, 0.8, 0.4] }}
               transition={{ duration: 2, repeat: 3, ease: "easeInOut" }}
             />
             <div className="flex items-start justify-between gap-3">
               <div className="space-y-1.5">
                 <motion.h3
-                  className="text-lg font-bold"
+                  className="text-sm font-bold sm:text-lg"
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.15 }}
@@ -407,7 +407,7 @@ export default function TrainingVideoHub({ userRole }: TrainingVideoHubProps) {
             <h3 className="text-lg font-bold">Tutoriales Principales</h3>
             <Badge>{filteredMain.length}</Badge>
           </div>
-          <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
+          <div className="grid gap-2.5 grid-cols-2 sm:gap-4 sm:grid-cols-3 lg:grid-cols-4">
             {filteredMain.map((v, i) => (
               <VideoCard key={v.id} video={v} onSelect={handleSelectVideo} index={i} />
             ))}
@@ -423,7 +423,7 @@ export default function TrainingVideoHub({ userRole }: TrainingVideoHubProps) {
             <h3 className="text-lg font-bold">Micro-Tutoriales</h3>
             <Badge>{totalQuickFiltered}</Badge>
           </div>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-2 sm:gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {filteredQuick.map((v, i) => (
               <QuickVideoItem key={v.id} video={v} onSelect={handleSelectVideo} index={i} />
             ))}
