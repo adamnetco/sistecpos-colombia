@@ -12,8 +12,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import {
   Bot, Plus, Pencil, Trash2, GripVertical, FileText, HelpCircle, MessageSquareText,
-  MessagesSquare, Settings2, BarChart3, Wand2, TestTube2, Globe,
+  MessagesSquare, Settings2, BarChart3, Wand2, TestTube2, Globe, ChevronDown, ChevronUp, Save, Eye,
 } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import ChatbotSettingsTab from "./ChatbotSettingsTab";
 import { Suspense, lazy } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -280,12 +281,25 @@ function ConversationsTab() {
   const [editingMsgId, setEditingMsgId] = useState<string | null>(null);
   const [correctionText, setCorrectionText] = useState("");
   const [savingCorrection, setSavingCorrection] = useState(false);
+  const [systemPrompt, setSystemPrompt] = useState("");
+  const [editingPrompt, setEditingPrompt] = useState(false);
+  const [promptDraft, setPromptDraft] = useState("");
+  const [savingPrompt, setSavingPrompt] = useState(false);
+  const [promptOpen, setPromptOpen] = useState(false);
+  const [correctionsCount, setCorrectionsCount] = useState(0);
   const { toast } = useToast();
 
+  // Load system prompt on mount
   useEffect(() => {
     (async () => {
-      const { data } = await supabase.from("ai_conversations").select("*").order("created_at", { ascending: false }).limit(50);
-      setConversations((data as Conversation[]) || []);
+      const [convRes, promptRes, corrRes] = await Promise.all([
+        supabase.from("ai_conversations").select("*").order("created_at", { ascending: false }).limit(50),
+        supabase.from("app_settings").select("value").eq("key", "chatbot_system_prompt").maybeSingle(),
+        supabase.from("ai_messages").select("id", { count: "exact" }).not("corrected_content", "is", null),
+      ]);
+      setConversations((convRes.data as Conversation[]) || []);
+      setSystemPrompt(promptRes.data?.value || "");
+      setCorrectionsCount(corrRes.count || 0);
       setLoading(false);
     })();
   }, []);
@@ -309,19 +323,17 @@ function ConversationsTab() {
     setSavingCorrection(true);
     const { error } = await supabase
       .from("ai_messages")
-      .update({
-        corrected_content: correctionText.trim(),
-        corrected_at: new Date().toISOString(),
-      })
+      .update({ corrected_content: correctionText.trim(), corrected_at: new Date().toISOString() })
       .eq("id", msgId);
     setSavingCorrection(false);
     if (error) {
       toast({ title: "Error al guardar", description: error.message, variant: "destructive" });
     } else {
-      toast({ title: "Corrección guardada", description: "Se usará como ejemplo de reentrenamiento." });
+      toast({ title: "Corrección guardada", description: "Se usará como ejemplo de reentrenamiento en futuras respuestas." });
       setMessages((prev) =>
         prev.map((m) => (m.id === msgId ? { ...m, corrected_content: correctionText.trim(), corrected_at: new Date().toISOString() } as any : m))
       );
+      setCorrectionsCount((c) => c + 1);
       setEditingMsgId(null);
     }
   };
@@ -336,7 +348,29 @@ function ConversationsTab() {
       setMessages((prev) =>
         prev.map((m) => (m.id === msgId ? { ...m, corrected_content: null, corrected_at: null } as any : m))
       );
+      setCorrectionsCount((c) => Math.max(0, c - 1));
     }
+  };
+
+  const saveSystemPrompt = async () => {
+    setSavingPrompt(true);
+    const { error } = await supabase.from("app_settings").upsert({ key: "chatbot_system_prompt", value: promptDraft });
+    setSavingPrompt(false);
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } else {
+      setSystemPrompt(promptDraft);
+      setEditingPrompt(false);
+      toast({ title: "System prompt actualizado", description: "Se aplicará en la siguiente conversación." });
+    }
+  };
+
+  // Get the user question that preceded an assistant message
+  const getUserQuestionBefore = (msgId: string): string | null => {
+    const idx = messages.findIndex((m) => m.id === msgId);
+    if (idx <= 0) return null;
+    const prev = messages[idx - 1];
+    return prev?.role === "user" ? prev.content : null;
   };
 
   if (selectedConv) {
@@ -349,7 +383,58 @@ function ConversationsTab() {
           {conv?.is_lead_captured && <Badge className="bg-whatsapp/10 text-whatsapp text-[10px]">Lead capturado</Badge>}
           {conv?.source_page && <Badge variant="outline" className="text-[10px]">{conv.source_page}</Badge>}
         </div>
-        <div className="space-y-3 rounded-lg border bg-card p-4 max-h-[60vh] overflow-y-auto">
+
+        {/* System Prompt Context Panel */}
+        <Collapsible open={promptOpen} onOpenChange={setPromptOpen} className="mb-4">
+          <CollapsibleTrigger asChild>
+            <button className="flex w-full items-center justify-between rounded-lg border bg-muted/50 px-4 py-2.5 text-left hover:bg-muted/70 transition-colors">
+              <div className="flex items-center gap-2">
+                <Wand2 className="h-4 w-4 text-primary" />
+                <span className="text-xs font-medium">System Prompt activo</span>
+                <Badge variant="outline" className="text-[10px]">{correctionsCount} correcciones activas</Badge>
+              </div>
+              {promptOpen ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+            </button>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="mt-2">
+            <div className="rounded-lg border bg-card p-4 space-y-3">
+              {editingPrompt ? (
+                <>
+                  <Textarea
+                    value={promptDraft}
+                    onChange={(e) => setPromptDraft(e.target.value)}
+                    rows={10}
+                    className="font-mono text-xs leading-relaxed"
+                  />
+                  <div className="flex gap-2 justify-end">
+                    <Button size="sm" variant="ghost" onClick={() => setEditingPrompt(false)} className="h-7 text-xs">Cancelar</Button>
+                    <Button size="sm" onClick={saveSystemPrompt} disabled={savingPrompt} className="h-7 text-xs gap-1">
+                      <Save className="h-3 w-3" />
+                      {savingPrompt ? "Guardando..." : "Guardar prompt"}
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <pre className="whitespace-pre-wrap text-xs text-muted-foreground font-mono leading-relaxed max-h-48 overflow-y-auto">
+                    {systemPrompt || "Sin prompt configurado"}
+                  </pre>
+                  <div className="flex justify-end">
+                    <Button size="sm" variant="outline" onClick={() => { setPromptDraft(systemPrompt); setEditingPrompt(true); }} className="h-7 text-xs gap-1">
+                      <Pencil className="h-3 w-3" /> Editar prompt
+                    </Button>
+                  </div>
+                </>
+              )}
+              <p className="text-[10px] text-muted-foreground border-t pt-2">
+                💡 Las correcciones que hagas a las respuestas del bot se inyectan automáticamente como ejemplos de reentrenamiento junto a este prompt.
+              </p>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+
+        {/* Messages */}
+        <div className="space-y-3 rounded-lg border bg-card p-4 max-h-[55vh] overflow-y-auto">
           {loadingMsgs ? <Skeleton className="h-32 w-full" /> : messages.length === 0 ? (
             <p className="text-center text-muted-foreground text-sm">Sin mensajes</p>
           ) : messages.map((m) => {
@@ -357,12 +442,20 @@ function ConversationsTab() {
             const isAssistant = m.role === "assistant";
             const isEditing = editingMsgId === m.id;
             const hasCorrected = !!msg.corrected_content;
+            const userQuestion = isAssistant ? getUserQuestionBefore(m.id) : null;
 
             return (
               <div key={m.id} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
                 <div className={`max-w-[80%] rounded-lg px-4 py-2 text-sm ${m.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"}`}>
                   {isEditing ? (
                     <div className="space-y-2">
+                      {userQuestion && (
+                        <div className="rounded bg-primary/5 border border-primary/10 px-3 py-2 mb-2">
+                          <p className="text-[10px] font-medium text-primary mb-0.5">Pregunta del usuario:</p>
+                          <p className="text-xs text-muted-foreground">{userQuestion}</p>
+                        </div>
+                      )}
+                      <Label className="text-[10px] text-muted-foreground">Respuesta corregida:</Label>
                       <Textarea
                         value={correctionText}
                         onChange={(e) => setCorrectionText(e.target.value)}
@@ -382,10 +475,10 @@ function ConversationsTab() {
                       {hasCorrected && (
                         <div className="mt-2 pt-2 border-t border-border/50">
                           <div className="flex items-center gap-1.5 mb-1">
-                            <Pencil className="h-3 w-3 text-amber-600" />
-                            <span className="text-[10px] font-medium text-amber-600">Respuesta corregida</span>
+                            <Pencil className="h-3 w-3 text-primary" />
+                            <span className="text-[10px] font-medium text-primary">Respuesta corregida (reentrenamiento)</span>
                           </div>
-                          <p className="whitespace-pre-wrap text-xs text-amber-900 dark:text-amber-200 bg-amber-500/10 rounded px-2 py-1.5">
+                          <p className="whitespace-pre-wrap text-xs bg-primary/5 text-foreground rounded px-2 py-1.5">
                             {msg.corrected_content}
                           </p>
                         </div>
@@ -437,30 +530,40 @@ function ConversationsTab() {
           <p className="text-muted-foreground">No hay conversaciones aún</p>
         </div>
       ) : (
-        <div className="rounded-lg border bg-card overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b bg-muted/50">
-                <th className="px-4 py-3 text-left font-medium">Visitante</th>
-                <th className="px-4 py-3 text-left font-medium">Página</th>
-                <th className="px-4 py-3 text-left font-medium">Mensajes</th>
-                <th className="px-4 py-3 text-left font-medium">Lead</th>
-                <th className="px-4 py-3 text-left font-medium">Fecha</th>
-              </tr>
-            </thead>
-            <tbody>
-              {conversations.map((c) => (
-                <tr key={c.id} className="border-b hover:bg-muted/30 cursor-pointer transition-colors" onClick={() => loadMessages(c.id)}>
-                  <td className="px-4 py-3 font-medium">{c.visitor_name || "Anónimo"}{c.visitor_email && <div className="text-xs text-muted-foreground">{c.visitor_email}</div>}</td>
-                  <td className="px-4 py-3 text-xs text-muted-foreground">{c.source_page || "—"}</td>
-                  <td className="px-4 py-3"><Badge variant="outline" className="text-xs">{c.message_count}</Badge></td>
-                  <td className="px-4 py-3">{c.is_lead_captured ? <Badge className="bg-whatsapp/10 text-whatsapp text-[10px]">✓ Capturado</Badge> : <span className="text-xs text-muted-foreground">—</span>}</td>
-                  <td className="px-4 py-3 text-xs text-muted-foreground whitespace-nowrap">{new Date(c.created_at).toLocaleDateString("es-CO", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}</td>
+        <>
+          {correctionsCount > 0 && (
+            <div className="mb-4 flex items-center gap-2 rounded-lg border bg-primary/5 px-4 py-2.5">
+              <Eye className="h-4 w-4 text-primary" />
+              <p className="text-xs text-muted-foreground">
+                <strong className="text-foreground">{correctionsCount} correcciones</strong> activas se inyectan como ejemplos de reentrenamiento en cada conversación.
+              </p>
+            </div>
+          )}
+          <div className="rounded-lg border bg-card overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b bg-muted/50">
+                  <th className="px-4 py-3 text-left font-medium">Visitante</th>
+                  <th className="px-4 py-3 text-left font-medium">Página</th>
+                  <th className="px-4 py-3 text-left font-medium">Mensajes</th>
+                  <th className="px-4 py-3 text-left font-medium">Lead</th>
+                  <th className="px-4 py-3 text-left font-medium">Fecha</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {conversations.map((c) => (
+                  <tr key={c.id} className="border-b hover:bg-muted/30 cursor-pointer transition-colors" onClick={() => loadMessages(c.id)}>
+                    <td className="px-4 py-3 font-medium">{c.visitor_name || "Anónimo"}{c.visitor_email && <div className="text-xs text-muted-foreground">{c.visitor_email}</div>}</td>
+                    <td className="px-4 py-3 text-xs text-muted-foreground">{c.source_page || "—"}</td>
+                    <td className="px-4 py-3"><Badge variant="outline" className="text-xs">{c.message_count}</Badge></td>
+                    <td className="px-4 py-3">{c.is_lead_captured ? <Badge className="bg-whatsapp/10 text-whatsapp text-[10px]">✓ Capturado</Badge> : <span className="text-xs text-muted-foreground">—</span>}</td>
+                    <td className="px-4 py-3 text-xs text-muted-foreground whitespace-nowrap">{new Date(c.created_at).toLocaleDateString("es-CO", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
     </div>
   );
