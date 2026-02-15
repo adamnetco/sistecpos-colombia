@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { mainTutorials, quickVideos, getYouTubeId, getLoomEmbedUrl, getLoomId } from "@/data/trainingVideos";
+import { useChatbot } from "@/hooks/useChatbot";
 import { useIncrementVideoView } from "@/hooks/useTrainingVideos";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -185,6 +186,13 @@ export default function TrainingVideoHub({ userRole }: TrainingVideoHubProps) {
   const hasScrolledRef = useRef(false);
   const playerRef = useRef<HTMLDivElement>(null);
 
+  // Close chatbot when selecting a video
+  let closeChatbot: (() => void) | undefined;
+  try {
+    const { setOpen } = useChatbot();
+    closeChatbot = () => setOpen(false);
+  } catch { /* ChatbotProvider not mounted */ }
+
   const { data: dbVideos } = useVideosFromDB(userRole);
   const incrementView = useIncrementVideoView();
   const allVideos = useMemo(() => mapToVideoItems(dbVideos), [dbVideos]);
@@ -209,8 +217,9 @@ export default function TrainingVideoHub({ userRole }: TrainingVideoHubProps) {
     incrementView.mutate(v.id);
     const slug = videoSlug(v.title);
     window.history.replaceState(null, "", `#video-${slug}`);
+    closeChatbot?.();
     scrollToPlayer();
-  }, [incrementView, scrollToPlayer]);
+  }, [incrementView, scrollToPlayer, closeChatbot]);
 
   // Auto-open video from URL hash (deep link)
   useEffect(() => {
@@ -226,11 +235,12 @@ export default function TrainingVideoHub({ userRole }: TrainingVideoHubProps) {
         setActiveVideo(target);
         setIsDeepLink(true);
         incrementView.mutate(target.id);
+        closeChatbot?.();
         // Wait for AnimatePresence to mount the player
         setTimeout(scrollToPlayer, 300);
       }, 200);
     }
-  }, [allVideos, location.hash, scrollToPlayer]);
+  }, [allVideos, location.hash, scrollToPlayer, closeChatbot]);
 
   const allCategories = useMemo(() =>
     Array.from(new Set(allVideos.map((v) => v.category))).sort(),

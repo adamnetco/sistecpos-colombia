@@ -108,8 +108,8 @@ export function ChatbotWidget() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="fixed bottom-6 right-6 z-[60] flex w-[370px] max-w-[calc(100vw-2rem)] flex-col rounded-2xl border bg-card shadow-2xl overflow-hidden"
-            style={{ height: "min(520px, calc(100vh - 6rem))" }}
+            className="fixed bottom-0 right-0 z-[60] flex w-full flex-col border bg-card shadow-2xl overflow-hidden sm:bottom-6 sm:right-6 sm:w-[370px] sm:max-w-[calc(100vw-2rem)] sm:rounded-2xl rounded-t-2xl"
+            style={{ height: "min(520px, calc(100vh - 2rem))" }}
           >
             {/* Header */}
             <div className="gradient-bg flex items-center justify-between px-4 py-3 text-primary-foreground">
