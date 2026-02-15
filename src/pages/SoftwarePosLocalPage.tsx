@@ -22,11 +22,13 @@ import { businessTypes } from "@/data/businessTypes";
 import { DynamicMeta } from "@/components/seo/DynamicMeta";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { JsonLd, localBusinessSchema } from "@/components/seo/JsonLd";
+import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
 import { Star } from "lucide-react";
 
 export default function SoftwarePosLocalPage() {
   const { city } = useParams<{ city: string }>();
   const landing = city ? getLocalLandingBySlug(city) : undefined;
+  const { buildUrl, telHref } = useWhatsAppConfig();
 
   if (!landing) {
     return <Navigate to="/" replace />;
@@ -78,7 +80,7 @@ export default function SoftwarePosLocalPage() {
                   asChild
                 >
                   <a 
-                    href={`https://wa.me/573176268307?text=Hola,%20estoy%20en%20${encodeURIComponent(landing.city)}%20y%20quiero%20información%20sobre%20el%20software%20POS`}
+                    href={buildUrl(`Hola, estoy en ${landing.city} y quiero información sobre el software POS`)}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -91,7 +93,7 @@ export default function SoftwarePosLocalPage() {
                   variant="secondary"
                   asChild
                 >
-                  <a href="tel:+573176268307">
+                  <a href={telHref}>
                     <Phone className="h-5 w-5 mr-2" />
                     Llamar Ahora
                   </a>
@@ -396,7 +398,7 @@ export default function SoftwarePosLocalPage() {
                 asChild
               >
                 <a 
-                  href={`https://wa.me/573176268307?text=Hola,%20tengo%20un%20negocio%20en%20${encodeURIComponent(landing.city)}%20y%20quiero%20cotizar%20el%20software%20POS`}
+                  href={buildUrl(`Hola, tengo un negocio en ${landing.city} y quiero cotizar el software POS`)}
                   target="_blank"
                   rel="noopener noreferrer"
                 >

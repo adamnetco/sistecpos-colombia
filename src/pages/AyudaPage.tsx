@@ -5,6 +5,7 @@ import { SEO } from "@/components/seo/SEO";
 import { Download, ExternalLink, FileDown, HelpCircle, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
 
 interface DownloadItem {
   id: string;
@@ -18,6 +19,7 @@ interface DownloadItem {
 export default function AyudaPage() {
   const [downloads, setDownloads] = useState<DownloadItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const { buildUrl } = useWhatsAppConfig();
 
   useEffect(() => {
     supabase
@@ -104,7 +106,7 @@ export default function AyudaPage() {
                   <Link to="/clientes">Ir al Portal de Clientes</Link>
                 </Button>
                 <Button variant="outline" className="gap-2" asChild>
-                  <a href="https://wa.me/573176268307?text=Hola,%20necesito%20ayuda%20con%20mi%20sistema%20POS" target="_blank" rel="noopener noreferrer">
+                  <a href={buildUrl("Hola, necesito ayuda con mi sistema POS")} target="_blank" rel="noopener noreferrer">
                     <MessageCircle className="h-4 w-4" />
                     WhatsApp
                   </a>

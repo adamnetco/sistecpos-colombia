@@ -409,7 +409,7 @@ const ComparativaLicenciasPage = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" className="btn-whatsapp gap-2" asChild>
                 <a
-                  href="https://wa.me/573176268307?text=Hola,%20quiero%20asesoría%20para%20elegir%20el%20mejor%20POS"
+                   href={buildUrl("Hola, quiero asesoría para elegir el mejor POS")}
                   target="_blank"
                   rel="noopener noreferrer"
                 >

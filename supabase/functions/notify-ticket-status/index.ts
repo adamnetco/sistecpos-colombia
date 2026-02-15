@@ -6,6 +6,27 @@ const corsHeaders = {
 };
 
 const SITE_URL = "https://sistecpos.lovable.app";
+const DEFAULT_WHATSAPP = "573176268307";
+
+async function getWhatsAppNumber(): Promise<string> {
+  try {
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const { createClient: createSbClient } = await import("https://esm.sh/@supabase/supabase-js@2");
+    const sb = createSbClient(supabaseUrl, anonKey);
+    const { data } = await sb
+      .from("site_settings")
+      .select("setting_value")
+      .eq("setting_group", "whatsapp")
+      .eq("setting_key", "main_number")
+      .single();
+    if (data?.setting_value) {
+      const v = data.setting_value;
+      return typeof v === "string" ? v.replace(/^"|"$/g, "") : String(v);
+    }
+  } catch (e) { console.warn("Could not fetch WA number:", e); }
+  return DEFAULT_WHATSAPP;
+}
 
 interface TicketPayload {
   type: "ticket_responded" | "ticket_status_changed";
@@ -93,7 +114,7 @@ function ticketResponseHtml(name: string, subject: string, response: string, sta
 </html>`;
 }
 
-function resellerStatusHtml(name: string, oldStatus: string, newStatus: string): string {
+function resellerStatusHtml(name: string, oldStatus: string, newStatus: string, waNumber: string): string {
   const oldLabel = statusLabels[oldStatus] || oldStatus;
   const newLabel = statusLabels[newStatus] || newStatus;
   const isPositive = newStatus === "approved" || newStatus === "reviewing";
@@ -133,7 +154,7 @@ function resellerStatusHtml(name: string, oldStatus: string, newStatus: string):
       </p>`}
 
       <div style="text-align:center;margin:24px 0;">
-        <a href="https://wa.me/573176268307?text=Hola,%20soy%20socio%20y%20tengo%20una%20consulta" style="display:inline-block;background:#25D366;color:#ffffff;font-size:14px;font-weight:600;padding:12px 28px;border-radius:10px;text-decoration:none;">
+        <a href="https://wa.me/${waNumber}?text=Hola,%20soy%20socio%20y%20tengo%20una%20consulta" style="display:inline-block;background:#25D366;color:#ffffff;font-size:14px;font-weight:600;padding:12px 28px;border-radius:10px;text-decoration:none;">
           💬 Soporte por WhatsApp
         </a>
       </div>
@@ -146,7 +167,7 @@ function resellerStatusHtml(name: string, oldStatus: string, newStatus: string):
 </html>`;
 }
 
-function demoCredentialsHtml(name: string, business: string, username: string, company: string, password: string): string {
+function demoCredentialsHtml(name: string, business: string, username: string, company: string, password: string, waNumber: string): string {
   return `
 <!DOCTYPE html>
 <html>
@@ -196,7 +217,7 @@ function demoCredentialsHtml(name: string, business: string, username: string, c
         <a href="https://calendly.com/sistecpos" style="display:inline-block;background:#8b5cf6;color:#ffffff;font-size:14px;font-weight:600;padding:12px 28px;border-radius:10px;text-decoration:none;margin-right:8px;">
           📆 Agendar Reunión
         </a>
-        <a href="https://wa.me/573176268307?text=Hola,%20ya%20tengo%20mi%20demo%20personalizada%20y%20necesito%20ayuda" style="display:inline-block;background:#25D366;color:#ffffff;font-size:14px;font-weight:600;padding:12px 28px;border-radius:10px;text-decoration:none;">
+        <a href="https://wa.me/${waNumber}?text=Hola,%20ya%20tengo%20mi%20demo%20personalizada%20y%20necesito%20ayuda" style="display:inline-block;background:#25D366;color:#ffffff;font-size:14px;font-weight:600;padding:12px 28px;border-radius:10px;text-decoration:none;">
           💬 WhatsApp
         </a>
       </div>
@@ -217,6 +238,7 @@ Deno.serve(async (req) => {
   try {
     const payload: Payload = await req.json();
     const resendKey = Deno.env.get("RESEND_API_KEY");
+    const waNumber = await getWhatsAppNumber();
 
     if (!resendKey) {
       return new Response(JSON.stringify({ error: "RESEND_API_KEY not set" }), {
@@ -239,7 +261,7 @@ Deno.serve(async (req) => {
           from: "SistecPOS <notificaciones@sistecpos.com>",
           to: [p.email],
           subject: `🎯 ¡Tu Demo Personalizada de SistecPOS está Lista, ${p.name}!`,
-          html: demoCredentialsHtml(p.name, p.business, p.pos_username, p.pos_company, p.pos_password),
+          html: demoCredentialsHtml(p.name, p.business, p.pos_username, p.pos_company, p.pos_password, waNumber),
         }),
       });
 
@@ -310,7 +332,7 @@ Deno.serve(async (req) => {
           from: "SistecPOS <notificaciones@sistecpos.com>",
           to: [p.email],
           subject: `📋 Actualización de tu solicitud de socio — SistecPOS`,
-          html: resellerStatusHtml(p.name, p.old_status, p.new_status),
+          html: resellerStatusHtml(p.name, p.old_status, p.new_status, waNumber),
         }),
       });
 

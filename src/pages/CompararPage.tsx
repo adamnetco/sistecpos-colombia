@@ -8,6 +8,7 @@ import { ArrowRight, MessageCircle, Shield, WifiOff, Users, Wrench, Star, Globe,
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
 
 const keyAdvantages = [
   { icon: WifiOff, title: "Modo Offline 8 Días", desc: "Único en Colombia. Funciona sin internet con sincronización automática." },
@@ -21,6 +22,7 @@ const openSourceCompetitors = competitors.filter((c) => c.type === "open-source"
 const gobiernoCompetitors = competitors.filter((c) => c.type === "gobierno");
 
 export default function CompararPage() {
+  const { buildUrl } = useWhatsAppConfig();
   return (
     <Layout>
       <DynamicMeta
@@ -51,7 +53,7 @@ export default function CompararPage() {
               Comparativas detalladas con los principales software POS, ERP y plataformas de facturación de Colombia y el mundo. Elige con información real.
             </p>
             <Button size="lg" className="btn-whatsapp gap-2" asChild>
-              <a href="https://wa.me/573176268307?text=Hola,%20quiero%20asesoría%20para%20elegir%20el%20mejor%20POS" target="_blank" rel="noopener noreferrer">
+              <a href={buildUrl("Hola, quiero asesoría para elegir el mejor POS")} target="_blank" rel="noopener noreferrer">
                 <MessageCircle className="h-5 w-5" />
                 Asesoría Personalizada Gratis
               </a>
@@ -263,7 +265,7 @@ export default function CompararPage() {
                 <Link to="/contacto#demo">Prueba Gratis 7 Días</Link>
               </Button>
               <Button size="lg" className="btn-whatsapp gap-2" asChild>
-                <a href="https://wa.me/573176268307?text=Hola,%20quiero%20probar%20SistecPOS" target="_blank" rel="noopener noreferrer">
+                <a href={buildUrl("Hola, quiero probar SistecPOS")} target="_blank" rel="noopener noreferrer">
                   <MessageCircle className="h-5 w-5" />
                   WhatsApp
                 </a>

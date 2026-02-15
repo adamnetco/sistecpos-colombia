@@ -6,6 +6,7 @@ import { JsonLd, faqSchema, softwareApplicationSchema } from "@/components/seo/J
 import { getCompetitorBySlug, competitors } from "@/data/competitors";
 import { PainVsSolutionSection } from "@/components/comparar/PainVsSolutionSection";
 import { TimeLostCalculator } from "@/components/comparar/TimeLostCalculator";
+import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
 import { motion } from "framer-motion";
 import { Check, X, MessageCircle, ArrowRight, Shield, WifiOff, Users, Wrench, Globe, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -65,6 +66,7 @@ const differentiators = [
 export default function ComparacionCompetidorPage() {
   const { slug } = useParams<{ slug: string }>();
   const competitor = slug ? getCompetitorBySlug(slug) : undefined;
+  const { buildUrl } = useWhatsAppConfig();
 
   if (!competitor) return <Navigate to="/comparar" replace />;
 
@@ -121,7 +123,7 @@ export default function ComparacionCompetidorPage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" className="btn-whatsapp gap-2" asChild>
                 <a
-                  href={`https://wa.me/573176268307?text=Hola,%20estoy%20comparando%20${competitor.name}%20vs%20SistecPOS%20y%20quiero%20más%20información`}
+                  href={buildUrl(`Hola, estoy comparando ${competitor.name} vs SistecPOS y quiero más información`)}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -346,7 +348,7 @@ export default function ComparacionCompetidorPage() {
               </Button>
               <Button size="lg" className="btn-whatsapp gap-2" asChild>
                 <a
-                  href={`https://wa.me/573176268307?text=Hola,%20quiero%20migrar%20de%20${encodeURIComponent(competitor.name)}%20a%20SistecPOS`}
+                  href={buildUrl(`Hola, quiero migrar de ${competitor.name} a SistecPOS`)}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
