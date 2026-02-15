@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
 import { Badge } from "@/components/ui/badge";
 import {
   Accordion,
@@ -78,6 +79,7 @@ const highlights = [
 const featuredCitySlugs = ["bogota", "medellin", "cali", "barranquilla", "bucaramanga", "cartagena", "cucuta", "pereira"];
 
 export default function SoftwarePosColombiaPage() {
+  const { buildUrl, displayPhone, telHref } = useWhatsAppConfig();
   const featuredCities = localLandings.filter((l) => featuredCitySlugs.includes(l.slug));
   const otherCities = localLandings.filter((l) => !featuredCitySlugs.includes(l.slug));
 
@@ -112,7 +114,7 @@ export default function SoftwarePosColombiaPage() {
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button size="lg" className="btn-whatsapp gap-2" asChild>
-                  <a href="https://wa.me/573176268307?text=Hola,%20quiero%20información%20sobre%20el%20software%20POS" target="_blank" rel="noopener noreferrer">
+                  <a href={buildUrl("Hola, quiero información sobre el software POS")} target="_blank" rel="noopener noreferrer">
                     <MessageCircle className="h-5 w-5" />
                     Cotizar Gratis
                   </a>
@@ -337,7 +339,7 @@ export default function SoftwarePosColombiaPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" className="btn-whatsapp gap-2" asChild>
-                <a href="https://wa.me/573176268307?text=Hola,%20quiero%20cotizar%20el%20software%20POS%20para%20mi%20negocio%20en%20Colombia" target="_blank" rel="noopener noreferrer">
+                <a href={buildUrl("Hola, quiero cotizar el software POS para mi negocio en Colombia")} target="_blank" rel="noopener noreferrer">
                   <MessageCircle className="h-5 w-5" />
                   Cotizar Ahora por WhatsApp
                 </a>

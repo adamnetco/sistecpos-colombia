@@ -18,6 +18,7 @@ import {
   Linkedin,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
 import { Card, CardContent } from "@/components/ui/card";
 
 // X (Twitter) icon
@@ -38,7 +39,7 @@ const socialLinks = [
   {
     name: "WhatsApp",
     icon: MessageCircle,
-    href: "https://wa.me/573176268307",
+    href: "__WA_PLACEHOLDER__",
     color: "bg-[#25D366] hover:bg-[#128C7E]",
   },
   {
@@ -73,8 +74,8 @@ const contactInfo = [
   {
     icon: Phone,
     title: "Teléfono / WhatsApp",
-    details: ["+57 317 626 8307", "+57 310 769 0204"],
-    href: "https://wa.me/573176268307",
+    details: ["__WA_DISPLAY_PHONE__", "+57 310 769 0204"],
+    href: "__WA_PLACEHOLDER__",
   },
   {
     icon: Mail,
@@ -97,6 +98,17 @@ const contactInfo = [
 ];
 
 export default function ContactoPage() {
+  const { buildUrl, displayPhone, telHref, number } = useWhatsAppConfig();
+
+  // Replace placeholders in static data with dynamic values
+  const dynamicSocialLinks = socialLinks.map(link =>
+    link.href === "__WA_PLACEHOLDER__" ? { ...link, href: buildUrl() } : link
+  );
+  const dynamicContactInfo = contactInfo.map(info =>
+    info.href === "__WA_PLACEHOLDER__"
+      ? { ...info, href: buildUrl(), details: [displayPhone, "+57 310 769 0204"] }
+      : info
+  );
   return (
     <Layout>
       <DynamicMeta
@@ -373,7 +385,7 @@ export default function ContactoPage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild size="lg" className="btn-whatsapp">
                 <a
-                  href="https://wa.me/573176268307?text=Hola,%20quiero%20información%20sobre%20SistecPOS"
+                  href={buildUrl("Hola, quiero información sobre SistecPOS")}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -382,7 +394,7 @@ export default function ContactoPage() {
                 </a>
               </Button>
               <Button asChild size="lg" variant="secondary">
-                <a href="tel:+573176268307">
+                <a href={telHref}>
                   <Phone className="mr-2 h-5 w-5" />
                   Llamar Ahora
                 </a>

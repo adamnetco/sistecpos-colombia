@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ApplicationForm } from "@/components/representantes/ApplicationForm";
 import { FAQSection } from "@/components/representantes/FAQSection";
+import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
 import {
   Handshake,
   TrendingUp,
@@ -100,6 +101,7 @@ const requirements = [
 ];
 
 export default function RepresentantesPage() {
+  const { buildUrl } = useWhatsAppConfig();
   return (
     <Layout>
       <SEO
@@ -142,7 +144,7 @@ export default function RepresentantesPage() {
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button size="lg" className="btn-whatsapp gap-2" asChild>
-                <a href="https://wa.me/573176268307?text=Hola%2C%20quiero%20ser%20representante%20de%20SistecPOS%20en%20mi%20ciudad" target="_blank" rel="noopener noreferrer">
+                <a href={buildUrl("Hola, quiero ser representante de SistecPOS en mi ciudad")} target="_blank" rel="noopener noreferrer">
                   Quiero Ser Representante
                   <ArrowRight className="h-4 w-4" />
                 </a>
@@ -375,7 +377,7 @@ export default function RepresentantesPage() {
             </p>
             <Button size="lg" className="btn-whatsapp gap-2" asChild>
               <a
-                href="https://wa.me/573176268307?text=Hola%2C%20quiero%20ser%20representante%20de%20SistecPOS%20en%20mi%20ciudad"
+                href={buildUrl("Hola, quiero ser representante de SistecPOS en mi ciudad")}
                 target="_blank"
                 rel="noopener noreferrer"
               >

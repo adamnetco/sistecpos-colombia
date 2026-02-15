@@ -10,8 +10,10 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Trophy, ArrowRight, Quote, MessageCircle } from "lucide-react";
 import { motion } from "framer-motion";
+import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
 
 export default function CasosExitoPage() {
+  const { buildUrl } = useWhatsAppConfig();
   const { data: stories = [], isLoading } = useQuery({
     queryKey: ["public_success_stories"],
     queryFn: async () => {
@@ -136,7 +138,7 @@ export default function CasosExitoPage() {
             <h2 className="text-2xl md:text-3xl font-bold mb-4">¿Quieres ser nuestro próximo caso de éxito?</h2>
             <p className="text-muted-foreground mb-6">Contacta a nuestro equipo y descubre cómo SistecPOS puede transformar tu negocio.</p>
             <Button size="lg" className="btn-whatsapp gap-2" asChild>
-              <a href="https://wa.me/573176268307?text=Hola,%20quiero%20saber%20cómo%20SistecPOS%20puede%20ayudar%20a%20mi%20negocio" target="_blank" rel="noopener noreferrer">
+              <a href={buildUrl("Hola, quiero saber cómo SistecPOS puede ayudar a mi negocio")} target="_blank" rel="noopener noreferrer">
                 <MessageCircle className="h-5 w-5" />Hablar con un Asesor
               </a>
             </Button>

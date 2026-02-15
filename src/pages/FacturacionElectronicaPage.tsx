@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
 import { Badge } from "@/components/ui/badge";
 import {
   Accordion,
@@ -64,6 +65,7 @@ const documents = [
 ];
 
 export default function FacturacionElectronicaPage() {
+  const { buildUrl } = useWhatsAppConfig();
   return (
     <Layout>
       <DynamicMeta
@@ -99,7 +101,7 @@ export default function FacturacionElectronicaPage() {
               </div>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button size="lg" className="btn-whatsapp gap-2" asChild>
-                  <a href="https://wa.me/573176268307?text=Hola,%20necesito%20implementar%20facturación%20electrónica%20DIAN" target="_blank" rel="noopener noreferrer">
+                  <a href={buildUrl("Hola, necesito implementar facturación electrónica DIAN")} target="_blank" rel="noopener noreferrer">
                     <MessageCircle className="h-5 w-5" />
                     Implementar Facturación Electrónica
                   </a>
@@ -239,7 +241,7 @@ export default function FacturacionElectronicaPage() {
               Implementación incluida. Sin costos adicionales por cantidad de facturas.
             </p>
             <Button size="lg" className="btn-whatsapp gap-2" asChild>
-              <a href="https://wa.me/573176268307?text=Hola,%20quiero%20implementar%20facturación%20electrónica%20con%20SistecPOS" target="_blank" rel="noopener noreferrer">
+              <a href={buildUrl("Hola, quiero implementar facturación electrónica con SistecPOS")} target="_blank" rel="noopener noreferrer">
                 <MessageCircle className="h-5 w-5" />
                 Cotizar Facturación Electrónica
               </a>

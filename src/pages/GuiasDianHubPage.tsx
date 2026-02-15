@@ -10,6 +10,7 @@ import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { dianArticles } from "@/data/dianArticles";
 import { useDianArticles } from "@/hooks/useDianArticles";
 import { CLUSTER_HUB_CONFIG } from "@/components/admin/dian/clusterConfig";
+import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
 
 const tools = [
   {
@@ -54,6 +55,7 @@ function ArticleCard({ article, index }: { article: { slug: string; heroIcon: an
 }
 
 export default function GuiasDianHubPage() {
+  const { buildUrl } = useWhatsAppConfig();
   const { allArticles, dbArticles, isLoading } = useDianArticles();
 
   // Group articles by cluster. DB articles have cluster field; static ones use a fallback map.
@@ -213,7 +215,7 @@ export default function GuiasDianHubPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" className="btn-whatsapp gap-2" asChild>
-                <a href="https://wa.me/573176268307?text=Hola,%20quiero%20que%20SistecPOS%20se%20encargue%20de%20mi%20facturación%20DIAN" target="_blank" rel="noopener noreferrer">
+                <a href={buildUrl("Hola, quiero que SistecPOS se encargue de mi facturación DIAN")} target="_blank" rel="noopener noreferrer">
                   Prueba Gratis 7 Días
                 </a>
               </Button>

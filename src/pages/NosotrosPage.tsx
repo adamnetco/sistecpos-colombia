@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { Target, Eye, Heart, Users, Award, Clock, MapPin, Phone } from "lucide-react";
 import eduardoTobacia from "@/assets/eduardo-tobacia.png";
+import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
 
 const valores = [
   {
@@ -49,6 +50,7 @@ const timeline = [
 ];
 
 export default function NosotrosPage() {
+  const { buildUrl } = useWhatsAppConfig();
   return (
     <Layout>
       <DynamicMeta
@@ -288,7 +290,7 @@ export default function NosotrosPage() {
               className="btn-whatsapp"
             >
               <a
-                href="https://wa.me/573176268307?text=Hola,%20quiero%20conocer%20más%20sobre%20SistecPOS"
+                href={buildUrl("Hola, quiero conocer más sobre SistecPOS")}
                 target="_blank"
                 rel="noopener noreferrer"
               >

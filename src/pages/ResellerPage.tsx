@@ -7,6 +7,7 @@ import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Home, ShieldX, Clock, MessageCircle, ArrowLeft, LogIn, Chrome, KeyRound, CheckCircle2, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
+import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
 
 const ResellerDashboard = lazy(() => import("@/components/reseller/ResellerDashboard"));
 const ResellerLicensesView = lazy(() => import("@/components/reseller/ResellerLicensesView"));
@@ -25,6 +26,7 @@ function Loader() {
 function RestrictedPage({ variant }: { variant: "no-access" | "pending" | "not-logged" }) {
   const isPending = variant === "pending";
   const isNotLogged = variant === "not-logged";
+  const { buildUrl } = useWhatsAppConfig();
 
   return (
     <Layout>
@@ -144,7 +146,7 @@ function RestrictedPage({ variant }: { variant: "no-access" | "pending" | "not-l
               )}
               <Button size="lg" variant="outline" className="gap-2" asChild>
                 <a
-                  href="https://wa.me/573176268307?text=Hola,%20necesito%20ayuda%20con%20mi%20acceso%20al%20portal%20de%20socios"
+                  href={buildUrl("Hola, necesito ayuda con mi acceso al portal de socios")}
                   target="_blank"
                   rel="noopener noreferrer"
                 >

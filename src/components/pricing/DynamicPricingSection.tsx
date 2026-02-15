@@ -18,6 +18,7 @@ import {
   Info,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Fallback images per plan_key
@@ -45,6 +46,7 @@ const planIncludes = [
 ];
 
 export function DynamicPricingSection() {
+  const { buildUrl } = useWhatsAppConfig();
   const { data: plans = [], isLoading } = useLicensePricing();
 
   if (isLoading) {
@@ -205,9 +207,7 @@ export function DynamicPricingSection() {
                           asChild
                         >
                           <a
-                            href={`https://wa.me/573176268307?text=${encodeURIComponent(
-                              `Hola, quiero cotizar el ${plan.plan_label} Todo Incluido (${formatCOP(plan.selling_price_cop)}/año)`
-                            )}`}
+                            href={buildUrl(`Hola, quiero cotizar el ${plan.plan_label} Todo Incluido (${formatCOP(plan.selling_price_cop)}/año)`)}
                             target="_blank"
                             rel="noopener noreferrer"
                           >
@@ -305,9 +305,7 @@ export function DynamicPricingSection() {
 
                         <Button variant="outline" className="w-full mt-6 gap-2" size="lg" asChild>
                           <a
-                            href={`https://wa.me/573176268307?text=${encodeURIComponent(
-                              `Hola, me interesa solo la licencia ${plan.plan_label.replace("Plan ", "")} (${formatCOP(plan.official_price_cop)}/año)`
-                            )}`}
+                            href={buildUrl(`Hola, me interesa solo la licencia ${plan.plan_label.replace("Plan ", "")} (${formatCOP(plan.official_price_cop)}/año)`)}
                             target="_blank"
                             rel="noopener noreferrer"
                           >
