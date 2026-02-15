@@ -1,8 +1,10 @@
 import { Layout } from "@/components/layout/Layout";
 import { SEO } from "@/components/seo/SEO";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
+import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
 
 export default function TerminosCondicionesPage() {
+  const { buildUrl, displayPhone } = useWhatsAppConfig();
   return (
     <Layout>
       <SEO
@@ -183,10 +185,10 @@ export default function TerminosCondicionesPage() {
             <li>
               WhatsApp:{" "}
               <a
-                href="https://wa.me/573176268307"
+                href={buildUrl()}
                 className="text-primary hover:underline"
               >
-                +57 317 626 8307
+                {displayPhone}
               </a>
             </li>
           </ul>

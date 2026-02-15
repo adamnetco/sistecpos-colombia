@@ -11,6 +11,7 @@ import { SEO } from "@/components/seo/SEO";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { JsonLd, faqSchema } from "@/components/seo/JsonLd";
 import { Link } from "react-router-dom";
+import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
 
 /**
  * Calculates the verification digit for a Colombian NIT.
@@ -43,6 +44,7 @@ const faqs = [
 ];
 
 export default function ValidadorNITPage() {
+  const { buildUrl } = useWhatsAppConfig();
   const [nit, setNit] = useState("");
   const [userDigit, setUserDigit] = useState("");
   const [result, setResult] = useState<{
@@ -243,7 +245,7 @@ export default function ValidadorNITPage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" className="btn-whatsapp gap-2" asChild>
-              <a href="https://wa.me/573176268307?text=Hola,%20quiero%20un%20POS%20que%20valide%20NITs%20automáticamente" target="_blank" rel="noopener noreferrer">
+              <a href={buildUrl("Hola, quiero un POS que valide NITs automáticamente")} target="_blank" rel="noopener noreferrer">
                 <MessageCircle className="h-5 w-5" />
                 Prueba Gratis 7 Días
               </a>

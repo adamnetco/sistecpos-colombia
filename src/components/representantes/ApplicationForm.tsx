@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
 
 const cityOptions = [
   "Bogotá", "Medellín", "Cali", "Barranquilla", "Cartagena",
@@ -34,6 +35,7 @@ const experienceOptions = [
 
 export function ApplicationForm() {
   const { toast } = useToast();
+  const { buildUrl } = useWhatsAppConfig();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [form, setForm] = useState({
     name: "",
@@ -68,7 +70,7 @@ export function ApplicationForm() {
       `*Motivación:* ${motivation}`,
     ].join("\n");
 
-    const whatsappUrl = `https://wa.me/573176268307?text=${encodeURIComponent(message)}`;
+    const whatsappUrl = buildUrl(message);
 
     window.open(whatsappUrl, "_blank", "noopener,noreferrer");
 

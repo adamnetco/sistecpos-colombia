@@ -8,9 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ShieldX, LogIn, Home, MessageCircle, ArrowLeft } from "lucide-react";
+import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
 
 function ClientRestricted() {
   const { user, signOut } = useAuth();
+  const { buildUrl } = useWhatsAppConfig();
 
   return (
     <Layout>
@@ -58,7 +60,7 @@ function ClientRestricted() {
                 </Button>
                 <Button variant="outline" size="lg" asChild>
                   <a
-                    href="https://wa.me/573176268307?text=Hola,%20necesito%20ayuda%20con%20mi%20acceso%20al%20portal%20de%20clientes"
+                    href={buildUrl("Hola, necesito ayuda con mi acceso al portal de clientes")}
                     target="_blank"
                     rel="noopener noreferrer"
                   >

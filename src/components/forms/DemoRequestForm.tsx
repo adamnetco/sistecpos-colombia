@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
+import { buildWhatsAppUrl, WHATSAPP_DEFAULT_NUMBER } from "@/hooks/useWhatsAppConfig";
 import {
   Form,
   FormControl,
@@ -74,7 +75,7 @@ export function DemoRequestForm() {
 
     // Open WhatsApp with the pre-filled message
     window.open(
-      `https://wa.me/573176268307?text=${message}`,
+      buildWhatsAppUrl(WHATSAPP_DEFAULT_NUMBER, message),
       "_blank",
       "noopener,noreferrer"
     );

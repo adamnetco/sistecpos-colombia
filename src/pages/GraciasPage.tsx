@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
 
 const nextSteps = [
   {
@@ -34,6 +35,7 @@ const nextSteps = [
 ];
 
 const GraciasPage = () => {
+  const { buildUrl } = useWhatsAppConfig();
   return (
     <Layout>
       <SEO
@@ -115,7 +117,7 @@ const GraciasPage = () => {
                 className="w-full sm:w-auto btn-whatsapp text-base h-14 px-10"
               >
                 <a
-                  href="https://wa.me/573176268307?text=Hola,%20acabo%20de%20solicitar%20una%20demo%20y%20quiero%20activar%20mi%20acceso%20ya"
+                  href={buildUrl("Hola, acabo de solicitar una demo y quiero activar mi acceso ya")}
                   target="_blank"
                   rel="noopener noreferrer"
                 >

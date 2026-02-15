@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import softwareDashboard from "@/assets/software-dashboard.png";
+import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
 
 const features = [
   { icon: Monitor, label: "PC y Laptop" },
@@ -22,6 +23,7 @@ const features = [
 ];
 
 export function SoftwarePreviewSection() {
+  const { buildUrl } = useWhatsAppConfig();
   return (
     <section id="software" className="py-16 md:py-24 overflow-hidden">
       <div className="container px-4">
@@ -60,7 +62,7 @@ export function SoftwarePreviewSection() {
             <div className="flex flex-col sm:flex-row gap-4">
               <Button size="lg" asChild>
                 <a 
-                  href="https://wa.me/573176268307?text=Hola,%20quiero%20una%20demostración%20del%20software%20POS"
+                  href={buildUrl("Hola, quiero una demostración del software POS")}
                   target="_blank"
                   rel="noopener noreferrer"
                 >

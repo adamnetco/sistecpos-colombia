@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DynamicPricingSection } from "@/components/pricing/DynamicPricingSection";
+import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
 
 const posProviders = [
   {
@@ -106,6 +107,7 @@ const FeatureCheck = ({ value }: { value: boolean }) =>
   );
 
 const ComparativaLicenciasPage = () => {
+  const { buildUrl } = useWhatsAppConfig();
   return (
     <Layout>
       <DynamicMeta
@@ -136,7 +138,7 @@ const ComparativaLicenciasPage = () => {
             </p>
             <Button size="lg" variant="secondary" className="gap-2" asChild>
               <a
-                href="https://wa.me/573176268307?text=Hola,%20quiero%20asesoría%20para%20elegir%20el%20mejor%20POS%20para%20mi%20negocio"
+                href={buildUrl("Hola, quiero asesoría para elegir el mejor POS para mi negocio")}
                 target="_blank"
                 rel="noopener noreferrer"
               >

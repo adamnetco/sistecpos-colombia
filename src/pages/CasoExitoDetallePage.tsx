@@ -9,9 +9,11 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, Quote, MessageCircle, Trophy, Target, Lightbulb, TrendingUp, Instagram, Globe, ExternalLink } from "lucide-react";
 import { motion } from "framer-motion";
+import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
 
 export default function CasoExitoDetallePage() {
   const { slug } = useParams<{ slug: string }>();
+  const { buildUrl } = useWhatsAppConfig();
 
   const { data: story, isLoading } = useQuery({
     queryKey: ["public_story", slug],
@@ -190,7 +192,7 @@ export default function CasoExitoDetallePage() {
             <h2 className="text-2xl md:text-3xl font-bold mb-4">¿Quieres resultados similares?</h2>
             <p className="text-muted-foreground mb-6">Contacta con nuestro equipo y te ayudaremos a encontrar la mejor solución para tu negocio.</p>
             <Button size="lg" className="btn-whatsapp gap-2" asChild>
-              <a href={`https://wa.me/573176268307?text=Hola,%20vi%20el%20caso%20de%20${encodeURIComponent(story.business_name)}%20y%20quiero%20algo%20similar%20para%20mi%20negocio`} target="_blank" rel="noopener noreferrer">
+              <a href={buildUrl(`Hola, vi el caso de ${story.business_name} y quiero algo similar para mi negocio`)} target="_blank" rel="noopener noreferrer">
                 <MessageCircle className="h-5 w-5" />Contactar Asesor
               </a>
             </Button>

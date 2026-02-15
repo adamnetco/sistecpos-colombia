@@ -9,8 +9,10 @@ import { Badge } from "@/components/ui/badge";
 import { MessageCircle, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { businessTypes } from "@/data/businessTypes";
+import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
 
 export default function SolucionesPage() {
+  const { buildUrl } = useWhatsAppConfig();
   return (
     <Layout>
       <SEO
@@ -106,7 +108,7 @@ export default function SolucionesPage() {
               asChild
             >
               <a
-                href="https://wa.me/573176268307?text=Hola,%20quiero%20información%20sobre%20SistecPOS%20para%20mi%20negocio"
+                href={buildUrl("Hola, quiero información sobre SistecPOS para mi negocio")}
                 target="_blank"
                 rel="noopener noreferrer"
               >
