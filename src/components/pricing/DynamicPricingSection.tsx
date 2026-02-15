@@ -93,7 +93,6 @@ export function DynamicPricingSection() {
             {/* Plan cards */}
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {plans.map((plan, index) => {
-                const monthly = monthlyPrice(plan.selling_price_cop);
                 const discount = discountPct(plan.official_price_cop, plan.selling_price_cop);
                 const isPopular = index === popularIndex;
                 const imageSrc = plan.image_url || fallbackImages[plan.plan_key] || boxEmprendedor;
@@ -131,19 +130,25 @@ export function DynamicPricingSection() {
                         <h3 className="text-xl font-bold mb-1 text-center">{plan.plan_label}</h3>
                         <p className="text-sm text-muted-foreground mb-4 text-center">{plan.plan_description}</p>
 
-                        {/* Monthly price - PROMINENT */}
-                        <div className="rounded-xl bg-primary/5 border border-primary/10 p-4 mb-4 text-center">
-                          <p className="text-xs text-muted-foreground mb-1">Tu inversión desde</p>
-                          <div className="flex items-baseline justify-center gap-1">
-                            <span className="text-4xl font-black text-primary">
-                              {formatCOP(monthly)}
-                            </span>
-                            <span className="text-sm text-muted-foreground font-medium">/mes</span>
-                          </div>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            Pago anual de {formatCOP(plan.selling_price_cop)}
-                          </p>
-                        </div>
+                        {/* Annual price - PROMINENT (includes onboarding) */}
+                        {(() => {
+                          const totalAnual = plan.selling_price_cop + plan.implementation_price_cop;
+                          const totalMonthly = monthlyPrice(totalAnual);
+                          return (
+                            <div className="rounded-xl bg-primary/5 border border-primary/10 p-4 mb-4 text-center">
+                              <p className="text-xs text-muted-foreground mb-1">Tu inversión total primer año</p>
+                              <div className="flex items-baseline justify-center gap-1">
+                                <span className="text-4xl font-black text-primary">
+                                  {formatCOP(totalAnual)}
+                                </span>
+                                <span className="text-sm text-muted-foreground font-medium">/año</span>
+                              </div>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                Equivale a {formatCOP(totalMonthly)}/mes · Incluye licencia + puesta en marcha
+                              </p>
+                            </div>
+                          );
+                        })()}
 
                         {/* Discount badge */}
                         {discount > 0 && (
