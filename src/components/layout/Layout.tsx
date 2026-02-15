@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 import { Navbar } from "./Navbar";
 import { Footer } from "./Footer";
 import { WhatsAppButton } from "./WhatsAppButton";
-import { ChatbotWidget } from "@/components/chatbot/ChatbotWidget";
+
 import { TrackingScriptInjector } from "@/components/tracking/TrackingScriptInjector";
 import { CookieConsentBanner } from "@/components/tracking/CookieConsentBanner";
 import { CartDrawer } from "@/components/cart/CartDrawer";
@@ -19,7 +19,7 @@ export function Layout({ children }: LayoutProps) {
       <Footer />
       <WhatsAppButton />
       <CartDrawer />
-      <ChatbotWidget />
+      
       <TrackingScriptInjector />
       <CookieConsentBanner />
     </div>
