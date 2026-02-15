@@ -588,6 +588,7 @@ export type Database = {
       client_tickets: {
         Row: {
           admin_response: string | null
+          attachment_url: string | null
           created_at: string
           description: string
           id: string
@@ -599,6 +600,7 @@ export type Database = {
         }
         Insert: {
           admin_response?: string | null
+          attachment_url?: string | null
           created_at?: string
           description: string
           id?: string
@@ -610,6 +612,7 @@ export type Database = {
         }
         Update: {
           admin_response?: string | null
+          attachment_url?: string | null
           created_at?: string
           description?: string
           id?: string
@@ -1490,6 +1493,7 @@ export type Database = {
       reseller_tickets: {
         Row: {
           admin_response: string | null
+          attachment_url: string | null
           created_at: string
           description: string
           id: string
@@ -1501,6 +1505,7 @@ export type Database = {
         }
         Insert: {
           admin_response?: string | null
+          attachment_url?: string | null
           created_at?: string
           description: string
           id?: string
@@ -1512,6 +1517,7 @@ export type Database = {
         }
         Update: {
           admin_response?: string | null
+          attachment_url?: string | null
           created_at?: string
           description?: string
           id?: string
