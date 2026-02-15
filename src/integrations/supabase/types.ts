@@ -1691,6 +1691,7 @@ export type Database = {
           is_active: boolean
           is_main: boolean
           sort_order: number
+          tags: string[]
           title: string
           updated_at: string
           video_type: string
@@ -1708,6 +1709,7 @@ export type Database = {
           is_active?: boolean
           is_main?: boolean
           sort_order?: number
+          tags?: string[]
           title: string
           updated_at?: string
           video_type?: string
@@ -1725,6 +1727,7 @@ export type Database = {
           is_active?: boolean
           is_main?: boolean
           sort_order?: number
+          tags?: string[]
           title?: string
           updated_at?: string
           video_type?: string

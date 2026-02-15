@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, Pencil, Trash2, Search, Upload, Play, Film, CheckCircle, XCircle, Clock, Eye, EyeOff, Users, ShieldCheck } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, Upload, Play, Film, CheckCircle, XCircle, Clock, Users, ShieldCheck, Tag, X } from "lucide-react";
 import { mainTutorials, quickVideos } from "@/data/trainingVideos";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -17,6 +17,14 @@ import { toast } from "sonner";
 const CATEGORIES = [
   "Básicos", "Ventas", "Inventario", "Facturación", "Caja", "Compras",
   "Configuración", "Avanzado", "Informes", "Contabilidad", "Actualizaciones", "Solución de problemas",
+];
+
+const SUGGESTED_TAGS = [
+  "excel", "facturación electrónica", "impuestos", "seriales", "impresora", "crédito",
+  "productos", "clientes", "proveedores", "caja", "precios", "balanza", "restaurante",
+  "multi-tienda", "empleados", "informes", "contabilidad", "devoluciones", "descuentos",
+  "lotes", "bodega", "códigos", "offline", "agenda", "producción", "cotización", "dian",
+  "demo", "soporte",
 ];
 
 const APPROVAL_FILTERS = [
@@ -30,13 +38,55 @@ const emptyForm = {
   title: "", category: "Básicos", video_url: "", video_type: "youtube",
   duration: null as string | null, is_main: false, is_active: true, sort_order: 0,
   visible_to_customer: true, visible_to_reseller: true, approval_status: "approved",
+  tags: [] as string[],
 };
+
+function TagInput({ tags, onChange }: { tags: string[]; onChange: (t: string[]) => void }) {
+  const [input, setInput] = useState("");
+  const addTag = (tag: string) => {
+    const t = tag.trim().toLowerCase();
+    if (t && !tags.includes(t)) onChange([...tags, t]);
+    setInput("");
+  };
+  const removeTag = (tag: string) => onChange(tags.filter((t) => t !== tag));
+  const unusedSuggestions = SUGGESTED_TAGS.filter((s) => !tags.includes(s));
+
+  return (
+    <div className="space-y-2">
+      <div className="flex flex-wrap gap-1.5 min-h-[32px] rounded-md border p-2">
+        {tags.map((tag) => (
+          <Badge key={tag} variant="secondary" className="gap-1 text-xs">
+            {tag}
+            <button onClick={() => removeTag(tag)} className="ml-0.5 hover:text-destructive"><X className="h-3 w-3" /></button>
+          </Badge>
+        ))}
+        <input
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); addTag(input); } }}
+          placeholder={tags.length === 0 ? "Añadir tag..." : ""}
+          className="flex-1 min-w-[100px] bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+        />
+      </div>
+      {unusedSuggestions.length > 0 && (
+        <div className="flex flex-wrap gap-1">
+          {unusedSuggestions.slice(0, 12).map((s) => (
+            <button key={s} onClick={() => addTag(s)} className="rounded-full border px-2 py-0.5 text-[10px] text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors">
+              + {s}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function TrainingVideosView() {
   const { data: videos = [], isLoading } = useTrainingVideos();
   const { create, update, remove } = useTrainingVideosMutations();
   const [search, setSearch] = useState("");
   const [approvalFilter, setApprovalFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState("all");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<TrainingVideoRow | null>(null);
   const [form, setForm] = useState(emptyForm);
@@ -44,9 +94,11 @@ export default function TrainingVideosView() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const filtered = videos.filter((v) => {
-    const matchSearch = v.title.toLowerCase().includes(search.toLowerCase()) || v.category.toLowerCase().includes(search.toLowerCase());
+    const q = search.toLowerCase();
+    const matchSearch = !q || v.title.toLowerCase().includes(q) || v.category.toLowerCase().includes(q) || ((v as any).tags || []).some((t: string) => t.includes(q));
     const matchApproval = approvalFilter === "all" || (v as any).approval_status === approvalFilter;
-    return matchSearch && matchApproval;
+    const matchCategory = categoryFilter === "all" || v.category === categoryFilter;
+    return matchSearch && matchApproval && matchCategory;
   });
 
   const pendingCount = videos.filter((v) => (v as any).approval_status === "pending").length;
@@ -60,6 +112,7 @@ export default function TrainingVideosView() {
       visible_to_customer: (v as any).visible_to_customer ?? true,
       visible_to_reseller: (v as any).visible_to_reseller ?? true,
       approval_status: (v as any).approval_status ?? "approved",
+      tags: (v as any).tags || [],
     });
     setDialogOpen(true);
   };
@@ -112,11 +165,8 @@ export default function TrainingVideosView() {
   };
 
   const selectAllFiltered = () => {
-    if (selectedIds.size === filtered.length) {
-      setSelectedIds(new Set());
-    } else {
-      setSelectedIds(new Set(filtered.map((v) => v.id)));
-    }
+    if (selectedIds.size === filtered.length) setSelectedIds(new Set());
+    else setSelectedIds(new Set(filtered.map((v) => v.id)));
   };
 
   const handleImportStatic = async () => {
@@ -155,28 +205,24 @@ export default function TrainingVideosView() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Videos de Capacitación</h1>
-          <p className="text-muted-foreground text-sm">{videos.length} videos registrados</p>
+          <p className="text-muted-foreground text-sm">{videos.length} videos · {filtered.length} mostrados</p>
         </div>
         <div className="flex gap-2">
           {videos.length === 0 && (
             <Button variant="outline" onClick={handleImportStatic} disabled={importing}>
-              <Upload className="mr-2 h-4 w-4" />
-              {importing ? "Importando..." : "Importar datos estáticos"}
+              <Upload className="mr-2 h-4 w-4" />{importing ? "Importando..." : "Importar datos estáticos"}
             </Button>
           )}
-          <Button onClick={openCreate}>
-            <Plus className="mr-2 h-4 w-4" /> Nuevo Video
-          </Button>
+          <Button onClick={openCreate}><Plus className="mr-2 h-4 w-4" /> Nuevo Video</Button>
         </div>
       </div>
 
-      {/* Pending alert */}
       {pendingCount > 0 && (
         <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/10 p-4 flex items-center gap-3">
           <Clock className="h-5 w-5 text-yellow-600 shrink-0" />
           <div className="flex-1">
             <p className="font-semibold text-yellow-700">{pendingCount} video{pendingCount > 1 ? "s" : ""} pendiente{pendingCount > 1 ? "s" : ""} de aprobación</p>
-            <p className="text-sm text-yellow-600">Filtra por "Pendientes" para revisarlos y decidir su visibilidad.</p>
+            <p className="text-sm text-yellow-600">Filtra por "Pendientes" para revisarlos.</p>
           </div>
         </div>
       )}
@@ -185,8 +231,15 @@ export default function TrainingVideosView() {
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative max-w-xs flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input placeholder="Buscar..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10" />
+          <Input placeholder="Buscar título, categoría o tag..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10" />
         </div>
+        <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+          <SelectTrigger className="w-[160px]"><SelectValue placeholder="Categoría" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todas categorías</SelectItem>
+            {CATEGORIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+          </SelectContent>
+        </Select>
         <div className="flex gap-1">
           {APPROVAL_FILTERS.map((f) => (
             <Button key={f.value} size="sm" variant={approvalFilter === f.value ? "default" : "outline"} onClick={() => setApprovalFilter(f.value)}>
@@ -196,7 +249,6 @@ export default function TrainingVideosView() {
         </div>
       </div>
 
-      {/* Bulk actions */}
       {selectedIds.size > 0 && (
         <div className="flex items-center gap-3 rounded-lg border bg-muted/50 p-3">
           <span className="text-sm font-medium">{selectedIds.size} seleccionados</span>
@@ -210,15 +262,13 @@ export default function TrainingVideosView() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-10">
-                <Checkbox checked={selectedIds.size === filtered.length && filtered.length > 0} onCheckedChange={selectAllFiltered} />
-              </TableHead>
+              <TableHead className="w-10"><Checkbox checked={selectedIds.size === filtered.length && filtered.length > 0} onCheckedChange={selectAllFiltered} /></TableHead>
               <TableHead>Título</TableHead>
               <TableHead>Categoría</TableHead>
+              <TableHead>Tags</TableHead>
               <TableHead>Estado</TableHead>
               <TableHead>Visibilidad</TableHead>
               <TableHead>Vistas</TableHead>
-              <TableHead>Orden</TableHead>
               <TableHead className="w-32">Acciones</TableHead>
             </TableRow>
           </TableHeader>
@@ -229,16 +279,26 @@ export default function TrainingVideosView() {
               <TableRow><TableCell colSpan={8} className="text-center py-8 text-muted-foreground">Sin videos</TableCell></TableRow>
             ) : filtered.map((v) => (
               <TableRow key={v.id} className={(v as any).approval_status === "pending" ? "bg-yellow-500/5" : ""}>
-                <TableCell>
-                  <Checkbox checked={selectedIds.has(v.id)} onCheckedChange={() => toggleSelect(v.id)} />
-                </TableCell>
-                <TableCell className="font-medium max-w-[220px] truncate">
+                <TableCell><Checkbox checked={selectedIds.has(v.id)} onCheckedChange={() => toggleSelect(v.id)} /></TableCell>
+                <TableCell className="font-medium max-w-[200px]">
                   <div className="flex items-center gap-1.5">
                     {v.video_type === "youtube" ? <Play className="h-3 w-3 shrink-0 text-red-500" /> : <Film className="h-3 w-3 shrink-0 text-purple-500" />}
-                    {v.title}
+                    <span className="truncate">{v.title}</span>
                   </div>
                 </TableCell>
                 <TableCell><Badge variant="secondary" className="capitalize text-xs">{v.category}</Badge></TableCell>
+                <TableCell className="max-w-[180px]">
+                  <div className="flex flex-wrap gap-0.5">
+                    {((v as any).tags || []).slice(0, 3).map((t: string) => (
+                      <span key={t} className="inline-flex items-center rounded bg-primary/10 px-1.5 py-0.5 text-[10px] text-primary font-medium">
+                        <Tag className="h-2 w-2 mr-0.5" />{t}
+                      </span>
+                    ))}
+                    {((v as any).tags || []).length > 3 && (
+                      <span className="text-[10px] text-muted-foreground">+{(v as any).tags.length - 3}</span>
+                    )}
+                  </div>
+                </TableCell>
                 <TableCell>{approvalBadge((v as any).approval_status ?? "approved")}</TableCell>
                 <TableCell>
                   <div className="flex gap-1">
@@ -248,7 +308,6 @@ export default function TrainingVideosView() {
                   </div>
                 </TableCell>
                 <TableCell className="text-center font-mono text-sm">{v.view_count ?? 0}</TableCell>
-                <TableCell>{v.sort_order}</TableCell>
                 <TableCell>
                   <div className="flex gap-0.5">
                     {(v as any).approval_status === "pending" && (
@@ -268,7 +327,7 @@ export default function TrainingVideosView() {
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editing ? "Editar Video" : "Nuevo Video"}</DialogTitle>
           </DialogHeader>
@@ -299,6 +358,10 @@ export default function TrainingVideosView() {
             <div className="space-y-2">
               <Label>URL del Video</Label>
               <Input value={form.video_url} onChange={(e) => setForm({ ...form, video_url: e.target.value })} placeholder="https://..." />
+            </div>
+            <div className="space-y-2">
+              <Label className="flex items-center gap-1.5"><Tag className="h-3.5 w-3.5" />Tags</Label>
+              <TagInput tags={form.tags} onChange={(tags) => setForm({ ...form, tags })} />
             </div>
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
