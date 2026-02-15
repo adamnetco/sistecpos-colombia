@@ -743,6 +743,9 @@ export type Database = {
           id: string
           notes: string | null
           phone: string
+          pos_company: string | null
+          pos_password: string | null
+          pos_username: string | null
           source: string | null
           status: string
           trial_ends_at: string | null
@@ -763,6 +766,9 @@ export type Database = {
           id?: string
           notes?: string | null
           phone: string
+          pos_company?: string | null
+          pos_password?: string | null
+          pos_username?: string | null
           source?: string | null
           status?: string
           trial_ends_at?: string | null
@@ -783,6 +789,9 @@ export type Database = {
           id?: string
           notes?: string | null
           phone?: string
+          pos_company?: string | null
+          pos_password?: string | null
+          pos_username?: string | null
           source?: string | null
           status?: string
           trial_ends_at?: string | null

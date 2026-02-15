@@ -4,6 +4,8 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+const SITE_URL = "https://sistecpos.lovable.app";
+
 interface LeadPayload {
   type: "demo" | "representante";
   name: string;
@@ -12,6 +14,71 @@ interface LeadPayload {
   city?: string;
   business?: string;
   experience?: string;
+}
+
+function welcomeDemoHtml(name: string, business: string): string {
+  return `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <div style="max-width:600px;margin:0 auto;padding:40px 20px;">
+    <div style="background:#ffffff;border-radius:16px;padding:40px 32px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+      <div style="text-align:center;margin-bottom:24px;">
+        <img src="${SITE_URL}/lovable-uploads/43a24c53-78c0-4ca3-b642-99a376d90a0f.png" alt="SistecPOS" style="height:40px;" />
+      </div>
+
+      <div style="text-align:center;margin-bottom:20px;">
+        <span style="display:inline-block;background:#16a34a;color:#fff;font-size:12px;font-weight:700;padding:4px 14px;border-radius:20px;text-transform:uppercase;">🎉 ¡Bienvenido!</span>
+      </div>
+
+      <h1 style="text-align:center;color:#1a1a2e;font-size:22px;margin:0 0 8px;">¡Hola ${name}!</h1>
+      <p style="text-align:center;color:#6b7280;font-size:14px;margin:0 0 24px;line-height:1.6;">
+        Gracias por registrarte. Estamos emocionados de que <strong>${business}</strong> esté dando el siguiente paso con SistecPOS.
+      </p>
+
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:20px;margin-bottom:20px;">
+        <p style="margin:0 0 8px;color:#166534;font-size:14px;font-weight:600;">🖥️ Explora el software ahora mismo</p>
+        <p style="margin:0 0 4px;color:#374151;font-size:13px;">Mientras preparamos tu demo personalizada, puedes explorar el sistema con estas credenciales genéricas:</p>
+        <div style="background:#ffffff;border:1px solid #d1d5db;border-radius:8px;padding:12px;margin-top:10px;">
+          <p style="margin:0;font-size:13px;color:#374151;"><strong>Usuario:</strong> demo</p>
+          <p style="margin:0;font-size:13px;color:#374151;"><strong>Empresa:</strong> demo</p>
+          <p style="margin:0;font-size:13px;color:#374151;"><strong>Contraseña:</strong> demo</p>
+        </div>
+      </div>
+
+      <div style="text-align:center;margin:20px 0;">
+        <a href="${SITE_URL}/clientes" style="display:inline-block;background:#2563eb;color:#ffffff;font-size:14px;font-weight:600;padding:14px 36px;border-radius:10px;text-decoration:none;">
+          🚀 Acceder al POS
+        </a>
+      </div>
+
+      <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:16px;margin-bottom:20px;">
+        <p style="margin:0 0 8px;color:#1e40af;font-size:14px;font-weight:600;">📅 ¿Qué sigue?</p>
+        <ul style="margin:0;padding-left:18px;color:#1e3a5f;font-size:13px;line-height:1.8;">
+          <li>Recibirás una <strong>demo personalizada</strong> con tu nombre de negocio y correo por <strong>30 días</strong>.</li>
+          <li>Puedes <strong>agendar una reunión</strong> para parametrizar el software a tu medida.</li>
+        </ul>
+      </div>
+
+      <div style="text-align:center;margin:20px 0;">
+        <a href="https://calendly.com/sistecpos" style="display:inline-block;background:#8b5cf6;color:#ffffff;font-size:14px;font-weight:600;padding:12px 28px;border-radius:10px;text-decoration:none;">
+          📆 Agendar Reunión en Calendly
+        </a>
+      </div>
+
+      <div style="text-align:center;margin:20px 0;">
+        <a href="https://wa.me/573176268307?text=Hola,%20acabo%20de%20registrarme%20para%20una%20demo%20de%20SistecPOS" style="display:inline-block;background:#25D366;color:#ffffff;font-size:14px;font-weight:600;padding:12px 28px;border-radius:10px;text-decoration:none;">
+          💬 WhatsApp Soporte
+        </a>
+      </div>
+
+      <hr style="border:none;border-top:1px solid #e5e7eb;margin:32px 0;" />
+      <p style="text-align:center;color:#9ca3af;font-size:12px;margin:0;">© ${new Date().getFullYear()} SistecPOS · Software POS Colombia</p>
+    </div>
+  </div>
+</body>
+</html>`;
 }
 
 Deno.serve(async (req) => {
@@ -24,9 +91,9 @@ Deno.serve(async (req) => {
     console.log(`New ${payload.type} lead:`, payload.name);
 
     const results: string[] = [];
-
-    // 1. Send email notification via Resend
     const resendKey = Deno.env.get("RESEND_API_KEY");
+
+    // 1. Send internal notification email via Resend
     if (resendKey) {
       const isDemo = payload.type === "demo";
       const subject = isDemo
@@ -42,7 +109,6 @@ Deno.serve(async (req) => {
             <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;">WhatsApp</td><td style="padding:8px;border:1px solid #ddd;">${payload.phone}</td></tr>
             <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;">Email</td><td style="padding:8px;border:1px solid #ddd;">${payload.email}</td></tr>
             <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;">Ciudad</td><td style="padding:8px;border:1px solid #ddd;">${payload.city || "-"}</td></tr>
-            <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;">Origen</td><td style="padding:8px;border:1px solid #ddd;">Landing Campaña</td></tr>
           </table>
           <p style="margin-top:16px;">⚡ Contactar al prospecto lo antes posible.</p>
         `
@@ -74,23 +140,53 @@ Deno.serve(async (req) => {
         });
 
         if (emailRes.ok) {
-          results.push("email_sent");
-          console.log("Email notification sent");
+          results.push("internal_email_sent");
         } else {
           const errText = await emailRes.text();
-          console.error("Resend error:", errText);
-          results.push("email_failed");
+          console.error("Resend error (internal):", errText);
+          results.push("internal_email_failed");
         }
       } catch (emailErr) {
         console.error("Email error:", emailErr);
-        results.push("email_error");
+        results.push("internal_email_error");
+      }
+
+      // 2. Send welcome email TO THE LEAD (only for demo leads)
+      if (isDemo && payload.email) {
+        try {
+          const welcomeRes = await fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${resendKey}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              from: "SistecPOS <notificaciones@sistecpos.com>",
+              to: [payload.email],
+              subject: `🎉 ¡Bienvenido a SistecPOS, ${payload.name}! Tu demo está lista`,
+              html: welcomeDemoHtml(payload.name, payload.business || "tu negocio"),
+            }),
+          });
+
+          if (welcomeRes.ok) {
+            results.push("welcome_email_sent");
+            console.log("Welcome email sent to:", payload.email);
+          } else {
+            const errText = await welcomeRes.text();
+            console.error("Welcome email error:", errText);
+            results.push("welcome_email_failed");
+          }
+        } catch (err) {
+          console.error("Welcome email error:", err);
+          results.push("welcome_email_error");
+        }
       }
     } else {
       console.warn("RESEND_API_KEY not configured, skipping email");
       results.push("email_skipped");
     }
 
-    // 2. Send WhatsApp notification via CallMeBot
+    // 3. Send WhatsApp notification via CallMeBot
     const apiKey = Deno.env.get("CALLMEBOT_API_KEY");
     const whatsappPhone = Deno.env.get("CALLMEBOT_PHONE");
 
@@ -116,7 +212,6 @@ Deno.serve(async (req) => {
         const waRes = await fetch(url);
         if (waRes.ok) {
           results.push("whatsapp_sent");
-          console.log("WhatsApp notification sent");
         } else {
           results.push("whatsapp_failed");
         }

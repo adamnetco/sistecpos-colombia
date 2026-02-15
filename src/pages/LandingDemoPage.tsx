@@ -61,6 +61,9 @@ export default function LandingDemoPage() {
     setIsSubmitting(true);
     try {
       // Save to database
+      const trialEnds = new Date();
+      trialEnds.setDate(trialEnds.getDate() + 30);
+
       const { error: dbError } = await supabase.from("leads_trials").insert({
         contact_name: data.fullName,
         business_name: data.businessName,
@@ -68,7 +71,8 @@ export default function LandingDemoPage() {
         email: data.email,
         city: data.city,
         source: "landing_campana",
-        status: "new",
+        status: "welcome_sent",
+        trial_ends_at: trialEnds.toISOString(),
         utm_source: utm.utm_source,
         utm_medium: utm.utm_medium,
         utm_campaign: utm.utm_campaign,
