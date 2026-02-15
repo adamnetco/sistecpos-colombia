@@ -173,10 +173,25 @@ export default function TrainingVideoHub({ userRole }: TrainingVideoHubProps) {
 
   const location = useLocation();
   const hasScrolledRef = useRef(false);
+  const playerRef = useRef<HTMLDivElement>(null);
 
   const { data: dbVideos } = useVideosFromDB(userRole);
   const incrementView = useIncrementVideoView();
   const allVideos = useMemo(() => mapToVideoItems(dbVideos), [dbVideos]);
+
+  // Reliable scroll to player — waits for ref to be mounted
+  const scrollToPlayer = useCallback(() => {
+    let attempts = 0;
+    const tryScroll = () => {
+      if (playerRef.current) {
+        playerRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+      } else if (attempts < 10) {
+        attempts++;
+        requestAnimationFrame(tryScroll);
+      }
+    };
+    requestAnimationFrame(tryScroll);
+  }, []);
 
   const handleSelectVideo = useCallback((v: VideoItem) => {
     setActiveVideo(v);
@@ -184,13 +199,8 @@ export default function TrainingVideoHub({ userRole }: TrainingVideoHubProps) {
     incrementView.mutate(v.id);
     const slug = videoSlug(v.title);
     window.history.replaceState(null, "", `#video-${slug}`);
-    // Scroll to player on manual select too
-    setTimeout(() => {
-      playerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 100);
-  }, [incrementView]);
-
-  const playerRef = useRef<HTMLDivElement>(null);
+    scrollToPlayer();
+  }, [incrementView, scrollToPlayer]);
 
   // Auto-open video from URL hash (deep link)
   useEffect(() => {
@@ -201,16 +211,16 @@ export default function TrainingVideoHub({ userRole }: TrainingVideoHubProps) {
     if (target) {
       hasScrolledRef.current = true;
       if (!target.is_main) setShowAllQuick(true);
+      // Small delay to let the component tree settle
       setTimeout(() => {
         setActiveVideo(target);
         setIsDeepLink(true);
         incrementView.mutate(target.id);
-        setTimeout(() => {
-          playerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-        }, 150);
-      }, 400);
+        // Wait for AnimatePresence to mount the player
+        setTimeout(scrollToPlayer, 300);
+      }, 200);
     }
-  }, [allVideos, location.hash]);
+  }, [allVideos, location.hash, scrollToPlayer]);
 
   const allCategories = useMemo(() =>
     Array.from(new Set(allVideos.map((v) => v.category))).sort(),
