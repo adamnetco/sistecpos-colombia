@@ -208,8 +208,8 @@ export default function AuthPage() {
       }
 
       setPending2FA(false);
+      setView("login"); // Reset view so redirect useEffect can trigger
       toast({ title: "Verificación exitosa ✅" });
-      // Redirect will be handled by the useEffect watching `user` + `pending2FA`
     } finally {
       setLoading(false);
     }
