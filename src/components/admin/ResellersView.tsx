@@ -72,8 +72,35 @@ export default function ResellersView() {
 
   const updateStatus = async (id: string, status: string) => {
     const { error } = await supabase.from("reseller_applications").update({ status }).eq("id", id);
-    if (error) toast({ title: "Error", variant: "destructive" });
-    else load();
+    if (error) {
+      toast({ title: "Error", variant: "destructive" });
+      return;
+    }
+
+    // When approving, trigger full activation flow (create user, assign role, send email)
+    if (status === "approved") {
+      const reseller = apps.find((a) => a.id === id);
+      if (reseller) {
+        toast({ title: "Activando socio...", description: "Creando cuenta y enviando correo de bienvenida" });
+        try {
+          const { data, error: fnError } = await supabase.functions.invoke("send-reseller-email", {
+            body: {
+              type: "approved",
+              resellerId: reseller.id,
+              name: reseller.full_name,
+              email: reseller.email,
+            },
+          });
+          if (fnError) throw fnError;
+          toast({ title: "✅ Socio activado", description: "Se creó la cuenta y se envió el correo de activación" });
+        } catch (err) {
+          console.error("Activation error:", err);
+          toast({ title: "Estado actualizado, pero hubo un error al enviar el correo", variant: "destructive" });
+        }
+      }
+    }
+
+    load();
   };
 
   const openConfig = async (reseller: Reseller) => {

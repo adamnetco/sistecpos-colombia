@@ -104,7 +104,7 @@ export default function LandingRepresentantesPage() {
         return;
       }
 
-      // Trigger email notification
+      // Trigger admin notification
       supabase.functions.invoke("notify-new-lead", {
         body: {
           type: "representante",
@@ -113,6 +113,15 @@ export default function LandingRepresentantesPage() {
           phone: data.phone,
           city: data.city,
           experience: data.experience,
+        },
+      }).catch(console.error);
+
+      // Send welcome email to the applicant
+      supabase.functions.invoke("send-reseller-email", {
+        body: {
+          type: "welcome",
+          name: data.fullName,
+          email: data.email,
         },
       }).catch(console.error);
 
