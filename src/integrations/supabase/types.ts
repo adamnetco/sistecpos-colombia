@@ -456,6 +456,42 @@ export type Database = {
         }
         Relationships: []
       }
+      client_pos_sessions: {
+        Row: {
+          consent_given: boolean
+          created_at: string
+          id: string
+          last_success_at: string
+          pos_password_encrypted: string
+          pos_store: string
+          pos_username: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          consent_given?: boolean
+          created_at?: string
+          id?: string
+          last_success_at?: string
+          pos_password_encrypted: string
+          pos_store: string
+          pos_username: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          consent_given?: boolean
+          created_at?: string
+          id?: string
+          last_success_at?: string
+          pos_password_encrypted?: string
+          pos_store?: string
+          pos_username?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       client_tickets: {
         Row: {
           admin_response: string | null
@@ -1798,6 +1834,16 @@ export type Database = {
           user_email: string
         }[]
       }
+      get_client_pos_sessions: {
+        Args: { _user_id: string }
+        Returns: {
+          id: string
+          last_success_at: string
+          pos_password: string
+          pos_store: string
+          pos_username: string
+        }[]
+      }
       get_pos_users_for_license: {
         Args: { _license_id: string }
         Returns: {
@@ -1854,6 +1900,15 @@ export type Database = {
           _user_email?: string
         }
         Returns: undefined
+      }
+      upsert_client_pos_session: {
+        Args: {
+          _pos_password: string
+          _pos_store: string
+          _pos_username: string
+          _user_id: string
+        }
+        Returns: string
       }
     }
     Enums: {
