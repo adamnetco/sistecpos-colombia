@@ -5,28 +5,35 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Loader2, Save, Monitor } from "lucide-react";
+import { Loader2, Save, Monitor, Globe, Plus, X } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 export default function GeneralSettingsTab() {
   const [playstoreUrl, setPlaystoreUrl] = useState("");
   const [demoPosUser, setDemoPosUser] = useState("");
   const [demoPosStore, setDemoPosStore] = useState("");
   const [demoPosPass, setDemoPosPass] = useState("");
+  const [domains, setDomains] = useState<string[]>([]);
+  const [newDomain, setNewDomain] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [savingDemo, setSavingDemo] = useState(false);
+  const [savingDomains, setSavingDomains] = useState(false);
 
   useEffect(() => {
     supabase
       .from("app_settings")
       .select("key, value")
-      .in("key", ["playstore_url", "demo_pos_user", "demo_pos_store", "demo_pos_pass"])
+      .in("key", ["playstore_url", "demo_pos_user", "demo_pos_store", "demo_pos_pass", "allowed_license_domains"])
       .then(({ data }) => {
         (data || []).forEach((row) => {
           if (row.key === "playstore_url") setPlaystoreUrl(row.value);
           if (row.key === "demo_pos_user") setDemoPosUser(row.value);
           if (row.key === "demo_pos_store") setDemoPosStore(row.value);
           if (row.key === "demo_pos_pass") setDemoPosPass(row.value);
+          if (row.key === "allowed_license_domains") {
+            setDomains(row.value ? row.value.split(",").map((d: string) => d.trim()).filter(Boolean) : []);
+          }
         });
         setLoading(false);
       });
@@ -61,6 +68,33 @@ export default function GeneralSettingsTab() {
       toast.success("Credenciales demo actualizadas");
     }
     setSavingDemo(false);
+  };
+
+  const addDomain = () => {
+    const d = newDomain.trim().toLowerCase();
+    if (!d || domains.includes(d)) return;
+    if (!d.includes(".")) {
+      toast.error("Dominio inválido. Ejemplo: ventas.click");
+      return;
+    }
+    setDomains([...domains, d]);
+    setNewDomain("");
+  };
+
+  const removeDomain = (d: string) => setDomains(domains.filter((x) => x !== d));
+
+  const handleSaveDomains = async () => {
+    setSavingDomains(true);
+    const { error } = await supabase.from("app_settings").upsert(
+      { key: "allowed_license_domains", value: domains.join(","), updated_at: new Date().toISOString() },
+      { onConflict: "key" }
+    );
+    if (error) {
+      toast.error("Error al guardar: " + error.message);
+    } else {
+      toast.success("Dominios permitidos actualizados");
+    }
+    setSavingDomains(false);
   };
 
   if (loading) {
@@ -98,6 +132,51 @@ export default function GeneralSettingsTab() {
           <Button onClick={handleSaveDemo} disabled={savingDemo} className="gap-2">
             {savingDemo ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             Guardar credenciales demo
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Allowed Domains for Reseller Licenses */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Globe className="h-5 w-5" />
+            Dominios Permitidos para Licencias
+          </CardTitle>
+          <CardDescription>
+            Los socios solo pueden crear licencias con emails que usen estos dominios. Ejemplo: ventas.click, sistecpos.com
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex flex-wrap gap-2">
+            {domains.length === 0 ? (
+              <p className="text-sm text-muted-foreground italic">Sin dominios configurados — los socios no podrán crear licencias.</p>
+            ) : (
+              domains.map((d) => (
+                <Badge key={d} variant="secondary" className="gap-1 text-sm px-3 py-1.5">
+                  @{d}
+                  <button onClick={() => removeDomain(d)} className="ml-1 rounded-full p-0.5 hover:bg-black/10 dark:hover:bg-white/10">
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              ))
+            )}
+          </div>
+          <div className="flex gap-2">
+            <Input
+              placeholder="nuevo-dominio.com"
+              value={newDomain}
+              onChange={(e) => setNewDomain(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addDomain())}
+              className="max-w-xs"
+            />
+            <Button variant="outline" size="sm" onClick={addDomain} disabled={!newDomain.trim()}>
+              <Plus className="h-4 w-4 mr-1" />Agregar
+            </Button>
+          </div>
+          <Button onClick={handleSaveDomains} disabled={savingDomains} className="gap-2">
+            {savingDomains ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            Guardar dominios
           </Button>
         </CardContent>
       </Card>

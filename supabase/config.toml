@@ -29,3 +29,18 @@ verify_jwt = false
 
 [functions.connect-pos]
 verify_jwt = false
+
+[functions.notify-reseller-license]
+verify_jwt = false
+
+[functions.validate-pos-login]
+verify_jwt = false
+
+[functions.send-reseller-email]
+verify_jwt = false
+
+[functions.sync-facilpos-prices]
+verify_jwt = false
+
+[functions.notify-ticket-status]
+verify_jwt = false

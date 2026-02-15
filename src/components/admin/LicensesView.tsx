@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { RefreshCw, Search, Eye, Pause, Play, Download } from "lucide-react";
+import { RefreshCw, Search, Eye, Pause, Play, Download, CheckCircle, XCircle, Clock } from "lucide-react";
 import { exportToCsv } from "@/lib/exportCsv";
 import { LicenseCreateDialog } from "./licenses/LicenseCreateDialog";
 import { LicenseRenewDialog } from "./licenses/LicenseRenewDialog";
@@ -25,6 +25,7 @@ interface License {
   license_key: string;
   price_paid: number;
   notes: string | null;
+  created_by_reseller_id: string | null;
 }
 
 export default function LicensesView() {
@@ -34,7 +35,7 @@ export default function LicensesView() {
   const [renewTarget, setRenewTarget] = useState<{ id: string; expires_at: string | null } | null>(null);
   const [detailTarget, setDetailTarget] = useState<License | null>(null);
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState<"all" | "active" | "expired" | "suspended">("all");
+  const [filter, setFilter] = useState<"all" | "active" | "expired" | "suspended" | "pending_approval">("all");
   const { toast } = useToast();
 
   const load = async () => {
@@ -60,6 +61,26 @@ export default function LicensesView() {
     }
   };
 
+  const approveLicense = async (id: string) => {
+    const { error } = await supabase.from("licenses").update({ status: "active" }).eq("id", id);
+    if (error) {
+      toast({ title: "Error al aprobar", variant: "destructive" });
+    } else {
+      toast({ title: "✅ Licencia aprobada" });
+      load();
+    }
+  };
+
+  const rejectLicense = async (id: string) => {
+    const { error } = await supabase.from("licenses").update({ status: "rejected" }).eq("id", id);
+    if (error) {
+      toast({ title: "Error al rechazar", variant: "destructive" });
+    } else {
+      toast({ title: "Licencia rechazada" });
+      load();
+    }
+  };
+
   const filtered = licenses.filter((l) => {
     const matchSearch =
       l.business_name.toLowerCase().includes(search.toLowerCase()) ||
@@ -67,20 +88,25 @@ export default function LicensesView() {
       l.license_key.toLowerCase().includes(search.toLowerCase()) ||
       (l.business_nit || "").toLowerCase().includes(search.toLowerCase());
 
+    if (filter === "pending_approval") return matchSearch && l.status === "pending_approval";
     if (filter === "active") return matchSearch && !isExpired(l) && l.status === "active";
     if (filter === "expired") return matchSearch && isExpired(l);
     if (filter === "suspended") return matchSearch && l.status === "suspended";
     return matchSearch;
   });
 
+  const pendingCount = licenses.filter((l) => l.status === "pending_approval").length;
   const stats = {
     total: licenses.length,
+    pending: pendingCount,
     active: licenses.filter((l) => !isExpired(l) && l.status === "active").length,
     expired: licenses.filter((l) => isExpired(l)).length,
     suspended: licenses.filter((l) => l.status === "suspended").length,
   };
 
   const statusBadge = (l: License) => {
+    if (l.status === "pending_approval") return <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 gap-1"><Clock className="h-3 w-3" />Pendiente</Badge>;
+    if (l.status === "rejected") return <Badge variant="destructive">Rechazada</Badge>;
     if (isExpired(l)) return <Badge variant="destructive">Vencida</Badge>;
     if (l.status === "suspended") return <Badge variant="secondary">Suspendida</Badge>;
     return <Badge className="bg-whatsapp text-white">Activa</Badge>;
@@ -88,6 +114,22 @@ export default function LicensesView() {
 
   return (
     <div>
+      {/* Pending approval alert */}
+      {pendingCount > 0 && (
+        <div className="mb-4 rounded-lg border border-amber-300 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30 p-4 flex items-center gap-3">
+          <Clock className="h-5 w-5 text-amber-600 shrink-0" />
+          <div>
+            <p className="text-sm font-semibold text-amber-800 dark:text-amber-200">
+              {pendingCount} licencia{pendingCount > 1 ? "s" : ""} pendiente{pendingCount > 1 ? "s" : ""} de aprobación
+            </p>
+            <p className="text-xs text-amber-700 dark:text-amber-300">Creadas por socios — requieren tu aprobación para activarse.</p>
+          </div>
+          <Button size="sm" variant="outline" className="ml-auto shrink-0 border-amber-400 text-amber-700 hover:bg-amber-100" onClick={() => setFilter("pending_approval")}>
+            Ver pendientes
+          </Button>
+        </div>
+      )}
+
       {/* Header */}
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-2xl font-bold font-display">Licencias</h1>
@@ -112,8 +154,11 @@ export default function LicensesView() {
       </div>
 
       {/* Stats */}
-      <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-5">
         <StatCard label="Total" value={stats.total} onClick={() => setFilter("all")} active={filter === "all"} />
+        {stats.pending > 0 && (
+          <StatCard label="Pendientes" value={stats.pending} onClick={() => setFilter("pending_approval")} active={filter === "pending_approval"} className="text-amber-600" />
+        )}
         <StatCard label="Activas" value={stats.active} onClick={() => setFilter("active")} active={filter === "active"} className="text-green-600" />
         <StatCard label="Vencidas" value={stats.expired} onClick={() => setFilter("expired")} active={filter === "expired"} className="text-destructive" />
         <StatCard label="Suspendidas" value={stats.suspended} onClick={() => setFilter("suspended")} active={filter === "suspended"} className="text-muted-foreground" />
@@ -152,12 +197,15 @@ export default function LicensesView() {
               filtered.map((l) => (
                 <tr
                   key={l.id}
-                  className={`border-b cursor-pointer hover:bg-muted/30 ${isExpired(l) ? "bg-destructive/5" : ""}`}
+                  className={`border-b cursor-pointer hover:bg-muted/30 ${l.status === "pending_approval" ? "bg-amber-50/50 dark:bg-amber-950/10" : isExpired(l) ? "bg-destructive/5" : ""}`}
                   onClick={() => setDetailTarget(l)}
                 >
                   <td className="px-4 py-3">
                     <div className="font-medium">{l.business_name}</div>
                     <div className="text-xs text-muted-foreground">{l.contact_name}</div>
+                    {l.created_by_reseller_id && (
+                      <span className="text-[10px] text-amber-600 dark:text-amber-400 font-medium">Creada por socio</span>
+                    )}
                   </td>
                   <td className="px-4 py-3">{planLabel(l.plan_type)}</td>
                   <td className="px-4 py-3">{statusBadge(l)}</td>
@@ -165,20 +213,33 @@ export default function LicensesView() {
                   <td className="px-4 py-3 font-mono text-xs">{l.license_key.slice(0, 8)}...</td>
                   <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                     <div className="flex items-center gap-1">
-                      <Button size="sm" variant="ghost" title="Ver detalle" onClick={() => setDetailTarget(l)}>
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button size="sm" variant="outline" onClick={() => setRenewTarget({ id: l.id, expires_at: l.expires_at })}>
-                        <RefreshCw className="mr-1 h-3 w-3" />Renovar
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant={l.status === "suspended" ? "default" : "secondary"}
-                        onClick={() => toggleStatus(l)}
-                        title={l.status === "suspended" ? "Reactivar" : "Suspender"}
-                      >
-                        {l.status === "suspended" ? <Play className="h-3 w-3" /> : <Pause className="h-3 w-3" />}
-                      </Button>
+                      {l.status === "pending_approval" ? (
+                        <>
+                          <Button size="sm" variant="default" className="gap-1 bg-green-600 hover:bg-green-700" onClick={() => approveLicense(l.id)}>
+                            <CheckCircle className="h-3 w-3" />Aprobar
+                          </Button>
+                          <Button size="sm" variant="destructive" className="gap-1" onClick={() => rejectLicense(l.id)}>
+                            <XCircle className="h-3 w-3" />Rechazar
+                          </Button>
+                        </>
+                      ) : (
+                        <>
+                          <Button size="sm" variant="ghost" title="Ver detalle" onClick={() => setDetailTarget(l)}>
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button size="sm" variant="outline" onClick={() => setRenewTarget({ id: l.id, expires_at: l.expires_at })}>
+                            <RefreshCw className="mr-1 h-3 w-3" />Renovar
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant={l.status === "suspended" ? "default" : "secondary"}
+                            onClick={() => toggleStatus(l)}
+                            title={l.status === "suspended" ? "Reactivar" : "Suspender"}
+                          >
+                            {l.status === "suspended" ? <Play className="h-3 w-3" /> : <Pause className="h-3 w-3" />}
+                          </Button>
+                        </>
+                      )}
                     </div>
                   </td>
                 </tr>
