@@ -138,8 +138,8 @@ export function ChatbotWidget() {
                     }`}
                   >
                     {m.role === "assistant" ? (
-                      <div className="prose prose-sm prose-slate dark:prose-invert max-w-none break-words [&>p]:m-0 [&>ul]:my-1 [&>ol]:my-1 [&>li]:my-0.5 [&>p+p]:mt-2">
-                        <ReactMarkdown>{m.content}</ReactMarkdown>
+                      <div className="prose prose-sm prose-slate dark:prose-invert max-w-none break-words [&>p]:m-0 [&>ul]:my-1 [&>ol]:my-1 [&>li]:my-0.5 [&>p+p]:mt-2 [&>a]:text-primary [&>a]:underline">
+                        <ReactMarkdown components={{ a: ({ href, children }) => <a href={href} target="_blank" rel="noopener noreferrer">{children}</a> }}>{m.content}</ReactMarkdown>
                       </div>
                     ) : (
                       <p className="whitespace-pre-wrap break-words">{m.content}</p>
