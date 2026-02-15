@@ -100,6 +100,51 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_message_feedback: {
+        Row: {
+          conversation_id: string
+          created_at: string
+          id: string
+          is_positive: boolean
+          message_id: string
+          user_comment: string | null
+          user_role: string | null
+        }
+        Insert: {
+          conversation_id: string
+          created_at?: string
+          id?: string
+          is_positive: boolean
+          message_id: string
+          user_comment?: string | null
+          user_role?: string | null
+        }
+        Update: {
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          is_positive?: boolean
+          message_id?: string
+          user_comment?: string | null
+          user_role?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_message_feedback_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "ai_conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_message_feedback_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "ai_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_messages: {
         Row: {
           content: string

@@ -106,7 +106,6 @@ Videos disponibles:\n`;
 
     let correctionContext = "";
     if (corrections && corrections.length > 0) {
-      // Load preceding user messages for each correction
       const enriched: { question: string; original: string; corrected: string }[] = [];
       for (const c of corrections) {
         const { data: prevMsg } = await supabase
@@ -129,6 +128,63 @@ Videos disponibles:\n`;
       enriched.forEach((e, i) => {
         correctionContext += `\n### Ejemplo ${i + 1}:\nPregunta: "${e.question}"\nRespuesta incorrecta: "${e.original}"\n✅ Respuesta correcta: "${e.corrected}"\n`;
       });
+    }
+
+    // Load user feedback (positive = reinforce, negative = avoid) for auto-training
+    const { data: feedbackData } = await supabase
+      .from("ai_message_feedback")
+      .select("is_positive, user_comment, message_id")
+      .order("created_at", { ascending: false })
+      .limit(30);
+
+    let feedbackContext = "";
+    if (feedbackData && feedbackData.length > 0) {
+      const msgIds = [...new Set(feedbackData.map((f: any) => f.message_id))];
+      const { data: feedbackMsgs } = await supabase
+        .from("ai_messages")
+        .select("id, content, conversation_id, created_at")
+        .in("id", msgIds);
+
+      if (feedbackMsgs && feedbackMsgs.length > 0) {
+        const positiveExamples: string[] = [];
+        const negativeExamples: string[] = [];
+
+        for (const fb of feedbackData as any[]) {
+          const msg = feedbackMsgs.find((m: any) => m.id === fb.message_id);
+          if (!msg) continue;
+          // Get the user question that preceded this response
+          const { data: prevQ } = await supabase
+            .from("ai_messages")
+            .select("content")
+            .eq("conversation_id", msg.conversation_id)
+            .eq("role", "user")
+            .lt("created_at", msg.created_at)
+            .order("created_at", { ascending: false })
+            .limit(1)
+            .maybeSingle();
+          const question = prevQ?.content || "(pregunta desconocida)";
+          const snippet = msg.content.slice(0, 250);
+          const comment = fb.user_comment ? ` (Comentario: "${fb.user_comment}")` : "";
+
+          if (fb.is_positive) {
+            positiveExamples.push(`P: "${question}" → ✅ Buena respuesta: "${snippet}"${comment}`);
+          } else {
+            negativeExamples.push(`P: "${question}" → ❌ Respuesta que no gustó: "${snippet}"${comment}`);
+          }
+        }
+
+        if (positiveExamples.length > 0 || negativeExamples.length > 0) {
+          feedbackContext = "\n\n## Autoentrenamiento por feedback de usuarios:\n";
+          if (positiveExamples.length > 0) {
+            feedbackContext += "\n### Respuestas bien valoradas (replica este estilo):\n";
+            positiveExamples.slice(0, 10).forEach((e) => { feedbackContext += `- ${e}\n`; });
+          }
+          if (negativeExamples.length > 0) {
+            feedbackContext += "\n### Respuestas mal valoradas (evita este estilo):\n";
+            negativeExamples.slice(0, 10).forEach((e) => { feedbackContext += `- ${e}\n`; });
+          }
+        }
+      }
     }
 
     // Load custom system prompt and temperature from app_settings
@@ -234,7 +290,11 @@ El usuario es un VISITANTE del sitio web (prospecto potencial).
 ${roleContext}
 ${knowledgeContext}
 ${videoCatalogContext}
-${correctionContext}`;
+${correctionContext}
+${feedbackContext}
+
+IMPORTANTE: Al final de cada respuesta sustancial (no saludos ni respuestas de una línea), si el usuario no ha dado feedback recientemente, agrega sutilmente al final: "¿Te fue útil esta respuesta? 👍 👎"
+No lo repitas si ya lo preguntaste en las últimas 2 respuestas.`;
 
     // Save/update conversation
     if (session_id) {

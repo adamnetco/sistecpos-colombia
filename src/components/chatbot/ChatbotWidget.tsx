@@ -1,7 +1,7 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Send, RotateCcw, Bot, User, ExternalLink } from "lucide-react";
+import { X, Send, RotateCcw, Bot, User, ExternalLink, ThumbsUp, ThumbsDown } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { Button } from "@/components/ui/button";
 import { useChatbot, useChatbotVisibility, isInternalUrl } from "@/hooks/useChatbot";
@@ -12,11 +12,39 @@ function linkifyPhones(text: string): string {
   return text.replace(/\+?(57\d{10})/g, (match, num) => `[+${num}](https://wa.me/${num})`);
 }
 
+function FeedbackButtons({ msgIndex, onFeedback, alreadyGiven }: {
+  msgIndex: number;
+  onFeedback: (index: number, positive: boolean) => void;
+  alreadyGiven: boolean;
+}) {
+  if (alreadyGiven) {
+    return <span className="text-[10px] text-muted-foreground italic">¡Gracias por tu feedback!</span>;
+  }
+  return (
+    <div className="flex items-center gap-1 mt-1">
+      <button
+        onClick={() => onFeedback(msgIndex, true)}
+        className="p-1 rounded hover:bg-primary/10 text-muted-foreground hover:text-green-600 transition-colors"
+        title="Útil"
+      >
+        <ThumbsUp className="h-3 w-3" />
+      </button>
+      <button
+        onClick={() => onFeedback(msgIndex, false)}
+        className="p-1 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+        title="No útil"
+      >
+        <ThumbsDown className="h-3 w-3" />
+      </button>
+    </div>
+  );
+}
+
 export function ChatbotWidget() {
   const location = useLocation();
   const navigate = useNavigate();
   const visible = useChatbotVisibility(location.pathname);
-  const { messages, isLoading, error, send, reset, open, setOpen, userRole } = useChatbot();
+  const { messages, isLoading, error, send, reset, open, setOpen, userRole, submitFeedback, feedbackGiven } = useChatbot();
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -151,40 +179,50 @@ export function ChatbotWidget() {
                       <Bot className="h-3.5 w-3.5 text-primary-foreground" />
                     </div>
                   )}
-                  <div
-                    className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
-                      m.role === "user"
-                        ? "gradient-bg text-primary-foreground rounded-br-md"
-                        : "bg-muted rounded-bl-md"
-                    }`}
-                  >
-                    {m.role === "assistant" ? (
-                      <div className="prose prose-sm prose-slate dark:prose-invert max-w-none break-words [&>p]:m-0 [&>ul]:my-1 [&>ol]:my-1 [&>li]:my-0.5 [&>p+p]:mt-2 [&_table]:w-full [&_table]:text-xs [&_table]:border-collapse [&_th]:bg-muted [&_th]:px-2 [&_th]:py-1 [&_th]:text-left [&_th]:border [&_th]:border-border [&_td]:px-2 [&_td]:py-1 [&_td]:border [&_td]:border-border [&_ul]:list-disc [&_ul]:pl-4 [&_ol]:list-decimal [&_ol]:pl-4">
-                        <ReactMarkdown
-                          components={{
-                            a: ({ href, children }) => {
-                              if (!href) return <>{children}</>;
-                              const internal = isInternalUrl(href);
-                              return (
-                                <a
-                                  href={href}
-                                  target={internal ? undefined : "_blank"}
-                                  rel={internal ? undefined : "noopener noreferrer"}
-                                  onClick={(e) => handleLinkClick(e, href)}
-                                  className="inline-flex items-center gap-0.5 text-primary font-medium underline underline-offset-2 decoration-primary/40 hover:decoration-primary transition-colors"
-                                >
-                                  <span>{children}</span>
-                                  {!internal && <ExternalLink className="h-3 w-3 shrink-0" />}
-                                </a>
-                              );
-                            },
-                          }}
-                        >
-                          {linkifyPhones(m.content)}
-                        </ReactMarkdown>
-                      </div>
-                    ) : (
-                      <p className="whitespace-pre-wrap break-words">{m.content}</p>
+                  <div className="flex flex-col max-w-[80%]">
+                    <div
+                      className={`rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
+                        m.role === "user"
+                          ? "gradient-bg text-primary-foreground rounded-br-md"
+                          : "bg-muted rounded-bl-md"
+                      }`}
+                    >
+                      {m.role === "assistant" ? (
+                        <div className="prose prose-sm prose-slate dark:prose-invert max-w-none break-words [&>p]:m-0 [&>ul]:my-1 [&>ol]:my-1 [&>li]:my-0.5 [&>p+p]:mt-2 [&_table]:w-full [&_table]:text-xs [&_table]:border-collapse [&_th]:bg-muted [&_th]:px-2 [&_th]:py-1 [&_th]:text-left [&_th]:border [&_th]:border-border [&_td]:px-2 [&_td]:py-1 [&_td]:border [&_td]:border-border [&_ul]:list-disc [&_ul]:pl-4 [&_ol]:list-decimal [&_ol]:pl-4">
+                          <ReactMarkdown
+                            components={{
+                              a: ({ href, children }) => {
+                                if (!href) return <>{children}</>;
+                                const internal = isInternalUrl(href);
+                                return (
+                                  <a
+                                    href={href}
+                                    target={internal ? undefined : "_blank"}
+                                    rel={internal ? undefined : "noopener noreferrer"}
+                                    onClick={(e) => handleLinkClick(e, href)}
+                                    className="inline-flex items-center gap-0.5 text-primary font-medium underline underline-offset-2 decoration-primary/40 hover:decoration-primary transition-colors"
+                                  >
+                                    <span>{children}</span>
+                                    {!internal && <ExternalLink className="h-3 w-3 shrink-0" />}
+                                  </a>
+                                );
+                              },
+                            }}
+                          >
+                            {linkifyPhones(m.content)}
+                          </ReactMarkdown>
+                        </div>
+                      ) : (
+                        <p className="whitespace-pre-wrap break-words">{m.content}</p>
+                      )}
+                    </div>
+                    {/* Feedback buttons for assistant messages (not loading) */}
+                    {m.role === "assistant" && !isLoading && m.content.length > 30 && (
+                      <FeedbackButtons
+                        msgIndex={i}
+                        onFeedback={(idx, positive) => submitFeedback(idx, positive)}
+                        alreadyGiven={feedbackGiven.has(i)}
+                      />
                     )}
                   </div>
                   {m.role === "user" && (

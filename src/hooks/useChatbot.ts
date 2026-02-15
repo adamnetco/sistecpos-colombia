@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 import React from "react";
 
-type Msg = { role: "user" | "assistant"; content: string };
+type Msg = { role: "user" | "assistant"; content: string; messageDbId?: string };
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat-ai`;
 
@@ -35,6 +35,8 @@ interface ChatbotContextType {
   open: boolean;
   setOpen: (v: boolean) => void;
   userRole: string | null;
+  submitFeedback: (msgIndex: number, isPositive: boolean, comment?: string) => Promise<void>;
+  feedbackGiven: Set<number>;
 }
 
 const ChatbotContext = createContext<ChatbotContextType | null>(null);
@@ -45,6 +47,7 @@ export function ChatbotProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
+  const [feedbackGiven, setFeedbackGiven] = useState<Set<number>>(new Set());
   const sessionIdRef = useRef(generateSessionId());
   const sourcePageRef = useRef(window.location.pathname);
 
@@ -184,12 +187,56 @@ export function ChatbotProvider({ children }: { children: ReactNode }) {
   const reset = useCallback(() => {
     setMessages([]);
     setError(null);
+    setFeedbackGiven(new Set());
     sessionIdRef.current = generateSessionId();
   }, []);
 
+  const submitFeedback = useCallback(async (msgIndex: number, isPositive: boolean, comment?: string) => {
+    const msg = messages[msgIndex];
+    if (!msg || msg.role !== "assistant") return;
+
+    // Find the assistant message DB id by matching content in the conversation
+    try {
+      const { data: conv } = await supabase
+        .from("ai_conversations")
+        .select("id")
+        .eq("session_id", sessionIdRef.current)
+        .maybeSingle();
+      if (!conv) return;
+
+      // Find the most recent assistant message matching this content
+      const { data: dbMsg } = await supabase
+        .from("ai_messages")
+        .select("id")
+        .eq("conversation_id", conv.id)
+        .eq("role", "assistant")
+        .order("created_at", { ascending: false })
+        .limit(10);
+
+      if (!dbMsg || dbMsg.length === 0) return;
+
+      // Use the message position to find the right DB message
+      const assistantMsgs = messages.filter((m, i) => m.role === "assistant" && i <= msgIndex);
+      const dbIndex = assistantMsgs.length - 1;
+      const targetDbMsg = dbMsg[dbMsg.length - 1 - dbIndex] || dbMsg[0];
+
+      await supabase.from("ai_message_feedback").insert({
+        message_id: targetDbMsg.id,
+        conversation_id: conv.id,
+        is_positive: isPositive,
+        user_comment: comment || null,
+        user_role: userRole,
+      });
+
+      setFeedbackGiven((prev) => new Set(prev).add(msgIndex));
+    } catch (e) {
+      console.error("Feedback error:", e);
+    }
+  }, [messages, userRole]);
+
   const value = React.useMemo(
-    () => ({ messages, isLoading, error, send, reset, open, setOpen, userRole }),
-    [messages, isLoading, error, send, reset, open, userRole]
+    () => ({ messages, isLoading, error, send, reset, open, setOpen, userRole, submitFeedback, feedbackGiven }),
+    [messages, isLoading, error, send, reset, open, userRole, submitFeedback, feedbackGiven]
   );
 
   return React.createElement(ChatbotContext.Provider, { value }, children);
