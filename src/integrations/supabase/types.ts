@@ -1718,6 +1718,10 @@ export type Database = {
         Returns: boolean
       }
       increment_video_view: { Args: { video_id: string }; Returns: undefined }
+      link_reseller_on_login: {
+        Args: { _user_email: string; _user_id: string }
+        Returns: Json
+      }
     }
     Enums: {
       app_role: "admin" | "customer" | "reseller"

@@ -33,6 +33,9 @@ export default function AuthPage() {
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
 
+  // Track if user arrived from OAuth callback to skip cleanup
+  const [isOAuthReturn, setIsOAuthReturn] = useState(false);
+
   // Clean up stale session on /auth load (prevents access blocking)
   useEffect(() => {
     const type = searchParams.get("type");
@@ -41,12 +44,21 @@ export default function AuthPage() {
       return;
     }
 
-    // If no recovery flow, clear any stuck session so login is always fresh
+    // Detect OAuth return — Lovable Cloud redirects back after /~oauth processing
+    const referrer = document.referrer;
+    const isFromOAuth = referrer.includes("/~oauth") || 
+      sessionStorage.getItem("oauth_in_progress") === "true";
+    
+    if (isFromOAuth) {
+      setIsOAuthReturn(true);
+      sessionStorage.removeItem("oauth_in_progress");
+      return; // Do NOT clean up — session is fresh from OAuth
+    }
+
+    // If no recovery/OAuth flow, clear any stuck session so login is always fresh
     const cleanup = async () => {
       const { data: { session: existingSession } } = await supabase.auth.getSession();
       if (existingSession && !searchParams.get("type")) {
-        // User navigated to /auth explicitly — sign out to prevent stale state
-        // Only if they're not in the middle of a recovery or OAuth callback
         const hash = window.location.hash;
         if (!hash.includes("access_token") && !hash.includes("refresh_token")) {
           await supabase.auth.signOut();
@@ -63,6 +75,10 @@ export default function AuthPage() {
         setUser(session?.user ?? null);
         if (event === "PASSWORD_RECOVERY") {
           setView("reset");
+        }
+        // Mark OAuth returns so cleanup doesn't kill the session
+        if (event === "SIGNED_IN" && session) {
+          setIsOAuthReturn(true);
         }
       }
     );
@@ -82,41 +98,29 @@ export default function AuthPage() {
       const checkRedirect = async () => {
         const userEmail = user.email?.toLowerCase();
 
-        // Auto-link: if user has no reseller role but has an approved reseller_application matching their email
-        const { data: existingResellerRole } = await supabase
+        // Use SECURITY DEFINER function to auto-link reseller (bypasses RLS)
+        if (userEmail) {
+          const { data: linkResult } = await supabase.rpc("link_reseller_on_login", {
+            _user_id: user.id,
+            _user_email: userEmail,
+          });
+
+          const result = linkResult as unknown as { linked: boolean; reseller_id?: string } | null;
+          if (result?.linked) {
+            navigate("/socio");
+            return;
+          }
+        }
+
+        // Check if already has reseller role
+        const { data: resellerRole } = await supabase
           .from("user_roles")
           .select("role")
           .eq("user_id", user.id)
           .eq("role", "reseller")
           .maybeSingle();
 
-        if (!existingResellerRole && userEmail) {
-          // Check if there's an approved reseller application for this email
-          const { data: resellerApp } = await supabase
-            .from("reseller_applications")
-            .select("id, status, user_id")
-            .eq("email", userEmail)
-            .eq("status", "approved")
-            .maybeSingle();
-
-          if (resellerApp) {
-            // Auto-assign reseller role and link user_id
-            await supabase.from("user_roles").upsert(
-              { user_id: user.id, role: "reseller" as const },
-              { onConflict: "user_id,role" }
-            );
-            if (!resellerApp.user_id || resellerApp.user_id !== user.id) {
-              await supabase
-                .from("reseller_applications")
-                .update({ user_id: user.id })
-                .eq("id", resellerApp.id);
-            }
-            navigate("/socio");
-            return;
-          }
-        }
-
-        if (existingResellerRole) {
+        if (resellerRole) {
           navigate("/socio");
         } else {
           navigate("/admin");
@@ -293,10 +297,13 @@ export default function AuthPage() {
   const handleGoogleLogin = async () => {
     setLoading(true);
     try {
+      // Flag so cleanup doesn't kill the OAuth session on return
+      sessionStorage.setItem("oauth_in_progress", "true");
       const { error } = await lovable.auth.signInWithOAuth("google", {
         redirect_uri: `${window.location.origin}/auth`,
       });
       if (error) {
+        sessionStorage.removeItem("oauth_in_progress");
         toast({ title: "Error con Google", description: error.message, variant: "destructive" });
       }
     } finally {
