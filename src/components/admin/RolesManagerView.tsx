@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Search, Plus, Trash2, ShieldCheck } from "lucide-react";
+import { Search, Plus, Trash2, ShieldCheck, Crown } from "lucide-react";
 
 type AppRole = "admin" | "customer" | "reseller";
 
@@ -27,6 +27,8 @@ const ROLE_COLORS: Record<AppRole, string> = {
   reseller: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
   customer: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
 };
+
+const MASTER_EMAIL = "eduardotp77@gmail.com";
 
 export default function RolesManagerView() {
   const [users, setUsers] = useState<UserWithRoles[]>([]);
@@ -142,16 +144,21 @@ export default function RolesManagerView() {
               <tr><td colSpan={3} className="py-8 text-center text-muted-foreground">No se encontraron usuarios</td></tr>
             ) : (
               filtered.map((u) => {
+                const isMaster = u.email.toLowerCase() === MASTER_EMAIL;
                 const existingRoles = new Set(u.roles.map((r) => r.role));
                 const availableRoles = (["admin", "reseller", "customer"] as AppRole[]).filter(
                   (r) => !existingRoles.has(r)
                 );
 
                 return (
-                  <tr key={u.user_id} className="border-b hover:bg-muted/30 transition-colors">
+                  <tr key={u.user_id} className={`border-b hover:bg-muted/30 transition-colors ${isMaster ? "bg-amber-500/5" : ""}`}>
                     <td className="px-4 py-3">
-                      <div className="font-medium">{u.full_name || "Sin nombre"}</div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-medium">{u.full_name || "Sin nombre"}</span>
+                        {isMaster && <span title="Usuario Maestro"><Crown className="h-4 w-4 text-amber-500" /></span>}
+                      </div>
                       <div className="text-xs text-muted-foreground">{u.email}</div>
+                      {isMaster && <span className="text-[10px] font-semibold text-amber-600 dark:text-amber-400">MAESTRO · Protegido</span>}
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex flex-wrap gap-1.5">
@@ -162,23 +169,27 @@ export default function RolesManagerView() {
                             <Badge
                               key={r.id}
                               variant="secondary"
-                              className={`${ROLE_COLORS[r.role]} gap-1 pr-1`}
+                              className={`${ROLE_COLORS[r.role]} gap-1 ${isMaster ? "pr-2" : "pr-1"}`}
                             >
                               {ROLE_LABELS[r.role]}
-                              <button
-                                onClick={() => removeRole(r.id, r.role)}
-                                className="ml-0.5 rounded-full p-0.5 hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
-                                title={`Quitar rol ${ROLE_LABELS[r.role]}`}
-                              >
-                                <Trash2 className="h-3 w-3" />
-                              </button>
+                              {!isMaster && (
+                                <button
+                                  onClick={() => removeRole(r.id, r.role)}
+                                  className="ml-0.5 rounded-full p-0.5 hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
+                                  title={`Quitar rol ${ROLE_LABELS[r.role]}`}
+                                >
+                                  <Trash2 className="h-3 w-3" />
+                                </button>
+                              )}
                             </Badge>
                           ))
                         )}
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      {availableRoles.length === 0 ? (
+                      {isMaster ? (
+                        <span className="text-xs text-amber-600 dark:text-amber-400 font-medium">Roles protegidos</span>
+                      ) : availableRoles.length === 0 ? (
                         <span className="text-xs text-muted-foreground">Todos asignados</span>
                       ) : (
                         <div className="flex items-center gap-2">
