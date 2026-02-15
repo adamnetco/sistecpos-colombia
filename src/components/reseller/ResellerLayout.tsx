@@ -5,10 +5,9 @@ import { useReseller } from "@/hooks/useReseller";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard, KeyRound, GraduationCap, TicketCheck,
-  DollarSign, LogOut, ChevronLeft, Menu,
+  DollarSign, LogOut, ChevronLeft, Menu, X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const allNavItems = [
@@ -32,7 +31,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
     exact ? location.pathname === href : location.pathname.startsWith(href);
 
   return (
-    <>
+    <div className="flex flex-col h-full">
       <div className="flex items-center gap-2 border-b px-4 py-4">
         <img src="/lovable-uploads/43a24c53-78c0-4ca3-b642-99a376d90a0f.png" alt="SistecPOS" className="h-7" />
         <span className="text-sm font-bold">Socio</span>
@@ -65,7 +64,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           <Button variant="ghost" size="sm" onClick={signOut}><LogOut className="h-4 w-4" /></Button>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
@@ -75,18 +74,44 @@ export function ResellerLayout({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex min-h-screen w-full">
-      {isMobile ? (
-        <Sheet open={open} onOpenChange={setOpen}>
-          <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className="fixed top-3 left-3 z-50 md:hidden">
-              <Menu className="h-5 w-5" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="left" className="w-60 p-0 flex flex-col">
-            <SidebarContent onNavigate={() => setOpen(false)} />
-          </SheetContent>
-        </Sheet>
-      ) : (
+      {/* Mobile sidebar - simple overlay instead of Sheet for faster rendering */}
+      {isMobile && (
+        <>
+          {/* Trigger button - always visible */}
+          <Button
+            variant="outline"
+            size="icon"
+            className="fixed top-3 left-3 z-50 md:hidden bg-card shadow-md"
+            onClick={() => setOpen(true)}
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
+
+          {/* Backdrop + Drawer */}
+          {open && (
+            <>
+              <div
+                className="fixed inset-0 z-50 bg-black/40 animate-in fade-in-0 duration-200"
+                onClick={() => setOpen(false)}
+              />
+              <aside className="fixed inset-y-0 left-0 z-50 w-64 bg-card border-r shadow-xl animate-in slide-in-from-left duration-200">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute top-3 right-3"
+                  onClick={() => setOpen(false)}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+                <SidebarContent onNavigate={() => setOpen(false)} />
+              </aside>
+            </>
+          )}
+        </>
+      )}
+
+      {/* Desktop sidebar */}
+      {!isMobile && (
         <aside className="sticky top-0 hidden md:flex h-screen w-60 flex-col border-r bg-card">
           <SidebarContent />
         </aside>
