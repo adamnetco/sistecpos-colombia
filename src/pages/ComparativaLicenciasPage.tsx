@@ -282,7 +282,7 @@ const ComparativaLicenciasPage = () => {
       </section>
 
       {/* SistecPOS Dynamic Pricing */}
-      <section className="py-16 md:py-24 bg-muted/30">
+      <section id="planes" className="py-16 md:py-24 bg-muted/30 scroll-mt-20">
         <div className="container px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
