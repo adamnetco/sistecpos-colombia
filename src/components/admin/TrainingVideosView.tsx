@@ -9,13 +9,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, Pencil, Trash2, Search, Upload, Play, Film, CheckCircle, XCircle, Clock, Users, ShieldCheck, Tag, X, Eye } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, Upload, Play, Film, CheckCircle, XCircle, Clock, Users, ShieldCheck, Tag, X, Eye, Download } from "lucide-react";
 import { mainTutorials, quickVideos } from "@/data/trainingVideos";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import VideoCSVImporter from "./training/VideoCSVImporter";
 import VideoPreviewDialog from "./training/VideoPreviewDialog";
+import { exportToCsv } from "@/lib/exportCsv";
+import * as XLSX from "xlsx";
 
 const CATEGORIES = [
   "Básicos", "Ventas", "Inventario", "Facturación", "Caja", "Compras",
@@ -204,6 +206,54 @@ export default function TrainingVideosView() {
     }
   };
 
+  const exportColumns = [
+    { key: "title", label: "Título" },
+    { key: "category", label: "Categoría" },
+    { key: "video_url", label: "URL" },
+    { key: "video_type", label: "Tipo" },
+    { key: "duration", label: "Duración" },
+    { key: "tags", label: "Tags" },
+    { key: "is_main", label: "Principal" },
+    { key: "approval_status", label: "Estado" },
+    { key: "visible_to_customer", label: "Cliente" },
+    { key: "visible_to_reseller", label: "Socio" },
+    { key: "view_count", label: "Vistas" },
+  ];
+
+  const getExportData = () =>
+    filtered.map((v: any) => ({
+      title: v.title,
+      category: v.category,
+      video_url: v.video_url,
+      video_type: v.video_type,
+      duration: v.duration || "",
+      tags: (v.tags || []).join(", "),
+      is_main: v.is_main ? "Sí" : "No",
+      approval_status: v.approval_status ?? "approved",
+      visible_to_customer: v.visible_to_customer ? "Sí" : "No",
+      visible_to_reseller: v.visible_to_reseller ? "Sí" : "No",
+      view_count: v.view_count ?? 0,
+    }));
+
+  const handleExportCsv = () => {
+    const data = getExportData();
+    if (data.length === 0) { toast.error("No hay videos para exportar"); return; }
+    exportToCsv(data, exportColumns, "videos-capacitacion");
+    toast.success(`${data.length} videos exportados como CSV`);
+  };
+
+  const handleExportXlsx = () => {
+    const data = getExportData();
+    if (data.length === 0) { toast.error("No hay videos para exportar"); return; }
+    const headers = exportColumns.map((c) => c.label);
+    const rows = data.map((d) => exportColumns.map((c) => d[c.key as keyof typeof d]));
+    const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Videos");
+    XLSX.writeFile(wb, `videos-capacitacion-${new Date().toISOString().slice(0, 10)}.xlsx`);
+    toast.success(`${data.length} videos exportados como Excel`);
+  };
+
   const approvalBadge = (status: string) => {
     if (status === "approved") return <Badge className="bg-green-600 gap-1 text-[10px]"><CheckCircle className="h-3 w-3" />Aprobado</Badge>;
     if (status === "rejected") return <Badge variant="destructive" className="gap-1 text-[10px]"><XCircle className="h-3 w-3" />Rechazado</Badge>;
@@ -225,6 +275,12 @@ export default function TrainingVideosView() {
             </Button>
           )}
           <VideoCSVImporter />
+          <Button variant="outline" size="sm" onClick={handleExportCsv} className="gap-1.5">
+            <Download className="h-3.5 w-3.5" />CSV
+          </Button>
+          <Button variant="outline" size="sm" onClick={handleExportXlsx} className="gap-1.5">
+            <Download className="h-3.5 w-3.5" />Excel
+          </Button>
           <Button onClick={openCreate} size="sm"><Plus className="mr-1.5 h-3.5 w-3.5" /> Nuevo Video</Button>
         </div>
       </div>
