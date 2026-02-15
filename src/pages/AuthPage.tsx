@@ -80,14 +80,43 @@ export default function AuthPage() {
   useEffect(() => {
     if (user && !pending2FA && view !== "reset" && view !== "otp") {
       const checkRedirect = async () => {
-        const { data: resellerRole } = await supabase
+        const userEmail = user.email?.toLowerCase();
+
+        // Auto-link: if user has no reseller role but has an approved reseller_application matching their email
+        const { data: existingResellerRole } = await supabase
           .from("user_roles")
           .select("role")
           .eq("user_id", user.id)
           .eq("role", "reseller")
           .maybeSingle();
 
-        if (resellerRole) {
+        if (!existingResellerRole && userEmail) {
+          // Check if there's an approved reseller application for this email
+          const { data: resellerApp } = await supabase
+            .from("reseller_applications")
+            .select("id, status, user_id")
+            .eq("email", userEmail)
+            .eq("status", "approved")
+            .maybeSingle();
+
+          if (resellerApp) {
+            // Auto-assign reseller role and link user_id
+            await supabase.from("user_roles").upsert(
+              { user_id: user.id, role: "reseller" as const },
+              { onConflict: "user_id,role" }
+            );
+            if (!resellerApp.user_id || resellerApp.user_id !== user.id) {
+              await supabase
+                .from("reseller_applications")
+                .update({ user_id: user.id })
+                .eq("id", resellerApp.id);
+            }
+            navigate("/socio");
+            return;
+          }
+        }
+
+        if (existingResellerRole) {
           navigate("/socio");
         } else {
           navigate("/admin");
