@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { CartProvider } from "@/hooks/useCart";
+import { ChatbotProvider } from "@/hooks/useChatbot";
 
 function NicheRedirect() {
   const { slug } = useParams<{ slug: string }>();
@@ -69,6 +70,7 @@ const App = () => (
         <BrowserRouter>
           <AuthProvider>
             <CartProvider>
+            <ChatbotProvider>
             <ScrollToTop />
             <Suspense fallback={<PageLoader />}>
               <Routes>
@@ -117,6 +119,7 @@ const App = () => (
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
+            </ChatbotProvider>
           </CartProvider>
           </AuthProvider>
         </BrowserRouter>

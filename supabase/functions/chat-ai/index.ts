@@ -13,7 +13,7 @@ serve(async (req) => {
   }
 
   try {
-    const { messages, session_id, source_page } = await req.json();
+    const { messages, session_id, source_page, user_role, user_email } = await req.json();
 
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
       return new Response(JSON.stringify({ error: "messages required" }), {
@@ -90,8 +90,31 @@ Reglas:
 - Nunca inventes precios o datos que no estén en tu base de conocimiento
 - La web oficial es sistecpos.com y el WhatsApp comercial es el que aparezca en la base de conocimiento`;
 
-    const systemPrompt = `${basePrompt}
+    // Build role-specific context
+    let roleContext = "";
+    if (user_role === "reseller") {
+      roleContext = `\n\n## Contexto del usuario:
+El usuario es un SOCIO/REPRESENTANTE de SistecPOS (email: ${user_email || "desconocido"}).
+- NO intentes venderle productos, él ya es parte del equipo comercial.
+- Ayúdalo con: gestión de licencias, comisiones, dudas técnicas para sus clientes, materiales de venta, resolución de problemas.
+- Si no puedes resolver su inquietud, escálalo a soporte técnico interno.
+- Trátalo como un aliado comercial.`;
+    } else if (user_role === "customer") {
+      roleContext = `\n\n## Contexto del usuario:
+El usuario es un CLIENTE activo de SistecPOS (email: ${user_email || "desconocido"}).
+- Ayúdalo a resolver dudas sobre el uso del software POS.
+- Sugiere upgrades o productos complementarios cuando sea relevante.
+- Si el problema es técnico y complejo, escálalo a soporte: sugiere crear un ticket en /clientes o contactar WhatsApp.
+- Bríndale información sobre capacitaciones disponibles.`;
+    } else if (user_role === "admin") {
+      roleContext = `\n\n## Contexto del usuario:
+El usuario es un ADMINISTRADOR de SistecPOS (email: ${user_email || "desconocido"}).
+- Puedes dar respuestas más técnicas y detalladas.
+- Tiene acceso completo a todas las funcionalidades.`;
+    }
 
+    const systemPrompt = `${basePrompt}
+${roleContext}
 ${knowledgeContext}`;
 
     // Save/update conversation
