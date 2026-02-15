@@ -28,6 +28,13 @@ export const LICENSE_PLANS: LicensePlan[] = [
     isAnnual: true,
     defaultPriceCOP: 1479000,
   },
+  {
+    value: "vitalicio",
+    label: "Plan Vitalicio",
+    description: "Licencia de por vida, sin renovación anual",
+    isAnnual: false,
+    defaultPriceCOP: 2999000,
+  },
 ];
 
 /** Display-friendly label for a plan_type value */
