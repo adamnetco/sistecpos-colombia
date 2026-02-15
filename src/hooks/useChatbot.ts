@@ -205,11 +205,14 @@ export { isInternalUrl };
 
 export function useChatbotVisibility(currentPath: string) {
   const { user } = useAuth();
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(() => {
+    // Immediately visible for admin/socio/clientes paths when likely logged in
+    return currentPath.startsWith("/admin") || currentPath.startsWith("/socio") || currentPath.startsWith("/clientes");
+  });
 
   useEffect(() => {
-    // Always show chatbot for logged-in users
-    if (user) {
+    // Always show chatbot for logged-in users or protected paths
+    if (user || currentPath.startsWith("/admin") || currentPath.startsWith("/socio") || currentPath.startsWith("/clientes")) {
       setVisible(true);
       return;
     }
