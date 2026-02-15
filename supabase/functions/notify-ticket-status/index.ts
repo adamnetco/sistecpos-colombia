@@ -1,0 +1,233 @@
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+const SITE_URL = "https://sistecpos.lovable.app";
+
+interface TicketPayload {
+  type: "ticket_responded" | "ticket_status_changed";
+  ticket_type: "client" | "reseller";
+  ticket_id: string;
+  subject: string;
+  recipient_email: string;
+  recipient_name: string;
+  new_status: string;
+  admin_response?: string;
+}
+
+interface ResellerStatusPayload {
+  type: "reseller_status_changed";
+  reseller_id: string;
+  name: string;
+  email: string;
+  old_status: string;
+  new_status: string;
+}
+
+type Payload = TicketPayload | ResellerStatusPayload;
+
+const statusLabels: Record<string, string> = {
+  open: "Abierto",
+  resolved: "Resuelto",
+  pending: "Pendiente",
+  reviewing: "En Revisión",
+  approved: "Aprobado",
+  rejected: "Rechazado",
+};
+
+function ticketResponseHtml(name: string, subject: string, response: string, status: string, portalUrl: string): string {
+  const statusLabel = statusLabels[status] || status;
+  const statusColor = status === "resolved" ? "#16a34a" : "#eab308";
+  return `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <div style="max-width:600px;margin:0 auto;padding:40px 20px;">
+    <div style="background:#ffffff;border-radius:16px;padding:40px 32px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+      <div style="text-align:center;margin-bottom:24px;">
+        <img src="${SITE_URL}/lovable-uploads/43a24c53-78c0-4ca3-b642-99a376d90a0f.png" alt="SistecPOS" style="height:36px;" />
+      </div>
+      <div style="text-align:center;margin-bottom:20px;">
+        <span style="display:inline-block;background:${statusColor};color:#fff;font-size:12px;font-weight:700;padding:4px 14px;border-radius:20px;text-transform:uppercase;">${statusLabel}</span>
+      </div>
+      <h1 style="text-align:center;color:#1a1a2e;font-size:20px;margin:0 0 8px;">Actualización de tu Ticket</h1>
+      <p style="text-align:center;color:#6b7280;font-size:14px;margin:0 0 24px;">Hola <strong>${name}</strong>, tu ticket ha sido actualizado.</p>
+      
+      <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:12px;padding:16px;margin-bottom:16px;">
+        <p style="margin:0 0 4px;color:#374151;font-size:13px;font-weight:600;">📋 Asunto</p>
+        <p style="margin:0;color:#6b7280;font-size:14px;">${subject}</p>
+      </div>
+
+      ${response ? `
+      <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:16px;margin-bottom:24px;">
+        <p style="margin:0 0 8px;color:#1e40af;font-size:13px;font-weight:600;">💬 Respuesta del equipo</p>
+        <p style="margin:0;color:#1e3a5f;font-size:14px;line-height:1.6;white-space:pre-wrap;">${response}</p>
+      </div>` : ""}
+
+      <div style="text-align:center;margin:24px 0;">
+        <a href="${portalUrl}" style="display:inline-block;background:#2563eb;color:#ffffff;font-size:14px;font-weight:600;padding:12px 32px;border-radius:10px;text-decoration:none;">
+          Ver en mi Portal
+        </a>
+      </div>
+
+      <hr style="border:none;border-top:1px solid #e5e7eb;margin:32px 0;" />
+      <p style="text-align:center;color:#9ca3af;font-size:12px;margin:0;">© ${new Date().getFullYear()} SistecPOS · Software POS Colombia</p>
+    </div>
+  </div>
+</body>
+</html>`;
+}
+
+function resellerStatusHtml(name: string, oldStatus: string, newStatus: string): string {
+  const oldLabel = statusLabels[oldStatus] || oldStatus;
+  const newLabel = statusLabels[newStatus] || newStatus;
+  const isPositive = newStatus === "approved" || newStatus === "reviewing";
+  const bgColor = isPositive ? "#f0fdf4" : "#fef2f2";
+  const borderColor = isPositive ? "#bbf7d0" : "#fecaca";
+  const textColor = isPositive ? "#166534" : "#991b1b";
+  const emoji = newStatus === "approved" ? "🎉" : newStatus === "reviewing" ? "🔍" : newStatus === "rejected" ? "❌" : "📋";
+
+  return `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <div style="max-width:600px;margin:0 auto;padding:40px 20px;">
+    <div style="background:#ffffff;border-radius:16px;padding:40px 32px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+      <div style="text-align:center;margin-bottom:24px;">
+        <img src="${SITE_URL}/lovable-uploads/43a24c53-78c0-4ca3-b642-99a376d90a0f.png" alt="SistecPOS" style="height:36px;" />
+      </div>
+      <h1 style="text-align:center;color:#1a1a2e;font-size:20px;margin:0 0 8px;">${emoji} Actualización de Estado</h1>
+      <p style="text-align:center;color:#6b7280;font-size:14px;margin:0 0 24px;">Hola <strong>${name}</strong>, el estado de tu solicitud de socio ha cambiado.</p>
+      
+      <div style="background:${bgColor};border:1px solid ${borderColor};border-radius:12px;padding:20px;margin-bottom:24px;text-align:center;">
+        <p style="margin:0 0 8px;color:#6b7280;font-size:13px;">
+          <span style="text-decoration:line-through;">${oldLabel}</span> → <strong style="color:${textColor};font-size:16px;">${newLabel}</strong>
+        </p>
+      </div>
+
+      ${newStatus === "approved" ? `
+      <p style="color:#166534;font-size:14px;text-align:center;line-height:1.6;">
+        🚀 Tu panel de socios ha sido activado. Revisa tu correo de bienvenida para acceder.
+      </p>` : newStatus === "rejected" ? `
+      <p style="color:#991b1b;font-size:14px;text-align:center;line-height:1.6;">
+        Lamentamos informarte que tu solicitud no fue aprobada en esta ocasión. Si tienes dudas, no dudes en contactarnos.
+      </p>` : `
+      <p style="color:#6b7280;font-size:14px;text-align:center;line-height:1.6;">
+        Nuestro equipo está revisando tu solicitud. Te notificaremos cuando haya novedades.
+      </p>`}
+
+      <div style="text-align:center;margin:24px 0;">
+        <a href="https://wa.me/573176268307?text=Hola,%20soy%20socio%20y%20tengo%20una%20consulta" style="display:inline-block;background:#25D366;color:#ffffff;font-size:14px;font-weight:600;padding:12px 28px;border-radius:10px;text-decoration:none;">
+          💬 Soporte por WhatsApp
+        </a>
+      </div>
+
+      <hr style="border:none;border-top:1px solid #e5e7eb;margin:32px 0;" />
+      <p style="text-align:center;color:#9ca3af;font-size:12px;margin:0;">© ${new Date().getFullYear()} SistecPOS · Software POS Colombia</p>
+    </div>
+  </div>
+</body>
+</html>`;
+}
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
+  }
+
+  try {
+    const payload: Payload = await req.json();
+    const resendKey = Deno.env.get("RESEND_API_KEY");
+
+    if (!resendKey) {
+      return new Response(JSON.stringify({ error: "RESEND_API_KEY not set" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    if (payload.type === "ticket_responded" || payload.type === "ticket_status_changed") {
+      const p = payload as TicketPayload;
+      const portalUrl = p.ticket_type === "client" ? `${SITE_URL}/clientes` : `${SITE_URL}/socio`;
+
+      const res = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${resendKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: "SistecPOS <notificaciones@sistecpos.com>",
+          to: [p.recipient_email],
+          subject: p.new_status === "resolved"
+            ? `✅ Tu ticket "${p.subject}" fue resuelto — SistecPOS`
+            : `📋 Actualización de tu ticket "${p.subject}" — SistecPOS`,
+          html: ticketResponseHtml(p.recipient_name, p.subject, p.admin_response || "", p.new_status, portalUrl),
+        }),
+      });
+
+      if (!res.ok) {
+        const err = await res.text();
+        console.error("Resend error:", err);
+        return new Response(JSON.stringify({ error: "Email send failed" }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    if (payload.type === "reseller_status_changed") {
+      const p = payload as ResellerStatusPayload;
+
+      // Don't send for approved — that's handled by send-reseller-email
+      if (p.new_status === "approved") {
+        return new Response(JSON.stringify({ success: true, skipped: "handled_by_approval_flow" }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const res = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${resendKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: "SistecPOS <notificaciones@sistecpos.com>",
+          to: [p.email],
+          subject: `📋 Actualización de tu solicitud de socio — SistecPOS`,
+          html: resellerStatusHtml(p.name, p.old_status, p.new_status),
+        }),
+      });
+
+      if (!res.ok) {
+        const err = await res.text();
+        console.error("Resend error:", err);
+      }
+
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    return new Response(JSON.stringify({ error: "Invalid type" }), {
+      status: 400,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  } catch (err) {
+    console.error("Error:", err);
+    return new Response(JSON.stringify({ error: "Internal error" }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+});
