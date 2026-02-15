@@ -25,6 +25,7 @@ const ClientDownloadsView = lazy(() => import("@/components/admin/ClientDownload
 const ClientTicketsView = lazy(() => import("@/components/admin/ClientTicketsView"));
 const TrainingVideosView = lazy(() => import("@/components/admin/TrainingVideosView"));
 const LicensePricingView = lazy(() => import("@/components/admin/LicensePricingView"));
+const RolesManagerView = lazy(() => import("@/components/admin/RolesManagerView"));
 
 function Loader() {
   return (
@@ -60,6 +61,7 @@ export default function AdminPage() {
             <Route path="descargas-clientes" element={<ClientDownloadsView />} />
             <Route path="tickets-clientes" element={<ClientTicketsView />} />
             <Route path="capacitacion" element={<TrainingVideosView />} />
+            <Route path="roles" element={<RolesManagerView />} />
             <Route path="configuracion" element={<SettingsView />} />
           </Routes>
         </Suspense>
