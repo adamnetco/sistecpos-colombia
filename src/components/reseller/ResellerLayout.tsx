@@ -1,5 +1,6 @@
 import { ReactNode, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { RoleSwitcherBar } from "@/components/shared/RoleSwitcherBar";
 import { useAuth } from "@/hooks/useAuth";
 import { useReseller } from "@/hooks/useReseller";
 import { cn } from "@/lib/utils";
@@ -118,6 +119,7 @@ export function ResellerLayout({ children }: { children: ReactNode }) {
       )}
 
       <main className="flex-1 bg-muted/30 p-4 pt-14 md:p-6 md:pt-8">
+        <RoleSwitcherBar />
         {children}
       </main>
     </div>
