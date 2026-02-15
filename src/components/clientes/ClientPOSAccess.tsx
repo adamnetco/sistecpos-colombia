@@ -90,17 +90,16 @@ export function ClientPOSAccess() {
 
         if (error) throw error;
 
-        if (data?.success) {
-          toast({ title: "✅ Credenciales verificadas y almacenadas" });
+        if (data?.stored) {
+          toast({ title: "✅ Credenciales almacenadas correctamente" });
+          submitPOSForm(username, store, password);
+          loadSavedSessions();
+        } else if (data?.success) {
+          toast({ title: "✅ Acceso verificado" });
           submitPOSForm(username, store, password);
           loadSavedSessions();
         } else {
-          toast({
-            title: "Acceso no verificado",
-            description: data?.message || "Las credenciales no fueron aceptadas por el POS",
-            variant: "destructive",
-          });
-          // Still open POS for manual attempt
+          toast({ title: "Abriendo POS...", description: data?.message });
           submitPOSForm(username, store, password);
         }
       } catch (err) {
