@@ -5,7 +5,7 @@ import { useReseller } from "@/hooks/useReseller";
 import { ResellerLayout } from "@/components/reseller/ResellerLayout";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
-import { Home, ShieldX, Clock, MessageCircle, ArrowLeft, LogIn } from "lucide-react";
+import { Home, ShieldX, Clock, MessageCircle, ArrowLeft, LogIn, Chrome, KeyRound, CheckCircle2, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 
 const ResellerDashboard = lazy(() => import("@/components/reseller/ResellerDashboard"));
@@ -22,77 +22,145 @@ function Loader() {
   );
 }
 
-function RestrictedPage({ variant }: { variant: "no-access" | "pending" }) {
-  const isNoAccess = variant === "no-access";
+function RestrictedPage({ variant }: { variant: "no-access" | "pending" | "not-logged" }) {
+  const isPending = variant === "pending";
+  const isNotLogged = variant === "not-logged";
 
   return (
     <Layout>
-      <section className="py-20 md:py-32">
+      <section className="py-16 md:py-28">
         <div className="container px-4">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="max-w-2xl mx-auto text-center"
+            className="max-w-xl mx-auto"
           >
-            <div className="relative mb-8">
+            {/* Icon */}
+            <div className="text-center mb-8">
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                transition={{ type: "spring", delay: 0.2 }}
-                className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-primary/10"
+                transition={{ type: "spring", delay: 0.2, stiffness: 200 }}
+                className={`mx-auto flex h-20 w-20 items-center justify-center rounded-2xl ${
+                  isPending
+                    ? "bg-yellow-500/10"
+                    : isNotLogged
+                    ? "bg-primary/10"
+                    : "bg-destructive/10"
+                }`}
               >
-                {isNoAccess ? (
-                  <ShieldX className="h-12 w-12 text-primary" />
+                {isPending ? (
+                  <Clock className="h-10 w-10 text-yellow-500" />
+                ) : isNotLogged ? (
+                  <Sparkles className="h-10 w-10 text-primary" />
                 ) : (
-                  <Clock className="h-12 w-12 text-yellow-500" />
+                  <ShieldX className="h-10 w-10 text-destructive" />
                 )}
               </motion.div>
             </div>
 
-            <h1 className="text-2xl md:text-3xl font-bold mb-4">
-              {isNoAccess ? "Acceso Restringido" : "Solicitud en Revisión"}
+            {/* Title & description */}
+            <h1 className="text-2xl md:text-3xl font-bold text-center mb-3">
+              {isPending
+                ? "Tu solicitud está en revisión"
+                : isNotLogged
+                ? "Accede a tu Panel de Socios"
+                : "Acceso Restringido"}
             </h1>
-            <p className="text-lg text-muted-foreground mb-10 max-w-md mx-auto">
-              {isNoAccess
-                ? "No tienes permisos de socio distribuidor. Si crees que es un error, contacta al equipo de soporte."
-                : "Tu solicitud de socio está pendiente de aprobación. Te notificaremos cuando sea procesada."}
+            <p className="text-center text-muted-foreground mb-8 max-w-md mx-auto">
+              {isPending
+                ? "Hemos recibido tu postulación. Nuestro equipo la revisará en las próximas 24 horas y te notificaremos por correo."
+                : isNotLogged
+                ? "Inicia sesión para acceder a tu panel de socios con todas las herramientas para gestionar tu negocio."
+                : "No tienes permisos de socio distribuidor. Si ya fuiste aprobado, inicia sesión con el correo registrado."}
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" asChild>
-                <Link to="/" className="gap-2">
-                  <Home className="h-4 w-4" />
-                  Ir al Inicio
-                </Link>
-              </Button>
-              {isNoAccess && (
-                <Button size="lg" variant="outline" asChild>
-                  <Link to="/representantes" className="gap-2">
+            {/* Access options card for not-logged and no-access */}
+            {(isNotLogged || variant === "no-access") && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="bg-card border border-border rounded-2xl p-6 mb-8 space-y-4"
+              >
+                <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground text-center">
+                  ¿Cómo acceder?
+                </h2>
+
+                <div className="grid gap-3">
+                  <div className="flex items-start gap-3 p-3 rounded-xl bg-green-500/5 border border-green-500/20">
+                    <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-500/10">
+                      <Chrome className="h-4 w-4 text-green-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-sm">Opción 1 — Google (Recomendada)</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Haz clic en "Continuar con Google" usando el correo con el que te postulaste. Acceso inmediato.
+                      </p>
+                    </div>
+                    <CheckCircle2 className="h-4 w-4 text-green-500 mt-1 shrink-0" />
+                  </div>
+
+                  <div className="flex items-start gap-3 p-3 rounded-xl bg-amber-500/5 border border-amber-500/20">
+                    <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-500/10">
+                      <KeyRound className="h-4 w-4 text-amber-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-sm">Opción 2 — Email y Contraseña</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Usa el enlace del correo de bienvenida para crear tu contraseña.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <Button size="lg" className="w-full gradient-bg text-primary-foreground" asChild>
+                  <Link to="/auth" className="gap-2">
                     <LogIn className="h-4 w-4" />
-                    Ser Socio
+                    Ir a Iniciar Sesión
+                  </Link>
+                </Button>
+              </motion.div>
+            )}
+
+            {/* Actions */}
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              {isPending && (
+                <Button size="lg" className="gradient-bg text-primary-foreground" asChild>
+                  <Link to="/" className="gap-2">
+                    <Home className="h-4 w-4" />
+                    Ir al Inicio
                   </Link>
                 </Button>
               )}
-              <Button size="lg" className="btn-whatsapp gap-2" asChild>
+              {variant === "no-access" && (
+                <Button size="lg" variant="outline" asChild>
+                  <Link to="/representantes" className="gap-2">
+                    <Sparkles className="h-4 w-4" />
+                    Quiero ser Socio
+                  </Link>
+                </Button>
+              )}
+              <Button size="lg" variant="outline" className="gap-2" asChild>
                 <a
                   href="https://wa.me/573176268307?text=Hola,%20necesito%20ayuda%20con%20mi%20acceso%20al%20portal%20de%20socios"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
                   <MessageCircle className="h-4 w-4" />
-                  Escríbenos
+                  Soporte por WhatsApp
                 </a>
               </Button>
             </div>
 
-            <div className="mt-12">
+            <div className="mt-10 text-center">
               <button
                 onClick={() => window.history.back()}
                 className="text-sm text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-1"
               >
                 <ArrowLeft className="h-3 w-3" />
-                Volver a la página anterior
+                Volver atrás
               </button>
             </div>
           </motion.div>
@@ -114,7 +182,7 @@ function ResellerGuard({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (!user) return <Navigate to="/auth" replace />;
+  if (!user) return <RestrictedPage variant="not-logged" />;
 
   if (!isReseller || !reseller) return <RestrictedPage variant="no-access" />;
 
