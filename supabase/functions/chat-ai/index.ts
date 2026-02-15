@@ -64,6 +64,36 @@ serve(async (req) => {
       }
     }
 
+    // Load training videos catalog for video suggestions
+    const videoQuery: Record<string, any> = { is_active: true, approval_status: "approved" };
+    if (user_role === "customer") videoQuery.visible_to_customer = true;
+    else if (user_role === "reseller") videoQuery.visible_to_reseller = true;
+
+    const { data: trainingVideos } = await supabase
+      .from("training_videos")
+      .select("title, category, tags, is_main, video_url")
+      .match(videoQuery)
+      .order("sort_order", { ascending: true })
+      .limit(100);
+
+    let videoCatalogContext = "";
+    if (trainingVideos && trainingVideos.length > 0) {
+      const slugify = (t: string) => t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+      const basePath = user_role === "reseller" ? "/socio/entrenamientos" : "/clientes";
+
+      videoCatalogContext = `\n\n## Catálogo de Video Tutoriales Disponibles:
+Cuando el usuario pregunte cómo hacer algo, busque ayuda, tutorial o capacitación, sugiere los videos más relevantes de este catálogo.
+Comparte el enlace directo al video usando el formato: [Título del video](${basePath}#video-SLUG)
+donde SLUG es el slug generado del título.
+
+Videos disponibles:\n`;
+      trainingVideos.forEach((v: any) => {
+        const slug = slugify(v.title);
+        const tags = (v.tags || []).join(", ");
+        videoCatalogContext += `- **${v.title}** (${v.category}${tags ? `, tags: ${tags}` : ""}) → enlace: ${basePath}#video-${slug}\n`;
+      });
+    }
+
     // Load admin corrections with their preceding user questions for better few-shot context
     const { data: corrections } = await supabase
       .from("ai_messages")
@@ -132,12 +162,14 @@ Reglas:
 El usuario es un SOCIO/REPRESENTANTE de SistecPOS (email: ${user_email || "desconocido"}).
 - NO intentes venderle productos, él ya es parte del equipo comercial.
 - Ayúdalo con: gestión de licencias, comisiones, dudas técnicas para sus clientes, materiales de venta, resolución de problemas.
+- Cuando pregunte cómo hacer algo, sugiere videos tutoriales relevantes del catálogo con enlaces directos a /socio/entrenamientos#video-SLUG.
 - Si no puedes resolver su inquietud, escálalo a soporte técnico interno.
 - Trátalo como un aliado comercial.`;
     } else if (user_role === "customer") {
       roleContext = `\n\n## Contexto del usuario:
 El usuario es un CLIENTE activo de SistecPOS (email: ${user_email || "desconocido"}).
 - Ayúdalo a resolver dudas sobre el uso del software POS.
+- Cuando pregunte cómo hacer algo, sugiere videos tutoriales paso a paso del catálogo con enlaces directos a /clientes#video-SLUG.
 - Sugiere upgrades o productos complementarios cuando sea relevante.
 - Si el problema es técnico y complejo, escálalo a soporte: sugiere crear un ticket en /clientes o contactar WhatsApp.
 - Bríndale información sobre capacitaciones disponibles.`;
@@ -146,11 +178,18 @@ El usuario es un CLIENTE activo de SistecPOS (email: ${user_email || "desconocid
 El usuario es un ADMINISTRADOR de SistecPOS (email: ${user_email || "desconocido"}).
 - Puedes dar respuestas más técnicas y detalladas.
 - Tiene acceso completo a todas las funcionalidades.`;
+    } else {
+      // Visitante público (no autenticado)
+      roleContext = `\n\n## Contexto del usuario:
+El usuario es un VISITANTE del sitio web.
+- Cuando pregunte cómo funciona el software, menciona que hay video tutoriales disponibles en la sección de capacitaciones.
+- Sugiere que se registre o contacte al equipo comercial para acceder al centro de capacitación completo.`;
     }
 
     const systemPrompt = `${basePrompt}
 ${roleContext}
 ${knowledgeContext}
+${videoCatalogContext}
 ${correctionContext}`;
 
     // Save/update conversation
