@@ -1,11 +1,11 @@
-import { useState, useRef, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useRef, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageCircle, X, Send, RotateCcw, Bot, User, ExternalLink } from "lucide-react";
+import { X, Send, RotateCcw, Bot, User, ExternalLink } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { useChatbot, useChatbotVisibility } from "@/hooks/useChatbot";
+import { useChatbot, useChatbotVisibility, isInternalUrl } from "@/hooks/useChatbot";
+import { ChatInput } from "./ChatInput";
 
 /** Convert raw phone numbers like +573176268307 into markdown WhatsApp links */
 function linkifyPhones(text: string): string {
@@ -14,10 +14,9 @@ function linkifyPhones(text: string): string {
 
 export function ChatbotWidget() {
   const location = useLocation();
+  const navigate = useNavigate();
   const visible = useChatbotVisibility(location.pathname);
-  const [open, setOpen] = useState(false);
-  const [input, setInput] = useState("");
-  const { messages, isLoading, error, send, reset } = useChatbot(location.pathname);
+  const { messages, isLoading, error, send, reset, open, setOpen, userRole } = useChatbot();
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -28,22 +27,31 @@ export function ChatbotWidget() {
 
   if (!visible) return null;
 
-  const handleSend = () => {
-    if (!input.trim()) return;
-    send(input);
-    setInput("");
-  };
+  const quickQuestions = userRole === "reseller"
+    ? ["¿Cómo gestiono licencias?", "¿Cómo vender SistecPOS?", "Tengo un problema técnico"]
+    : userRole === "customer"
+    ? ["¿Cómo uso mi POS?", "Necesito soporte técnico", "¿Qué planes de upgrade hay?"]
+    : ["¿Qué planes tienen?", "¿Cómo funciona la facturación?", "Necesito una demo"];
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+  const roleLabel = userRole === "reseller" ? "Socio" : userRole === "customer" ? "Cliente" : userRole === "admin" ? "Admin" : null;
+
+  /** Handle link clicks: internal links navigate in-app, external open new tab */
+  const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (isInternalUrl(href)) {
       e.preventDefault();
-      handleSend();
+      try {
+        const url = new URL(href, window.location.origin);
+        navigate(url.pathname + url.search + url.hash);
+      } catch {
+        navigate(href);
+      }
     }
+    // External links open normally (target="_blank" via component)
   };
 
   return (
     <>
-      {/* Toggle button - positioned to the left of WhatsApp */}
+      {/* Toggle button */}
       <AnimatePresence>
         {!open && (
           <motion.button
@@ -79,7 +87,9 @@ export function ChatbotWidget() {
                 <Bot className="h-5 w-5" />
                 <div>
                   <p className="text-sm font-semibold">Asistente SistecPOS</p>
-                  <p className="text-[10px] opacity-80">Respuestas en tiempo real</p>
+                  <p className="text-[10px] opacity-80">
+                    {roleLabel ? `Modo ${roleLabel} · Respuestas en tiempo real` : "Respuestas en tiempo real"}
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-1">
@@ -112,13 +122,17 @@ export function ChatbotWidget() {
                     ¡Hola! 👋 Soy el asistente de SistecPOS.
                   </p>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Pregúntame sobre software POS, planes o facturación electrónica.
+                    {userRole === "reseller"
+                      ? "Estoy aquí para ayudarte a gestionar tu operación como socio."
+                      : userRole === "customer"
+                      ? "¿En qué puedo ayudarte con tu software POS?"
+                      : "Pregúntame sobre software POS, planes o facturación electrónica."}
                   </p>
                   <div className="mt-4 flex flex-wrap justify-center gap-2">
-                    {["¿Qué planes tienen?", "¿Cómo funciona la facturación?", "Necesito una demo"].map((q) => (
+                    {quickQuestions.map((q) => (
                       <button
                         key={q}
-                        onClick={() => { send(q); }}
+                        onClick={() => send(q)}
                         className="rounded-full border border-primary/20 bg-primary/5 px-3 py-1.5 text-xs text-primary hover:bg-primary/10 transition-colors"
                       >
                         {q}
@@ -144,17 +158,28 @@ export function ChatbotWidget() {
                   >
                     {m.role === "assistant" ? (
                       <div className="prose prose-sm prose-slate dark:prose-invert max-w-none break-words [&>p]:m-0 [&>ul]:my-1 [&>ol]:my-1 [&>li]:my-0.5 [&>p+p]:mt-2 [&_table]:w-full [&_table]:text-xs [&_table]:border-collapse [&_th]:bg-muted [&_th]:px-2 [&_th]:py-1 [&_th]:text-left [&_th]:border [&_th]:border-border [&_td]:px-2 [&_td]:py-1 [&_td]:border [&_td]:border-border [&_ul]:list-disc [&_ul]:pl-4 [&_ol]:list-decimal [&_ol]:pl-4">
-                        <ReactMarkdown components={{
-                          a: ({ href, children }) => {
-                            if (!href) return <>{children}</>;
-                            return (
-                              <a href={href} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-0.5 text-primary font-medium underline underline-offset-2 decoration-primary/40 hover:decoration-primary transition-colors">
-                                <span>{children}</span>
-                                <ExternalLink className="h-3 w-3 shrink-0" />
-                              </a>
-                            );
-                          },
-                        }}>{linkifyPhones(m.content)}</ReactMarkdown>
+                        <ReactMarkdown
+                          components={{
+                            a: ({ href, children }) => {
+                              if (!href) return <>{children}</>;
+                              const internal = isInternalUrl(href);
+                              return (
+                                <a
+                                  href={href}
+                                  target={internal ? undefined : "_blank"}
+                                  rel={internal ? undefined : "noopener noreferrer"}
+                                  onClick={(e) => handleLinkClick(e, href)}
+                                  className="inline-flex items-center gap-0.5 text-primary font-medium underline underline-offset-2 decoration-primary/40 hover:decoration-primary transition-colors"
+                                >
+                                  <span>{children}</span>
+                                  {!internal && <ExternalLink className="h-3 w-3 shrink-0" />}
+                                </a>
+                              );
+                            },
+                          }}
+                        >
+                          {linkifyPhones(m.content)}
+                        </ReactMarkdown>
                       </div>
                     ) : (
                       <p className="whitespace-pre-wrap break-words">{m.content}</p>
@@ -191,30 +216,7 @@ export function ChatbotWidget() {
             </div>
 
             {/* Input */}
-            <div className="border-t bg-card p-3">
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder="Escribe tu pregunta..."
-                  disabled={isLoading}
-                  className="flex-1 rounded-full border bg-muted/50 px-4 py-2.5 text-sm outline-none ring-primary focus:ring-2 disabled:opacity-50 transition-all"
-                />
-                <Button
-                  size="icon"
-                  onClick={handleSend}
-                  disabled={isLoading || !input.trim()}
-                  className="h-10 w-10 shrink-0 rounded-full gradient-bg text-primary-foreground"
-                >
-                  <Send className="h-4 w-4" />
-                </Button>
-              </div>
-              <p className="mt-1.5 text-center text-[10px] text-muted-foreground">
-                Asistente IA · Puede cometer errores
-              </p>
-            </div>
+            <ChatInput onSend={send} isLoading={isLoading} />
           </motion.div>
         )}
       </AnimatePresence>
