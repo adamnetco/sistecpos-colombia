@@ -61,10 +61,10 @@ function mapToVideoItems(dbVideos: any[] | undefined): VideoItem[] {
   ];
 }
 
-function YouTubeEmbed({ videoId }: { videoId: string }) {
+function YouTubeEmbed({ videoId, autoplay = false }: { videoId: string; autoplay?: boolean }) {
   return (
     <div className="relative w-full overflow-hidden rounded-xl" style={{ paddingBottom: "56.25%" }}>
-      <iframe className="absolute inset-0 h-full w-full" src={`https://www.youtube.com/embed/${videoId}`}
+      <iframe className="absolute inset-0 h-full w-full" src={`https://www.youtube.com/embed/${videoId}${autoplay ? "?autoplay=1" : ""}`}
         title="YouTube video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
     </div>
   );
@@ -168,6 +168,7 @@ export default function TrainingVideoHub({ userRole }: TrainingVideoHubProps) {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [activeVideo, setActiveVideo] = useState<VideoItem | null>(null);
+  const [isDeepLink, setIsDeepLink] = useState(false);
   const [showAllQuick, setShowAllQuick] = useState(false);
 
   const location = useLocation();
@@ -179,11 +180,17 @@ export default function TrainingVideoHub({ userRole }: TrainingVideoHubProps) {
 
   const handleSelectVideo = useCallback((v: VideoItem) => {
     setActiveVideo(v);
+    setIsDeepLink(false);
     incrementView.mutate(v.id);
-    // Update hash without scroll
     const slug = videoSlug(v.title);
     window.history.replaceState(null, "", `#video-${slug}`);
+    // Scroll to player on manual select too
+    setTimeout(() => {
+      playerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
   }, [incrementView]);
+
+  const playerRef = useRef<HTMLDivElement>(null);
 
   // Auto-open video from URL hash (deep link)
   useEffect(() => {
@@ -193,13 +200,14 @@ export default function TrainingVideoHub({ userRole }: TrainingVideoHubProps) {
     const target = allVideos.find((v) => `video-${videoSlug(v.title)}` === hash);
     if (target) {
       hasScrolledRef.current = true;
-      // Ensure quick videos are visible if needed
       if (!target.is_main) setShowAllQuick(true);
       setTimeout(() => {
         setActiveVideo(target);
+        setIsDeepLink(true);
         incrementView.mutate(target.id);
-        const el = document.getElementById(hash);
-        el?.scrollIntoView({ behavior: "smooth", block: "center" });
+        setTimeout(() => {
+          playerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 150);
       }, 400);
     }
   }, [allVideos, location.hash]);
@@ -316,15 +324,29 @@ export default function TrainingVideoHub({ userRole }: TrainingVideoHubProps) {
       <AnimatePresence>
         {activeVideo && (
           <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            ref={playerRef}
+            initial={{ opacity: 0, y: 30, scale: 0.92 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.95 }}
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="rounded-2xl border-2 border-primary/20 bg-card p-4 md:p-6 shadow-lg space-y-4"
+            transition={{ type: "spring", stiffness: 260, damping: 24 }}
+            className="relative rounded-2xl border-2 border-primary/40 bg-card p-4 md:p-6 shadow-2xl space-y-4 scroll-mt-4 ring-2 ring-primary/20 ring-offset-2 ring-offset-background"
           >
+            {/* Animated glow effect */}
+            <motion.div
+              className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-primary/20 via-primary/10 to-primary/20 blur-md -z-10"
+              animate={{ opacity: [0.4, 0.8, 0.4] }}
+              transition={{ duration: 2, repeat: 3, ease: "easeInOut" }}
+            />
             <div className="flex items-start justify-between gap-3">
               <div className="space-y-1.5">
-                <h3 className="text-lg font-bold">{activeVideo.title}</h3>
+                <motion.h3
+                  className="text-lg font-bold"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.15 }}
+                >
+                  {activeVideo.title}
+                </motion.h3>
                 <div className="flex flex-wrap gap-1.5">
                   <Badge variant="secondary" className="capitalize">{activeVideo.category}</Badge>
                   {(activeVideo.tags || []).map((t) => (
@@ -332,12 +354,12 @@ export default function TrainingVideoHub({ userRole }: TrainingVideoHubProps) {
                   ))}
                 </div>
               </div>
-              <Button variant="ghost" size="icon" onClick={() => setActiveVideo(null)}>
+              <Button variant="ghost" size="icon" onClick={() => { setActiveVideo(null); setIsDeepLink(false); }}>
                 <X className="h-5 w-5" />
               </Button>
             </div>
             {activeVideo.type === "youtube" && getYouTubeId(activeVideo.video_url) ? (
-              <YouTubeEmbed videoId={getYouTubeId(activeVideo.video_url)!} />
+              <YouTubeEmbed videoId={getYouTubeId(activeVideo.video_url)!} autoplay={isDeepLink} />
             ) : (
               <div className="relative w-full overflow-hidden rounded-xl" style={{ paddingBottom: "56.25%" }}>
                 <iframe className="absolute inset-0 h-full w-full" src={getLoomEmbedUrl(activeVideo.video_url)} allowFullScreen />
