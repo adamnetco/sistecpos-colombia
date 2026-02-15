@@ -9,12 +9,12 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Lock, Chrome, ArrowLeft, ShieldCheck, Eye, EyeOff, Home } from "lucide-react";
+import { Mail, Lock, Chrome, ArrowLeft, ShieldCheck, Eye, EyeOff, Home, LayoutDashboard, Handshake, User as UserIcon } from "lucide-react";
 import { SEO } from "@/components/seo/SEO";
 import { motion } from "framer-motion";
 import type { User, Session } from "@supabase/supabase-js";
 
-type AuthView = "login" | "signup" | "forgot" | "reset" | "otp";
+type AuthView = "login" | "signup" | "forgot" | "reset" | "otp" | "role_picker";
 
 export default function AuthPage() {
   const [view, setView] = useState<AuthView>("login");
@@ -27,6 +27,7 @@ export default function AuthPage() {
   const [session, setSession] = useState<Session | null>(null);
   const [pendingEmail, setPendingEmail] = useState("");
   const [pending2FA, setPending2FA] = useState(false);
+  const [availableRoles, setAvailableRoles] = useState<string[]>([]);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
@@ -94,7 +95,7 @@ export default function AuthPage() {
   const { isAdmin } = useAuth();
 
   useEffect(() => {
-    if (user && !pending2FA && view !== "reset" && view !== "otp") {
+    if (user && !pending2FA && view !== "reset" && view !== "otp" && view !== "role_picker") {
       const checkRedirect = async () => {
         const userEmail = user.email?.toLowerCase();
 
@@ -107,12 +108,11 @@ export default function AuthPage() {
 
           const result = linkResult as unknown as { linked: boolean; reseller_id?: string } | null;
           if (result?.linked) {
-            navigate("/socio");
-            return;
+            // Still check all roles — user might have more
           }
         }
 
-        // Fetch all roles and redirect by priority: admin > reseller > customer > home
+        // Fetch all roles
         const { data: userRoles } = await supabase
           .from("user_roles")
           .select("role")
@@ -120,6 +120,14 @@ export default function AuthPage() {
 
         const roles = (userRoles || []).map((r) => r.role);
 
+        // If user has multiple roles, show picker
+        if (roles.length > 1) {
+          setAvailableRoles(roles);
+          setView("role_picker");
+          return;
+        }
+
+        // Single role — redirect directly
         if (roles.includes("admin")) {
           navigate("/admin");
         } else if (roles.includes("reseller")) {
@@ -127,7 +135,6 @@ export default function AuthPage() {
         } else if (roles.includes("customer")) {
           navigate("/clientes");
         } else {
-          // No role assigned — go to home
           navigate("/");
         }
       };
@@ -424,10 +431,77 @@ export default function AuthPage() {
                   </CardDescription>
                 </>
               )}
+              {view === "role_picker" && (
+                <>
+                  <CardTitle className="text-2xl font-display">¿A dónde deseas ir?</CardTitle>
+                  <CardDescription>Tienes acceso a múltiples paneles</CardDescription>
+                </>
+              )}
             </motion.div>
           </CardHeader>
 
           <CardContent className="space-y-4 pt-2">
+            {/* Role picker view */}
+            {view === "role_picker" && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="space-y-4"
+              >
+                <p className="text-center text-sm text-muted-foreground">
+                  Bienvenido, <strong>{user?.email}</strong>
+                </p>
+                <div className="space-y-2">
+                  {availableRoles.includes("admin") && (
+                    <Button
+                      variant="outline"
+                      className="w-full h-14 justify-start gap-3 text-left"
+                      onClick={() => navigate("/admin")}
+                    >
+                      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10">
+                        <LayoutDashboard className="h-5 w-5 text-primary" />
+                      </div>
+                      <div>
+                        <div className="font-medium">Panel Admin</div>
+                        <div className="text-xs text-muted-foreground">Gestión completa del sistema</div>
+                      </div>
+                    </Button>
+                  )}
+                  {availableRoles.includes("reseller") && (
+                    <Button
+                      variant="outline"
+                      className="w-full h-14 justify-start gap-3 text-left"
+                      onClick={() => navigate("/socio")}
+                    >
+                      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10">
+                        <Handshake className="h-5 w-5 text-primary" />
+                      </div>
+                      <div>
+                        <div className="font-medium">Portal Socios</div>
+                        <div className="text-xs text-muted-foreground">Licencias, comisiones y soporte</div>
+                      </div>
+                    </Button>
+                  )}
+                  {availableRoles.includes("customer") && (
+                    <Button
+                      variant="outline"
+                      className="w-full h-14 justify-start gap-3 text-left"
+                      onClick={() => navigate("/clientes")}
+                    >
+                      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10">
+                        <UserIcon className="h-5 w-5 text-primary" />
+                      </div>
+                      <div>
+                        <div className="font-medium">Portal Clientes</div>
+                        <div className="text-xs text-muted-foreground">Acceso POS, tickets y descargas</div>
+                      </div>
+                    </Button>
+                  )}
+                </div>
+                {renderBackToHome()}
+              </motion.div>
+            )}
+
             {/* OTP verification view */}
             {view === "otp" && (
               <motion.div

@@ -1,5 +1,6 @@
 import { useAuth } from "@/hooks/useAuth";
 import { Layout } from "@/components/layout/Layout";
+import { RoleSwitcherBar } from "@/components/shared/RoleSwitcherBar";
 import { ClientPOSLogin } from "@/components/clientes/ClientPOSLogin";
 import { ClientPortal } from "@/components/clientes/ClientPortal";
 import { SEO } from "@/components/seo/SEO";
@@ -117,6 +118,9 @@ export default function ClientesPage() {
           title="Portal de Clientes | SistecPOS"
           description="Accede a soporte, descargas y entrenamientos de SistecPOS."
         />
+        <div className="container px-4 pt-4">
+          <RoleSwitcherBar />
+        </div>
         <ClientPortal />
       </Layout>
     );
