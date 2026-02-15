@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useTrainingVideos, useTrainingVideosMutations, type TrainingVideoRow, type TrainingVideoInsert } from "@/hooks/useTrainingVideos";
+import { useTrainingVideos, useTrainingVideosMutations, type TrainingVideoRow } from "@/hooks/useTrainingVideos";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -9,10 +9,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, Pencil, Trash2, Search, Upload, Play, Film, CheckCircle, XCircle, Clock, Users, ShieldCheck, Tag, X } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, Upload, Play, Film, CheckCircle, XCircle, Clock, Users, ShieldCheck, Tag, X, Eye } from "lucide-react";
 import { mainTutorials, quickVideos } from "@/data/trainingVideos";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
+import VideoCSVImporter from "./training/VideoCSVImporter";
+import VideoPreviewDialog from "./training/VideoPreviewDialog";
 
 const CATEGORIES = [
   "Básicos", "Ventas", "Inventario", "Facturación", "Caja", "Compras",
@@ -84,6 +87,7 @@ function TagInput({ tags, onChange }: { tags: string[]; onChange: (t: string[]) 
 export default function TrainingVideosView() {
   const { data: videos = [], isLoading } = useTrainingVideos();
   const { create, update, remove } = useTrainingVideosMutations();
+  const qc = useQueryClient();
   const [search, setSearch] = useState("");
   const [approvalFilter, setApprovalFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
@@ -92,6 +96,7 @@ export default function TrainingVideosView() {
   const [form, setForm] = useState(emptyForm);
   const [importing, setImporting] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [previewVideo, setPreviewVideo] = useState<any>(null);
 
   const filtered = videos.filter((v) => {
     const q = search.toLowerCase();
@@ -126,13 +131,29 @@ export default function TrainingVideosView() {
     setDialogOpen(false);
   };
 
+  const doApprove = async (id: string) => {
+    const { error } = await supabase.from("training_videos").update({ approval_status: "approved" } as any).eq("id", id);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Video aprobado");
+    qc.invalidateQueries({ queryKey: ["training-videos"] });
+    setPreviewVideo(null);
+  };
+
+  const doReject = async (id: string) => {
+    const { error } = await supabase.from("training_videos").update({ approval_status: "rejected" } as any).eq("id", id);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Video rechazado");
+    qc.invalidateQueries({ queryKey: ["training-videos"] });
+    setPreviewVideo(null);
+  };
+
   const bulkApprove = async () => {
     if (selectedIds.size === 0) return;
     const { error } = await supabase.from("training_videos").update({ approval_status: "approved" } as any).in("id", Array.from(selectedIds));
     if (error) { toast.error(error.message); return; }
     toast.success(`${selectedIds.size} videos aprobados`);
     setSelectedIds(new Set());
-    window.location.reload();
+    qc.invalidateQueries({ queryKey: ["training-videos"] });
   };
 
   const bulkReject = async () => {
@@ -141,19 +162,7 @@ export default function TrainingVideosView() {
     if (error) { toast.error(error.message); return; }
     toast.success(`${selectedIds.size} videos rechazados`);
     setSelectedIds(new Set());
-    window.location.reload();
-  };
-
-  const quickApprove = async (id: string) => {
-    await supabase.from("training_videos").update({ approval_status: "approved" } as any).eq("id", id);
-    toast.success("Aprobado");
-    window.location.reload();
-  };
-
-  const quickReject = async (id: string) => {
-    await supabase.from("training_videos").update({ approval_status: "rejected" } as any).eq("id", id);
-    toast.success("Rechazado");
-    window.location.reload();
+    qc.invalidateQueries({ queryKey: ["training-videos"] });
   };
 
   const toggleSelect = (id: string) => {
@@ -186,7 +195,8 @@ export default function TrainingVideosView() {
       ];
       const { error } = await supabase.from("training_videos").insert(all);
       if (error) throw error;
-      window.location.reload();
+      qc.invalidateQueries({ queryKey: ["training-videos"] });
+      toast.success("Videos estáticos importados");
     } catch (e: any) {
       toast.error(e.message);
     } finally {
@@ -195,46 +205,52 @@ export default function TrainingVideosView() {
   };
 
   const approvalBadge = (status: string) => {
-    if (status === "approved") return <Badge className="bg-green-600 gap-1"><CheckCircle className="h-3 w-3" />Aprobado</Badge>;
-    if (status === "rejected") return <Badge variant="destructive" className="gap-1"><XCircle className="h-3 w-3" />Rechazado</Badge>;
-    return <Badge variant="outline" className="gap-1 border-yellow-500 text-yellow-600"><Clock className="h-3 w-3" />Pendiente</Badge>;
+    if (status === "approved") return <Badge className="bg-green-600 gap-1 text-[10px]"><CheckCircle className="h-3 w-3" />Aprobado</Badge>;
+    if (status === "rejected") return <Badge variant="destructive" className="gap-1 text-[10px]"><XCircle className="h-3 w-3" />Rechazado</Badge>;
+    return <Badge variant="outline" className="gap-1 border-yellow-500 text-yellow-600 text-[10px]"><Clock className="h-3 w-3" />Pendiente</Badge>;
   };
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold">Videos de Capacitación</h1>
           <p className="text-muted-foreground text-sm">{videos.length} videos · {filtered.length} mostrados</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           {videos.length === 0 && (
-            <Button variant="outline" onClick={handleImportStatic} disabled={importing}>
-              <Upload className="mr-2 h-4 w-4" />{importing ? "Importando..." : "Importar datos estáticos"}
+            <Button variant="outline" onClick={handleImportStatic} disabled={importing} size="sm">
+              <Upload className="mr-1.5 h-3.5 w-3.5" />{importing ? "Importando..." : "Importar estáticos"}
             </Button>
           )}
-          <Button onClick={openCreate}><Plus className="mr-2 h-4 w-4" /> Nuevo Video</Button>
+          <VideoCSVImporter />
+          <Button onClick={openCreate} size="sm"><Plus className="mr-1.5 h-3.5 w-3.5" /> Nuevo Video</Button>
         </div>
       </div>
 
+      {/* Pending banner */}
       {pendingCount > 0 && (
-        <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/10 p-4 flex items-center gap-3">
+        <button
+          onClick={() => setApprovalFilter("pending")}
+          className="w-full rounded-lg border border-yellow-500/30 bg-yellow-500/10 p-3 flex items-center gap-3 hover:bg-yellow-500/15 transition-colors text-left"
+        >
           <Clock className="h-5 w-5 text-yellow-600 shrink-0" />
           <div className="flex-1">
-            <p className="font-semibold text-yellow-700">{pendingCount} video{pendingCount > 1 ? "s" : ""} pendiente{pendingCount > 1 ? "s" : ""} de aprobación</p>
-            <p className="text-sm text-yellow-600">Filtra por "Pendientes" para revisarlos.</p>
+            <p className="font-semibold text-yellow-700 text-sm">{pendingCount} video{pendingCount > 1 ? "s" : ""} pendiente{pendingCount > 1 ? "s" : ""} de aprobación</p>
+            <p className="text-xs text-yellow-600">Clic para filtrar y revisar.</p>
           </div>
-        </div>
+        </button>
       )}
 
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-3">
-        <div className="relative max-w-xs flex-1">
+        <div className="relative max-w-xs flex-1 min-w-[200px]">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input placeholder="Buscar título, categoría o tag..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10" />
         </div>
         <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-          <SelectTrigger className="w-[160px]"><SelectValue placeholder="Categoría" /></SelectTrigger>
+          <SelectTrigger className="w-[150px]"><SelectValue placeholder="Categoría" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todas categorías</SelectItem>
             {CATEGORIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
@@ -242,13 +258,14 @@ export default function TrainingVideosView() {
         </Select>
         <div className="flex gap-1">
           {APPROVAL_FILTERS.map((f) => (
-            <Button key={f.value} size="sm" variant={approvalFilter === f.value ? "default" : "outline"} onClick={() => setApprovalFilter(f.value)}>
+            <Button key={f.value} size="sm" variant={approvalFilter === f.value ? "default" : "outline"} onClick={() => setApprovalFilter(f.value)} className="text-xs px-2.5">
               {f.label}
             </Button>
           ))}
         </div>
       </div>
 
+      {/* Bulk actions */}
       {selectedIds.size > 0 && (
         <div className="flex items-center gap-3 rounded-lg border bg-muted/50 p-3">
           <span className="text-sm font-medium">{selectedIds.size} seleccionados</span>
@@ -258,6 +275,7 @@ export default function TrainingVideosView() {
         </div>
       )}
 
+      {/* Table */}
       <div className="rounded-lg border">
         <Table>
           <TableHeader>
@@ -268,8 +286,8 @@ export default function TrainingVideosView() {
               <TableHead>Tags</TableHead>
               <TableHead>Estado</TableHead>
               <TableHead>Visibilidad</TableHead>
-              <TableHead>Vistas</TableHead>
-              <TableHead className="w-32">Acciones</TableHead>
+              <TableHead className="text-center">Vistas</TableHead>
+              <TableHead className="w-36">Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -302,18 +320,30 @@ export default function TrainingVideosView() {
                 <TableCell>{approvalBadge((v as any).approval_status ?? "approved")}</TableCell>
                 <TableCell>
                   <div className="flex gap-1">
-                    {(v as any).visible_to_customer && <Badge variant="outline" className="text-[10px] gap-0.5"><Users className="h-2.5 w-2.5" />Cliente</Badge>}
-                    {(v as any).visible_to_reseller && <Badge variant="outline" className="text-[10px] gap-0.5"><ShieldCheck className="h-2.5 w-2.5" />Socio</Badge>}
-                    {!(v as any).visible_to_customer && !(v as any).visible_to_reseller && <span className="text-xs text-muted-foreground">Solo admin</span>}
+                    {(v as any).visible_to_customer && <Badge variant="outline" className="text-[10px] gap-0.5"><Users className="h-2.5 w-2.5" />Cli</Badge>}
+                    {(v as any).visible_to_reseller && <Badge variant="outline" className="text-[10px] gap-0.5"><ShieldCheck className="h-2.5 w-2.5" />Soc</Badge>}
                   </div>
                 </TableCell>
                 <TableCell className="text-center font-mono text-sm">{v.view_count ?? 0}</TableCell>
                 <TableCell>
                   <div className="flex gap-0.5">
+                    <Button
+                      variant="ghost" size="icon"
+                      onClick={() => setPreviewVideo({
+                        ...v,
+                        approval_status: (v as any).approval_status ?? "approved",
+                        tags: (v as any).tags || [],
+                        visible_to_customer: (v as any).visible_to_customer ?? true,
+                        visible_to_reseller: (v as any).visible_to_reseller ?? true,
+                      })}
+                      title="Ver video"
+                    >
+                      <Eye className="h-4 w-4 text-primary" />
+                    </Button>
                     {(v as any).approval_status === "pending" && (
                       <>
-                        <Button variant="ghost" size="icon" onClick={() => quickApprove(v.id)} title="Aprobar"><CheckCircle className="h-4 w-4 text-green-600" /></Button>
-                        <Button variant="ghost" size="icon" onClick={() => quickReject(v.id)} title="Rechazar"><XCircle className="h-4 w-4 text-destructive" /></Button>
+                        <Button variant="ghost" size="icon" onClick={() => doApprove(v.id)} title="Aprobar"><CheckCircle className="h-4 w-4 text-green-600" /></Button>
+                        <Button variant="ghost" size="icon" onClick={() => doReject(v.id)} title="Rechazar"><XCircle className="h-4 w-4 text-destructive" /></Button>
                       </>
                     )}
                     <Button variant="ghost" size="icon" onClick={() => openEdit(v)}><Pencil className="h-4 w-4" /></Button>
@@ -326,6 +356,16 @@ export default function TrainingVideosView() {
         </Table>
       </div>
 
+      {/* Video Preview Dialog */}
+      <VideoPreviewDialog
+        video={previewVideo}
+        open={!!previewVideo}
+        onOpenChange={(v) => { if (!v) setPreviewVideo(null); }}
+        onApprove={doApprove}
+        onReject={doReject}
+      />
+
+      {/* Create/Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
