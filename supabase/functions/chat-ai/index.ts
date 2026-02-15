@@ -64,19 +64,38 @@ serve(async (req) => {
       }
     }
 
-    // Load admin corrections as few-shot retraining examples
+    // Load admin corrections with their preceding user questions for better few-shot context
     const { data: corrections } = await supabase
       .from("ai_messages")
-      .select("content, corrected_content")
+      .select("id, content, corrected_content, conversation_id, created_at")
       .not("corrected_content", "is", null)
       .order("corrected_at", { ascending: false })
       .limit(20);
 
     let correctionContext = "";
     if (corrections && corrections.length > 0) {
-      correctionContext = "\n\n## Correcciones del administrador (usa estas como guía de respuestas correctas):\n";
-      corrections.forEach((c: any) => {
-        correctionContext += `\n- Respuesta original: "${c.content.slice(0, 150)}..."\n  Respuesta corregida: "${c.corrected_content}"\n`;
+      // Load preceding user messages for each correction
+      const enriched: { question: string; original: string; corrected: string }[] = [];
+      for (const c of corrections) {
+        const { data: prevMsg } = await supabase
+          .from("ai_messages")
+          .select("content")
+          .eq("conversation_id", c.conversation_id)
+          .eq("role", "user")
+          .lt("created_at", c.created_at)
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        enriched.push({
+          question: prevMsg?.content || "(pregunta desconocida)",
+          original: c.content.slice(0, 200),
+          corrected: c.corrected_content!,
+        });
+      }
+
+      correctionContext = "\n\n## Correcciones del administrador (respuestas corregidas que debes usar como guía):\n";
+      enriched.forEach((e, i) => {
+        correctionContext += `\n### Ejemplo ${i + 1}:\nPregunta: "${e.question}"\nRespuesta incorrecta: "${e.original}"\n✅ Respuesta correcta: "${e.corrected}"\n`;
       });
     }
 
