@@ -804,6 +804,65 @@ export type Database = {
         }
         Relationships: []
       }
+      license_pos_users: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          id: string
+          is_active: boolean
+          last_verified_at: string | null
+          license_id: string
+          notes: string | null
+          pos_password_encrypted: string
+          pos_role: string
+          pos_store: string
+          pos_username: string
+          registered_by: string | null
+          updated_at: string
+          user_email: string | null
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          is_active?: boolean
+          last_verified_at?: string | null
+          license_id: string
+          notes?: string | null
+          pos_password_encrypted: string
+          pos_role?: string
+          pos_store: string
+          pos_username: string
+          registered_by?: string | null
+          updated_at?: string
+          user_email?: string | null
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          is_active?: boolean
+          last_verified_at?: string | null
+          license_id?: string
+          notes?: string | null
+          pos_password_encrypted?: string
+          pos_role?: string
+          pos_store?: string
+          pos_username?: string
+          registered_by?: string | null
+          updated_at?: string
+          user_email?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "license_pos_users_license_id_fkey"
+            columns: ["license_id"]
+            isOneToOne: false
+            referencedRelation: "licenses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       license_pricing: {
         Row: {
           created_at: string
@@ -1719,6 +1778,43 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      delete_pos_user: { Args: { _id: string }; Returns: undefined }
+      get_all_pos_users: {
+        Args: never
+        Returns: {
+          business_name: string
+          created_at: string
+          display_name: string
+          id: string
+          is_active: boolean
+          last_verified_at: string
+          license_id: string
+          license_key: string
+          notes: string
+          pos_password: string
+          pos_role: string
+          pos_store: string
+          pos_username: string
+          user_email: string
+        }[]
+      }
+      get_pos_users_for_license: {
+        Args: { _license_id: string }
+        Returns: {
+          created_at: string
+          display_name: string
+          id: string
+          is_active: boolean
+          last_verified_at: string
+          license_id: string
+          notes: string
+          pos_password: string
+          pos_role: string
+          pos_store: string
+          pos_username: string
+          user_email: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1727,9 +1823,37 @@ export type Database = {
         Returns: boolean
       }
       increment_video_view: { Args: { video_id: string }; Returns: undefined }
+      insert_pos_user: {
+        Args: {
+          _display_name?: string
+          _license_id: string
+          _notes?: string
+          _pos_password: string
+          _pos_role?: string
+          _pos_store: string
+          _pos_username: string
+          _registered_by?: string
+          _user_email?: string
+        }
+        Returns: string
+      }
       link_reseller_on_login: {
         Args: { _user_email: string; _user_id: string }
         Returns: Json
+      }
+      update_pos_user: {
+        Args: {
+          _display_name?: string
+          _id: string
+          _is_active?: boolean
+          _notes?: string
+          _pos_password?: string
+          _pos_role?: string
+          _pos_store?: string
+          _pos_username?: string
+          _user_email?: string
+        }
+        Returns: undefined
       }
     }
     Enums: {

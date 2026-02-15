@@ -5,7 +5,7 @@ import {
   LayoutDashboard, KeyRound, Users, FileCheck, CreditCard,
   Handshake, LogOut, ChevronLeft, Contact2, Bot, Code2,
   Package, Menu, ShoppingBag, Tag, FolderOpen, BarChart3, Settings2,
-  FileText, ChevronDown, RefreshCw, Download, TicketCheck, GraduationCap, ShieldCheck,
+  FileText, ChevronDown, RefreshCw, Download, TicketCheck, GraduationCap, ShieldCheck, UserCog,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -61,6 +61,7 @@ const navGroups: NavGroup[] = [
   {
     label: "Soporte",
     items: [
+      { name: "Usuarios POS", href: "/admin/usuarios-pos", icon: UserCog },
       { name: "Tickets", href: "/admin/tickets-clientes", icon: TicketCheck },
       { name: "Descargas", href: "/admin/descargas-clientes", icon: Download },
       { name: "Capacitación", href: "/admin/capacitacion", icon: GraduationCap },
