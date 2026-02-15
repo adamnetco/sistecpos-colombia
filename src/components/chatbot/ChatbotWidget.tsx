@@ -27,7 +27,9 @@ export function ChatbotWidget() {
 
   if (!visible) return null;
 
-  const quickQuestions = userRole === "reseller"
+  const quickQuestions = userRole === "admin"
+    ? ["¿Cuál es el MRR actual estimado?", "¿Cómo mejorar la conversión de leads?", "Ayúdame a redactar una propuesta"]
+    : userRole === "reseller"
     ? ["¿Cómo gestiono licencias?", "¿Cómo vender SistecPOS?", "Tengo un problema técnico"]
     : userRole === "customer"
     ? ["¿Cómo uso mi POS?", "Necesito soporte técnico", "¿Qué planes de upgrade hay?"]
