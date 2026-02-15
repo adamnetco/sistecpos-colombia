@@ -2,11 +2,16 @@ import { useState, useEffect, createContext, useContext, ReactNode } from "react
 import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from "@supabase/supabase-js";
 
+type AppRole = "admin" | "customer" | "reseller";
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
+  roles: AppRole[];
   isAdmin: boolean;
+  isReseller: boolean;
+  isCustomer: boolean;
   signOut: () => Promise<void>;
 }
 
@@ -14,7 +19,10 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   session: null,
   loading: true,
+  roles: [],
   isAdmin: false,
+  isReseller: false,
+  isCustomer: false,
   signOut: async () => {},
 });
 
@@ -22,7 +30,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [roles, setRoles] = useState<AppRole[]>([]);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -33,10 +41,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         if (session?.user) {
           setTimeout(() => {
-            checkAdminRole(session.user.id);
+            fetchRoles(session.user.id);
           }, 0);
         } else {
-          setIsAdmin(false);
+          setRoles([]);
         }
       }
     );
@@ -46,32 +54,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(session?.user ?? null);
       setLoading(false);
       if (session?.user) {
-        checkAdminRole(session.user.id);
+        fetchRoles(session.user.id);
       }
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
-  const checkAdminRole = async (userId: string) => {
+  const fetchRoles = async (userId: string) => {
     const { data } = await supabase
       .from("user_roles")
       .select("role")
-      .eq("user_id", userId)
-      .eq("role", "admin")
-      .maybeSingle();
-    setIsAdmin(!!data);
+      .eq("user_id", userId);
+    const userRoles = (data || []).map((r) => r.role as AppRole);
+    setRoles(userRoles);
   };
 
   const signOut = async () => {
     await supabase.auth.signOut();
     setUser(null);
     setSession(null);
-    setIsAdmin(false);
+    setRoles([]);
   };
 
+  const isAdmin = roles.includes("admin");
+  const isReseller = roles.includes("reseller");
+  const isCustomer = roles.includes("customer");
+
   return (
-    <AuthContext.Provider value={{ user, session, loading, isAdmin, signOut }}>
+    <AuthContext.Provider value={{ user, session, loading, roles, isAdmin, isReseller, isCustomer, signOut }}>
       {children}
     </AuthContext.Provider>
   );
