@@ -20,14 +20,22 @@ interface VideoItem {
   view_count?: number;
 }
 
-function useVideosFromDB() {
+interface TrainingVideoHubProps {
+  userRole?: "customer" | "reseller";
+}
+
+function useVideosFromDB(userRole?: "customer" | "reseller") {
   return useQuery({
-    queryKey: ["training-videos"],
+    queryKey: ["training-videos", userRole],
     queryFn: async () => {
+      const query: Record<string, any> = { is_active: true, approval_status: "approved" };
+      if (userRole === "customer") query.visible_to_customer = true;
+      if (userRole === "reseller") query.visible_to_reseller = true;
+
       const { data, error } = await supabase
         .from("training_videos")
         .select("*")
-        .eq("is_active", true)
+        .match(query)
         .order("sort_order", { ascending: true });
       if (error) throw error;
       return data;
@@ -49,7 +57,6 @@ function mapToVideoItems(dbVideos: any[] | undefined): { main: VideoItem[]; quic
     }));
     return { main, quick };
   }
-  // Fallback to static data
   return {
     main: mainTutorials.map((v) => ({ ...v, is_main: true })),
     quick: quickVideos.map((v) => ({ ...v, is_main: false })),
@@ -140,13 +147,13 @@ function QuickVideoItem({ video, onSelect, index }: { video: VideoItem; onSelect
   );
 }
 
-export default function TrainingVideoHub() {
+export default function TrainingVideoHub({ userRole }: TrainingVideoHubProps) {
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [activeVideo, setActiveVideo] = useState<VideoItem | null>(null);
   const [showAllQuick, setShowAllQuick] = useState(false);
 
-  const { data: dbVideos } = useVideosFromDB();
+  const { data: dbVideos } = useVideosFromDB(userRole);
   const incrementView = useIncrementVideoView();
   const { main: mainVideos, quick: quickVideosList } = useMemo(() => mapToVideoItems(dbVideos), [dbVideos]);
   const allVideos = useMemo(() => [...mainVideos, ...quickVideosList], [mainVideos, quickVideosList]);
