@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Monitor, LogIn, Download, HeadphonesIcon } from "lucide-react";
+import { Monitor, LogIn, Download, HeadphonesIcon, Eye, EyeOff, ShieldCheck } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
@@ -14,6 +14,7 @@ export function ClientPOSLogin() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [store, setStore] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handlePOSLogin = (e: React.FormEvent) => {
@@ -56,18 +57,21 @@ export function ClientPOSLogin() {
   };
 
   return (
-    <section className="py-16 md:py-24">
+    <section className="py-12 md:py-20">
       <div className="container px-4">
         <div className="mx-auto max-w-5xl">
-          <div className="mb-10 text-center">
+          <div className="mb-8 text-center space-y-2">
+            <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
+              <ShieldCheck className="h-7 w-7 text-primary" />
+            </div>
             <h1 className="text-3xl font-bold md:text-4xl">Acceso Clientes</h1>
-            <p className="mt-2 text-muted-foreground">Ingresa a tu sistema POS o accede al portal de soporte</p>
+            <p className="text-muted-foreground max-w-md mx-auto">Ingresa a tu sistema POS o accede al portal de soporte técnico</p>
           </div>
 
-          <div className="grid gap-8 md:grid-cols-2">
+          <div className="grid gap-8 md:grid-cols-2 items-start">
             {/* POS Login */}
-            <Card className="border-2">
-              <CardHeader>
+            <Card className="border-2 shadow-lg">
+              <CardHeader className="pb-4">
                 <div className="flex items-center gap-3">
                   <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
                     <Monitor className="h-6 w-6 text-primary" />
@@ -80,17 +84,18 @@ export function ClientPOSLogin() {
               </CardHeader>
               <CardContent>
                 <form onSubmit={handlePOSLogin} className="space-y-4">
-                  <div>
+                  <div className="space-y-1.5">
                     <Label htmlFor="username">Usuario</Label>
                     <Input
                       id="username"
                       placeholder="Tu usuario"
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
+                      autoComplete="username"
                       required
                     />
                   </div>
-                  <div>
+                  <div className="space-y-1.5">
                     <Label htmlFor="store">Empresa</Label>
                     <Input
                       id="store"
@@ -100,18 +105,31 @@ export function ClientPOSLogin() {
                       required
                     />
                   </div>
-                  <div>
+                  <div className="space-y-1.5">
                     <Label htmlFor="password">Contraseña</Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      placeholder="Tu contraseña"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                    />
+                    <div className="relative">
+                      <Input
+                        id="password"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Tu contraseña"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        autoComplete="current-password"
+                        className="pr-10"
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                        tabIndex={-1}
+                        aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                      >
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
                   </div>
-                  <Button type="submit" className="w-full">
+                  <Button type="submit" className="w-full" size="lg">
                     <LogIn className="mr-2 h-4 w-4" />
                     Ingresar al Sistema
                   </Button>
@@ -123,8 +141,8 @@ export function ClientPOSLogin() {
             </Card>
 
             {/* Support Portal Login */}
-            <Card className="border-2 border-dashed">
-              <CardHeader>
+            <Card className="border-2 border-dashed shadow-sm">
+              <CardHeader className="pb-4">
                 <div className="flex items-center gap-3">
                   <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent/50">
                     <HeadphonesIcon className="h-6 w-6 text-primary" />

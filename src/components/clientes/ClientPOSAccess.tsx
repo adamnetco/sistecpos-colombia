@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Monitor, LogIn } from "lucide-react";
+import { Monitor, LogIn, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export function ClientPOSAccess() {
@@ -11,6 +11,7 @@ export function ClientPOSAccess() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [store, setStore] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleLogin = (e: React.FormEvent) => {
@@ -58,7 +59,7 @@ export function ClientPOSAccess() {
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
             <Label htmlFor="pos-user">Usuario</Label>
-            <Input id="pos-user" value={username} onChange={(e) => setUsername(e.target.value)} required />
+            <Input id="pos-user" value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="username" required />
           </div>
           <div>
             <Label htmlFor="pos-store">Empresa</Label>
@@ -66,7 +67,26 @@ export function ClientPOSAccess() {
           </div>
           <div>
             <Label htmlFor="pos-pass">Contraseña</Label>
-            <Input id="pos-pass" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+            <div className="relative">
+              <Input
+                id="pos-pass"
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
+                className="pr-10"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                tabIndex={-1}
+                aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+              >
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
           </div>
           <Button type="submit" className="w-full">
             <LogIn className="mr-2 h-4 w-4" />
