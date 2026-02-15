@@ -71,7 +71,8 @@ function welcomeHtml(name: string): string {
 </html>`;
 }
 
-function approvedHtml(name: string, resetLink: string): string {
+function approvedHtml(name: string, resetLink: string, email: string): string {
+  const authUrl = `${SITE_URL}/auth`;
   return `
 <!DOCTYPE html>
 <html>
@@ -100,19 +101,26 @@ function approvedHtml(name: string, resetLink: string): string {
         </p>
       </div>
 
-      <div style="text-align:center;margin:28px 0;">
-        <a href="${SITE_URL}/socio" style="display:inline-block;background:#2563eb;color:#ffffff;font-size:18px;font-weight:700;padding:16px 48px;border-radius:12px;text-decoration:none;box-shadow:0 4px 14px rgba(37,99,235,0.3);">
-          🔓 Acceder a mi Panel de Socios
-        </a>
+      <!-- OPCIÓN 1: Google — acceso inmediato -->
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:20px;margin-bottom:16px;">
+        <p style="margin:0 0 8px;color:#166534;font-size:15px;font-weight:700;">⚡ Opción 1 — Acceso Inmediato con Google</p>
+        <p style="margin:0 0 12px;color:#166534;font-size:14px;line-height:1.6;">
+          Ingresa a la página de acceso y haz clic en <strong>"Continuar con Google"</strong> usando tu correo <strong>${email}</strong>. Serás redirigido automáticamente a tu panel de socios.
+        </p>
+        <div style="text-align:center;">
+          <a href="${authUrl}" style="display:inline-block;background:#16a34a;color:#ffffff;font-size:16px;font-weight:700;padding:14px 40px;border-radius:10px;text-decoration:none;box-shadow:0 4px 12px rgba(22,163,74,0.3);">
+            🔑 Ir a Iniciar Sesión con Google
+          </a>
+        </div>
       </div>
 
+      <!-- OPCIÓN 2: Contraseña -->
       <div style="background:#fefce8;border:1px solid #fde68a;border-radius:12px;padding:20px;margin-bottom:24px;">
-        <p style="margin:0 0 12px;color:#92400e;font-size:15px;font-weight:600;">¿Cómo ingresar?</p>
-        <p style="margin:0;color:#a16207;font-size:14px;line-height:1.8;">
-          <strong>Opción 1 (Inmediata):</strong> Haz clic en "Continuar con Google" usando este mismo correo.<br/><br/>
-          <strong>Opción 2:</strong> Crea tu contraseña haciendo clic en el siguiente enlace:
+        <p style="margin:0 0 8px;color:#92400e;font-size:15px;font-weight:700;">🔐 Opción 2 — Crear una Contraseña</p>
+        <p style="margin:0 0 12px;color:#a16207;font-size:14px;line-height:1.6;">
+          Si prefieres usar email y contraseña, crea tu contraseña haciendo clic en el botón. Luego podrás iniciar sesión desde la página de acceso.
         </p>
-        <div style="text-align:center;margin-top:12px;">
+        <div style="text-align:center;">
           <a href="${resetLink}" style="display:inline-block;background:#f59e0b;color:#ffffff;font-size:14px;font-weight:600;padding:10px 24px;border-radius:8px;text-decoration:none;">
             🔑 Crear mi Contraseña
           </a>
@@ -266,7 +274,7 @@ Deno.serve(async (req) => {
           from: "SistecPOS <notificaciones@sistecpos.com>",
           to: [payload.email],
           subject: "🎉 ¡Tu panel de socios está activo! — SistecPOS",
-          html: approvedHtml(payload.name, resetLink),
+          html: approvedHtml(payload.name, resetLink, payload.email),
         }),
       });
 
