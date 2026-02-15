@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { mainTutorials, quickVideos, getYouTubeId, getLoomEmbedUrl } from "@/data/trainingVideos";
+import { mainTutorials, quickVideos, getYouTubeId, getLoomEmbedUrl, getLoomId } from "@/data/trainingVideos";
 import { useIncrementVideoView } from "@/hooks/useTrainingVideos";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -78,8 +78,17 @@ function videoSlug(title: string) {
     .replace(/(^-|-$)/g, "");
 }
 
+function getVideoThumbnail(video: VideoItem): string | null {
+  if (video.type === "youtube") {
+    const ytId = getYouTubeId(video.video_url);
+    return ytId ? `https://img.youtube.com/vi/${ytId}/mqdefault.jpg` : null;
+  }
+  const loomId = getLoomId(video.video_url);
+  return loomId ? `https://cdn.loom.com/sessions/thumbnails/${loomId}-with-play.gif` : null;
+}
+
 function VideoCard({ video, onSelect, index }: { video: VideoItem; onSelect: (v: VideoItem) => void; index: number }) {
-  const ytId = video.type === "youtube" ? getYouTubeId(video.video_url) : null;
+  const thumb = getVideoThumbnail(video);
   const anchor = `video-${videoSlug(video.title)}`;
 
   return (
@@ -94,9 +103,10 @@ function VideoCard({ video, onSelect, index }: { video: VideoItem; onSelect: (v:
       className="group relative flex flex-col overflow-hidden rounded-xl border bg-card text-left transition-shadow hover:shadow-xl hover:border-primary/40 scroll-mt-24"
     >
       <div className="relative aspect-video w-full bg-muted overflow-hidden">
-        {ytId ? (
-          <img src={`https://img.youtube.com/vi/${ytId}/mqdefault.jpg`} alt={video.title}
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy" />
+        {thumb ? (
+          <img src={thumb} alt={video.title}
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy"
+            onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/20 to-accent/30">
             <Film className="h-10 w-10 text-primary/60" />
