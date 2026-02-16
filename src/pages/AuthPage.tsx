@@ -369,7 +369,7 @@ export default function AuthPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-secondary via-background to-secondary/50 px-4 py-8">
-      <SEO title="Iniciar Sesión | SistecPOS" description="Accede al panel de gestión de SistecPOS" />
+      <SEO title="Iniciar Sesión | SistecPOS" description="Accede al panel de gestión de SistecPOS" noindex />
 
       {/* Decorative blurred circles */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden">

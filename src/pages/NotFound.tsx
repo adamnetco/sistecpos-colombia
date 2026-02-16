@@ -1,6 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
+import { SEO } from "@/components/seo/SEO";
 import { Button } from "@/components/ui/button";
 import { Home, Search, MessageCircle, ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
@@ -16,6 +17,11 @@ const NotFound = () => {
 
   return (
     <Layout>
+      <SEO
+        title="Página no encontrada | SistecPOS"
+        description="La página que buscas no existe. Explora nuestro software POS con facturación electrónica DIAN."
+        noindex
+      />
       <section className="py-20 md:py-32">
         <div className="container px-4">
           <motion.div

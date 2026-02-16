@@ -106,7 +106,7 @@ export default function PagoResultadoPage() {
 
   return (
     <Layout>
-      <SEO title="Resultado del Pago | SistecPOS" description="Estado de tu transacción" />
+      <SEO title="Resultado del Pago | SistecPOS" description="Estado de tu transacción" noindex />
       <div className="min-h-[60vh] flex items-center justify-center py-16 px-4">
         <div className="max-w-md w-full text-center space-y-6">
           {loading ? (
