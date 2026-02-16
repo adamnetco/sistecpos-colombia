@@ -27,6 +27,7 @@ const TrainingVideosView = lazy(() => import("@/components/admin/TrainingVideosV
 const LicensePricingView = lazy(() => import("@/components/admin/LicensePricingView"));
 const RolesManagerView = lazy(() => import("@/components/admin/RolesManagerView"));
 const POSUsersView = lazy(() => import("@/components/admin/POSUsersView"));
+const ActiveDemosView = lazy(() => import("@/components/admin/ActiveDemosView"));
 
 function Loader() {
   return (
@@ -59,6 +60,7 @@ export default function AdminPage() {
             <Route path="proveedores" element={<SuppliersView />} />
             <Route path="analytics" element={<StoreAnalyticsView />} />
             
+            <Route path="demos-activas" element={<ActiveDemosView />} />
             <Route path="descargas-clientes" element={<ClientDownloadsView />} />
             <Route path="tickets-clientes" element={<ClientTicketsView />} />
             <Route path="capacitacion" element={<TrainingVideosView />} />
