@@ -49,6 +49,14 @@ import clausHeroImage from "@/assets/claus-vs-sistecpos-hero.jpg";
 import eleventaHeroImage from "@/assets/eleventa-vs-sistecpos-hero.jpg";
 import mascontrolHeroImage from "@/assets/mascontrol-vs-sistecpos-hero.jpg";
 import softrestaurantHeroImage from "@/assets/softrestaurant-vs-sistecpos-hero.jpg";
+import niloHeroImage from "@/assets/nilo-vs-sistecpos-hero.jpg";
+import softpymesHeroImage from "@/assets/softpymes-vs-sistecpos-hero.jpg";
+import agoraposHeroImage from "@/assets/agorapos-vs-sistecpos-hero.jpg";
+import aplHeroImage from "@/assets/apl-vs-sistecpos-hero.jpg";
+import grafosoftHeroImage from "@/assets/grafosoft-vs-sistecpos-hero.jpg";
+import globhoHeroImage from "@/assets/globho-vs-sistecpos-hero.jpg";
+import valualHeroImage from "@/assets/valual-vs-sistecpos-hero.jpg";
+import cuentralHeroImage from "@/assets/cuental-vs-sistecpos-hero.jpg";
 
 const heroImages: Record<string, string> = {
   "facturador-gratuito-dian": dianHeroImage,
@@ -88,6 +96,14 @@ const heroImages: Record<string, string> = {
   "eleventa": eleventaHeroImage,
   "mascontrol": mascontrolHeroImage,
   "softrestaurant": softrestaurantHeroImage,
+  "nilo": niloHeroImage,
+  "softpymes": softpymesHeroImage,
+  "agorapos": agoraposHeroImage,
+  "apl": aplHeroImage,
+  "grafosoft": grafosoftHeroImage,
+  "globho": globhoHeroImage,
+  "valual": valualHeroImage,
+  "cuental": cuentralHeroImage,
 };
 import {
   Accordion,
