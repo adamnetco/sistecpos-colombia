@@ -44,7 +44,7 @@ const heroImages: Record<string, string> = {
   "alegra": alegraHeroImage,
   "siigo": siigoHeroImage,
   "world-office": worldOfficeHeroImage,
-  "hellonext": helisaHeroImage,
+  "helisa": helisaHeroImage,
   "factura-latam": facturaLatamHeroImage,
   "defontana": defontanaHeroImage,
   "loogro": loggroHeroImage,
