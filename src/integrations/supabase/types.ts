@@ -320,13 +320,20 @@ export type Database = {
       }
       catalog_products: {
         Row: {
+          availability: string | null
           brand_id: string | null
+          brand_name: string | null
           category_id: string | null
+          condition: string | null
           cost_cop: number | null
           created_at: string
+          custom_label_0: string | null
+          custom_label_1: string | null
           description: string | null
           features: string[] | null
           gallery_urls: string[] | null
+          google_product_category: string | null
+          gtin: string | null
           id: string
           image_url: string | null
           includes: string[] | null
@@ -334,6 +341,9 @@ export type Database = {
           is_featured: boolean
           is_offer: boolean
           long_description: string | null
+          meta_description: string | null
+          meta_title: string | null
+          mpn: string | null
           name: string
           original_price_cop: number | null
           original_price_usd: number | null
@@ -341,6 +351,7 @@ export type Database = {
           price_cop: number
           price_usd: number | null
           product_type: string
+          shipping_weight_kg: number | null
           sku: string | null
           slug: string
           sort_order: number
@@ -350,13 +361,20 @@ export type Database = {
           video_urls: string[] | null
         }
         Insert: {
+          availability?: string | null
           brand_id?: string | null
+          brand_name?: string | null
           category_id?: string | null
+          condition?: string | null
           cost_cop?: number | null
           created_at?: string
+          custom_label_0?: string | null
+          custom_label_1?: string | null
           description?: string | null
           features?: string[] | null
           gallery_urls?: string[] | null
+          google_product_category?: string | null
+          gtin?: string | null
           id?: string
           image_url?: string | null
           includes?: string[] | null
@@ -364,6 +382,9 @@ export type Database = {
           is_featured?: boolean
           is_offer?: boolean
           long_description?: string | null
+          meta_description?: string | null
+          meta_title?: string | null
+          mpn?: string | null
           name: string
           original_price_cop?: number | null
           original_price_usd?: number | null
@@ -371,6 +392,7 @@ export type Database = {
           price_cop?: number
           price_usd?: number | null
           product_type?: string
+          shipping_weight_kg?: number | null
           sku?: string | null
           slug: string
           sort_order?: number
@@ -380,13 +402,20 @@ export type Database = {
           video_urls?: string[] | null
         }
         Update: {
+          availability?: string | null
           brand_id?: string | null
+          brand_name?: string | null
           category_id?: string | null
+          condition?: string | null
           cost_cop?: number | null
           created_at?: string
+          custom_label_0?: string | null
+          custom_label_1?: string | null
           description?: string | null
           features?: string[] | null
           gallery_urls?: string[] | null
+          google_product_category?: string | null
+          gtin?: string | null
           id?: string
           image_url?: string | null
           includes?: string[] | null
@@ -394,6 +423,9 @@ export type Database = {
           is_featured?: boolean
           is_offer?: boolean
           long_description?: string | null
+          meta_description?: string | null
+          meta_title?: string | null
+          mpn?: string | null
           name?: string
           original_price_cop?: number | null
           original_price_usd?: number | null
@@ -401,6 +433,7 @@ export type Database = {
           price_cop?: number
           price_usd?: number | null
           product_type?: string
+          shipping_weight_kg?: number | null
           sku?: string | null
           slug?: string
           sort_order?: number

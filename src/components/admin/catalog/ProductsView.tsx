@@ -53,6 +53,17 @@ interface Product {
   product_type: string;
   sort_order: number;
   created_at: string;
+  meta_title?: string | null;
+  meta_description?: string | null;
+  google_product_category?: string | null;
+  gtin?: string | null;
+  mpn?: string | null;
+  brand_name?: string | null;
+  condition?: string | null;
+  availability?: string | null;
+  shipping_weight_kg?: number | null;
+  custom_label_0?: string | null;
+  custom_label_1?: string | null;
   catalog_brands?: { name: string } | null;
   catalog_categories?: { name: string } | null;
 }
@@ -71,7 +82,8 @@ export default function ProductsView() {
       const { data, error } = await supabase
         .from("catalog_products")
         .select("*, catalog_brands(name), catalog_categories(name)")
-        .order("sort_order");
+        .order("sort_order")
+        .limit(500);
       if (error) throw error;
       return data as Product[];
     },
