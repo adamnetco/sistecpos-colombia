@@ -19,15 +19,22 @@ import { getBusinessTypeBySlug, businessTypes } from "@/data/businessTypes";
 import { getTestimonialsByBusiness } from "@/data/testimonials";
 import { featuredCities } from "@/data/localSeo";
 import { TestimonialsSection } from "@/components/solutions/TestimonialsSection";
+import { NicheIntroSection } from "@/components/solutions/NicheIntroSection";
+import { NicheCompetitorsSection } from "@/components/solutions/NicheCompetitorsSection";
+import { NicheComparisonTable } from "@/components/solutions/NicheComparisonTable";
+import { WhatToLookForSection } from "@/components/solutions/WhatToLookForSection";
+import { NicheFAQSection } from "@/components/solutions/NicheFAQSection";
 import { DynamicMeta } from "@/components/seo/DynamicMeta";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
+import { getNicheEditorial } from "@/data/nicheEditorial";
 
 export default function SolucionNegocioPage() {
   const { slug } = useParams<{ slug: string }>();
   const business = slug ? getBusinessTypeBySlug(slug) : undefined;
 
   const { buildUrl, telHref } = useWhatsAppConfig();
+  const editorial = slug ? getNicheEditorial(slug) : undefined;
 
   if (!business) {
     return <Navigate to="/" replace />;
@@ -267,11 +274,52 @@ export default function SolucionNegocioPage() {
         </div>
       </section>
 
+      {/* Editorial: Intro SEO */}
+      {editorial && (
+        <NicheIntroSection
+          nicheTitle={business.titleShort}
+          seoIntro={editorial.seoIntro}
+          whyPosMatters={editorial.whyPosMatters}
+        />
+      )}
+
+      {/* Editorial: Top Competidores */}
+      {editorial && (
+        <NicheCompetitorsSection
+          nicheTitle={business.titleShort}
+          competitors={editorial.topCompetitors}
+        />
+      )}
+
+      {/* Editorial: Tabla Comparativa */}
+      {editorial && (
+        <NicheComparisonTable
+          nicheTitle={business.titleShort}
+          rows={editorial.comparisonRows}
+        />
+      )}
+
+      {/* Editorial: Qué buscar */}
+      {editorial && (
+        <WhatToLookForSection
+          nicheTitle={business.titleShort}
+          items={editorial.whatToLookFor}
+        />
+      )}
+
       {/* Testimonials Section */}
       <TestimonialsSection 
         businessType={business.titleShort} 
         testimonials={testimonials} 
       />
+
+      {/* Editorial: FAQs */}
+      {editorial && (
+        <NicheFAQSection
+          nicheTitle={business.titleShort}
+          faqs={editorial.faqs}
+        />
+      )}
 
       {/* Available Cities */}
       <section id="ciudades" className="py-16 md:py-20">
