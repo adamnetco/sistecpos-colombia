@@ -625,11 +625,14 @@ export type Database = {
           created_at: string
           description: string
           id: string
+          module: string | null
           priority: string
           status: string
           subject: string
           updated_at: string
           user_id: string
+          video_url: string | null
+          whatsapp: string | null
         }
         Insert: {
           admin_response?: string | null
@@ -637,11 +640,14 @@ export type Database = {
           created_at?: string
           description: string
           id?: string
+          module?: string | null
           priority?: string
           status?: string
           subject: string
           updated_at?: string
           user_id: string
+          video_url?: string | null
+          whatsapp?: string | null
         }
         Update: {
           admin_response?: string | null
@@ -649,11 +655,14 @@ export type Database = {
           created_at?: string
           description?: string
           id?: string
+          module?: string | null
           priority?: string
           status?: string
           subject?: string
           updated_at?: string
           user_id?: string
+          video_url?: string | null
+          whatsapp?: string | null
         }
         Relationships: []
       }
@@ -1587,11 +1596,14 @@ export type Database = {
           created_at: string
           description: string
           id: string
+          module: string | null
           priority: string
           reseller_id: string
           status: string
           subject: string
           updated_at: string
+          video_url: string | null
+          whatsapp: string | null
         }
         Insert: {
           admin_response?: string | null
@@ -1599,11 +1611,14 @@ export type Database = {
           created_at?: string
           description: string
           id?: string
+          module?: string | null
           priority?: string
           reseller_id: string
           status?: string
           subject: string
           updated_at?: string
+          video_url?: string | null
+          whatsapp?: string | null
         }
         Update: {
           admin_response?: string | null
@@ -1611,11 +1626,14 @@ export type Database = {
           created_at?: string
           description?: string
           id?: string
+          module?: string | null
           priority?: string
           reseller_id?: string
           status?: string
           subject?: string
           updated_at?: string
+          video_url?: string | null
+          whatsapp?: string | null
         }
         Relationships: [
           {

@@ -8,7 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, MessageSquare, Paperclip, X, FileText, Image as ImageIcon } from "lucide-react";
+import { Plus, MessageSquare, Paperclip, X, FileText, Image as ImageIcon, Video, Phone } from "lucide-react";
+import { POS_MODULES } from "@/data/posModules";
 
 interface Ticket {
   id: string;
@@ -16,6 +17,9 @@ interface Ticket {
   description: string;
   status: string;
   priority: string;
+  module: string | null;
+  whatsapp: string | null;
+  video_url: string | null;
   admin_response: string | null;
   attachment_url: string | null;
   created_at: string;
@@ -99,11 +103,18 @@ export default function ClientTicketsTab() {
       attachment_url = urlData.publicUrl;
     }
 
+    const module = fd.get("module") as string;
+    const whatsapp = (fd.get("whatsapp") as string)?.trim() || null;
+    const video_url = (fd.get("video_url") as string)?.trim() || null;
+
     const { error } = await supabase.from("client_tickets").insert({
       user_id: user.id,
       subject: fd.get("subject") as string,
       description: fd.get("description") as string,
       priority: fd.get("priority") as string,
+      module: module || null,
+      whatsapp,
+      video_url,
       attachment_url,
     });
 
@@ -143,10 +154,24 @@ export default function ClientTicketsTab() {
           <DialogTrigger asChild>
             <Button><Plus className="mr-2 h-4 w-4" />Nuevo Ticket</Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="max-h-[90vh] overflow-y-auto">
             <DialogHeader><DialogTitle>Crear Ticket de Soporte</DialogTitle></DialogHeader>
-            <form onSubmit={handleCreate} className="space-y-3">
-              <div><Label>Asunto *</Label><Input name="subject" required /></div>
+            <form onSubmit={handleCreate} className="space-y-4">
+              {/* Module */}
+              <div>
+                <Label>Módulo del Software *</Label>
+                <select name="module" required className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+                  <option value="">Selecciona un módulo</option>
+                  {POS_MODULES.map((m) => (
+                    <option key={m} value={m}>{m}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Subject */}
+              <div><Label>Asunto *</Label><Input name="subject" required placeholder="Resumen breve del problema" /></div>
+
+              {/* Priority */}
               <div>
                 <Label>Prioridad</Label>
                 <select name="priority" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
@@ -155,13 +180,32 @@ export default function ClientTicketsTab() {
                   <option value="urgent">Urgente</option>
                 </select>
               </div>
-              <div><Label>Descripción *</Label><Textarea name="description" rows={4} required /></div>
+
+              {/* Description */}
+              <div><Label>Descripción *</Label><Textarea name="description" rows={4} required placeholder="Describe tu problema con el mayor detalle posible..." /></div>
+
+              {/* WhatsApp */}
+              <div>
+                <Label className="flex items-center gap-1.5"><Phone className="h-3.5 w-3.5" />WhatsApp (opcional)</Label>
+                <div className="flex gap-2">
+                  <Input value="+57" disabled className="w-16 text-center" />
+                  <Input name="whatsapp" type="tel" placeholder="Número de WhatsApp" className="flex-1" />
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">Para contactarte más rápido si es necesario.</p>
+              </div>
+
+              {/* Video URL */}
+              <div>
+                <Label className="flex items-center gap-1.5"><Video className="h-3.5 w-3.5" />Video (opcional)</Label>
+                <Input name="video_url" type="url" placeholder="https://youtube.com/watch?v=... o enlace de video" />
+                <p className="text-xs text-muted-foreground mt-1">Graba tu pantalla para mostrarnos el error.</p>
+              </div>
 
               {/* File attachment */}
               <div>
                 <Label>Adjuntar imagen o PDF (opcional)</Label>
                 <p className="text-xs text-muted-foreground mb-2">
-                  📎 Adjunta capturas de pantalla o documentos para que podamos ayudarte mejor. Máx 5 MB.
+                  📎 Capturas de pantalla ayudan a resolver más rápido. Máx 5 MB.
                 </p>
                 <input
                   ref={fileRef}
@@ -215,25 +259,45 @@ export default function ClientTicketsTab() {
               <div className="flex items-center gap-2">
                 <h3 className="font-medium">{t.subject}</h3>
                 {t.attachment_url && <Paperclip className="h-3.5 w-3.5 text-muted-foreground" />}
+                {t.video_url && <Video className="h-3.5 w-3.5 text-muted-foreground" />}
               </div>
               <Badge className={statusColor(t.status)}>{statusLabel(t.status)}</Badge>
             </div>
             <p className="mt-1 text-xs text-muted-foreground">
+              {t.module && <><Badge variant="outline" className="mr-2 text-[10px] py-0">{t.module}</Badge></>}
               {new Date(t.created_at).toLocaleDateString("es-CO")} · Prioridad: {t.priority}
             </p>
           </div>
         ))}
       </div>
 
+      {/* Detail Dialog */}
       <Dialog open={!!detailTarget} onOpenChange={() => setDetailTarget(null)}>
-        <DialogContent>
+        <DialogContent className="max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{detailTarget?.subject}</DialogTitle></DialogHeader>
           {detailTarget && (
             <div className="space-y-4">
+              {detailTarget.module && (
+                <Badge variant="outline">{detailTarget.module}</Badge>
+              )}
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Descripción</p>
                 <p className="text-sm whitespace-pre-wrap">{detailTarget.description}</p>
               </div>
+              {detailTarget.whatsapp && (
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">WhatsApp</p>
+                  <p className="text-sm">{detailTarget.whatsapp}</p>
+                </div>
+              )}
+              {detailTarget.video_url && (
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground mb-1">Video</p>
+                  <a href={detailTarget.video_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-md border bg-muted/40 px-3 py-2 text-sm hover:bg-muted/60 transition-colors">
+                    <Video className="h-4 w-4 text-blue-500" />Ver video
+                  </a>
+                </div>
+              )}
               {detailTarget.attachment_url && (
                 <div>
                   <p className="text-sm font-medium text-muted-foreground mb-2">Archivo adjunto</p>

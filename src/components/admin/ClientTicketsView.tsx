@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MessageSquare, User, Handshake, Mail, Phone, Building2 } from "lucide-react";
+import { MessageSquare, User, Handshake, Mail, Phone, Building2, Paperclip, Video, FileText, Image as ImageIcon } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface UnifiedTicket {
@@ -16,15 +16,18 @@ interface UnifiedTicket {
   description: string;
   status: string;
   priority: string;
+  module: string | null;
+  whatsapp: string | null;
+  video_url: string | null;
+  attachment_url: string | null;
   admin_response: string | null;
   created_at: string;
   updated_at: string;
   source: "client" | "reseller";
-  // Creator info
   creator_name: string;
   creator_email: string;
   creator_phone: string | null;
-  creator_id: string; // user_id or reseller_id
+  creator_id: string;
 }
 
 type TicketFilter = "all" | "open" | "resolved";
@@ -82,37 +85,29 @@ export default function ClientTicketsView() {
       ...clientTickets.map((t) => {
         const profile = profilesMap[t.user_id] || { full_name: "Desconocido", email: "", phone: null };
         return {
-          id: t.id,
-          subject: t.subject,
-          description: t.description,
-          status: t.status,
-          priority: t.priority,
+          id: t.id, subject: t.subject, description: t.description,
+          status: t.status, priority: t.priority,
+          module: t.module || null, whatsapp: t.whatsapp || null,
+          video_url: t.video_url || null, attachment_url: t.attachment_url || null,
           admin_response: t.admin_response,
-          created_at: t.created_at,
-          updated_at: t.updated_at,
+          created_at: t.created_at, updated_at: t.updated_at,
           source: "client" as const,
-          creator_name: profile.full_name,
-          creator_email: profile.email,
-          creator_phone: profile.phone,
-          creator_id: t.user_id,
+          creator_name: profile.full_name, creator_email: profile.email,
+          creator_phone: profile.phone, creator_id: t.user_id,
         };
       }),
       ...resellerTickets.map((t) => {
         const reseller = resellersMap[t.reseller_id] || { full_name: "Desconocido", email: "", phone: "" };
         return {
-          id: t.id,
-          subject: t.subject,
-          description: t.description,
-          status: t.status,
-          priority: t.priority,
+          id: t.id, subject: t.subject, description: t.description,
+          status: t.status, priority: t.priority,
+          module: t.module || null, whatsapp: t.whatsapp || null,
+          video_url: t.video_url || null, attachment_url: t.attachment_url || null,
           admin_response: t.admin_response,
-          created_at: t.created_at,
-          updated_at: t.updated_at,
+          created_at: t.created_at, updated_at: t.updated_at,
           source: "reseller" as const,
-          creator_name: reseller.full_name,
-          creator_email: reseller.email,
-          creator_phone: reseller.phone,
-          creator_id: t.reseller_id,
+          creator_name: reseller.full_name, creator_email: reseller.email,
+          creator_phone: reseller.phone, creator_id: t.reseller_id,
         };
       }),
     ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
@@ -316,11 +311,49 @@ export default function ClientTicketsView() {
                 </div>
               </div>
 
+              {/* Module badge */}
+              {selected.module && (
+                <Badge variant="outline" className="text-xs">{selected.module}</Badge>
+              )}
+
               {/* Description */}
               <div>
                 <p className="text-xs font-medium text-muted-foreground mb-1">Descripción</p>
                 <p className="text-sm whitespace-pre-wrap rounded-md bg-muted p-3">{selected.description}</p>
               </div>
+
+              {/* WhatsApp from ticket */}
+              {selected.whatsapp && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Phone className="h-3.5 w-3.5 text-green-500" />
+                  <span>WhatsApp del ticket: {selected.whatsapp}</span>
+                </div>
+              )}
+
+              {/* Video */}
+              {selected.video_url && (
+                <div>
+                  <a href={selected.video_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-md border bg-muted/40 px-3 py-2 text-sm hover:bg-muted/60 transition-colors">
+                    <Video className="h-4 w-4 text-blue-500" />Ver video adjunto
+                  </a>
+                </div>
+              )}
+
+              {/* Attachment */}
+              {selected.attachment_url && (
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground mb-1">Archivo adjunto</p>
+                  {/\.(jpg|jpeg|png|webp)$/i.test(selected.attachment_url) ? (
+                    <a href={selected.attachment_url} target="_blank" rel="noopener noreferrer">
+                      <img src={selected.attachment_url} alt="Adjunto" className="max-h-48 rounded-md border object-contain" />
+                    </a>
+                  ) : (
+                    <a href={selected.attachment_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-md border bg-muted/40 px-3 py-2 text-sm hover:bg-muted/60 transition-colors">
+                      <FileText className="h-4 w-4 text-red-500" />Ver documento PDF
+                    </a>
+                  )}
+                </div>
+              )}
 
               {/* Response */}
               <div>
