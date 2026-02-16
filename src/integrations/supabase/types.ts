@@ -908,22 +908,33 @@ export type Database = {
       }
       leads_trials: {
         Row: {
+          activation_completed_at: string | null
+          activation_token: string | null
           business_name: string
           business_type: string | null
           city: string | null
           contact_name: string
+          country: string | null
           created_at: string
+          daily_sales: string | null
           email: string
+          employee_count: string | null
           id: string
+          ideal_pos_features: string | null
+          knows_inventory: boolean | null
+          main_pain: string | null
           notes: string | null
           phone: string
           pos_company: string | null
           pos_password: string | null
           pos_username: string | null
+          requested_by_reseller_id: string | null
           source: string | null
           status: string
           trial_ends_at: string | null
           updated_at: string
+          urgency: string | null
+          uses_software: boolean | null
           utm_campaign: string | null
           utm_content: string | null
           utm_medium: string | null
@@ -931,22 +942,33 @@ export type Database = {
           utm_term: string | null
         }
         Insert: {
+          activation_completed_at?: string | null
+          activation_token?: string | null
           business_name: string
           business_type?: string | null
           city?: string | null
           contact_name: string
+          country?: string | null
           created_at?: string
+          daily_sales?: string | null
           email: string
+          employee_count?: string | null
           id?: string
+          ideal_pos_features?: string | null
+          knows_inventory?: boolean | null
+          main_pain?: string | null
           notes?: string | null
           phone: string
           pos_company?: string | null
           pos_password?: string | null
           pos_username?: string | null
+          requested_by_reseller_id?: string | null
           source?: string | null
           status?: string
           trial_ends_at?: string | null
           updated_at?: string
+          urgency?: string | null
+          uses_software?: boolean | null
           utm_campaign?: string | null
           utm_content?: string | null
           utm_medium?: string | null
@@ -954,29 +976,48 @@ export type Database = {
           utm_term?: string | null
         }
         Update: {
+          activation_completed_at?: string | null
+          activation_token?: string | null
           business_name?: string
           business_type?: string | null
           city?: string | null
           contact_name?: string
+          country?: string | null
           created_at?: string
+          daily_sales?: string | null
           email?: string
+          employee_count?: string | null
           id?: string
+          ideal_pos_features?: string | null
+          knows_inventory?: boolean | null
+          main_pain?: string | null
           notes?: string | null
           phone?: string
           pos_company?: string | null
           pos_password?: string | null
           pos_username?: string | null
+          requested_by_reseller_id?: string | null
           source?: string | null
           status?: string
           trial_ends_at?: string | null
           updated_at?: string
+          urgency?: string | null
+          uses_software?: boolean | null
           utm_campaign?: string | null
           utm_content?: string | null
           utm_medium?: string | null
           utm_source?: string | null
           utm_term?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "leads_trials_requested_by_reseller_id_fkey"
+            columns: ["requested_by_reseller_id"]
+            isOneToOne: false
+            referencedRelation: "reseller_applications"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       license_pos_users: {
         Row: {

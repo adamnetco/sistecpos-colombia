@@ -14,6 +14,7 @@ const ResellerLicensesView = lazy(() => import("@/components/reseller/ResellerLi
 const ResellerTrainingsView = lazy(() => import("@/components/reseller/ResellerTrainingsView"));
 const ResellerTicketsView = lazy(() => import("@/components/reseller/ResellerTicketsView"));
 const ResellerCommissionsView = lazy(() => import("@/components/reseller/ResellerCommissionsView"));
+const ResellerDemoRequestView = lazy(() => import("@/components/reseller/ResellerDemoRequestView"));
 
 function Loader() {
   return (
@@ -204,6 +205,7 @@ export default function ResellerPage() {
             <Route path="entrenamientos" element={<ResellerTrainingsView />} />
             <Route path="tickets" element={<ResellerTicketsView />} />
             <Route path="comisiones" element={<ResellerCommissionsView />} />
+            <Route path="solicitar-demo" element={<ResellerDemoRequestView />} />
           </Routes>
         </Suspense>
       </ResellerLayout>

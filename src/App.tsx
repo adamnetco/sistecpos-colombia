@@ -51,6 +51,7 @@ const CasoExitoDetallePage = lazy(() => import("./pages/CasoExitoDetallePage"));
 const PagoResultadoPage = lazy(() => import("./pages/PagoResultadoPage"));
 const ClientesPage = lazy(() => import("./pages/ClientesPage"));
 const AyudaPage = lazy(() => import("./pages/AyudaPage"));
+const ActivarDemoPage = lazy(() => import("./pages/ActivarDemoPage"));
 
 const queryClient = new QueryClient();
 
@@ -108,6 +109,7 @@ const App = () => (
                 {/* Landing pages for campaigns */}
                 <Route path="/lp/demo" element={<LandingDemoPage />} />
                 <Route path="/lp/representantes" element={<LandingRepresentantesPage />} />
+                <Route path="/activar-demo/:token" element={<ActivarDemoPage />} />
                 {/* Auth & Admin */}
                 <Route path="/auth" element={<AuthPage />} />
                 <Route path="/admin/*" element={<AdminPage />} />
