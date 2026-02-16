@@ -10,7 +10,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { 
   Printer, Tag, CircleDollarSign, Barcode, ScrollText,
   MessageCircle, CheckCircle2, FileText, ArrowRight,
-  Sparkles, Crown, Building2, ShoppingCart,
+  Sparkles, Crown, Building2, ShoppingCart, Truck,
+  TrendingDown, CalendarClock,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useCart } from "@/hooks/useCart";
@@ -72,6 +73,18 @@ const ProductCard = ({ product, index }: { product: DBProduct; index: number }) 
   const CategoryIcon = isLicense ? getLicenseIcon(product.name) : getCategoryIcon(catSlug);
   const hasImage = product.image_url && !isLicense;
 
+  // Pricing logic
+  const hasDiscount = !!product.original_price_cop && product.original_price_cop > product.price_cop;
+  const discountPct = hasDiscount
+    ? Math.round(((product.original_price_cop! - product.price_cop) / product.original_price_cop!) * 100)
+    : 0;
+
+  // For licenses: monthly is informational only (only annual sales)
+  const isAnnualLicense = isLicense && !product.slug.includes("vitalicia");
+  const monthlyRef = isAnnualLicense
+    ? Math.round(product.price_cop / (product.slug.includes("2-anos") ? 24 : 12))
+    : 0;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -79,80 +92,103 @@ const ProductCard = ({ product, index }: { product: DBProduct; index: number }) 
       transition={{ duration: 0.3, delay: index * 0.05 }}
     >
       <Card className="h-full flex flex-col border-0 shadow-card hover:shadow-card-hover transition-all hover:-translate-y-1 relative overflow-hidden">
-        {product.is_offer && (
-          <div className="absolute top-0 right-0 z-10">
-            <Badge className="rounded-none rounded-bl-lg bg-destructive text-destructive-foreground font-bold px-3 py-1">
+        {/* Badges row */}
+        <div className="absolute top-0 right-0 z-10 flex flex-col items-end gap-1 p-2">
+          {product.is_offer && (
+            <Badge className="bg-destructive text-destructive-foreground font-bold px-2.5 py-0.5 text-xs">
               <Sparkles className="h-3 w-3 mr-1" />¡Oferta!
             </Badge>
-          </div>
-        )}
-        <CardContent className="p-6 flex-1">
+          )}
+          {product.is_featured && (
+            <Badge className="bg-whatsapp/10 text-whatsapp border-0 px-2.5 py-0.5 text-xs">
+              <Crown className="h-3 w-3 mr-1" />Popular
+            </Badge>
+          )}
+        </div>
+
+        <CardContent className="p-5 flex-1">
+          {/* Image / Icon */}
           {hasImage ? (
-            <div className="relative mb-4 bg-muted/30 rounded-xl p-4 flex items-center justify-center">
-              <img src={product.image_url!} alt={product.name} className="h-32 w-auto object-contain" loading="lazy" decoding="async" />
-              {product.is_featured && (
-                <Badge className="absolute top-2 left-2 bg-whatsapp/10 text-whatsapp border-0">
-                  <Crown className="h-3 w-3 mr-1" />Popular
-                </Badge>
-              )}
+            <div className="mb-4 bg-muted/30 rounded-xl p-4 flex items-center justify-center">
+              <img src={product.image_url!} alt={product.name} className="h-28 w-auto object-contain" loading="lazy" decoding="async" />
             </div>
           ) : (
-            <div className="flex items-start justify-between mb-4">
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${isLicense ? "bg-gradient-to-br from-primary/20 to-primary/5" : "bg-primary/10"}`}>
-                <CategoryIcon className="h-6 w-6 text-primary" />
+            <div className="mb-4">
+              <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${isLicense ? "bg-gradient-to-br from-primary/20 to-primary/5" : "bg-primary/10"}`}>
+                <CategoryIcon className="h-5 w-5 text-primary" />
               </div>
-              {product.is_featured && (
-                <Badge className="bg-whatsapp/10 text-whatsapp border-0">
-                  <Crown className="h-3 w-3 mr-1" />Popular
-                </Badge>
-              )}
             </div>
           )}
-          <h3 className="font-semibold text-lg mb-2">{product.name}</h3>
-          <p className="text-muted-foreground text-sm mb-4">{product.description}</p>
-          <div className="space-y-2 mb-4">
-            {(product.features || []).slice(0, 4).map((f) => (
-              <div key={f} className="flex items-center gap-2 text-sm">
-                <CheckCircle2 className="h-4 w-4 text-whatsapp shrink-0" />
+
+          <h3 className="font-semibold text-base mb-1.5 leading-tight">{product.name}</h3>
+          <p className="text-muted-foreground text-sm mb-3 line-clamp-2">{product.description}</p>
+
+          {/* Features (max 3) */}
+          <div className="space-y-1.5 mb-4">
+            {(product.features || []).slice(0, 3).map((f) => (
+              <div key={f} className="flex items-center gap-2 text-xs">
+                <CheckCircle2 className="h-3.5 w-3.5 text-whatsapp shrink-0" />
                 <span>{f}</span>
               </div>
             ))}
           </div>
-          <div className="pt-4 border-t">
-            {isLicense && product.price_usd ? (
-              <div className="space-y-1">
-                <div className="flex items-baseline gap-2">
-                  {product.original_price_usd && (
-                    <span className="text-sm text-muted-foreground line-through">{formatPriceUSD(product.original_price_usd)}</span>
-                  )}
-                  <span className="text-2xl font-bold text-primary">{formatPriceUSD(product.price_usd)}</span>
-                  <span className="text-sm text-muted-foreground">USD</span>
-                </div>
-                <p className="text-xs text-muted-foreground">≈ {formatPrice(product.price_cop)} COP</p>
-                {product.slug === "licencia-software-pos-vitalicia" ? (
-                  <p className="text-xs text-primary font-medium mt-1">+ Hosting anual: $99 USD</p>
-                ) : (
-                  <p className="text-xs text-muted-foreground">
-                    ≈ {formatPriceUSD(Math.round(product.price_usd / (product.slug.includes("2-anos") ? 26 : 12)))}/mes USD
-                  </p>
-                )}
-              </div>
-            ) : (
-              <>
-                {product.original_price_cop && (
-                  <p className="text-sm text-muted-foreground line-through">{formatPrice(product.original_price_cop)}</p>
-                )}
-                <p className="text-2xl font-bold text-primary">{formatPrice(product.price_cop)}</p>
-              </>
+
+          {/* ─── PRICING BLOCK ─── */}
+          <div className="mt-auto pt-4 border-t space-y-1.5">
+            {/* Discount badge */}
+            {hasDiscount && discountPct > 0 && (
+              <Badge variant="destructive" className="text-[10px] px-1.5 py-0 gap-0.5 mb-1">
+                <TrendingDown className="h-3 w-3" />-{discountPct}%
+              </Badge>
             )}
-            <p className="text-xs text-muted-foreground mt-1">
-              {isLicense ? "Instalación y configuración incluida" : "Incluye instalación y configuración"}
+
+            {/* COP Price — ALWAYS FIRST & PROMINENT */}
+            <div className="flex items-baseline gap-2">
+              {hasDiscount && (
+                <span className="text-sm text-muted-foreground line-through">{formatPrice(product.original_price_cop!)}</span>
+              )}
+            </div>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-2xl font-black text-primary">{formatPrice(product.price_cop)}</span>
+              <span className="text-xs font-medium text-muted-foreground">COP</span>
+              {isAnnualLicense && <span className="text-xs text-muted-foreground">/año</span>}
+            </div>
+
+            {/* Monthly ref — informational only for licenses */}
+            {isAnnualLicense && monthlyRef > 0 && (
+              <p className="text-[11px] text-muted-foreground flex items-center gap-1">
+                <CalendarClock className="h-3 w-3 shrink-0" />
+                Equivale a {formatPrice(monthlyRef)}/mes <span className="italic">(solo venta anual)</span>
+              </p>
+            )}
+
+            {/* Vitalicia special note */}
+            {product.slug === "licencia-software-pos-vitalicia" && (
+              <p className="text-[11px] text-primary font-medium">Pago único de por vida · Hosting anual: $99 USD</p>
+            )}
+
+            {/* USD reference */}
+            {product.price_usd && (
+              <p className="text-[11px] text-muted-foreground">
+                Ref. casa de desarrollo: {formatPriceUSD(product.price_usd)} USD
+                {product.original_price_usd && product.original_price_usd > product.price_usd && (
+                  <span className="line-through ml-1">{formatPriceUSD(product.original_price_usd)}</span>
+                )}
+              </p>
+            )}
+
+            {/* Service note */}
+            <p className="text-[11px] text-muted-foreground flex items-center gap-1 pt-1">
+              <Truck className="h-3 w-3 shrink-0" />
+              {isLicense ? "Instalación y configuración incluida" : "Incluye instalación en tu negocio"}
             </p>
           </div>
         </CardContent>
-        <CardFooter className="p-6 pt-0 flex gap-2">
+
+        <CardFooter className="p-5 pt-0 flex gap-2">
           <Button
             variant="outline"
+            size="sm"
             className="flex-1 gap-1"
             asChild
             onClick={() => trackEvent("view", product.id, product.name)}
@@ -160,6 +196,7 @@ const ProductCard = ({ product, index }: { product: DBProduct; index: number }) 
             <Link to={`/productos/${product.slug}`}>Ver más <ArrowRight className="h-4 w-4" /></Link>
           </Button>
           <Button
+            size="sm"
             className="flex-1 gap-1"
             onClick={() => {
               addItem({
