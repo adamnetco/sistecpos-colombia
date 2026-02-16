@@ -1,8 +1,25 @@
+# SistecPOS - robots.txt
+# https://sistecpos.com
+
 User-agent: Googlebot
 Allow: /
+Disallow: /admin
+Disallow: /auth
+Disallow: /socio
+Disallow: /clientes
+Disallow: /pago/resultado
+Disallow: /gracias
+Disallow: /lp/
 
 User-agent: Bingbot
 Allow: /
+Disallow: /admin
+Disallow: /auth
+Disallow: /socio
+Disallow: /clientes
+Disallow: /pago/resultado
+Disallow: /gracias
+Disallow: /lp/
 
 User-agent: Twitterbot
 Allow: /
@@ -12,5 +29,12 @@ Allow: /
 
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /auth
+Disallow: /socio
+Disallow: /clientes
+Disallow: /pago/resultado
+Disallow: /gracias
+Disallow: /lp/
 
 Sitemap: https://sistecpos.com/sitemap.xml
