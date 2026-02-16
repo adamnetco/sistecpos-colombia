@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { RefreshCw, Search, Eye, Pause, Play, Download, CheckCircle, XCircle, Clock } from "lucide-react";
+import { RefreshCw, Search, Eye, Pause, Play, Download, CheckCircle, XCircle, Clock, AlertTriangle } from "lucide-react";
 import { exportToCsv } from "@/lib/exportCsv";
 import { LicenseCreateDialog } from "./licenses/LicenseCreateDialog";
 import { LicenseRenewDialog } from "./licenses/LicenseRenewDialog";
@@ -26,6 +26,7 @@ interface License {
   price_paid: number;
   notes: string | null;
   created_by_reseller_id: string | null;
+  lead_id: string | null;
 }
 
 export default function LicensesView() {
@@ -49,6 +50,14 @@ export default function LicensesView() {
 
   const today = new Date().toISOString().split("T")[0];
   const isExpired = (l: License) => l.expires_at && l.expires_at < today;
+  const daysUntilExpiry = (l: License) => {
+    if (!l.expires_at) return Infinity;
+    return Math.ceil((new Date(l.expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+  };
+  const expiringSoon = licenses.filter((l) => {
+    const d = daysUntilExpiry(l);
+    return d > 0 && d <= 30 && l.status === "active";
+  });
 
   const toggleStatus = async (l: License) => {
     const newStatus = l.status === "suspended" ? "active" : "suspended";
@@ -130,7 +139,21 @@ export default function LicensesView() {
         </div>
       )}
 
-      {/* Header */}
+      {/* Expiring soon alert */}
+      {expiringSoon.length > 0 && (
+        <div className="mb-4 rounded-lg border border-orange-300 bg-orange-50 dark:border-orange-800 dark:bg-orange-950/30 p-4 flex items-center gap-3">
+          <AlertTriangle className="h-5 w-5 text-orange-600 shrink-0" />
+          <div>
+            <p className="text-sm font-semibold text-orange-800 dark:text-orange-200">
+              {expiringSoon.length} licencia{expiringSoon.length > 1 ? "s" : ""} por vencer en los próximos 30 días
+            </p>
+            <p className="text-xs text-orange-700 dark:text-orange-300">
+              {expiringSoon.map(l => `${l.business_name} (${daysUntilExpiry(l)}d)`).join(", ")}
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-2xl font-bold font-display">Licencias</h1>
         <div className="flex items-center gap-2">

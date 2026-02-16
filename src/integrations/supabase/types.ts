@@ -914,6 +914,7 @@ export type Database = {
           business_type: string | null
           city: string | null
           contact_name: string
+          converted_at: string | null
           country: string | null
           created_at: string
           daily_sales: string | null
@@ -948,6 +949,7 @@ export type Database = {
           business_type?: string | null
           city?: string | null
           contact_name: string
+          converted_at?: string | null
           country?: string | null
           created_at?: string
           daily_sales?: string | null
@@ -982,6 +984,7 @@ export type Database = {
           business_type?: string | null
           city?: string | null
           contact_name?: string
+          converted_at?: string | null
           country?: string | null
           created_at?: string
           daily_sales?: string | null
@@ -1143,6 +1146,7 @@ export type Database = {
           created_by_reseller_id: string | null
           expires_at: string | null
           id: string
+          lead_id: string | null
           license_key: string
           notes: string | null
           plan_type: string
@@ -1162,6 +1166,7 @@ export type Database = {
           created_by_reseller_id?: string | null
           expires_at?: string | null
           id?: string
+          lead_id?: string | null
           license_key?: string
           notes?: string | null
           plan_type: string
@@ -1181,6 +1186,7 @@ export type Database = {
           created_by_reseller_id?: string | null
           expires_at?: string | null
           id?: string
+          lead_id?: string | null
           license_key?: string
           notes?: string | null
           plan_type?: string
@@ -1196,6 +1202,13 @@ export type Database = {
             columns: ["created_by_reseller_id"]
             isOneToOne: false
             referencedRelation: "reseller_applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "licenses_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads_trials"
             referencedColumns: ["id"]
           },
         ]
