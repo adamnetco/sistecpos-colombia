@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,13 +6,21 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { LICENSE_PLANS, planExpirationDate } from "@/data/licensePlans";
 import {
   Loader2, Building2, User, Mail, Phone, MapPin, Trophy, CreditCard,
-  Upload, FileCheck, Send, CheckCircle2,
+  Upload, FileCheck, Send, CheckCircle2, Package,
 } from "lucide-react";
+
+interface Supplier {
+  id: string;
+  name: string;
+  email: string | null;
+  supplier_type: string;
+}
 
 interface Lead {
   id: string;
@@ -48,6 +56,19 @@ export function LeadConversionDialog({ lead, onClose, onConverted }: Props) {
   const [paymentFile, setPaymentFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [selectedSupplierId, setSelectedSupplierId] = useState<string>("");
+
+  useEffect(() => {
+    if (!lead) return;
+    supabase.from("suppliers").select("id, name, email, supplier_type")
+      .eq("supplier_type", "software").eq("status", "active").order("name")
+      .then(({ data }) => {
+        const list = (data || []) as Supplier[];
+        setSuppliers(list);
+        if (list.length > 0) setSelectedSupplierId(list[0].id);
+      });
+  }, [lead]);
 
   if (!lead) return null;
 
@@ -91,6 +112,7 @@ export function LeadConversionDialog({ lead, onClose, onConverted }: Props) {
       const expiresAt = planExpirationDate(selectedPlan);
 
       // 1. Create license linked to lead
+      const selectedSupplier = suppliers.find(s => s.id === selectedSupplierId);
       const { data: newLicense, error: licErr } = await supabase.from("licenses").insert({
         business_name: lead.business_name,
         business_nit: nit || null,
@@ -107,6 +129,7 @@ export function LeadConversionDialog({ lead, onClose, onConverted }: Props) {
         payment_proof_url: proofUrl,
         activation_requested_at: new Date().toISOString(),
         status: "pending_activation",
+        supplier_id: selectedSupplierId || null,
       }).select("id, license_key").single();
 
       if (licErr) throw licErr;
@@ -145,6 +168,8 @@ export function LeadConversionDialog({ lead, onClose, onConverted }: Props) {
             license_key: newLicense.license_key,
             payment_proof_url: proofUrl,
             price_paid: formatCOP(price),
+            provider_email: selectedSupplier?.email || undefined,
+            provider_name: selectedSupplier?.name || undefined,
           },
         });
       } catch (emailErr) {
@@ -311,13 +336,48 @@ export function LeadConversionDialog({ lead, onClose, onConverted }: Props) {
 
             <Separator />
 
+            {/* Supplier selector */}
+            <div>
+              <Label className="text-sm font-semibold flex items-center gap-2 mb-2">
+                <Package className="h-4 w-4" /> Proveedor (casa de software)
+              </Label>
+              {suppliers.length > 0 ? (
+                <Select value={selectedSupplierId} onValueChange={setSelectedSupplierId}>
+                  <SelectTrigger className="h-10">
+                    <SelectValue placeholder="Selecciona proveedor" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {suppliers.map((s) => (
+                      <SelectItem key={s.id} value={s.id}>
+                        {s.name} {s.email ? `— ${s.email}` : "(sin email)"}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <p className="text-xs text-muted-foreground">No hay proveedores de software registrados. Agrégalos en Proveedores.</p>
+              )}
+              {(() => {
+                const sel = suppliers.find(s => s.id === selectedSupplierId);
+                return sel?.email ? (
+                  <p className="mt-1 text-xs text-muted-foreground flex items-center gap-1">
+                    <Mail className="h-3 w-3" /> Se enviará a: <strong>{sel.email}</strong>
+                  </p>
+                ) : sel ? (
+                  <p className="mt-1 text-xs text-destructive">⚠️ Este proveedor no tiene email configurado</p>
+                ) : null;
+              })()}
+            </div>
+
+            <Separator />
+
             {/* Provider information */}
             <div>
               <Label className="text-sm font-semibold flex items-center gap-2 mb-2">
-                <Send className="h-4 w-4" /> Información para la casa de software
+                <Send className="h-4 w-4" /> Datos del cliente para activación
               </Label>
               <p className="text-xs text-muted-foreground mb-3">
-                Estos datos se enviarán por correo al proveedor para solicitar la activación de la licencia.
+                Estos datos se enviarán por correo al proveedor seleccionado.
               </p>
 
               <div className="rounded-lg border bg-muted/30 p-3 space-y-1 text-sm mb-3">

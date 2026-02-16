@@ -80,6 +80,8 @@ interface LicenseActivationPayload {
   license_key: string;
   payment_proof_url: string | null;
   price_paid: string;
+  provider_email?: string;
+  provider_name?: string;
 }
 
 type Payload = TicketPayload | ResellerStatusPayload | DemoCredentialsPayload | DemoProcessingPayload | LicenseActivationPayload;
@@ -460,7 +462,7 @@ Deno.serve(async (req) => {
     // ─── License Activation Request to Provider ─────────
     if (payload.type === "license_activation_request") {
       const p = payload as LicenseActivationPayload;
-      const providerEmail = "eduardotp77@gmail.com"; // Admin/provider email
+      const providerEmail = p.provider_email || "eduardotp77@gmail.com"; // Dynamic or fallback
       const html = `
 <!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
 <body style="margin:0;padding:0;background:#f4f4f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">

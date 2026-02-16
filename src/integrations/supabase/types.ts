@@ -1157,6 +1157,7 @@ export type Database = {
           rut_url: string | null
           start_date: string
           status: string
+          supplier_id: string | null
           updated_at: string
         }
         Insert: {
@@ -1180,6 +1181,7 @@ export type Database = {
           rut_url?: string | null
           start_date?: string
           status?: string
+          supplier_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -1203,6 +1205,7 @@ export type Database = {
           rut_url?: string | null
           start_date?: string
           status?: string
+          supplier_id?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -1218,6 +1221,13 @@ export type Database = {
             columns: ["lead_id"]
             isOneToOne: false
             referencedRelation: "leads_trials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "licenses_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
             referencedColumns: ["id"]
           },
         ]
