@@ -35,9 +35,12 @@ interface LeadPayload {
   city?: string;
   business?: string;
   experience?: string;
+  activationToken?: string;
+  requestedBy?: string;
 }
 
-function welcomeDemoHtml(name: string, business: string, waNumber: string): string {
+function welcomeDemoHtml(name: string, business: string, waNumber: string, activationToken?: string): string {
+  const activationUrl = activationToken ? `${SITE_URL}/activar-demo/${activationToken}` : null;
   return `
 <!DOCTYPE html>
 <html>
@@ -68,9 +71,18 @@ function welcomeDemoHtml(name: string, business: string, waNumber: string): stri
         </div>
       </div>
 
+      ${activationUrl ? `
+      <div style="text-align:center;margin:24px 0;">
+        <a href="${activationUrl}" style="display:inline-block;background:#f97316;color:#ffffff;font-size:16px;font-weight:700;padding:16px 40px;border-radius:12px;text-decoration:none;box-shadow:0 4px 12px rgba(249,115,22,0.3);">
+          🚀 Activar mi Demo Personalizada
+        </a>
+        <p style="margin:8px 0 0;color:#9ca3af;font-size:12px;">Completa unas breves preguntas para recibir tu demo a la medida</p>
+      </div>
+      ` : ''}
+
       <div style="text-align:center;margin:20px 0;">
         <a href="${SITE_URL}/clientes" style="display:inline-block;background:#2563eb;color:#ffffff;font-size:14px;font-weight:600;padding:14px 36px;border-radius:10px;text-decoration:none;">
-          🚀 Acceder al POS
+          🖥️ Explorar Demo Genérica
         </a>
       </div>
 
@@ -186,7 +198,7 @@ Deno.serve(async (req) => {
               from: "SistecPOS <notificaciones@sistecpos.com>",
               to: [payload.email],
               subject: `🎉 ¡Bienvenido a SistecPOS, ${payload.name}! Tu demo está lista`,
-              html: welcomeDemoHtml(payload.name, payload.business || "tu negocio", waNumber),
+              html: welcomeDemoHtml(payload.name, payload.business || "tu negocio", waNumber, payload.activationToken),
             }),
           });
 

@@ -11,6 +11,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { SEO } from "@/components/seo/SEO";
+import { BUSINESS_TYPES_DEMO, COUNTRIES } from "@/data/demoFormOptions";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
 import {
   Form,
   FormControl,
@@ -23,6 +27,8 @@ import {
 const demoSchema = z.object({
   fullName: z.string().trim().min(3, "Mínimo 3 caracteres").max(100),
   businessName: z.string().trim().min(2, "Mínimo 2 caracteres").max(100),
+  businessType: z.string().min(1, "Selecciona tipo de negocio"),
+  country: z.string().min(1, "Selecciona un país"),
   whatsapp: z.string().trim().regex(/^\d{10}$/, "Ingresa 10 dígitos"),
   email: z.string().trim().email("Correo no válido").max(255),
   city: z.string().trim().min(2, "Ingresa tu ciudad").max(100),
@@ -50,6 +56,8 @@ export default function LandingDemoPage() {
     defaultValues: {
       fullName: "",
       businessName: "",
+      businessType: "",
+      country: "Colombia",
       whatsapp: "",
       email: "",
       city: "",
@@ -61,18 +69,22 @@ export default function LandingDemoPage() {
     setIsSubmitting(true);
     try {
       // Save to database
+      const token = crypto.randomUUID().replace(/-/g, "").slice(0, 32);
       const trialEnds = new Date();
       trialEnds.setDate(trialEnds.getDate() + 30);
 
       const { error: dbError } = await supabase.from("leads_trials").insert({
         contact_name: data.fullName,
         business_name: data.businessName,
+        business_type: data.businessType,
+        country: data.country,
         phone: data.whatsapp,
         email: data.email,
         city: data.city,
         source: "landing_campana",
         status: "welcome_sent",
         trial_ends_at: trialEnds.toISOString(),
+        activation_token: token,
         utm_source: utm.utm_source,
         utm_medium: utm.utm_medium,
         utm_campaign: utm.utm_campaign,
@@ -95,6 +107,7 @@ export default function LandingDemoPage() {
           phone: data.whatsapp,
           email: data.email,
           city: data.city,
+          activationToken: token,
         },
       }).catch(console.error);
 
@@ -189,12 +202,46 @@ export default function LandingDemoPage() {
                 <FormField control={form.control} name="businessName" render={({ field }) => (
                   <FormItem>
                     <FormLabel>Nombre del Negocio *</FormLabel>
-                    <FormControl><Input placeholder="Ej: Droguería San Ángel" {...field} /></FormControl>
+                    <FormControl><Input placeholder="Máx. 15 caracteres. Ej: mitiendaexito" maxLength={15} {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+
+                <FormField control={form.control} name="businessType" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Tipo de Negocio *</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger><SelectValue placeholder="Seleccione" /></SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {BUSINESS_TYPES_DEMO.map(t => (
+                          <SelectItem key={t} value={t}>{t}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )} />
 
                 <div className="grid grid-cols-2 gap-3">
+                  <FormField control={form.control} name="country" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>País *</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger><SelectValue placeholder="Seleccione" /></SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {COUNTRIES.map(c => (
+                            <SelectItem key={c} value={c}>{c}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+
                   <FormField control={form.control} name="city" render={({ field }) => (
                     <FormItem>
                       <FormLabel>Ciudad *</FormLabel>
@@ -202,15 +249,18 @@ export default function LandingDemoPage() {
                       <FormMessage />
                     </FormItem>
                   )} />
-
-                  <FormField control={form.control} name="whatsapp" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>WhatsApp *</FormLabel>
-                      <FormControl><Input placeholder="3176268307" maxLength={10} inputMode="numeric" {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )} />
                 </div>
+
+                <FormField control={form.control} name="whatsapp" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>WhatsApp *</FormLabel>
+                    <div className="flex gap-2">
+                      <div className="flex h-10 items-center rounded-md border bg-muted px-3 text-sm text-muted-foreground">+57</div>
+                      <FormControl><Input placeholder="3176268307" maxLength={10} inputMode="numeric" {...field} /></FormControl>
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )} />
 
                 <FormField control={form.control} name="email" render={({ field }) => (
                   <FormItem>
