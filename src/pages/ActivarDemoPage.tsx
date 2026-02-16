@@ -118,15 +118,24 @@ export default function ActivarDemoPage() {
         description: "Pronto recibirás tus credenciales de acceso.",
       });
 
-      // Notify admin
+      // Notify admin about activation completion (different from initial welcome)
       supabase.functions.invoke("notify-new-lead", {
         body: {
-          type: "demo",
+          type: "activation_completed",
           name: lead.contact_name,
           business: lead.business_name,
           phone: lead.phone,
           email: lead.email,
           city: lead.city || "",
+          qualificationData: {
+            uses_software: values.uses_software,
+            knows_inventory: values.knows_inventory,
+            main_pain: values.main_pain,
+            ideal_pos_features: values.ideal_pos_features,
+            daily_sales: values.daily_sales,
+            employee_count: values.employee_count,
+            urgency: values.urgency,
+          },
         },
       }).catch(console.error);
 

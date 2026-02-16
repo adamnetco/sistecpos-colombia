@@ -26,12 +26,22 @@ interface Lead {
   pos_username: string | null;
   pos_company: string | null;
   pos_password: string | null;
+  activation_completed_at: string | null;
+  uses_software: boolean | null;
+  knows_inventory: boolean | null;
+  main_pain: string | null;
+  ideal_pos_features: string | null;
+  daily_sales: string | null;
+  employee_count: string | null;
+  urgency: string | null;
+  business_type: string | null;
+  country: string | null;
 }
 
 const statusOptions = [
   { value: "new", label: "Nuevo", color: "bg-blue-500 text-white" },
   { value: "contacted", label: "Contactado", color: "bg-yellow-500 text-white" },
-  { value: "welcome_sent", label: "Bienvenida", color: "bg-emerald-500 text-white" },
+  { value: "activation_completed", label: "✅ Activación Completa", color: "bg-orange-500 text-white" },
   { value: "demo_personalized", label: "Demo Personalizada", color: "bg-purple-500 text-white" },
   { value: "active_trial", label: "Demo Activa", color: "bg-whatsapp text-white" },
   { value: "converted", label: "Convertido", color: "bg-primary text-primary-foreground" },
@@ -42,6 +52,7 @@ const sourceLabels: Record<string, string> = {
   landing_campana: "📢 Campaña",
   website: "🌐 Web",
   referral: "🤝 Referido",
+  socio_panel: "🤝 Socio",
 };
 
 export default function LeadsView() {
@@ -294,8 +305,32 @@ export default function LeadsView() {
                   <div className="flex items-center gap-2"><MapPin className="h-3.5 w-3.5 text-muted-foreground" /> {selectedLead.city || "—"}</div>
                   <div className="flex items-center gap-2"><Calendar className="h-3.5 w-3.5 text-muted-foreground" /> {new Date(selectedLead.created_at).toLocaleDateString("es-CO")}</div>
                 </div>
-                <div className="pt-1">{statusBadge(selectedLead.status)}</div>
+                <div className="pt-1 flex items-center gap-2">
+                  {statusBadge(selectedLead.status)}
+                  {selectedLead.activation_completed_at && (
+                    <Badge variant="outline" className="text-xs border-orange-300 text-orange-700 bg-orange-50">
+                      ✅ Activación: {new Date(selectedLead.activation_completed_at).toLocaleDateString("es-CO")}
+                    </Badge>
+                  )}
+                </div>
               </div>
+
+              {/* Qualification Data (if activation completed) */}
+              {selectedLead.activation_completed_at && (
+                <div className="rounded-lg border border-orange-200 bg-orange-50/50 p-4 space-y-2">
+                  <p className="text-sm font-semibold text-orange-800">📋 Datos de Calificación</p>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div><span className="text-muted-foreground">¿Usa software?</span><p className="font-medium">{selectedLead.uses_software ? "✅ Sí" : "❌ No"}</p></div>
+                    <div><span className="text-muted-foreground">¿Conoce inventario?</span><p className="font-medium">{selectedLead.knows_inventory ? "✅ Sí" : "❌ No"}</p></div>
+                    <div className="col-span-2"><span className="text-muted-foreground">Mayor dolor:</span><p className="font-medium">{selectedLead.main_pain || "—"}</p></div>
+                    <div className="col-span-2"><span className="text-muted-foreground">POS ideal:</span><p className="font-medium">{selectedLead.ideal_pos_features || "—"}</p></div>
+                    <div><span className="text-muted-foreground">Ventas/día:</span><p className="font-medium">{selectedLead.daily_sales || "—"}</p></div>
+                    <div><span className="text-muted-foreground">Empleados:</span><p className="font-medium">{selectedLead.employee_count || "—"}</p></div>
+                    <div><span className="text-muted-foreground">Urgencia:</span><p className="font-medium">{selectedLead.urgency || "—"}</p></div>
+                    <div><span className="text-muted-foreground">Tipo negocio:</span><p className="font-medium">{selectedLead.business_type || "—"}</p></div>
+                  </div>
+                </div>
+              )}
 
               {/* Credential Form */}
               <div className="rounded-lg border-2 border-dashed border-purple-300 bg-purple-50/50 p-4 space-y-3">
