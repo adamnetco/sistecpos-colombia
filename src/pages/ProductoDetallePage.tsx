@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useParams, Link, Navigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,9 +11,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { 
   MessageCircle, CheckCircle2, ArrowLeft, Printer, Tag,
   CircleDollarSign, Barcode, ScrollText, FileText, Package, Settings, Truck, ShoppingCart,
-  Play, Download,
+  Play, Download, ChevronLeft, ChevronRight,
 } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { SEO } from "@/components/seo/SEO";
 import { JsonLd, productSchema } from "@/components/seo/JsonLd";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
@@ -36,6 +37,7 @@ const ProductoDetallePage = () => {
   const { buildUrl } = useWhatsAppConfig();
   const { slug } = useParams<{ slug: string }>();
   const { addItem } = useCart();
+  const [selectedImage, setSelectedImage] = useState(0);
 
   const { data: product, isLoading } = useQuery({
     queryKey: ["public_product", slug],
@@ -96,6 +98,13 @@ const ProductoDetallePage = () => {
   const includes = (product.includes as string[]) || [];
   const videoUrls = (product.video_urls as string[]) || [];
   const pdfUrls = (product.pdf_urls as any[]) || [];
+  const galleryUrls = (product.gallery_urls as string[]) || [];
+  
+  // Build all images array: main image + gallery
+  const allImages = [
+    ...(product.image_url ? [product.image_url] : []),
+    ...galleryUrls,
+  ].filter(Boolean);
 
   return (
     <Layout>
@@ -125,9 +134,60 @@ const ProductoDetallePage = () => {
           </Link>
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
             <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
-              {product.image_url ? (
-                <div className="aspect-square rounded-2xl bg-muted/30 p-8 flex items-center justify-center">
-                  <img src={product.image_url} alt={product.name} className="max-h-full max-w-full object-contain" fetchPriority="high" decoding="async" />
+              {allImages.length > 0 ? (
+                <div className="space-y-3">
+                  {/* Main Image */}
+                  <div className="relative aspect-square rounded-2xl bg-muted/30 p-4 flex items-center justify-center overflow-hidden group">
+                    <AnimatePresence mode="wait">
+                      <motion.img
+                        key={selectedImage}
+                        src={allImages[selectedImage]}
+                        alt={`${product.name} - Imagen ${selectedImage + 1}`}
+                        className="max-h-full max-w-full object-contain"
+                        fetchPriority="high"
+                        decoding="async"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                      />
+                    </AnimatePresence>
+                    {allImages.length > 1 && (
+                      <>
+                        <button
+                          onClick={() => setSelectedImage(i => (i - 1 + allImages.length) % allImages.length)}
+                          className="absolute left-2 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-sm rounded-full p-1.5 shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <ChevronLeft className="h-5 w-5" />
+                        </button>
+                        <button
+                          onClick={() => setSelectedImage(i => (i + 1) % allImages.length)}
+                          className="absolute right-2 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-sm rounded-full p-1.5 shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <ChevronRight className="h-5 w-5" />
+                        </button>
+                        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-background/80 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-medium">
+                          {selectedImage + 1} / {allImages.length}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                  {/* Thumbnails */}
+                  {allImages.length > 1 && (
+                    <div className="flex gap-2 overflow-x-auto pb-1">
+                      {allImages.map((img, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setSelectedImage(i)}
+                          className={`shrink-0 h-16 w-16 rounded-lg overflow-hidden border-2 transition-all ${
+                            selectedImage === i ? "border-primary ring-2 ring-primary/30" : "border-transparent hover:border-muted-foreground/30"
+                          }`}
+                        >
+                          <img src={img} alt={`Thumbnail ${i + 1}`} className="h-full w-full object-cover" loading="lazy" />
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="aspect-square rounded-2xl gradient-bg p-12 flex items-center justify-center">
