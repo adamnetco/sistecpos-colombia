@@ -40,6 +40,8 @@ import hiposHeroImage from "@/assets/hipos-vs-sistecpos-hero.jpg";
 import restiposHeroImage from "@/assets/restipos-vs-sistecpos-hero.jpg";
 import treintaHeroImage from "@/assets/treinta-vs-sistecpos-hero.jpg";
 import ventatpvHeroImage from "@/assets/ventatpv-vs-sistecpos-hero.jpg";
+import silposHeroImage from "@/assets/silpos-vs-sistecpos-hero.jpg";
+import fudoHeroImage from "@/assets/fudo-vs-sistecpos-hero.jpg";
 
 const heroImages: Record<string, string> = {
   "facturador-gratuito-dian": dianHeroImage,
@@ -70,6 +72,8 @@ const heroImages: Record<string, string> = {
   "restipos": restiposHeroImage,
   "treinta": treintaHeroImage,
   "ventatpv": ventatpvHeroImage,
+  "silpos": silposHeroImage,
+  "fudo": fudoHeroImage,
 };
 import {
   Accordion,
