@@ -41,6 +41,7 @@ const GraciasPage = () => {
       <SEO
         title="¡Gracias! Tu solicitud fue recibida | SistecPOS"
         description="Hemos recibido tu solicitud de demo. Te contactaremos por WhatsApp en los próximos minutos."
+        noindex
       />
       <section className="py-16 md:py-28">
         <div className="container px-4">

@@ -20,6 +20,8 @@ const footerLinks = {
     { name: "Lectores de Barras", href: "/productos" },
     { name: "Cajones Monederos", href: "/productos" },
     { name: "Comparar Licencias", href: "/comparativa-licencias" },
+    { name: "Comparar Software POS", href: "/comparar" },
+    { name: "Casos de Éxito", href: "/casos-de-exito" },
   ],
   ciudades: [
     { name: "POS Bogotá", href: "/software-pos/bogota" },

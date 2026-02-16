@@ -37,4 +37,5 @@ Disallow: /pago/resultado
 Disallow: /gracias
 Disallow: /lp/
 
+# Critical: Tell Google where the sitemap is
 Sitemap: https://sistecpos.com/sitemap.xml

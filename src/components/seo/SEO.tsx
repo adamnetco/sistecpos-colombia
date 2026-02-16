@@ -1,11 +1,16 @@
 import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
 interface SEOProps {
   title: string;
   description: string;
   canonical?: string;
   ogImage?: string;
+  noindex?: boolean;
 }
+
+const BASE_URL = "https://sistecpos.com";
+const DEFAULT_OG_IMAGE = "https://storage.googleapis.com/gpt-engineer-file-uploads/oovRngJ9hbfWUf6lyjyUTIF7FNo1/social-images/social-1769750139415-tarjeta-2-sistecpos-v2.png";
 
 function setMetaTag(property: string, content: string, isProperty = false) {
   const attr = isProperty ? "property" : "name";
@@ -18,12 +23,8 @@ function setMetaTag(property: string, content: string, isProperty = false) {
   el.content = content;
 }
 
-function setCanonical(href: string | undefined) {
+function setCanonical(href: string) {
   let el = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
-  if (!href) {
-    el?.remove();
-    return;
-  }
   if (!el) {
     el = document.createElement("link");
     el.rel = "canonical";
@@ -32,7 +33,9 @@ function setCanonical(href: string | undefined) {
   el.href = href;
 }
 
-export function SEO({ title, description, canonical, ogImage }: SEOProps) {
+export function SEO({ title, description, canonical, ogImage, noindex }: SEOProps) {
+  const location = useLocation();
+
   useEffect(() => {
     // Title
     document.title = title;
@@ -40,22 +43,34 @@ export function SEO({ title, description, canonical, ogImage }: SEOProps) {
     // Basic meta
     setMetaTag("description", description);
 
+    // Robots
+    if (noindex) {
+      setMetaTag("robots", "noindex, nofollow");
+    } else {
+      setMetaTag("robots", "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1");
+    }
+
+    // Auto-generate canonical from current path if not provided
+    const canonicalUrl = canonical || `${BASE_URL}${location.pathname}`;
+
     // Open Graph
     setMetaTag("og:title", title, true);
     setMetaTag("og:description", description, true);
     setMetaTag("og:type", "website", true);
-    if (canonical) setMetaTag("og:url", canonical, true);
-    if (ogImage) setMetaTag("og:image", ogImage, true);
+    setMetaTag("og:url", canonicalUrl, true);
+    setMetaTag("og:image", ogImage || DEFAULT_OG_IMAGE, true);
+    setMetaTag("og:locale", "es_CO", true);
+    setMetaTag("og:site_name", "SistecPOS", true);
 
     // Twitter
     setMetaTag("twitter:card", "summary_large_image");
     setMetaTag("twitter:title", title);
     setMetaTag("twitter:description", description);
-    if (ogImage) setMetaTag("twitter:image", ogImage);
+    setMetaTag("twitter:image", ogImage || DEFAULT_OG_IMAGE);
 
-    // Canonical
-    setCanonical(canonical);
-  }, [title, description, canonical, ogImage]);
+    // Canonical - ALWAYS set to prevent duplicates
+    setCanonical(canonicalUrl);
+  }, [title, description, canonical, ogImage, noindex, location.pathname]);
 
   return null;
 }
