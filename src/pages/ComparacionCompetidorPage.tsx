@@ -42,6 +42,13 @@ import treintaHeroImage from "@/assets/treinta-vs-sistecpos-hero.jpg";
 import ventatpvHeroImage from "@/assets/ventatpv-vs-sistecpos-hero.jpg";
 import silposHeroImage from "@/assets/silpos-vs-sistecpos-hero.jpg";
 import fudoHeroImage from "@/assets/fudo-vs-sistecpos-hero.jpg";
+import appkyteHeroImage from "@/assets/appkyte-vs-sistecpos-hero.jpg";
+import loyverseHeroImage from "@/assets/loyverse-vs-sistecpos-hero.jpg";
+import dataicoHeroImage from "@/assets/dataico-vs-sistecpos-hero.jpg";
+import clausHeroImage from "@/assets/claus-vs-sistecpos-hero.jpg";
+import eleventaHeroImage from "@/assets/eleventa-vs-sistecpos-hero.jpg";
+import mascontrolHeroImage from "@/assets/mascontrol-vs-sistecpos-hero.jpg";
+import softrestaurantHeroImage from "@/assets/softrestaurant-vs-sistecpos-hero.jpg";
 
 const heroImages: Record<string, string> = {
   "facturador-gratuito-dian": dianHeroImage,
@@ -74,6 +81,13 @@ const heroImages: Record<string, string> = {
   "ventatpv": ventatpvHeroImage,
   "silpos": silposHeroImage,
   "fudo": fudoHeroImage,
+  "appkyte": appkyteHeroImage,
+  "loyverse": loyverseHeroImage,
+  "dataico": dataicoHeroImage,
+  "claus": clausHeroImage,
+  "eleventa": eleventaHeroImage,
+  "mascontrol": mascontrolHeroImage,
+  "softrestaurant": softrestaurantHeroImage,
 };
 import {
   Accordion,
