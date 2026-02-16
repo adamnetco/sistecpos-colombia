@@ -11,7 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { 
   MessageCircle, CheckCircle2, ArrowLeft, Printer, Tag,
   CircleDollarSign, Barcode, ScrollText, FileText, Package, Settings, Truck, ShoppingCart,
-  Play, Download, ChevronLeft, ChevronRight,
+  Play, Download, ChevronLeft, ChevronRight, TrendingDown, CalendarClock, Info,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { SEO } from "@/components/seo/SEO";
@@ -25,6 +25,8 @@ import { ProductServicesSection } from "@/components/pricing/ProductServicesSect
 const formatPrice = (price: number) =>
   new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0 }).format(price);
 
+const formatPriceUSD = (price: number) =>
+  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0 }).format(price);
 const getCategoryIcon = (slug: string) => {
   const icons: Record<string, typeof Printer> = {
     impresoras: Printer, etiquetas: Tag, cajones: CircleDollarSign,
@@ -214,18 +216,75 @@ const ProductoDetallePage = () => {
                 ))}
               </div>
               <Separator className="my-6" />
-              <div className="mb-6">
-                {product.original_price_cop && (
-                  <p className="text-lg text-muted-foreground line-through">{formatPrice(product.original_price_cop)}</p>
-                )}
-                <p className="text-4xl font-bold text-primary mb-1">{formatPrice(product.price_cop)}</p>
-                {product.price_usd && (
-                  <p className="text-sm text-muted-foreground">≈ ${product.price_usd} USD</p>
-                )}
-                <p className="text-sm text-muted-foreground flex items-center gap-2 mt-2">
-                  <Truck className="h-4 w-4" />Incluye instalación y configuración en tu negocio
-                </p>
-              </div>
+              {/* ─── PRICING BLOCK ─── */}
+              {(() => {
+                const isLicense = catSlug === "licencias" || catSlug === "modulos";
+                const isVitalicia = product.slug?.includes("vitalicia");
+                const isAnnualLicense = isLicense && !isVitalicia;
+                const hasDiscount = !!product.original_price_cop && product.original_price_cop > product.price_cop;
+                const discount = hasDiscount
+                  ? Math.round(((product.original_price_cop! - product.price_cop) / product.original_price_cop!) * 100)
+                  : 0;
+                const monthlyRef = isAnnualLicense
+                  ? Math.round(product.price_cop / (product.slug?.includes("2-anos") ? 24 : 12))
+                  : 0;
+
+                return (
+                  <div className="mb-6 space-y-2">
+                    {/* Discount badge */}
+                    {hasDiscount && discount > 0 && (
+                      <Badge variant="destructive" className="gap-1 text-xs">
+                        <TrendingDown className="h-3 w-3" />Ahorras {discount}% vs precio de lista
+                      </Badge>
+                    )}
+
+                    {/* Original price struck */}
+                    {hasDiscount && (
+                      <p className="text-base text-muted-foreground line-through">{formatPrice(product.original_price_cop!)}</p>
+                    )}
+
+                    {/* COP Price — PRIMARY */}
+                    <div className="flex items-baseline gap-2">
+                      <p className="text-4xl font-black text-primary">{formatPrice(product.price_cop)}</p>
+                      <span className="text-sm font-semibold text-muted-foreground">COP</span>
+                      {isAnnualLicense && <span className="text-sm text-muted-foreground">/año</span>}
+                    </div>
+
+                    {/* Monthly ref — informational */}
+                    {isAnnualLicense && monthlyRef > 0 && (
+                      <p className="text-sm text-muted-foreground flex items-center gap-1.5">
+                        <CalendarClock className="h-4 w-4 shrink-0" />
+                        Equivale a {formatPrice(monthlyRef)}/mes
+                        <span className="text-xs italic">(solo venta anual)</span>
+                      </p>
+                    )}
+
+                    {/* Vitalicia */}
+                    {isVitalicia && (
+                      <p className="text-sm text-primary font-semibold flex items-center gap-1.5">
+                        <Info className="h-4 w-4 shrink-0" />
+                        Pago único de por vida · Hosting anual: $99 USD
+                      </p>
+                    )}
+
+                    {/* USD reference */}
+                    {product.price_usd && (
+                      <div className="rounded-lg bg-muted/50 border px-3 py-2 inline-flex items-center gap-2 text-sm text-muted-foreground">
+                        <span>Ref. casa de desarrollo:</span>
+                        <span className="font-semibold text-foreground">{formatPriceUSD(product.price_usd)} USD</span>
+                        {product.original_price_usd && product.original_price_usd > product.price_usd && (
+                          <span className="line-through text-xs">{formatPriceUSD(product.original_price_usd)}</span>
+                        )}
+                      </div>
+                    )}
+
+                    <p className="text-sm text-muted-foreground flex items-center gap-2 mt-2">
+                      <Truck className="h-4 w-4" />
+                      {isLicense ? "Incluye instalación y configuración en tu negocio" : "Incluye instalación y configuración"}
+                    </p>
+                  </div>
+                );
+              })()}
               <div className="flex flex-col sm:flex-row gap-3">
                 <Button
                   size="lg"
