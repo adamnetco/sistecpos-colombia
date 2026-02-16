@@ -1137,6 +1137,7 @@ export type Database = {
       }
       licenses: {
         Row: {
+          activation_requested_at: string | null
           business_name: string
           business_nit: string | null
           contact_email: string | null
@@ -1149,14 +1150,17 @@ export type Database = {
           lead_id: string | null
           license_key: string
           notes: string | null
+          payment_proof_url: string | null
           plan_type: string
           price_paid: number
+          provider_notes: string | null
           rut_url: string | null
           start_date: string
           status: string
           updated_at: string
         }
         Insert: {
+          activation_requested_at?: string | null
           business_name: string
           business_nit?: string | null
           contact_email?: string | null
@@ -1169,14 +1173,17 @@ export type Database = {
           lead_id?: string | null
           license_key?: string
           notes?: string | null
+          payment_proof_url?: string | null
           plan_type: string
           price_paid?: number
+          provider_notes?: string | null
           rut_url?: string | null
           start_date?: string
           status?: string
           updated_at?: string
         }
         Update: {
+          activation_requested_at?: string | null
           business_name?: string
           business_nit?: string | null
           contact_email?: string | null
@@ -1189,8 +1196,10 @@ export type Database = {
           lead_id?: string | null
           license_key?: string
           notes?: string | null
+          payment_proof_url?: string | null
           plan_type?: string
           price_paid?: number
+          provider_notes?: string | null
           rut_url?: string | null
           start_date?: string
           status?: string
