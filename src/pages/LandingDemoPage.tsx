@@ -101,7 +101,7 @@ export default function LandingDemoPage() {
         email: data.email,
         city: data.city,
         source: "landing_campana",
-        status: "welcome_sent",
+        status: "new",
         trial_ends_at: trialEnds.toISOString(),
         activation_token: token,
         utm_source: utm.utm_source,
