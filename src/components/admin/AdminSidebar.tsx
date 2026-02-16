@@ -61,6 +61,7 @@ const navGroups: NavGroup[] = [
   {
     label: "Soporte",
     items: [
+      { name: "Demos Activas", href: "/admin/demos-activas", icon: KeyRound },
       { name: "Usuarios POS", href: "/admin/usuarios-pos", icon: UserCog },
       { name: "Tickets", href: "/admin/tickets-clientes", icon: TicketCheck },
       { name: "Descargas", href: "/admin/descargas-clientes", icon: Download },
