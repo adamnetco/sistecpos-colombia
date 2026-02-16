@@ -224,18 +224,26 @@ export default function GuiaDianPage() {
           >
             <h2 className="text-3xl md:text-4xl font-bold mb-6">{article.ctaText}</h2>
             <p className="text-lg text-primary-foreground/80 mb-8">
-              Prueba gratis 7 días. Sin tarjeta de crédito. Capacitación incluida.
+              Prueba gratis 30 días. Sin tarjeta de crédito. Capacitación incluida.
             </p>
-            <Button size="lg" className="btn-whatsapp gap-2" asChild>
-              <a
-                href={buildUrl(article.ctaWhatsappMessage)}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <MessageCircle className="h-5 w-5" />
-                Escribir por WhatsApp
-              </a>
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button size="lg" className="bg-cta hover:bg-cta/90 text-cta-foreground gap-2" asChild>
+                <Link to="/lp/demo">
+                  <ArrowRight className="h-5 w-5" />
+                  Solicitar Prueba Gratis
+                </Link>
+              </Button>
+              <Button size="lg" variant="secondary" className="gap-2" asChild>
+                <a
+                  href={buildUrl(article.ctaWhatsappMessage)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <MessageCircle className="h-5 w-5" />
+                  WhatsApp
+                </a>
+              </Button>
+            </div>
           </motion.div>
         </div>
       </section>

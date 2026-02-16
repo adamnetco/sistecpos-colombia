@@ -1,11 +1,9 @@
 import { motion } from "framer-motion";
-import { ArrowRight, MessageCircle, Cloud, Smartphone, Monitor, Laptop, Shield, Clock } from "lucide-react";
+import { ArrowRight, Cloud, Smartphone, Monitor, Laptop, Shield, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
+import { Link } from "react-router-dom";
 
 export function HeroSection() {
-  const wa = useWhatsAppConfig();
-
   return (
     <section id="inicio" className="relative overflow-hidden bg-gradient-to-b from-secondary to-background py-20 md:py-28 lg:py-32">
       {/* Background decoration */}
@@ -24,7 +22,7 @@ export function HeroSection() {
             className="mb-6 inline-flex items-center gap-2 rounded-full border border-cta/30 bg-cta/10 px-4 py-1.5 text-sm font-semibold text-cta"
           >
             <Clock className="h-4 w-4" />
-            Prueba gratis 7 días — Sin tarjeta de crédito
+            Prueba gratis 30 días — Sin tarjeta de crédito
           </motion.div>
 
           {/* Main Heading */}
@@ -88,14 +86,10 @@ export function HeroSection() {
               size="lg"
               className="bg-cta hover:bg-cta/90 text-white text-base h-14 px-10 shadow-lg font-bold"
             >
-              <a
-                href={wa.buildUrl("Hola, quiero una demostración de SistecPOS")}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <MessageCircle className="mr-2 h-5 w-5" />
+              <Link to="/lp/demo">
+                <ArrowRight className="mr-2 h-5 w-5" />
                 Quiero Mi Prueba Gratis
-              </a>
+              </Link>
             </Button>
 
             <Button asChild variant="outline" size="lg" className="text-base h-14 px-10">

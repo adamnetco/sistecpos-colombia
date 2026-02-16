@@ -156,8 +156,8 @@ export function Navbar() {
             </AnimatePresence>
           </div>
           <Button asChild size="sm" className="bg-cta hover:bg-cta/90 text-cta-foreground font-semibold">
-            <Link to="/contacto#demo">
-              Prueba Gratis 7 Días
+            <Link to="/lp/demo">
+              Prueba Gratis 30 Días
             </Link>
           </Button>
         </div>
@@ -227,8 +227,8 @@ export function Navbar() {
                 </Button>
               )}
               <Button asChild className="w-full bg-cta hover:bg-cta/90 text-cta-foreground font-semibold">
-                <Link to="/contacto#demo" onClick={() => setMobileMenuOpen(false)}>
-                  Prueba Gratis 7 Días
+                <Link to="/lp/demo" onClick={() => setMobileMenuOpen(false)}>
+                  Prueba Gratis 30 Días
                 </Link>
               </Button>
             </div>

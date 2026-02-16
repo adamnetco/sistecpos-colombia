@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
-import { MessageCircle, ArrowRight, Shield, Clock, Star } from "lucide-react";
+import { ArrowRight, Shield, Clock, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
 
 export function CTASection() {
@@ -65,14 +66,10 @@ export function CTASection() {
               size="lg"
               className="bg-cta hover:bg-cta/90 text-white text-base h-14 px-10 shadow-lg font-bold"
             >
-              <a
-                href={wa.buildUrl("Hola, quiero agendar una visita para conocer SistecPOS")}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <MessageCircle className="mr-2 h-5 w-5" />
-                Agenda tu Instalación
-              </a>
+              <Link to="/lp/demo">
+                <ArrowRight className="mr-2 h-5 w-5" />
+                Solicitar Prueba Gratis 30 Días
+              </Link>
             </Button>
 
             <Button
