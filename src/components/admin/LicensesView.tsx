@@ -27,6 +27,9 @@ interface License {
   notes: string | null;
   created_by_reseller_id: string | null;
   lead_id: string | null;
+  payment_proof_url: string | null;
+  activation_requested_at: string | null;
+  provider_notes: string | null;
 }
 
 export default function LicensesView() {
@@ -114,6 +117,7 @@ export default function LicensesView() {
   };
 
   const statusBadge = (l: License) => {
+    if (l.status === "pending_activation") return <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 gap-1"><Clock className="h-3 w-3" />Pend. Activación</Badge>;
     if (l.status === "pending_approval") return <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 gap-1"><Clock className="h-3 w-3" />Pendiente</Badge>;
     if (l.status === "rejected") return <Badge variant="destructive">Rechazada</Badge>;
     if (isExpired(l)) return <Badge variant="destructive">Vencida</Badge>;

@@ -66,7 +66,23 @@ interface DemoProcessingPayload {
   business: string;
 }
 
-type Payload = TicketPayload | ResellerStatusPayload | DemoCredentialsPayload | DemoProcessingPayload;
+interface LicenseActivationPayload {
+  type: "license_activation_request";
+  business_name: string;
+  contact_name: string;
+  contact_email: string;
+  contact_phone: string;
+  nit: string;
+  plan_label: string;
+  pos_username: string;
+  pos_company: string;
+  provider_notes: string;
+  license_key: string;
+  payment_proof_url: string | null;
+  price_paid: string;
+}
+
+type Payload = TicketPayload | ResellerStatusPayload | DemoCredentialsPayload | DemoProcessingPayload | LicenseActivationPayload;
 
 const statusLabels: Record<string, string> = {
   open: "Abierto",
@@ -436,6 +452,95 @@ Deno.serve(async (req) => {
         }),
       });
       if (!res.ok) console.error("Resend error:", await res.text());
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // ─── License Activation Request to Provider ─────────
+    if (payload.type === "license_activation_request") {
+      const p = payload as LicenseActivationPayload;
+      const providerEmail = "eduardotp77@gmail.com"; // Admin/provider email
+      const html = `
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+<div style="max-width:600px;margin:0 auto;padding:40px 20px;">
+<div style="background:#ffffff;border-radius:16px;padding:40px 32px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+  <div style="text-align:center;margin-bottom:24px;">
+    <img src="${SITE_URL}/lovable-uploads/43a24c53-78c0-4ca3-b642-99a376d90a0f.png" alt="SistecPOS" style="height:40px;" />
+  </div>
+  <div style="text-align:center;margin-bottom:20px;">
+    <span style="display:inline-block;background:#f97316;color:#fff;font-size:12px;font-weight:700;padding:4px 14px;border-radius:20px;text-transform:uppercase;">🔑 Solicitud de Activación</span>
+  </div>
+  <h1 style="text-align:center;color:#1a1a2e;font-size:20px;margin:0 0 16px;">Nueva Licencia Pagada — Activar</h1>
+  <p style="text-align:center;color:#6b7280;font-size:14px;margin:0 0 24px;">Se requiere la activación de la siguiente licencia en el sistema POS.</p>
+  
+  <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:20px;margin-bottom:20px;">
+    <table style="width:100%;border-collapse:collapse;">
+      <tr><td style="padding:6px 0;color:#9a3412;font-size:13px;font-weight:600;width:130px;">Negocio:</td><td style="padding:6px 0;color:#1a1a2e;font-size:14px;">${p.business_name}</td></tr>
+      <tr><td style="padding:6px 0;color:#9a3412;font-size:13px;font-weight:600;">NIT:</td><td style="padding:6px 0;color:#1a1a2e;font-size:14px;">${p.nit}</td></tr>
+      <tr><td style="padding:6px 0;color:#9a3412;font-size:13px;font-weight:600;">Contacto:</td><td style="padding:6px 0;color:#1a1a2e;font-size:14px;">${p.contact_name}</td></tr>
+      <tr><td style="padding:6px 0;color:#9a3412;font-size:13px;font-weight:600;">Email:</td><td style="padding:6px 0;color:#1a1a2e;font-size:14px;">${p.contact_email}</td></tr>
+      <tr><td style="padding:6px 0;color:#9a3412;font-size:13px;font-weight:600;">Teléfono:</td><td style="padding:6px 0;color:#1a1a2e;font-size:14px;">${p.contact_phone}</td></tr>
+    </table>
+  </div>
+  
+  <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:20px;margin-bottom:20px;">
+    <p style="margin:0 0 12px;color:#1e40af;font-size:14px;font-weight:700;">📋 Detalles de la Licencia</p>
+    <table style="width:100%;border-collapse:collapse;">
+      <tr><td style="padding:6px 0;color:#1e3a5f;font-size:13px;font-weight:600;width:130px;">Plan:</td><td style="padding:6px 0;color:#1a1a2e;font-size:14px;font-weight:700;">${p.plan_label}</td></tr>
+      <tr><td style="padding:6px 0;color:#1e3a5f;font-size:13px;font-weight:600;">Precio pagado:</td><td style="padding:6px 0;color:#1a1a2e;font-size:14px;">${p.price_paid}</td></tr>
+      <tr><td style="padding:6px 0;color:#1e3a5f;font-size:13px;font-weight:600;">Clave licencia:</td><td style="padding:6px 0;color:#1a1a2e;font-size:14px;font-family:monospace;">${p.license_key}</td></tr>
+      ${p.pos_username ? `<tr><td style="padding:6px 0;color:#1e3a5f;font-size:13px;font-weight:600;">Usuario demo:</td><td style="padding:6px 0;color:#1a1a2e;font-size:14px;">${p.pos_username}</td></tr>` : ''}
+      ${p.pos_company ? `<tr><td style="padding:6px 0;color:#1e3a5f;font-size:13px;font-weight:600;">Empresa demo:</td><td style="padding:6px 0;color:#1a1a2e;font-size:14px;">${p.pos_company}</td></tr>` : ''}
+    </table>
+  </div>
+  
+  ${p.provider_notes ? `
+  <div style="background:#fef3c7;border:1px solid #fde68a;border-radius:12px;padding:16px;margin-bottom:20px;">
+    <p style="margin:0 0 8px;color:#92400e;font-size:13px;font-weight:600;">📝 Instrucciones especiales</p>
+    <p style="margin:0;color:#78350f;font-size:13px;">${p.provider_notes}</p>
+  </div>` : ''}
+  
+  ${p.payment_proof_url ? `
+  <div style="text-align:center;margin:20px 0;">
+    <a href="${p.payment_proof_url}" style="display:inline-block;background:#16a34a;color:#ffffff;font-size:14px;font-weight:600;padding:12px 28px;border-radius:10px;text-decoration:none;">
+      📎 Ver Comprobante de Pago
+    </a>
+  </div>` : ''}
+  
+  <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:16px;margin-bottom:20px;">
+    <p style="margin:0;color:#166534;font-size:13px;text-align:center;">
+      ⚡ <strong>Acción requerida:</strong> Activar la licencia y enviar mensaje de bienvenida al cliente.
+    </p>
+  </div>
+  
+  <hr style="border:none;border-top:1px solid #e5e7eb;margin:32px 0;" />
+  <p style="text-align:center;color:#9ca3af;font-size:12px;margin:0;">© ${new Date().getFullYear()} SistecPOS · Solicitud de Activación</p>
+</div></div></body></html>`;
+
+      const res = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          from: "SistecPOS <notificaciones@sistecpos.com>",
+          to: [providerEmail],
+          subject: `🔑 Activar Licencia: ${p.business_name} — Plan ${p.plan_label}`,
+          html,
+        }),
+      });
+      if (!res.ok) console.error("Resend error:", await res.text());
+      
+      // Also send WhatsApp notification
+      try {
+        const waPhone = Deno.env.get("CALLMEBOT_PHONE");
+        const waKey = Deno.env.get("CALLMEBOT_API_KEY");
+        if (waPhone && waKey) {
+          const msg = `🔑 *Activar Licencia*\n${p.business_name}\nPlan: ${p.plan_label}\nPago: ${p.price_paid}\nContacto: ${p.contact_name} - ${p.contact_phone}`;
+          await fetch(`https://api.callmebot.com/whatsapp.php?phone=${waPhone}&text=${encodeURIComponent(msg)}&apikey=${waKey}`);
+        }
+      } catch (e) { console.warn("WA notification failed:", e); }
+      
       return new Response(JSON.stringify({ success: true }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
