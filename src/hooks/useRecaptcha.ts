@@ -1,6 +1,6 @@
 import { useEffect, useCallback, useRef } from "react";
 
-const SITE_KEY = "PENDING_SITE_KEY"; // Will be replaced with actual key
+const SITE_KEY = "6Lc4iG0sAAAAAC3AvXBWdJZEQ4l4tXu0wOcz_xz2";
 
 declare global {
   interface Window {
