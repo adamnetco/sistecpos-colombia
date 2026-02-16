@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUTMParams } from "@/hooks/useUTMParams";
+import { useRecaptcha } from "@/hooks/useRecaptcha";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -61,6 +62,7 @@ export default function LandingRepresentantesPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const utm = useUTMParams();
+  const { getToken } = useRecaptcha();
 
   const form = useForm<RepFormValues>({
     resolver: zodResolver(repSchema),
@@ -78,6 +80,24 @@ export default function LandingRepresentantesPage() {
   async function onSubmit(data: RepFormValues) {
     setIsSubmitting(true);
     try {
+      // Verify reCAPTCHA
+      const recaptchaToken = await getToken("reseller_apply");
+      if (!recaptchaToken) {
+        toast({ title: "Error de verificación", description: "No se pudo verificar reCAPTCHA. Recarga la página.", variant: "destructive" });
+        setIsSubmitting(false);
+        return;
+      }
+
+      const { data: captchaResult } = await supabase.functions.invoke("verify-recaptcha", {
+        body: { token: recaptchaToken, action: "reseller_apply" },
+      });
+
+      if (!captchaResult?.success) {
+        toast({ title: "Verificación fallida", description: "Parece que eres un bot. Si es un error, recarga la página.", variant: "destructive" });
+        setIsSubmitting(false);
+        return;
+      }
+
       const experienceMap: Record<string, string> = {
         none: "Sin experiencia comercial",
         "1": "Menos de 1 año",
@@ -304,6 +324,11 @@ export default function LandingRepresentantesPage() {
 
                 <p className="text-center text-xs text-muted-foreground">
                   🔒 Tus datos están protegidos. No compartimos tu información.
+                </p>
+                <p className="text-center text-[10px] text-muted-foreground/60">
+                  Protegido por reCAPTCHA de Google.{" "}
+                  <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" className="underline">Privacidad</a>{" · "}
+                  <a href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer" className="underline">Términos</a>
                 </p>
               </form>
             </Form>
