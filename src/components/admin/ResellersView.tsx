@@ -235,8 +235,8 @@ export default function ResellersView() {
                   <td className="px-4 py-3 font-medium">{a.full_name}</td>
                   <td className="px-4 py-3">{a.city}</td>
                   <td className="px-4 py-3">
-                    <div className="text-xs">{a.email}</div>
-                    <div className="text-xs text-muted-foreground">{a.phone}</div>
+                    <a href={`mailto:${a.email}`} className="block text-xs text-primary hover:underline active:opacity-70">{a.email}</a>
+                    <a href={`tel:${a.phone}`} className="block text-xs text-primary hover:underline active:opacity-70">{a.phone}</a>
                   </td>
                   <td className="px-4 py-3 text-xs text-muted-foreground whitespace-nowrap">
                     {new Date(a.created_at).toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" })}

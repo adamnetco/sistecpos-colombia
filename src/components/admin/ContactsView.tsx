@@ -347,14 +347,14 @@ export default function ContactsView() {
                         </td>
                         <td className="px-3 py-3">
                           {c.email && (
-                            <div className="flex items-center gap-1 text-xs">
-                              <Mail className="h-3 w-3 text-muted-foreground" /> {c.email}
-                            </div>
+                            <a href={`mailto:${c.email}`} className="flex items-center gap-1 text-xs text-primary hover:underline active:opacity-70">
+                              <Mail className="h-3 w-3" /> {c.email}
+                            </a>
                           )}
                           {c.phone && (
-                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <a href={`tel:${c.phone}`} className="flex items-center gap-1 text-xs text-primary hover:underline active:opacity-70">
                               <Phone className="h-3 w-3" /> {c.phone}
-                            </div>
+                            </a>
                           )}
                         </td>
                         <td className="px-3 py-3">
