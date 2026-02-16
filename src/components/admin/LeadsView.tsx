@@ -30,6 +30,7 @@ interface Lead {
   pos_company: string | null;
   pos_password: string | null;
   activation_completed_at: string | null;
+  requested_by_reseller_id: string | null;
   uses_software: boolean | null;
   knows_inventory: boolean | null;
   main_pain: string | null;
