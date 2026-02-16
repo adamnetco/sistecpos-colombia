@@ -57,6 +57,7 @@ import grafosoftHeroImage from "@/assets/grafosoft-vs-sistecpos-hero.jpg";
 import globhoHeroImage from "@/assets/globho-vs-sistecpos-hero.jpg";
 import valualHeroImage from "@/assets/valual-vs-sistecpos-hero.jpg";
 import cuentralHeroImage from "@/assets/cuental-vs-sistecpos-hero.jpg";
+import bilidoxHeroImage from "@/assets/bilidox-vs-sistecpos-hero.jpg";
 
 const heroImages: Record<string, string> = {
   "facturador-gratuito-dian": dianHeroImage,
@@ -104,6 +105,7 @@ const heroImages: Record<string, string> = {
   "globho": globhoHeroImage,
   "valual": valualHeroImage,
   "cuental": cuentralHeroImage,
+  "bilidox": bilidoxHeroImage,
 };
 import {
   Accordion,
