@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { lovable } from "@/integrations/lovable/index";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,7 @@ export function ClientPOSLogin() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [store, setStore] = useState("");
+  const posCardRef = useRef<HTMLDivElement>(null);
   const [showPassword, setShowPassword] = useState(false);
 
   // Saved credentials from demo leads
@@ -43,6 +44,30 @@ export function ClientPOSLogin() {
       loadSavedCredentials(email);
     }
   }, [searchParams]);
+
+  // Auto-fill demo credentials and auto-submit when ?quick=demo
+  useEffect(() => {
+    const quick = searchParams.get("quick");
+    if (quick === "demo") {
+      // Scroll to POS card
+      setTimeout(() => {
+        posCardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 300);
+      // Auto-submit with demo credentials
+      setTimeout(() => {
+        submitPOSForm("demo", "demo", "demo");
+      }, 600);
+    }
+  }, [searchParams]);
+
+  // Scroll to #pos anchor on load
+  useEffect(() => {
+    if (window.location.hash === "#pos") {
+      setTimeout(() => {
+        posCardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 300);
+    }
+  }, []);
 
   const loadSavedCredentials = async (email: string) => {
     setLoadingCreds(true);
@@ -203,7 +228,7 @@ export function ClientPOSLogin() {
 
           <div className="grid gap-8 md:grid-cols-2 items-start">
             {/* POS Login */}
-            <Card className="border-2 shadow-lg">
+            <Card id="pos" ref={posCardRef} className="border-2 shadow-lg scroll-mt-20">
               <CardHeader className="pb-4">
                 <div className="flex items-center gap-3">
                   <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
