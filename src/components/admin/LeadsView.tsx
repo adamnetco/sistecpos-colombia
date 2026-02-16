@@ -12,6 +12,7 @@ import {
   Eye, Send, Loader2, Calendar, Mail, Phone, MapPin,
   Building2, User, CheckCircle2, RefreshCw, ArrowRight, Lock,
 } from "lucide-react";
+import { LeadConversionDialog } from "./licenses/LeadConversionDialog";
 
 interface Lead {
   id: string;
@@ -80,6 +81,7 @@ export default function LeadsView() {
   const [credDialog, setCredDialog] = useState(false);
   const [credForm, setCredForm] = useState({ pos_username: "", pos_company: "", pos_password: "" });
   const [sending, setSending] = useState(false);
+  const [conversionLead, setConversionLead] = useState<Lead | null>(null);
   const { toast } = useToast();
 
   const load = async () => {
@@ -99,6 +101,12 @@ export default function LeadsView() {
         description: "Solo puedes activar la demo enviando las credenciales desde el formulario.",
         variant: "destructive",
       });
+      return;
+    }
+
+    // Converted — open conversion dialog to create license
+    if (newStatus === "converted") {
+      setConversionLead(lead);
       return;
     }
 
@@ -546,6 +554,13 @@ export default function LeadsView() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Conversion Dialog */}
+      <LeadConversionDialog
+        lead={conversionLead}
+        onClose={() => setConversionLead(null)}
+        onConverted={load}
+      />
     </div>
   );
 }

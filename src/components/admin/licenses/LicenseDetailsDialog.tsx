@@ -21,6 +21,8 @@ interface License {
   license_key: string;
   price_paid: number;
   notes: string | null;
+  lead_id?: string | null;
+  created_by_reseller_id?: string | null;
 }
 
 interface Props {
@@ -87,6 +89,12 @@ export function LicenseDetailsDialog({ license, onClose }: Props) {
                 <Field label="Precio" value={formatCOP(license.price_paid)} />
                 <Field label="Inicio" value={license.start_date} />
                 <Field label="Vence" value={license.expires_at || "Sin vencimiento"} />
+                {license.lead_id && (
+                  <Field label="Origen" value="Convertido desde Lead/Demo" className="text-amber-600" />
+                )}
+                {license.created_by_reseller_id && (
+                  <Field label="Socio" value="Creada por socio" className="text-amber-600" />
+                )}
               </div>
 
               {license.notes && (

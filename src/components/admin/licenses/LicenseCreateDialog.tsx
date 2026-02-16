@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { LICENSE_PLANS, planIsAnnual } from "@/data/licensePlans";
+import { LICENSE_PLANS, planExpirationDate } from "@/data/licensePlans";
 
 interface Props {
   open: boolean;
@@ -30,13 +30,7 @@ export function LicenseCreateDialog({ open, onOpenChange, onCreated }: Props) {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
     const planType = fd.get("plan_type") as string;
-    let expiresAt: string | null = null;
-
-    if (planIsAnnual(planType)) {
-      const d = new Date();
-      d.setFullYear(d.getFullYear() + 1);
-      expiresAt = d.toISOString().split("T")[0];
-    }
+    const expiresAt = planExpirationDate(planType);
 
     const { error } = await supabase.from("licenses").insert({
       business_name: fd.get("business_name") as string,
