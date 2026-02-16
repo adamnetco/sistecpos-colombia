@@ -207,8 +207,8 @@ export default function LeadsView() {
                     <td className="px-4 py-3 font-medium">{l.business_name}</td>
                     <td className="px-4 py-3">
                       <div>{l.contact_name}</div>
-                      <div className="text-xs text-muted-foreground">{l.email}</div>
-                      <div className="text-xs text-muted-foreground">{l.phone}</div>
+                      <a href={`mailto:${l.email}`} className="block text-xs text-primary hover:underline active:opacity-70">{l.email}</a>
+                      <a href={`tel:${l.phone}`} className="block text-xs text-primary hover:underline active:opacity-70">{l.phone}</a>
                     </td>
                     <td className="px-4 py-3">{l.city || "—"}</td>
                     <td className="px-4 py-3">
@@ -289,8 +289,8 @@ export default function LeadsView() {
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div className="flex items-center gap-2"><User className="h-3.5 w-3.5 text-muted-foreground" /> {selectedLead.contact_name}</div>
                   <div className="flex items-center gap-2"><Building2 className="h-3.5 w-3.5 text-muted-foreground" /> {selectedLead.business_name}</div>
-                  <div className="flex items-center gap-2"><Mail className="h-3.5 w-3.5 text-muted-foreground" /> {selectedLead.email}</div>
-                  <div className="flex items-center gap-2"><Phone className="h-3.5 w-3.5 text-muted-foreground" /> {selectedLead.phone}</div>
+                  <a href={`mailto:${selectedLead.email}`} className="flex items-center gap-2 text-primary hover:underline active:opacity-70"><Mail className="h-3.5 w-3.5" /> {selectedLead.email}</a>
+                  <a href={`tel:${selectedLead.phone}`} className="flex items-center gap-2 text-primary hover:underline active:opacity-70"><Phone className="h-3.5 w-3.5" /> {selectedLead.phone}</a>
                   <div className="flex items-center gap-2"><MapPin className="h-3.5 w-3.5 text-muted-foreground" /> {selectedLead.city || "—"}</div>
                   <div className="flex items-center gap-2"><Calendar className="h-3.5 w-3.5 text-muted-foreground" /> {new Date(selectedLead.created_at).toLocaleDateString("es-CO")}</div>
                 </div>
