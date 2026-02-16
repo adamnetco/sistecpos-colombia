@@ -29,6 +29,7 @@ import sitricposHeroImage from "@/assets/sitricpos-vs-sistecpos-hero.jpg";
 import conexionPosHeroImage from "@/assets/conexion-pos-vs-sistecpos-hero.jpg";
 import aliaddoHeroImage from "@/assets/aliaddo-vs-sistecpos-hero.jpg";
 import puvesoftHeroImage from "@/assets/puvesoft-vs-sistecpos-hero.jpg";
+import giiticHeroImage from "@/assets/giitic-vs-sistecpos-hero.jpg";
 
 const heroImages: Record<string, string> = {
   "facturador-gratuito-dian": dianHeroImage,
@@ -48,6 +49,7 @@ const heroImages: Record<string, string> = {
   "conexion-pos": conexionPosHeroImage,
   "aliaddo": aliaddoHeroImage,
   "puvesoft": puvesoftHeroImage,
+  "giitic": giiticHeroImage,
 };
 import {
   Accordion,
