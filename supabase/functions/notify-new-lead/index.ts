@@ -30,7 +30,7 @@ async function getWhatsAppNumbers(): Promise<{ main: string; support: string; sa
 }
 
 interface LeadPayload {
-  type: "demo" | "representante";
+  type: "demo" | "representante" | "activation_completed";
   name: string;
   email: string;
   phone: string;
@@ -39,7 +39,18 @@ interface LeadPayload {
   experience?: string;
   activationToken?: string;
   requestedBy?: string;
+  qualificationData?: {
+    uses_software: boolean;
+    knows_inventory: boolean;
+    main_pain: string;
+    ideal_pos_features: string;
+    daily_sales: string;
+    employee_count: string;
+    urgency: string;
+  };
 }
+
+// ─── EMAIL TEMPLATES ───────────────────────────────────────────────
 
 function welcomeDemoHtml(name: string, business: string, supportNumber: string, activationToken?: string): string {
   const activationUrl = activationToken ? `${SITE_URL}/activar-demo/${activationToken}` : null;
@@ -116,6 +127,118 @@ function welcomeDemoHtml(name: string, business: string, supportNumber: string, 
 </html>`;
 }
 
+function activationCompletedClientHtml(name: string, business: string, supportNumber: string): string {
+  return `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <div style="max-width:600px;margin:0 auto;padding:40px 20px;">
+    <div style="background:#ffffff;border-radius:16px;padding:40px 32px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+      <div style="text-align:center;margin-bottom:24px;">
+        <img src="${SITE_URL}/lovable-uploads/43a24c53-78c0-4ca3-b642-99a376d90a0f.png" alt="SistecPOS" style="height:40px;" />
+      </div>
+
+      <div style="text-align:center;margin-bottom:20px;">
+        <span style="display:inline-block;background:#f97316;color:#fff;font-size:12px;font-weight:700;padding:4px 14px;border-radius:20px;text-transform:uppercase;">✅ Activación Completada</span>
+      </div>
+
+      <h1 style="text-align:center;color:#1a1a2e;font-size:22px;margin:0 0 8px;">¡Excelente, ${name}!</h1>
+      <p style="text-align:center;color:#6b7280;font-size:14px;margin:0 0 24px;line-height:1.6;">
+        Tu perfil de <strong>${business}</strong> ha sido completado exitosamente. Nuestro equipo ya está preparando tu demo personalizada.
+      </p>
+
+      <!-- Timeline / Next Steps -->
+      <div style="background:linear-gradient(135deg, #fef3c7, #fff7ed);border:1px solid #fde68a;border-radius:12px;padding:24px;margin-bottom:20px;">
+        <p style="margin:0 0 16px;color:#92400e;font-size:15px;font-weight:700;">⏳ ¿Qué sigue ahora?</p>
+        <table style="width:100%;border-collapse:collapse;">
+          <tr>
+            <td style="padding:8px 12px 8px 0;vertical-align:top;">
+              <div style="width:28px;height:28px;background:#f97316;color:#fff;border-radius:50%;text-align:center;line-height:28px;font-size:13px;font-weight:700;">1</div>
+            </td>
+            <td style="padding:8px 0;">
+              <p style="margin:0;color:#78350f;font-size:13px;font-weight:600;">Revisión de tu perfil</p>
+              <p style="margin:2px 0 0;color:#92400e;font-size:12px;">Nuestro equipo revisa tus necesidades para personalizar la demo.</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:8px 12px 8px 0;vertical-align:top;">
+              <div style="width:28px;height:28px;background:#f97316;color:#fff;border-radius:50%;text-align:center;line-height:28px;font-size:13px;font-weight:700;">2</div>
+            </td>
+            <td style="padding:8px 0;">
+              <p style="margin:0;color:#78350f;font-size:13px;font-weight:600;">Creación de credenciales</p>
+              <p style="margin:2px 0 0;color:#92400e;font-size:12px;">Te generamos un usuario y empresa exclusiva con tu marca.</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:8px 12px 8px 0;vertical-align:top;">
+              <div style="width:28px;height:28px;background:#16a34a;color:#fff;border-radius:50%;text-align:center;line-height:28px;font-size:13px;font-weight:700;">3</div>
+            </td>
+            <td style="padding:8px 0;">
+              <p style="margin:0;color:#78350f;font-size:13px;font-weight:600;">Recibirás tus accesos por correo</p>
+              <p style="margin:2px 0 0;color:#92400e;font-size:12px;">En las próximas horas te enviaremos todo para que empieces.</p>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:16px;margin-bottom:20px;">
+        <p style="margin:0 0 8px;color:#166534;font-size:14px;font-weight:600;">🖥️ Mientras tanto, sigue explorando</p>
+        <p style="margin:0;color:#374151;font-size:13px;">Puedes continuar usando la demo genérica con las credenciales: <strong>demo / demo / demo</strong></p>
+      </div>
+
+      <div style="text-align:center;margin:20px 0;">
+        <a href="${SITE_URL}/clientes" style="display:inline-block;background:#2563eb;color:#ffffff;font-size:14px;font-weight:600;padding:14px 36px;border-radius:10px;text-decoration:none;">
+          🖥️ Ir a la Demo Genérica
+        </a>
+      </div>
+
+      <div style="text-align:center;margin:16px 0;">
+        <a href="https://wa.me/${supportNumber}?text=Hola,%20ya%20completé%20mi%20activación%20de%20demo%20y%20quiero%20agendar%20mi%20capacitación" style="display:inline-block;background:#25D366;color:#ffffff;font-size:14px;font-weight:600;padding:12px 28px;border-radius:10px;text-decoration:none;">
+          💬 Agendar capacitación por WhatsApp
+        </a>
+      </div>
+
+      <hr style="border:none;border-top:1px solid #e5e7eb;margin:32px 0;" />
+      <p style="text-align:center;color:#9ca3af;font-size:12px;margin:0;">© ${new Date().getFullYear()} SistecPOS · Software POS Colombia</p>
+    </div>
+  </div>
+</body>
+</html>`;
+}
+
+function activationCompletedInternalHtml(payload: LeadPayload): string {
+  const q = payload.qualificationData;
+  return `
+    <h2>🟠 Lead Avanzó en el Embudo — Activación Completada</h2>
+    <p style="color:#92400e;background:#fef3c7;padding:12px;border-radius:8px;font-weight:600;">
+      ⚡ ${payload.name} completó el formulario de calificación. Está listo para recibir sus credenciales personalizadas.
+    </p>
+    <table style="border-collapse:collapse;width:100%;max-width:500px;">
+      <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;">Nombre</td><td style="padding:8px;border:1px solid #ddd;">${payload.name}</td></tr>
+      <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;">Negocio</td><td style="padding:8px;border:1px solid #ddd;">${payload.business || "-"}</td></tr>
+      <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;">WhatsApp</td><td style="padding:8px;border:1px solid #ddd;">${payload.phone}</td></tr>
+      <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;">Email</td><td style="padding:8px;border:1px solid #ddd;">${payload.email}</td></tr>
+      <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;">Ciudad</td><td style="padding:8px;border:1px solid #ddd;">${payload.city || "-"}</td></tr>
+    </table>
+    ${q ? `
+    <h3 style="margin-top:20px;">📋 Datos de Calificación</h3>
+    <table style="border-collapse:collapse;width:100%;max-width:500px;">
+      <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;">¿Usa software?</td><td style="padding:8px;border:1px solid #ddd;">${q.uses_software ? "✅ Sí" : "❌ No"}</td></tr>
+      <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;">¿Conoce inventario?</td><td style="padding:8px;border:1px solid #ddd;">${q.knows_inventory ? "✅ Sí" : "❌ No"}</td></tr>
+      <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;">Mayor dolor</td><td style="padding:8px;border:1px solid #ddd;">${q.main_pain}</td></tr>
+      <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;">POS ideal</td><td style="padding:8px;border:1px solid #ddd;">${q.ideal_pos_features}</td></tr>
+      <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;">Ventas/día</td><td style="padding:8px;border:1px solid #ddd;">${q.daily_sales}</td></tr>
+      <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;">Empleados</td><td style="padding:8px;border:1px solid #ddd;">${q.employee_count}</td></tr>
+      <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;">Urgencia</td><td style="padding:8px;border:1px solid #ddd;">${q.urgency}</td></tr>
+    </table>
+    ` : ''}
+    <p style="margin-top:16px;">🎯 <strong>Acción requerida:</strong> Crear credenciales POS y enviarlas desde el panel de admin.</p>
+  `;
+}
+
+// ─── MAIN HANDLER ──────────────────────────────────────────────────
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -129,15 +252,20 @@ Deno.serve(async (req) => {
     const resendKey = Deno.env.get("RESEND_API_KEY");
     const waNumbers = await getWhatsAppNumbers();
 
-    // 1. Send internal notification email via Resend
     if (resendKey) {
       const isDemo = payload.type === "demo";
-      const subject = isDemo
-        ? `🟢 Nuevo Lead Demo: ${payload.name} - ${payload.business || "N/A"}`
-        : `🔵 Nuevo Prospecto Representante: ${payload.name} - ${payload.city || "N/A"}`;
+      const isActivation = payload.type === "activation_completed";
 
-      const htmlBody = isDemo
-        ? `
+      // ─── Internal notification email ─────────────────────────
+      let subject: string;
+      let htmlBody: string;
+
+      if (isActivation) {
+        subject = `🟠 Activación Completada: ${payload.name} - ${payload.business || "N/A"} — ¡Listo para credenciales!`;
+        htmlBody = activationCompletedInternalHtml(payload);
+      } else if (isDemo) {
+        subject = `🟢 Nuevo Lead Demo: ${payload.name} - ${payload.business || "N/A"}`;
+        htmlBody = `
           <h2>🟢 Nuevo Lead - Solicitud de Demo</h2>
           <table style="border-collapse:collapse;width:100%;max-width:500px;">
             <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;">Nombre</td><td style="padding:8px;border:1px solid #ddd;">${payload.name}</td></tr>
@@ -147,8 +275,10 @@ Deno.serve(async (req) => {
             <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;">Ciudad</td><td style="padding:8px;border:1px solid #ddd;">${payload.city || "-"}</td></tr>
           </table>
           <p style="margin-top:16px;">⚡ Contactar al prospecto lo antes posible.</p>
-        `
-        : `
+        `;
+      } else {
+        subject = `🔵 Nuevo Prospecto Representante: ${payload.name} - ${payload.city || "N/A"}`;
+        htmlBody = `
           <h2>🔵 Nuevo Prospecto - Programa de Representantes</h2>
           <table style="border-collapse:collapse;width:100%;max-width:500px;">
             <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;">Nombre</td><td style="padding:8px;border:1px solid #ddd;">${payload.name}</td></tr>
@@ -159,6 +289,7 @@ Deno.serve(async (req) => {
           </table>
           <p style="margin-top:16px;">📋 Revisar perfil y contactar en menos de 24 horas.</p>
         `;
+      }
 
       try {
         const emailRes = await fetch("https://api.resend.com/emails", {
@@ -187,34 +318,47 @@ Deno.serve(async (req) => {
         results.push("internal_email_error");
       }
 
-      // 2. Send welcome email TO THE LEAD (only for demo leads)
-      if (isDemo && payload.email) {
-        try {
-          const welcomeRes = await fetch("https://api.resend.com/emails", {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${resendKey}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              from: "SistecPOS <notificaciones@sistecpos.com>",
-              to: [payload.email],
-              subject: `🎉 ¡Bienvenido a SistecPOS, ${payload.name}! Tu demo está lista`,
-              html: welcomeDemoHtml(payload.name, payload.business || "tu negocio", waNumbers.support, payload.activationToken),
-            }),
-          });
+      // ─── Client-facing email ──────────────────────────────────
+      if (payload.email) {
+        let clientSubject: string | null = null;
+        let clientHtml: string | null = null;
 
-          if (welcomeRes.ok) {
-            results.push("welcome_email_sent");
-            console.log("Welcome email sent to:", payload.email);
-          } else {
-            const errText = await welcomeRes.text();
-            console.error("Welcome email error:", errText);
-            results.push("welcome_email_failed");
+        if (isDemo) {
+          clientSubject = `🎉 ¡Bienvenido a SistecPOS, ${payload.name}! Tu demo está lista`;
+          clientHtml = welcomeDemoHtml(payload.name, payload.business || "tu negocio", waNumbers.support, payload.activationToken);
+        } else if (isActivation) {
+          clientSubject = `✅ ¡Perfil completado, ${payload.name}! Tu demo personalizada está en camino`;
+          clientHtml = activationCompletedClientHtml(payload.name, payload.business || "tu negocio", waNumbers.support);
+        }
+
+        if (clientSubject && clientHtml) {
+          try {
+            const welcomeRes = await fetch("https://api.resend.com/emails", {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${resendKey}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                from: "SistecPOS <notificaciones@sistecpos.com>",
+                to: [payload.email],
+                subject: clientSubject,
+                html: clientHtml,
+              }),
+            });
+
+            if (welcomeRes.ok) {
+              results.push("client_email_sent");
+              console.log("Client email sent to:", payload.email);
+            } else {
+              const errText = await welcomeRes.text();
+              console.error("Client email error:", errText);
+              results.push("client_email_failed");
+            }
+          } catch (err) {
+            console.error("Client email error:", err);
+            results.push("client_email_error");
           }
-        } catch (err) {
-          console.error("Welcome email error:", err);
-          results.push("welcome_email_error");
         }
       }
     } else {
@@ -222,25 +366,37 @@ Deno.serve(async (req) => {
       results.push("email_skipped");
     }
 
-    // 3. Send WhatsApp notification via CallMeBot
+    // ─── WhatsApp notification via CallMeBot ─────────────────────
     const apiKey = Deno.env.get("CALLMEBOT_API_KEY");
     const whatsappPhone = Deno.env.get("CALLMEBOT_PHONE");
 
     if (apiKey && whatsappPhone) {
       const isDemo = payload.type === "demo";
-      const emoji = isDemo ? "🟢" : "🔵";
-      const label = isDemo ? "Nuevo Lead Demo" : "Nuevo Prospecto Representante";
+      const isActivation = payload.type === "activation_completed";
+
+      let emoji: string, label: string;
+      if (isActivation) {
+        emoji = "🟠";
+        label = "Activación Completada — Listo para credenciales";
+      } else if (isDemo) {
+        emoji = "🟢";
+        label = "Nuevo Lead Demo";
+      } else {
+        emoji = "🔵";
+        label = "Nuevo Prospecto Representante";
+      }
 
       const message = [
         `${emoji} *${label}*`,
         "",
         `👤 *Nombre:* ${payload.name}`,
-        isDemo ? `🏪 *Negocio:* ${payload.business || "-"}` : null,
+        isDemo || isActivation ? `🏪 *Negocio:* ${payload.business || "-"}` : null,
         `📱 *WhatsApp:* ${payload.phone}`,
         `📧 *Email:* ${payload.email}`,
         `📍 *Ciudad:* ${payload.city || "-"}`,
+        isActivation && payload.qualificationData ? `🎯 *Urgencia:* ${payload.qualificationData.urgency}` : null,
         "",
-        "⚡ Ver detalles en el panel admin.",
+        isActivation ? "🔐 Crear credenciales POS desde el panel admin." : "⚡ Ver detalles en el panel admin.",
       ].filter(Boolean).join("\n");
 
       try {
