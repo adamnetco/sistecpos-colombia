@@ -6,9 +6,47 @@ import { ClientPortal } from "@/components/clientes/ClientPortal";
 import { SEO } from "@/components/seo/SEO";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
-import { ShieldX, LogIn, Home, MessageCircle, ArrowLeft } from "lucide-react";
+import { ShieldX, LogIn, Home, MessageCircle } from "lucide-react";
 import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+
+function ClientLoadingSkeleton() {
+  return (
+    <Layout>
+      <section className="py-12 md:py-20">
+        <div className="container px-4">
+          <div className="mx-auto max-w-5xl">
+            <div className="mb-8 text-center space-y-3">
+              <Skeleton className="h-14 w-14 rounded-2xl mx-auto" />
+              <Skeleton className="h-8 w-64 mx-auto" />
+              <Skeleton className="h-4 w-48 mx-auto" />
+            </div>
+            <div className="grid gap-8 md:grid-cols-2">
+              <Card>
+                <CardHeader><Skeleton className="h-12 w-full" /></CardHeader>
+                <CardContent className="space-y-4">
+                  <Skeleton className="h-10 w-full" />
+                  <Skeleton className="h-10 w-full" />
+                  <Skeleton className="h-10 w-full" />
+                  <Skeleton className="h-10 w-full" />
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader><Skeleton className="h-12 w-full" /></CardHeader>
+                <CardContent className="space-y-4">
+                  <Skeleton className="h-10 w-full" />
+                  <Skeleton className="h-10 w-full" />
+                  <Skeleton className="h-10 w-full" />
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
+      </section>
+    </Layout>
+  );
+}
 
 function ClientRestricted() {
   const { user, signOut } = useAuth();
@@ -18,20 +56,10 @@ function ClientRestricted() {
     <Layout>
       <section className="py-16 md:py-28">
         <div className="container px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            className="max-w-md mx-auto text-center"
-          >
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ type: "spring", delay: 0.15, stiffness: 200 }}
-              className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-destructive/10"
-            >
+          <div className="max-w-md mx-auto text-center">
+            <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-destructive/10">
               <ShieldX className="h-10 w-10 text-destructive" />
-            </motion.div>
+            </div>
 
             <h1 className="text-2xl font-bold mb-2">Acceso Restringido</h1>
             <p className="text-muted-foreground mb-2">
@@ -79,7 +107,7 @@ function ClientRestricted() {
                 </button>
               )}
             </div>
-          </motion.div>
+          </div>
         </div>
       </section>
     </Layout>
@@ -89,17 +117,8 @@ function ClientRestricted() {
 export default function ClientesPage() {
   const { user, loading, isAdmin, isCustomer, isReseller } = useAuth();
 
-  if (loading) {
-    return (
-      <Layout>
-        <div className="flex min-h-[60vh] items-center justify-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-        </div>
-      </Layout>
-    );
-  }
+  if (loading) return <ClientLoadingSkeleton />;
 
-  // Not logged in — show POS login + support options
   if (!user) {
     return (
       <Layout>
@@ -112,7 +131,6 @@ export default function ClientesPage() {
     );
   }
 
-  // Admins, customers and resellers can access the portal
   if (isAdmin || isCustomer || isReseller) {
     return (
       <Layout>
@@ -128,6 +146,5 @@ export default function ClientesPage() {
     );
   }
 
-  // Authenticated but no customer/admin role
   return <ClientRestricted />;
 }

@@ -37,7 +37,7 @@ export function useReseller() {
     const load = async () => {
       setLoading(true);
 
-      // Run role check and reseller profile fetch in parallel
+      // Run all three queries in parallel
       const [roleRes, resellerRes] = await Promise.all([
         supabase
           .from("user_roles")
@@ -67,14 +67,16 @@ export function useReseller() {
       setReseller(profile);
 
       if (profile) {
-        const { data: modulesData } = await supabase
+        // Fetch modules - not blocking loading state
+        supabase
           .from("reseller_modules")
           .select("module_key, is_enabled")
-          .eq("reseller_id", profile.id);
-
-        if (!cancelled) {
-          setModules((modulesData as ResellerModule[]) || []);
-        }
+          .eq("reseller_id", profile.id)
+          .then(({ data: modulesData }) => {
+            if (!cancelled) {
+              setModules((modulesData as ResellerModule[]) || []);
+            }
+          });
       }
 
       if (!cancelled) setLoading(false);
