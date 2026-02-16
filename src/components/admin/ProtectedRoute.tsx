@@ -1,6 +1,7 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import { Navigate, Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useActivityTracker } from "@/hooks/useActivityTracker";
 import { ShieldX, LogIn, Home, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -38,6 +39,13 @@ function AdminLoadingSkeleton() {
 
 export function ProtectedRoute({ children }: { children: ReactNode }) {
   const { user, loading, isAdmin, signOut } = useAuth();
+  const { trackActivity } = useActivityTracker();
+
+  useEffect(() => {
+    if (user && isAdmin) {
+      trackActivity("portal_access", "/admin");
+    }
+  }, [user, isAdmin, trackActivity]);
 
   if (loading) return <AdminLoadingSkeleton />;
 

@@ -24,6 +24,8 @@ export type Database = {
           session_id: string
           source_page: string | null
           updated_at: string
+          user_id: string | null
+          user_role: string | null
           visitor_email: string | null
           visitor_name: string | null
           visitor_phone: string | null
@@ -37,6 +39,8 @@ export type Database = {
           session_id: string
           source_page?: string | null
           updated_at?: string
+          user_id?: string | null
+          user_role?: string | null
           visitor_email?: string | null
           visitor_name?: string | null
           visitor_phone?: string | null
@@ -50,6 +54,8 @@ export type Database = {
           session_id?: string
           source_page?: string | null
           updated_at?: string
+          user_id?: string | null
+          user_role?: string | null
           visitor_email?: string | null
           visitor_name?: string | null
           visitor_phone?: string | null
@@ -2015,6 +2021,87 @@ export type Database = {
           view_count?: number
           visible_to_customer?: boolean
           visible_to_reseller?: boolean
+        }
+        Relationships: []
+      }
+      user_access_logs: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          metadata: Json | null
+          portal: string
+          user_email: string | null
+          user_id: string
+          user_role: string
+        }
+        Insert: {
+          action?: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          portal: string
+          user_email?: string | null
+          user_id: string
+          user_role: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          portal?: string
+          user_email?: string | null
+          user_id?: string
+          user_role?: string
+        }
+        Relationships: []
+      }
+      user_access_summary: {
+        Row: {
+          first_access_at: string | null
+          id: string
+          last_access_at: string | null
+          last_portal: string | null
+          total_access_count: number
+          total_chatbot_interactions: number
+          total_demos_requested: number
+          total_licenses_activated: number
+          total_tickets_created: number
+          total_videos_watched: number
+          updated_at: string
+          user_email: string | null
+          user_id: string
+        }
+        Insert: {
+          first_access_at?: string | null
+          id?: string
+          last_access_at?: string | null
+          last_portal?: string | null
+          total_access_count?: number
+          total_chatbot_interactions?: number
+          total_demos_requested?: number
+          total_licenses_activated?: number
+          total_tickets_created?: number
+          total_videos_watched?: number
+          updated_at?: string
+          user_email?: string | null
+          user_id: string
+        }
+        Update: {
+          first_access_at?: string | null
+          id?: string
+          last_access_at?: string | null
+          last_portal?: string | null
+          total_access_count?: number
+          total_chatbot_interactions?: number
+          total_demos_requested?: number
+          total_licenses_activated?: number
+          total_tickets_created?: number
+          total_videos_watched?: number
+          updated_at?: string
+          user_email?: string | null
+          user_id?: string
         }
         Relationships: []
       }
