@@ -1,18 +1,20 @@
 import { motion } from "framer-motion";
-import { MapPin, MessageCircle, UserCheck, ShieldCheck } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { MapPin, MessageCircle, UserCheck, ShieldCheck, Clock, Zap } from "lucide-react";
 
 const trustPoints = [
   {
     icon: MapPin,
-    title: "Soporte Presencial en Santander",
+    title: "Instalación Presencial",
     description:
-      "Vamos directamente a tu negocio. Instalación, configuración y capacitación en sitio.",
+      "Vamos a tu negocio. Instalamos, configuramos y capacitamos a tu equipo en sitio.",
   },
   {
-    icon: MessageCircle,
-    title: "WhatsApp Directo con Soporte",
+    icon: Clock,
+    title: "Respuesta en < 5 Minutos",
     description:
-      "Sin IVR, sin menús, sin esperas. Hablas directo con nuestro equipo técnico real.",
+      "Nos escribes por WhatsApp y un humano real te responde en minutos, no en horas.",
   },
   {
     icon: UserCheck,
@@ -22,24 +24,38 @@ const trustPoints = [
   },
   {
     icon: ShieldCheck,
-    title: "Soporte Remoto 24/7 en Colombia",
+    title: "Soporte Remoto en Todo Colombia",
     description:
       "Para el resto del país, instalación remota asistida el mismo día con soporte continuo.",
   },
 ];
 
-const trustedBusinesses = [
-  { name: "Droguería San Ángel", type: "Droguería" },
-  { name: "Ferretería Mejía", type: "Ferretería" },
-  { name: "Tienda Doña Carmen", type: "Minimercado" },
-  { name: "Café La Esquina", type: "Cafetería" },
-  { name: "Calzado Valentina", type: "Moda" },
-  { name: "Centro Óptico Ramírez", type: "Óptica" },
-];
-
 export function LocalTrustSection() {
+  const { data: stories = [] } = useQuery({
+    queryKey: ["local_trust_stories"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("success_stories")
+        .select("business_name, business_type, city")
+        .eq("is_published", true)
+        .order("sort_order")
+        .limit(8);
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
+  const displayBusinesses = stories.length > 0
+    ? stories.map((s) => ({ name: s.business_name, type: s.business_type, city: s.city }))
+    : [
+        { name: "Droguería San Ángel", type: "Droguería", city: null },
+        { name: "Ferretería Mejía", type: "Ferretería", city: null },
+        { name: "Tienda Doña Carmen", type: "Minimercado", city: null },
+        { name: "Café La Esquina", type: "Cafetería", city: null },
+      ];
+
   return (
-    <section id="soporte-local" className="py-16 md:py-24 bg-secondary/50" aria-labelledby="soporte-local">
+    <section id="soporte-local" className="py-16 md:py-24 bg-secondary/50" aria-labelledby="soporte-local-heading">
       <div className="container px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -47,15 +63,16 @@ export function LocalTrustSection() {
           viewport={{ once: true }}
           className="text-center mb-12"
         >
-          <h2
-            id="soporte-local"
-            className="text-3xl font-bold md:text-4xl"
-          >
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-whatsapp/10 px-4 py-1.5 text-sm font-semibold text-whatsapp">
+            <Zap className="h-4 w-4" />
+            Nuestro Diferencial: Soporte Humano Real
+          </div>
+          <h2 id="soporte-local-heading" className="text-3xl font-bold md:text-4xl">
             Soporte Local Real
           </h2>
           <p className="mt-4 text-muted-foreground text-lg max-w-2xl mx-auto">
             No somos un Call Center internacional. Somos un equipo local que va
-            a tu negocio y te resuelve en persona.
+            a tu negocio y te resuelve en persona. Un lead contactado en menos de 5 minutos convierte un 50% más.
           </p>
         </motion.div>
 
@@ -83,7 +100,7 @@ export function LocalTrustSection() {
           ))}
         </div>
 
-        {/* Trusted Businesses */}
+        {/* Dynamic Trusted Businesses */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -94,7 +111,7 @@ export function LocalTrustSection() {
             Negocios que confían en nosotros
           </p>
           <div className="flex flex-wrap justify-center gap-4">
-            {trustedBusinesses.map((biz) => (
+            {displayBusinesses.map((biz) => (
               <div
                 key={biz.name}
                 className="inline-flex items-center gap-2 rounded-full border bg-card px-5 py-2.5 text-sm shadow-sm"
@@ -102,7 +119,7 @@ export function LocalTrustSection() {
                 <span className="h-2 w-2 rounded-full bg-whatsapp" />
                 <span className="font-medium text-foreground">{biz.name}</span>
                 <span className="text-muted-foreground text-xs">
-                  ({biz.type})
+                  ({biz.type}{biz.city ? `, ${biz.city}` : ""})
                 </span>
               </div>
             ))}

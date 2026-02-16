@@ -122,8 +122,12 @@ export function HeroSection() {
               Funciona sin internet
             </div>
             <div className="flex items-center gap-2">
+              <Clock className="h-4 w-4 text-whatsapp" />
+              Respuesta en &lt;5 min por WhatsApp
+            </div>
+            <div className="flex items-center gap-2">
               <Shield className="h-4 w-4 text-whatsapp" />
-              +500 negocios activos
+              Instalación presencial incluida
             </div>
           </motion.div>
         </div>

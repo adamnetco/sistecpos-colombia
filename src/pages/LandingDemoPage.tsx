@@ -4,7 +4,7 @@ import { useUTMParams } from "@/hooks/useUTMParams";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Rocket, Loader2, CheckCircle, Monitor, BarChart3, Receipt } from "lucide-react";
+import { Rocket, Loader2, CheckCircle, Monitor, BarChart3, Receipt, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -100,7 +100,7 @@ export default function LandingDemoPage() {
 
       toast({
         title: "¡Registro exitoso! 🎉",
-        description: "Te contactaremos en minutos para activar tu demo.",
+        description: "Te contactaremos en menos de 5 minutos por WhatsApp.",
       });
 
       setTimeout(() => navigate("/gracias"), 1000);
@@ -116,7 +116,7 @@ export default function LandingDemoPage() {
     <div className="min-h-screen bg-gradient-to-b from-secondary via-background to-background">
       <SEO
         title="Prueba Gratis SistecPOS | Software POS Colombia"
-        description="Solicita tu demo gratuita de 7 días del software POS más completo de Colombia. Facturación electrónica, inventario y reportes en tiempo real."
+        description="Solicita tu demo gratuita de 30 días del software POS más completo de Colombia. Facturación electrónica, inventario y reportes en tiempo real."
       />
 
       {/* Header */}
@@ -128,7 +128,7 @@ export default function LandingDemoPage() {
             className="h-8"
           />
           <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-            7 días gratis
+            30 días gratis
           </span>
         </div>
       </header>
@@ -145,7 +145,7 @@ export default function LandingDemoPage() {
                 Tu negocio merece el mejor <span className="text-primary">Software POS</span>
               </h1>
               <p className="mt-4 text-lg text-muted-foreground">
-                Prueba SistecPOS gratis por 7 días. Sin compromisos, sin tarjeta de crédito. Facturación electrónica DIAN, inventario y reportes incluidos.
+                Prueba SistecPOS gratis por 30 días. Sin compromisos, sin tarjeta de crédito. Facturación electrónica DIAN, inventario y reportes incluidos.
               </p>
             </div>
 
@@ -160,9 +160,10 @@ export default function LandingDemoPage() {
               ))}
             </ul>
 
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <CheckCircle className="h-4 w-4 text-primary" />
-              <span>+500 negocios ya confían en SistecPOS</span>
+            {/* Response time promise */}
+            <div className="flex items-center gap-2 rounded-lg bg-whatsapp/10 px-4 py-3 text-sm">
+              <Zap className="h-4 w-4 text-whatsapp shrink-0" />
+              <span className="font-medium text-whatsapp">Te contactamos en menos de 5 minutos por WhatsApp</span>
             </div>
           </div>
 

@@ -25,7 +25,7 @@ export function CTASection() {
           {/* Urgency badge */}
           <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-1.5 text-sm font-semibold backdrop-blur-sm">
             <Clock className="h-4 w-4" />
-            Prueba gratis — Sin contratos, cancela cuando quieras
+            Te respondemos en menos de 5 minutos — Sin compromiso
           </div>
 
           <h2 className="font-display text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl">
@@ -90,8 +90,8 @@ export function CTASection() {
 
           <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-sm text-primary-foreground/70">
             <div className="flex items-center gap-2">
-              <Shield className="h-4 w-4" />
-              Respuesta inmediata
+              <Clock className="h-4 w-4" />
+              Respuesta en &lt;5 min
             </div>
             <div className="flex items-center gap-2">
               <Shield className="h-4 w-4" />
@@ -100,6 +100,10 @@ export function CTASection() {
             <div className="flex items-center gap-2">
               <Shield className="h-4 w-4" />
               Instalación presencial
+            </div>
+            <div className="flex items-center gap-2">
+              <Star className="h-4 w-4 fill-current" />
+              +500 negocios activos
             </div>
           </div>
         </motion.div>
