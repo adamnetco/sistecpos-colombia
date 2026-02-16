@@ -28,7 +28,7 @@ const defaultForm = {
   name: "", slug: "", sku: "", brand_id: "", category_id: "",
   description: "", long_description: "",
   price_cop: 0, original_price_cop: 0, price_usd: 0, original_price_usd: 0, cost_cop: 0,
-  image_url: "", stock: 0, is_active: true, is_featured: false, is_offer: false,
+  image_url: "", gallery_urls: [] as string[], stock: 0, is_active: true, is_featured: false, is_offer: false,
   product_type: "hardware", sort_order: 0,
   features: [] as string[], includes: [] as string[],
   specifications: [] as { label: string; value: string }[],
@@ -71,6 +71,7 @@ export default function ProductFormDialog({ open, onOpenChange, editing, onSaved
         price_cop: editing.price_cop, original_price_cop: editing.original_price_cop || 0,
         price_usd: editing.price_usd || 0, original_price_usd: editing.original_price_usd || 0,
         cost_cop: editing.cost_cop || 0, image_url: editing.image_url || "",
+        gallery_urls: editing.gallery_urls || [],
         stock: editing.stock, is_active: editing.is_active, is_featured: editing.is_featured,
         is_offer: editing.is_offer, product_type: editing.product_type, sort_order: editing.sort_order,
         features: editing.features || [], includes: editing.includes || [],
@@ -118,6 +119,7 @@ export default function ProductFormDialog({ open, onOpenChange, editing, onSaved
         original_price_usd: form.original_price_usd || null,
         cost_cop: form.cost_cop || null,
         image_url: form.image_url || null,
+        gallery_urls: form.gallery_urls,
         features: form.features,
         specifications: form.specifications,
         includes: form.includes,
@@ -207,9 +209,9 @@ export default function ProductFormDialog({ open, onOpenChange, editing, onSaved
 
             <Separator />
 
-            {/* Image */}
+            {/* Main Image */}
             <div>
-              <Label>Imagen del Producto</Label>
+              <Label>Imagen Principal</Label>
               <div className="flex items-center gap-4 mt-2">
                 {form.image_url ? (
                   <div className="relative h-24 w-24 rounded-lg overflow-hidden border">
@@ -232,10 +234,68 @@ export default function ProductFormDialog({ open, onOpenChange, editing, onSaved
                   <Input
                     value={form.image_url}
                     onChange={e => set("image_url", e.target.value)}
-                    placeholder="O pegar URL de imagen..."
+                    placeholder="O pegar URL de imagen principal..."
                   />
                 </div>
               </div>
+            </div>
+
+            {/* Gallery */}
+            <div>
+              <Label>Galería de Imágenes ({form.gallery_urls.length})</Label>
+              <p className="text-xs text-muted-foreground mb-2">Agrega varias fotos del producto desde diferentes ángulos</p>
+              <div className="flex gap-2 mt-1">
+                <Input
+                  placeholder="Pegar URL de imagen adicional..."
+                  onKeyDown={e => {
+                    if (e.key === "Enter") {
+                      const val = (e.target as HTMLInputElement).value.trim();
+                      if (val) { set("gallery_urls", [...form.gallery_urls, val]); (e.target as HTMLInputElement).value = ""; }
+                    }
+                  }}
+                />
+                <label className="cursor-pointer shrink-0">
+                  <Button variant="outline" size="sm" asChild>
+                    <span><Upload className="h-4 w-4 mr-1" />Subir</span>
+                  </Button>
+                  <input type="file" accept="image/*" multiple className="hidden" onChange={async (e) => {
+                    const files = e.target.files;
+                    if (!files) return;
+                    const newUrls: string[] = [];
+                    for (const file of Array.from(files)) {
+                      const ext = file.name.split(".").pop();
+                      const path = `products/gallery/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+                      const { error } = await supabase.storage.from("product-images").upload(path, file);
+                      if (!error) {
+                        const { data: urlData } = supabase.storage.from("product-images").getPublicUrl(path);
+                        newUrls.push(urlData.publicUrl);
+                      }
+                    }
+                    if (newUrls.length) {
+                      set("gallery_urls", [...form.gallery_urls, ...newUrls]);
+                      toast.success(`${newUrls.length} imagen(es) subida(s)`);
+                    }
+                  }} />
+                </label>
+              </div>
+              {form.gallery_urls.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {form.gallery_urls.map((url, i) => (
+                    <div key={i} className="relative h-20 w-20 rounded-lg overflow-hidden border group">
+                      <img src={url} alt={`Gallery ${i + 1}`} className="h-full w-full object-cover" />
+                      <button
+                        onClick={() => set("gallery_urls", form.gallery_urls.filter((_, j) => j !== i))}
+                        className="absolute top-0.5 right-0.5 bg-destructive text-destructive-foreground rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                      <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-[9px] text-center py-0.5">
+                        {i + 1}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             <Separator />
