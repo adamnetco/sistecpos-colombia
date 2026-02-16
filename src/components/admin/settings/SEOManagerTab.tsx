@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Search, Plus, Pencil, Trash2, Globe, Eye, EyeOff, ExternalLink, Save, RefreshCw } from "lucide-react";
+import { Search, Plus, Pencil, Trash2, Globe, Eye, EyeOff, ExternalLink, Save, RefreshCw, Upload, Image as ImageIcon } from "lucide-react";
 
 interface PageSeo {
   id: string;
@@ -55,6 +55,60 @@ export default function SEOManagerTab() {
   const [form, setForm] = useState<Omit<PageSeo, "id" | "created_at" | "updated_at">>(EMPTY_FORM);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [defaultOgImage, setDefaultOgImage] = useState("");
+  const [savingDefault, setSavingDefault] = useState(false);
+
+  const fetchDefaultOgImage = async () => {
+    const { data } = await supabase
+      .from("app_settings")
+      .select("value")
+      .eq("key", "default_og_image")
+      .maybeSingle();
+    setDefaultOgImage((data as any)?.value || "");
+  };
+
+  const saveDefaultOgImage = async () => {
+    setSavingDefault(true);
+    const { error } = await supabase
+      .from("app_settings")
+      .upsert({ key: "default_og_image", value: defaultOgImage } as any);
+    if (error) toast.error("Error guardando imagen por defecto");
+    else toast.success("Imagen por defecto actualizada");
+    setSavingDefault(false);
+  };
+
+  const handleOgImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, target: "form" | "default") => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Solo se permiten imágenes");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Máximo 5 MB");
+      return;
+    }
+    setUploading(true);
+    const ext = file.name.split(".").pop() || "png";
+    const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+    const { error } = await supabase.storage.from("og-images").upload(path, file, { upsert: true });
+    if (error) {
+      toast.error("Error subiendo imagen: " + error.message);
+      setUploading(false);
+      return;
+    }
+    const { data: urlData } = supabase.storage.from("og-images").getPublicUrl(path);
+    const publicUrl = urlData.publicUrl;
+    if (target === "form") {
+      setForm({ ...form, og_image: publicUrl });
+    } else {
+      setDefaultOgImage(publicUrl);
+    }
+    toast.success("Imagen subida");
+    setUploading(false);
+    e.target.value = "";
+  };
 
   const fetchPages = async () => {
     setLoading(true);
@@ -67,7 +121,7 @@ export default function SEOManagerTab() {
     setLoading(false);
   };
 
-  useEffect(() => { fetchPages(); }, []);
+  useEffect(() => { fetchPages(); fetchDefaultOgImage(); }, []);
 
   const filtered = pages.filter(
     (p) =>
@@ -158,6 +212,38 @@ export default function SEOManagerTab() {
 
   return (
     <div className="space-y-4">
+      {/* Default OG Image */}
+      <Card className="border-dashed">
+        <CardContent className="p-4">
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-end">
+            <div className="flex-1 space-y-1.5">
+              <Label className="flex items-center gap-2"><ImageIcon className="h-4 w-4" />Imagen OG por defecto (todas las páginas)</Label>
+              <div className="flex gap-2">
+                <Input
+                  value={defaultOgImage}
+                  onChange={(e) => setDefaultOgImage(e.target.value)}
+                  placeholder="https://... (URL de la imagen por defecto)"
+                  className="flex-1"
+                />
+                <label className="cursor-pointer">
+                  <input type="file" accept="image/*" className="hidden" onChange={(e) => handleOgImageUpload(e, "default")} disabled={uploading} />
+                  <Button type="button" size="icon" variant="outline" asChild disabled={uploading}>
+                    <span><Upload className="h-4 w-4" /></span>
+                  </Button>
+                </label>
+                <Button size="sm" onClick={saveDefaultOgImage} disabled={savingDefault}>
+                  <Save className="h-4 w-4 mr-1" />{savingDefault ? "..." : "Guardar"}
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">Se usa cuando una página no tiene imagen OG personalizada</p>
+            </div>
+            {defaultOgImage && (
+              <img src={defaultOgImage} alt="OG preview" className="h-16 w-28 rounded border object-cover shrink-0" />
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
       <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold">Gestor SEO por Página</h2>
@@ -303,13 +389,25 @@ export default function SEOManagerTab() {
                 <p className="text-xs text-muted-foreground">Vacío = auto-generado</p>
               </div>
               <div className="space-y-1.5">
-                <Label>OG Image URL</Label>
-                <Input
-                  value={form.og_image || ""}
-                  onChange={(e) => setForm({ ...form, og_image: e.target.value })}
-                  placeholder="https://..."
-                />
-                <p className="text-xs text-muted-foreground">Vacío = imagen por defecto</p>
+                <Label>OG Image</Label>
+                <div className="flex gap-2">
+                  <Input
+                    value={form.og_image || ""}
+                    onChange={(e) => setForm({ ...form, og_image: e.target.value })}
+                    placeholder="https://... o sube una imagen"
+                    className="flex-1"
+                  />
+                  <label className="cursor-pointer">
+                    <input type="file" accept="image/*" className="hidden" onChange={(e) => handleOgImageUpload(e, "form")} disabled={uploading} />
+                    <Button type="button" size="icon" variant="outline" asChild disabled={uploading}>
+                      <span>{uploading ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}</span>
+                    </Button>
+                  </label>
+                </div>
+                {form.og_image && (
+                  <img src={form.og_image} alt="OG preview" className="h-20 w-36 rounded border object-cover mt-1" />
+                )}
+                <p className="text-xs text-muted-foreground">Vacío = imagen por defecto global</p>
               </div>
             </div>
 

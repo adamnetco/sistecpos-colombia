@@ -1,6 +1,7 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { usePageSeo } from "@/hooks/usePageSeo";
+import { supabase } from "@/integrations/supabase/client";
 
 interface SEOProps {
   title: string;
@@ -11,7 +12,26 @@ interface SEOProps {
 }
 
 const BASE_URL = "https://sistecpos.com";
-const DEFAULT_OG_IMAGE = "https://storage.googleapis.com/gpt-engineer-file-uploads/oovRngJ9hbfWUf6lyjyUTIF7FNo1/social-images/social-1769750139415-tarjeta-2-sistecpos-v2.png";
+const FALLBACK_OG_IMAGE = "https://storage.googleapis.com/gpt-engineer-file-uploads/oovRngJ9hbfWUf6lyjyUTIF7FNo1/social-images/social-1769750139415-tarjeta-2-sistecpos-v2.png";
+
+// Cache default OG image from DB
+let cachedDefaultOg: string | null = null;
+let defaultOgFetched = false;
+
+function useDefaultOgImage() {
+  const [img, setImg] = useState(cachedDefaultOg || FALLBACK_OG_IMAGE);
+  useEffect(() => {
+    if (defaultOgFetched) { setImg(cachedDefaultOg || FALLBACK_OG_IMAGE); return; }
+    supabase.from("app_settings").select("value").eq("key", "default_og_image").maybeSingle()
+      .then(({ data }) => {
+        const val = (data as any)?.value || "";
+        cachedDefaultOg = val || null;
+        defaultOgFetched = true;
+        setImg(val || FALLBACK_OG_IMAGE);
+      });
+  }, []);
+  return img;
+}
 
 function setMetaTag(property: string, content: string, isProperty = false) {
   const attr = isProperty ? "property" : "name";
@@ -48,13 +68,14 @@ function injectJsonLd(data: any) {
 export function SEO({ title, description, canonical, ogImage, noindex }: SEOProps) {
   const location = useLocation();
   const overrides = usePageSeo();
+  const defaultOgImage = useDefaultOgImage();
 
   useEffect(() => {
     // Merge: DB overrides take priority over component props
     const finalTitle = overrides?.meta_title || title;
     const finalDesc = overrides?.meta_description || description;
     const finalNoindex = overrides?.noindex ?? noindex;
-    const finalOgImage = overrides?.og_image || ogImage || DEFAULT_OG_IMAGE;
+    const finalOgImage = overrides?.og_image || ogImage || defaultOgImage;
     const finalOgType = overrides?.og_type || "website";
     const finalCanonical = overrides?.canonical_url || canonical || `${BASE_URL}${location.pathname}`;
     const finalRobots = finalNoindex
@@ -90,7 +111,7 @@ export function SEO({ title, description, canonical, ogImage, noindex }: SEOProp
     if (overrides?.json_ld) {
       injectJsonLd(overrides.json_ld);
     }
-  }, [title, description, canonical, ogImage, noindex, location.pathname, overrides]);
+  }, [title, description, canonical, ogImage, noindex, location.pathname, overrides, defaultOgImage]);
 
   return null;
 }
