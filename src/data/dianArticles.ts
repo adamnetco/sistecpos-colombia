@@ -2135,4 +2135,180 @@ export const dianArticles: DianArticle[] = [
       { label: "Todas las Comparativas", href: "/comparar" },
     ],
   },
+  // ─── Proveedor Tecnológico DIAN ───
+  {
+    slug: "proveedor-tecnologico-dian",
+    keyword: "proveedor tecnológico dian",
+    metaTitle: "¿Qué es un Proveedor Tecnológico DIAN? Guía Completa 2026 | SistecPOS",
+    metaDescription:
+      "Guía completa sobre proveedores tecnológicos autorizados por la DIAN. Qué son, requisitos, catálogo oficial de 99 empresas habilitadas y cómo elegir el mejor para tu negocio.",
+    heroIcon: ShieldCheck,
+    heroBadge: "Guía Oficial 2026",
+    h1: "Proveedor Tecnológico DIAN: Qué Es, Lista Oficial y Cómo Elegir el Mejor para Tu Negocio",
+    heroSubtitle:
+      "Descubre qué es un proveedor tecnológico autorizado por la DIAN, cuáles son los 99 habilitados en Colombia, los requisitos que deben cumplir y cómo elegir el que realmente te conviene para facturar electrónicamente sin complicaciones.",
+    sections: [
+      {
+        title: "¿Qué es un Proveedor Tecnológico de la DIAN?",
+        content:
+          "Un proveedor tecnológico es una persona jurídica habilitada por la Dirección de Impuestos y Aduanas Nacionales (DIAN) para prestar servicios de facturación electrónica a los contribuyentes colombianos. Según el artículo 52 de la Resolución 000042 de 2020, estos proveedores pueden ofrecer servicios de generación, transmisión, entrega, expedición, recepción y conservación de facturas electrónicas de venta, notas crédito, notas débito y documentos equivalentes electrónicos.",
+        bullets: [
+          "Generación de facturas electrónicas con validación previa de la DIAN",
+          "Transmisión segura de documentos al sistema Muisca",
+          "Entrega y expedición de facturas al comprador en formato XML y representación gráfica",
+          "Recepción de facturas electrónicas de proveedores",
+          "Conservación y custodia de documentos electrónicos por el tiempo legal (5 años mínimo)",
+          "Generación del documento equivalente electrónico (tiquete POS electrónico)",
+        ],
+      },
+      {
+        title: "¿Cuáles son los requisitos para ser Proveedor Tecnológico?",
+        content:
+          "La DIAN establece requisitos rigurosos para habilitar a una empresa como proveedor tecnológico. Estos requisitos garantizan que la empresa tiene la capacidad técnica, legal y financiera para operar como intermediario en la facturación electrónica. La habilitación tiene una vigencia de 5 años y debe renovarse.",
+        bullets: [
+          "Ser persona jurídica constituida legalmente en Colombia",
+          "Estar inscrito en el RUT con actividades económicas relacionadas con tecnología",
+          "Demostrar capacidad técnica y tecnológica para la generación, transmisión y conservación de facturas electrónicas",
+          "Cumplir con los estándares de seguridad de la información (se valora ISO/IEC 27001)",
+          "Superar las pruebas de habilitación en el ambiente de pruebas de la DIAN",
+          "Mantener disponibilidad del servicio 24/7 los 365 días del año",
+          "Contar con un plan de contingencia y continuidad del negocio",
+          "No tener sanciones tributarias vigentes",
+        ],
+      },
+      {
+        title: "Catálogo Oficial: Los 99 Proveedores Tecnológicos Autorizados en Colombia (2026)",
+        content:
+          "La DIAN publica y actualiza periódicamente el catálogo de proveedores tecnológicos habilitados. A enero de 2026, hay 99 empresas autorizadas en Colombia. Este catálogo es público y puede consultarse en el micrositio de facturación electrónica de la DIAN. Algunas de las empresas más reconocidas incluyen:",
+        bullets: [
+          "Carvajal Tecnología y Servicios S.A.S. BIC — Una de las más grandes del país",
+          "Siigo S.A.S — Popular entre PYMES con facturación integrada",
+          "Soluciones Alegra S.A.S — Conocida por su plataforma contable en la nube",
+          "Certicámara S.A. — Referente en certificación digital",
+          "World Office Colombia S.A.S — Software contable con facturación",
+          "Grafosoft S.A.S (NIT 901.084.328-9) — Desarrollo de Cuental, Valual y Globho",
+          "Loggro S.A.S — Plataforma ERP con facturación",
+          "Dataico S.A.S — Especializado en facturación electrónica",
+          "Aliaddo S.A.S — CRM con módulo de facturación",
+          "The Factory HKA Colombia S.A.S — Multinacional de facturación electrónica",
+        ],
+      },
+      {
+        title: "¿Necesitas un Proveedor Tecnológico para facturar electrónicamente?",
+        content:
+          "No necesariamente. La DIAN ofrece un facturador gratuito en su portal Muisca para quienes emiten pocas facturas. Sin embargo, para negocios con ventas frecuentes (tiendas, restaurantes, ferreterías, farmacias, etc.), el facturador gratuito es impráctico: cada factura tarda 3 a 5 minutos, no tiene inventario, no funciona sin internet y no incluye POS. En la práctica, la mayoría de negocios formales en Colombia usan un proveedor tecnológico o un software POS que se conecta a uno.",
+        bullets: [
+          "El facturador gratuito DIAN es viable solo para freelancers o microempresas con menos de 10 facturas al mes",
+          "Si vendes al público a diario, necesitas un software POS que integre facturación electrónica vía un proveedor autorizado",
+          "Algunos software POS como SistecPOS ya incluyen la conexión a proveedores tecnológicos sin costo adicional",
+          "Usar un proveedor no autorizado puede generar sanciones de la DIAN",
+        ],
+      },
+      {
+        title: "Cómo Elegir el Mejor Proveedor Tecnológico para Tu Negocio",
+        content:
+          "No todos los proveedores tecnológicos son iguales. Algunos solo ofrecen facturación electrónica básica, mientras que otros integran POS, inventario, contabilidad y más. Antes de elegir, evalúa estos criterios según las necesidades reales de tu negocio:",
+        bullets: [
+          "✅ ¿Incluye punto de venta (POS) o solo facturación? — Si tienes un local, necesitas POS integrado",
+          "✅ ¿Funciona sin internet? — En Colombia el internet se cae. Un buen POS debe tener modo offline",
+          "✅ ¿Tiene control de inventario? — Saber qué tienes y qué te falta es fundamental",
+          "✅ ¿Ofrece soporte presencial? — El soporte remoto no resuelve todo. Pregunta si instalan en tu local",
+          "✅ ¿Genera el documento equivalente electrónico (tiquete POS)? — Obligatorio desde 2026 para muchos contribuyentes",
+          "✅ ¿Es compatible con hardware POS? — Impresoras térmicas, cajones de dinero, lectores de código de barras",
+          "✅ ¿Tiene módulos especializados para tu industria? — Restaurantes, ferreterías, farmacias, tiendas tienen necesidades distintas",
+          "✅ ¿Cuánto cuesta realmente? — Algunos cobran por factura emitida, otros tienen tarifa plana mensual",
+        ],
+      },
+      {
+        title: "SistecPOS: Tu Proveedor Tecnológico con POS Profesional Integrado",
+        content:
+          "SistecPOS es un software de punto de venta colombiano que trabaja con proveedores tecnológicos autorizados DIAN para ofrecerte facturación electrónica ilimitada integrada directamente en tu caja registradora. A diferencia de otros proveedores que solo ofrecen facturación web, SistecPOS incluye un ecosistema completo para que tu negocio funcione sin fricción.",
+        bullets: [
+          "Facturación electrónica DIAN ilimitada integrada en el POS",
+          "Documento equivalente electrónico (tiquete POS) incluido",
+          "Modo offline hasta 8 días — sigues vendiendo sin internet",
+          "16 módulos especializados: restaurantes, ferreterías, farmacias, tiendas y 20 industrias más",
+          "Hardware POS profesional: impresoras térmicas, cajones, lectores de código de barras, balanzas",
+          "Instalación presencial y capacitación en tu negocio",
+          "Soporte el mismo día en 23+ ciudades de Colombia",
+          "Desde $12 USD/mes con facturación ilimitada",
+        ],
+      },
+    ],
+    painVsSolution: [
+      {
+        pain: "Proveedores que solo ofrecen facturación web sin POS ni inventario",
+        solution: "SistecPOS integra facturación DIAN + POS + inventario en una sola herramienta",
+      },
+      {
+        pain: "Facturación electrónica que depende 100% de internet",
+        solution: "Modo offline hasta 8 días: facturas cuando reconectas se sincronizan automáticamente",
+      },
+      {
+        pain: "Soporte solo por chat o email, sin presencia física",
+        solution: "Instalación presencial en tu negocio y soporte el mismo día en 23+ ciudades",
+      },
+      {
+        pain: "Plataformas genéricas sin módulos para tu tipo de negocio",
+        solution: "16 módulos especializados: restaurante, ferretería, farmacia, minimarket y más",
+      },
+      {
+        pain: "Cobros por factura emitida que encarecen según creces",
+        solution: "Tarifa plana desde $12 USD/mes con facturación electrónica ilimitada",
+      },
+    ],
+    ctaText: "Factura electrónicamente con SistecPOS",
+    ctaWhatsappMessage:
+      "Hola, quiero saber más sobre facturación electrónica con SistecPOS como proveedor tecnológico",
+    faqs: [
+      {
+        question: "¿Qué es un proveedor tecnológico de la DIAN?",
+        answer:
+          "Es una empresa habilitada por la DIAN para prestar servicios de generación, transmisión, entrega, recepción y conservación de facturas electrónicas. Según la Resolución 000042 de 2020, deben cumplir requisitos técnicos, legales y financieros para operar.",
+      },
+      {
+        question: "¿Cuántos proveedores tecnológicos hay en Colombia?",
+        answer:
+          "A enero de 2026, la DIAN tiene habilitados 99 proveedores tecnológicos autorizados en Colombia. El catálogo completo se puede consultar en el micrositio de facturación electrónica de la DIAN.",
+      },
+      {
+        question: "¿Necesito un proveedor tecnológico para facturar?",
+        answer:
+          "No es obligatorio si usas el facturador gratuito de la DIAN. Sin embargo, para negocios con ventas diarias es impráctico. La mayoría de comerciantes usan un proveedor tecnológico o un software POS que se conecta a uno, como SistecPOS.",
+      },
+      {
+        question: "¿Cuánto cobra un proveedor tecnológico?",
+        answer:
+          "Varía mucho. Algunos cobran por factura emitida ($200-$500 COP por factura), otros tienen tarifa plana mensual. SistecPOS incluye facturación electrónica ilimitada desde $12 USD/mes.",
+      },
+      {
+        question: "¿SistecPOS es proveedor tecnológico?",
+        answer:
+          "SistecPOS trabaja integrado con proveedores tecnológicos autorizados DIAN para ofrecerte facturación electrónica ilimitada directamente desde tu punto de venta, sin que tengas que contratar un proveedor por separado.",
+      },
+      {
+        question: "¿Cuánto dura la habilitación de un proveedor tecnológico?",
+        answer:
+          "La habilitación como proveedor tecnológico tiene una vigencia de 5 años, según lo establece la DIAN. Después de ese período, la empresa debe renovar su habilitación cumpliendo nuevamente los requisitos.",
+      },
+      {
+        question: "¿Puedo cambiar de proveedor tecnológico?",
+        answer:
+          "Sí. Puedes cambiar de proveedor tecnológico en cualquier momento. Si migras a SistecPOS, te ayudamos con la transición sin costo: configuramos tu facturación electrónica, importamos productos y te capacitamos presencialmente.",
+      },
+      {
+        question: "¿Qué pasa si uso un proveedor no autorizado por la DIAN?",
+        answer:
+          "Las facturas emitidas por un proveedor no autorizado no tienen validez legal ante la DIAN. Esto puede generar sanciones tributarias, multas y problemas con tus clientes que necesitan deducir IVA. Siempre verifica que tu proveedor esté en el catálogo oficial.",
+      },
+    ],
+    relatedLinks: [
+      { label: "Facturación Electrónica", href: "/facturacion-electronica" },
+      { label: "Facturador Gratuito DIAN", href: "/guias-dian/facturacion-gratuita-dian" },
+      { label: "Firma Digital DIAN", href: "/guias-dian/firma-digital-dian-gratis" },
+      { label: "Documento Equivalente", href: "/guias-dian/documento-equivalente-electronico" },
+      { label: "Software POS Colombia", href: "/software-pos-colombia" },
+      { label: "Todas las Guías DIAN", href: "/guias-dian" },
+    ],
+  },
 ];
