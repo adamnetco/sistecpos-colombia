@@ -21,6 +21,7 @@ import { useCart } from "@/hooks/useCart";
 import { toast } from "sonner";
 import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
 import { ProductServicesSection } from "@/components/pricing/ProductServicesSection";
+import { HardwareServicesSection } from "@/components/productos/HardwareServicesSection";
 
 const formatPrice = (price: number) =>
   new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0 }).format(price);
@@ -278,10 +279,26 @@ const ProductoDetallePage = () => {
                       </div>
                     )}
 
-                    <p className="text-sm text-muted-foreground flex items-center gap-2 mt-2">
-                      <Truck className="h-4 w-4" />
-                      {isLicense ? "Incluye instalación y configuración en tu negocio" : "Incluye instalación y configuración"}
-                    </p>
+                    {isLicense ? (
+                      <p className="text-sm text-muted-foreground flex items-center gap-2 mt-2">
+                        <Truck className="h-4 w-4" />
+                        Incluye instalación, configuración e impresoras en red
+                      </p>
+                    ) : (
+                      <div className="space-y-1.5 mt-2">
+                        <p className="text-sm text-muted-foreground flex items-center gap-2">
+                          <Truck className="h-4 w-4 shrink-0" />
+                          Envío con costo adicional · Garantía del fabricante por defectos de fábrica
+                        </p>
+                        <p className="text-sm text-whatsapp font-medium flex items-center gap-2">
+                          <CheckCircle2 className="h-4 w-4 shrink-0" />
+                          Clientes con software POS: instalación de 1 equipo incluida
+                        </p>
+                        <p className="text-xs text-muted-foreground pl-6">
+                          Varias cajas: cotizar instalación · No incluye cableado de red local
+                        </p>
+                      </div>
+                    )}
                   </div>
                 );
               })()}
@@ -394,6 +411,11 @@ const ProductoDetallePage = () => {
       {/* Services Section for Software Products */}
       {(catSlug === "licencias" || catSlug === "modulos" || product.product_type === "software") && (
         <ProductServicesSection />
+      )}
+
+      {/* Services Section for Hardware Products */}
+      {catSlug !== "licencias" && catSlug !== "modulos" && product.product_type !== "software" && (
+        <HardwareServicesSection />
       )}
       {/* PDFs */}
       {pdfUrls.length > 0 && (

@@ -178,10 +178,23 @@ const ProductCard = ({ product, index }: { product: DBProduct; index: number }) 
             )}
 
             {/* Service note */}
-            <p className="text-[11px] text-muted-foreground flex items-center gap-1 pt-1">
-              <Truck className="h-3 w-3 shrink-0" />
-              {isLicense ? "Instalación y configuración incluida" : "Incluye instalación en tu negocio"}
-            </p>
+            {isLicense ? (
+              <p className="text-[11px] text-muted-foreground flex items-center gap-1 pt-1">
+                <Truck className="h-3 w-3 shrink-0" />
+                Incluye instalación y configuración en tu negocio
+              </p>
+            ) : (
+              <div className="space-y-1 pt-1">
+                <p className="text-[11px] text-muted-foreground flex items-center gap-1">
+                  <Truck className="h-3 w-3 shrink-0" />
+                  Envío con costo adicional · Garantía de fábrica
+                </p>
+                <p className="text-[11px] text-muted-foreground flex items-center gap-1">
+                  <CheckCircle2 className="h-3 w-3 text-whatsapp shrink-0" />
+                  Clientes con software POS: instalación de 1 equipo incluida
+                </p>
+              </div>
+            )}
           </div>
         </CardContent>
 
@@ -375,10 +388,10 @@ const ProductosPage = () => {
         <div className="container px-4 md:px-6">
           <div className="max-w-3xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-whatsapp/10 text-whatsapp mb-4">
-              <CheckCircle2 className="h-4 w-4" /><span className="text-sm font-medium">Servicio Incluido</span>
+              <CheckCircle2 className="h-4 w-4" /><span className="text-sm font-medium">Software POS</span>
             </div>
-            <h2 className="text-2xl md:text-3xl font-bold mb-4">Todos los productos incluyen instalación</h2>
-            <p className="text-muted-foreground mb-6">Vamos a tu negocio en el Área Metropolitana de Bucaramanga, instalamos y configuramos todo para que funcione perfectamente.</p>
+            <h2 className="text-2xl md:text-3xl font-bold mb-4">Las licencias incluyen instalación y configuración</h2>
+            <p className="text-muted-foreground mb-6">Vamos a tu negocio en el Área Metropolitana de Bucaramanga, instalamos el software, configuramos impresoras en red y capacitamos a tu equipo. Hardware: envío y garantía de fábrica incluidos, instalación para clientes con software POS.</p>
             <Button size="lg" className="btn-whatsapp gap-2" asChild>
               <a href={buildUrl("Hola, quiero cotizar equipos para mi negocio")} target="_blank" rel="noopener noreferrer">
                 <MessageCircle className="h-5 w-5" />Solicitar Cotización Completa
