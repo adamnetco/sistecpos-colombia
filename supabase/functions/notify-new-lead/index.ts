@@ -7,7 +7,7 @@ const corsHeaders = {
 const SITE_URL = "https://sistecpos.lovable.app";
 const DEFAULT_WHATSAPP = "573176268307";
 
-async function getWhatsAppNumber(): Promise<string> {
+async function getWhatsAppNumbers(): Promise<{ main: string; support: string; sales: string }> {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
@@ -15,16 +15,18 @@ async function getWhatsAppNumber(): Promise<string> {
     const sb = createClient(supabaseUrl, anonKey);
     const { data } = await sb
       .from("site_settings")
-      .select("setting_value")
+      .select("setting_key, setting_value")
       .eq("setting_group", "whatsapp")
-      .eq("setting_key", "main_number")
-      .single();
-    if (data?.setting_value) {
-      const v = data.setting_value;
+      .in("setting_key", ["main_number", "support_number", "sales_number"]);
+    const get = (key: string) => {
+      const row = data?.find((r: any) => r.setting_key === key);
+      if (!row) return DEFAULT_WHATSAPP;
+      const v = row.setting_value;
       return typeof v === "string" ? v.replace(/^"|"$/g, "") : String(v);
-    }
-  } catch (e) { console.warn("Could not fetch WA number:", e); }
-  return DEFAULT_WHATSAPP;
+    };
+    return { main: get("main_number"), support: get("support_number"), sales: get("sales_number") };
+  } catch (e) { console.warn("Could not fetch WA numbers:", e); }
+  return { main: DEFAULT_WHATSAPP, support: DEFAULT_WHATSAPP, sales: DEFAULT_WHATSAPP };
 }
 
 interface LeadPayload {
@@ -39,7 +41,7 @@ interface LeadPayload {
   requestedBy?: string;
 }
 
-function welcomeDemoHtml(name: string, business: string, waNumber: string, activationToken?: string): string {
+function welcomeDemoHtml(name: string, business: string, supportNumber: string, activationToken?: string): string {
   const activationUrl = activationToken ? `${SITE_URL}/activar-demo/${activationToken}` : null;
   return `
 <!DOCTYPE html>
@@ -101,7 +103,7 @@ function welcomeDemoHtml(name: string, business: string, waNumber: string, activ
       </div>
 
       <div style="text-align:center;margin:20px 0;">
-        <a href="https://wa.me/${waNumber}?text=Hola,%20acabo%20de%20registrarme%20para%20una%20demo%20de%20SistecPOS" style="display:inline-block;background:#25D366;color:#ffffff;font-size:14px;font-weight:600;padding:12px 28px;border-radius:10px;text-decoration:none;">
+        <a href="https://wa.me/${supportNumber}?text=Hola,%20acabo%20de%20registrarme%20para%20una%20demo%20de%20SistecPOS" style="display:inline-block;background:#25D366;color:#ffffff;font-size:14px;font-weight:600;padding:12px 28px;border-radius:10px;text-decoration:none;">
           💬 WhatsApp Soporte
         </a>
       </div>
@@ -125,7 +127,7 @@ Deno.serve(async (req) => {
 
     const results: string[] = [];
     const resendKey = Deno.env.get("RESEND_API_KEY");
-    const waNumber = await getWhatsAppNumber();
+    const waNumbers = await getWhatsAppNumbers();
 
     // 1. Send internal notification email via Resend
     if (resendKey) {
@@ -198,7 +200,7 @@ Deno.serve(async (req) => {
               from: "SistecPOS <notificaciones@sistecpos.com>",
               to: [payload.email],
               subject: `🎉 ¡Bienvenido a SistecPOS, ${payload.name}! Tu demo está lista`,
-              html: welcomeDemoHtml(payload.name, payload.business || "tu negocio", waNumber, payload.activationToken),
+              html: welcomeDemoHtml(payload.name, payload.business || "tu negocio", waNumbers.support, payload.activationToken),
             }),
           });
 

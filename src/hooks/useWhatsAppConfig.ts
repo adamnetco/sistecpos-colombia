@@ -45,6 +45,10 @@ interface WhatsAppConfig {
   displayPhone: string;
   /** tel: link */
   telHref: string;
+  /** Support WhatsApp */
+  support: { number: string; message: string; buildUrl: (msg?: string) => string; displayPhone: string; telHref: string };
+  /** Sales WhatsApp */
+  sales: { number: string; message: string; buildUrl: (msg?: string) => string; displayPhone: string; telHref: string };
 }
 
 /**
@@ -78,6 +82,11 @@ export function useWhatsAppConfig(): WhatsAppConfig {
   const message = get("welcome_message", WHATSAPP_DEFAULT_MESSAGE);
   const isEnabled = get("is_enabled", "true") === "true";
 
+  const supportNumber = get("support_number", number);
+  const supportMessage = get("support_message", "Hola, necesito soporte técnico de SistecPOS");
+  const salesNumber = get("sales_number", number);
+  const salesMessage = get("sales_message", "Hola, quiero información comercial sobre SistecPOS");
+
   return {
     number,
     message,
@@ -86,5 +95,19 @@ export function useWhatsAppConfig(): WhatsAppConfig {
       buildWhatsAppUrl(number, customMessage ?? message),
     displayPhone: formatWhatsAppPhone(number),
     telHref: telUrl(number),
+    support: {
+      number: supportNumber,
+      message: supportMessage,
+      buildUrl: (msg?: string) => buildWhatsAppUrl(supportNumber, msg ?? supportMessage),
+      displayPhone: formatWhatsAppPhone(supportNumber),
+      telHref: telUrl(supportNumber),
+    },
+    sales: {
+      number: salesNumber,
+      message: salesMessage,
+      buildUrl: (msg?: string) => buildWhatsAppUrl(salesNumber, msg ?? salesMessage),
+      displayPhone: formatWhatsAppPhone(salesNumber),
+      telHref: telUrl(salesNumber),
+    },
   };
 }
