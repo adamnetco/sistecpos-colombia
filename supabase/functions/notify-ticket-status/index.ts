@@ -18,7 +18,7 @@ async function getWhatsAppNumber(): Promise<string> {
       .from("site_settings")
       .select("setting_value")
       .eq("setting_group", "whatsapp")
-      .eq("setting_key", "main_number")
+      .eq("setting_key", "support_number")
       .single();
     if (data?.setting_value) {
       const v = data.setting_value;
@@ -49,7 +49,7 @@ interface ResellerStatusPayload {
 }
 
 interface DemoCredentialsPayload {
-  type: "demo_credentials";
+  type: "demo_credentials" | "demo_credentials_resend";
   lead_id: string;
   name: string;
   email: string;
@@ -59,7 +59,14 @@ interface DemoCredentialsPayload {
   pos_password: string;
 }
 
-type Payload = TicketPayload | ResellerStatusPayload | DemoCredentialsPayload;
+interface DemoProcessingPayload {
+  type: "demo_processing";
+  name: string;
+  email: string;
+  business: string;
+}
+
+type Payload = TicketPayload | ResellerStatusPayload | DemoCredentialsPayload | DemoProcessingPayload;
 
 const statusLabels: Record<string, string> = {
   open: "Abierto",
@@ -154,7 +161,7 @@ function resellerStatusHtml(name: string, oldStatus: string, newStatus: string, 
       </p>`}
 
       <div style="text-align:center;margin:24px 0;">
-        <a href="https://wa.me/${waNumber}?text=Hola,%20soy%20socio%20y%20tengo%20una%20consulta" style="display:inline-block;background:#25D366;color:#ffffff;font-size:14px;font-weight:600;padding:12px 28px;border-radius:10px;text-decoration:none;">
+        <a href="https://wa.me/${waNumber}?text=Hola,+soy+socio+y+tengo+una+consulta" style="display:inline-block;background:#25D366;color:#ffffff;font-size:14px;font-weight:600;padding:12px 28px;border-radius:10px;text-decoration:none;">
           💬 Soporte por WhatsApp
         </a>
       </div>
@@ -180,17 +187,17 @@ function demoCredentialsHtml(name: string, business: string, username: string, c
       </div>
 
       <div style="text-align:center;margin-bottom:20px;">
-        <span style="display:inline-block;background:#8b5cf6;color:#fff;font-size:12px;font-weight:700;padding:4px 14px;border-radius:20px;text-transform:uppercase;">🎯 Demo Personalizada</span>
+        <span style="display:inline-block;background:#16a34a;color:#fff;font-size:12px;font-weight:700;padding:4px 14px;border-radius:20px;text-transform:uppercase;">🎯 ¡Tu Demo Está Lista!</span>
       </div>
 
-      <h1 style="text-align:center;color:#1a1a2e;font-size:22px;margin:0 0 8px;">¡Tu Demo Personalizada está Lista!</h1>
+      <h1 style="text-align:center;color:#1a1a2e;font-size:22px;margin:0 0 8px;">¡Hola ${name}!</h1>
       <p style="text-align:center;color:#6b7280;font-size:14px;margin:0 0 24px;line-height:1.6;">
-        Hola <strong>${name}</strong>, hemos creado un entorno exclusivo para <strong>${business}</strong> con tus datos reales. ¡Tienes 30 días para explorar todas las funciones!
+        Hemos creado un entorno exclusivo para <strong>${business}</strong> con tus datos. ¡Tienes <strong>30 días</strong> para explorar todas las funciones!
       </p>
 
-      <div style="background:#f5f3ff;border:2px solid #c4b5fd;border-radius:12px;padding:24px;margin-bottom:24px;">
-        <p style="margin:0 0 12px;color:#5b21b6;font-size:15px;font-weight:700;text-align:center;">🔐 Tus Credenciales de Acceso</p>
-        <div style="background:#ffffff;border:1px solid #ddd6fe;border-radius:8px;padding:16px;">
+      <div style="background:#f0fdf4;border:2px solid #86efac;border-radius:12px;padding:24px;margin-bottom:24px;">
+        <p style="margin:0 0 12px;color:#166534;font-size:15px;font-weight:700;text-align:center;">🔐 Tus Credenciales de Acceso</p>
+        <div style="background:#ffffff;border:1px solid #bbf7d0;border-radius:8px;padding:16px;">
           <table style="width:100%;border-collapse:collapse;">
             <tr><td style="padding:6px 0;color:#6b7280;font-size:13px;font-weight:600;width:100px;">Usuario:</td><td style="padding:6px 0;color:#1a1a2e;font-size:14px;font-weight:700;">${username}</td></tr>
             <tr><td style="padding:6px 0;color:#6b7280;font-size:13px;font-weight:600;">Empresa:</td><td style="padding:6px 0;color:#1a1a2e;font-size:14px;font-weight:700;">${company}</td></tr>
@@ -200,10 +207,9 @@ function demoCredentialsHtml(name: string, business: string, username: string, c
       </div>
 
       <div style="text-align:center;margin:24px 0;">
-        <a href="${SITE_URL}/clientes" style="display:inline-block;background:#2563eb;color:#ffffff;font-size:15px;font-weight:700;padding:14px 40px;border-radius:10px;text-decoration:none;">
+        <a href="${SITE_URL}/clientes#pos" style="display:inline-block;background:#2563eb;color:#ffffff;font-size:15px;font-weight:700;padding:14px 40px;border-radius:10px;text-decoration:none;">
           🚀 Ingresar a Mi POS
         </a>
-        <p style="color:#9ca3af;font-size:12px;margin-top:8px;">Se abrirá el portal de acceso con tus credenciales listas.</p>
       </div>
 
       <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:16px;margin-bottom:20px;">
@@ -217,8 +223,139 @@ function demoCredentialsHtml(name: string, business: string, username: string, c
         <a href="https://calendly.com/sistecpos" style="display:inline-block;background:#8b5cf6;color:#ffffff;font-size:14px;font-weight:600;padding:12px 28px;border-radius:10px;text-decoration:none;margin-right:8px;">
           📆 Agendar Reunión
         </a>
-        <a href="https://wa.me/${waNumber}?text=Hola,%20ya%20tengo%20mi%20demo%20personalizada%20y%20necesito%20ayuda" style="display:inline-block;background:#25D366;color:#ffffff;font-size:14px;font-weight:600;padding:12px 28px;border-radius:10px;text-decoration:none;">
+        <a href="https://wa.me/${waNumber}?text=Hola,+ya+tengo+mi+demo+personalizada+y+necesito+ayuda" style="display:inline-block;background:#25D366;color:#ffffff;font-size:14px;font-weight:600;padding:12px 28px;border-radius:10px;text-decoration:none;">
           💬 WhatsApp
+        </a>
+      </div>
+
+      <hr style="border:none;border-top:1px solid #e5e7eb;margin:32px 0;" />
+      <p style="text-align:center;color:#9ca3af;font-size:12px;margin:0;">© ${new Date().getFullYear()} SistecPOS · Software POS Colombia</p>
+    </div>
+  </div>
+</body>
+</html>`;
+}
+
+function demoCredentialsResendHtml(name: string, business: string, username: string, company: string, password: string, waNumber: string): string {
+  return `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <div style="max-width:600px;margin:0 auto;padding:40px 20px;">
+    <div style="background:#ffffff;border-radius:16px;padding:40px 32px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+      <div style="text-align:center;margin-bottom:24px;">
+        <img src="${SITE_URL}/lovable-uploads/43a24c53-78c0-4ca3-b642-99a376d90a0f.png" alt="SistecPOS" style="height:40px;" />
+      </div>
+
+      <div style="text-align:center;margin-bottom:20px;">
+        <span style="display:inline-block;background:#2563eb;color:#fff;font-size:12px;font-weight:700;padding:4px 14px;border-radius:20px;text-transform:uppercase;">🔑 Recordatorio de Credenciales</span>
+      </div>
+
+      <h1 style="text-align:center;color:#1a1a2e;font-size:22px;margin:0 0 8px;">Hola ${name}, aquí están tus credenciales</h1>
+      <p style="text-align:center;color:#6b7280;font-size:14px;margin:0 0 24px;line-height:1.6;">
+        Te reenviamos los datos de acceso de tu demo personalizada para <strong>${business}</strong>. Si necesitas ayuda, estamos a un clic de distancia.
+      </p>
+
+      <div style="background:#eff6ff;border:2px solid #93c5fd;border-radius:12px;padding:24px;margin-bottom:24px;">
+        <p style="margin:0 0 12px;color:#1e40af;font-size:15px;font-weight:700;text-align:center;">🔐 Tus Credenciales de Acceso</p>
+        <div style="background:#ffffff;border:1px solid #bfdbfe;border-radius:8px;padding:16px;">
+          <table style="width:100%;border-collapse:collapse;">
+            <tr><td style="padding:6px 0;color:#6b7280;font-size:13px;font-weight:600;width:100px;">Usuario:</td><td style="padding:6px 0;color:#1a1a2e;font-size:14px;font-weight:700;">${username}</td></tr>
+            <tr><td style="padding:6px 0;color:#6b7280;font-size:13px;font-weight:600;">Empresa:</td><td style="padding:6px 0;color:#1a1a2e;font-size:14px;font-weight:700;">${company}</td></tr>
+            <tr><td style="padding:6px 0;color:#6b7280;font-size:13px;font-weight:600;">Contraseña:</td><td style="padding:6px 0;color:#1a1a2e;font-size:14px;font-weight:700;">${password}</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div style="text-align:center;margin:24px 0;">
+        <a href="${SITE_URL}/clientes#pos" style="display:inline-block;background:#2563eb;color:#ffffff;font-size:15px;font-weight:700;padding:14px 40px;border-radius:10px;text-decoration:none;">
+          🚀 Ingresar a Mi POS
+        </a>
+      </div>
+
+      <div style="text-align:center;margin:16px 0;">
+        <a href="https://wa.me/${waNumber}?text=Hola,+necesito+ayuda+con+mi+demo+de+SistecPOS" style="display:inline-block;background:#25D366;color:#ffffff;font-size:14px;font-weight:600;padding:12px 28px;border-radius:10px;text-decoration:none;">
+          💬 WhatsApp Soporte
+        </a>
+      </div>
+
+      <hr style="border:none;border-top:1px solid #e5e7eb;margin:32px 0;" />
+      <p style="text-align:center;color:#9ca3af;font-size:12px;margin:0;">© ${new Date().getFullYear()} SistecPOS · Software POS Colombia</p>
+    </div>
+  </div>
+</body>
+</html>`;
+}
+
+function demoProcessingHtml(name: string, business: string, waNumber: string): string {
+  return `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <div style="max-width:600px;margin:0 auto;padding:40px 20px;">
+    <div style="background:#ffffff;border-radius:16px;padding:40px 32px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+      <div style="text-align:center;margin-bottom:24px;">
+        <img src="${SITE_URL}/lovable-uploads/43a24c53-78c0-4ca3-b642-99a376d90a0f.png" alt="SistecPOS" style="height:40px;" />
+      </div>
+
+      <div style="text-align:center;margin-bottom:20px;">
+        <span style="display:inline-block;background:#8b5cf6;color:#fff;font-size:12px;font-weight:700;padding:4px 14px;border-radius:20px;text-transform:uppercase;">⚙️ En Proceso</span>
+      </div>
+
+      <h1 style="text-align:center;color:#1a1a2e;font-size:22px;margin:0 0 8px;">¡Estamos preparando tu demo, ${name}!</h1>
+      <p style="text-align:center;color:#6b7280;font-size:14px;margin:0 0 24px;line-height:1.6;">
+        Nuestro equipo de soporte está gestionando la activación de tu licencia demo personalizada para <strong>${business}</strong>. ¡Falta poco!
+      </p>
+
+      <div style="background:linear-gradient(135deg, #f5f3ff, #ede9fe);border:1px solid #c4b5fd;border-radius:12px;padding:24px;margin-bottom:24px;">
+        <p style="margin:0 0 16px;color:#5b21b6;font-size:15px;font-weight:700;">⏳ ¿Qué estamos haciendo?</p>
+        <table style="width:100%;border-collapse:collapse;">
+          <tr>
+            <td style="padding:8px 12px 8px 0;vertical-align:top;">
+              <div style="width:28px;height:28px;background:#16a34a;color:#fff;border-radius:50%;text-align:center;line-height:28px;font-size:13px;font-weight:700;">✓</div>
+            </td>
+            <td style="padding:8px 0;">
+              <p style="margin:0;color:#5b21b6;font-size:13px;font-weight:600;">Revisamos tu perfil y necesidades</p>
+              <p style="margin:2px 0 0;color:#7c3aed;font-size:12px;">Completado</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:8px 12px 8px 0;vertical-align:top;">
+              <div style="width:28px;height:28px;background:#8b5cf6;color:#fff;border-radius:50%;text-align:center;line-height:28px;font-size:13px;font-weight:700;">⚙️</div>
+            </td>
+            <td style="padding:8px 0;">
+              <p style="margin:0;color:#5b21b6;font-size:13px;font-weight:600;">Creando tu entorno personalizado</p>
+              <p style="margin:2px 0 0;color:#7c3aed;font-size:12px;">En progreso...</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:8px 12px 8px 0;vertical-align:top;">
+              <div style="width:28px;height:28px;background:#e5e7eb;color:#9ca3af;border-radius:50%;text-align:center;line-height:28px;font-size:13px;font-weight:700;">3</div>
+            </td>
+            <td style="padding:8px 0;">
+              <p style="margin:0;color:#9ca3af;font-size:13px;font-weight:600;">Envío de credenciales por correo</p>
+              <p style="margin:2px 0 0;color:#9ca3af;font-size:12px;">Próximamente</p>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:16px;margin-bottom:20px;">
+        <p style="margin:0 0 8px;color:#166534;font-size:14px;font-weight:600;">🖥️ Mientras tanto</p>
+        <p style="margin:0;color:#374151;font-size:13px;">Puedes seguir explorando con la demo genérica: <strong>demo / demo / demo</strong></p>
+      </div>
+
+      <div style="text-align:center;margin:20px 0;">
+        <a href="${SITE_URL}/clientes?quick=demo#pos" style="display:inline-block;background:#2563eb;color:#ffffff;font-size:14px;font-weight:600;padding:14px 36px;border-radius:10px;text-decoration:none;">
+          🖥️ Ir a la Demo Genérica
+        </a>
+      </div>
+
+      <div style="text-align:center;margin:16px 0;">
+        <a href="https://wa.me/${waNumber}?text=Hola,+quiero+saber+el+estado+de+mi+demo+personalizada" style="display:inline-block;background:#25D366;color:#ffffff;font-size:14px;font-weight:600;padding:12px 28px;border-radius:10px;text-decoration:none;">
+          💬 Consultar por WhatsApp
         </a>
       </div>
 
@@ -247,16 +384,31 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Handle demo credentials notification
-    if (payload.type === "demo_credentials") {
-      const p = payload as DemoCredentialsPayload;
-      
+    // ─── Demo Processing email ─────────────────────────────
+    if (payload.type === "demo_processing") {
+      const p = payload as DemoProcessingPayload;
       const res = await fetch("https://api.resend.com/emails", {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${resendKey}`,
-          "Content-Type": "application/json",
-        },
+        headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          from: "SistecPOS <notificaciones@sistecpos.com>",
+          to: [p.email],
+          subject: `⚙️ Estamos preparando tu demo personalizada, ${p.name} — SistecPOS`,
+          html: demoProcessingHtml(p.name, p.business, waNumber),
+        }),
+      });
+      if (!res.ok) console.error("Resend error:", await res.text());
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // ─── Demo credentials (first send) ─────────────────────
+    if (payload.type === "demo_credentials") {
+      const p = payload as DemoCredentialsPayload;
+      const res = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
         body: JSON.stringify({
           from: "SistecPOS <notificaciones@sistecpos.com>",
           to: [p.email],
@@ -264,31 +416,39 @@ Deno.serve(async (req) => {
           html: demoCredentialsHtml(p.name, p.business, p.pos_username, p.pos_company, p.pos_password, waNumber),
         }),
       });
-
-      if (!res.ok) {
-        const err = await res.text();
-        console.error("Resend error:", err);
-        return new Response(JSON.stringify({ error: "Email send failed" }), {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-
+      if (!res.ok) console.error("Resend error:", await res.text());
       return new Response(JSON.stringify({ success: true }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
+    // ─── Demo credentials resend ───────────────────────────
+    if (payload.type === "demo_credentials_resend") {
+      const p = payload as DemoCredentialsPayload;
+      const res = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          from: "SistecPOS <notificaciones@sistecpos.com>",
+          to: [p.email],
+          subject: `🔑 Aquí están tus credenciales de acceso, ${p.name} — SistecPOS`,
+          html: demoCredentialsResendHtml(p.name, p.business, p.pos_username, p.pos_company, p.pos_password, waNumber),
+        }),
+      });
+      if (!res.ok) console.error("Resend error:", await res.text());
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // ─── Ticket notifications ──────────────────────────────
     if (payload.type === "ticket_responded" || payload.type === "ticket_status_changed") {
       const p = payload as TicketPayload;
       const portalUrl = p.ticket_type === "client" ? `${SITE_URL}/clientes` : `${SITE_URL}/socio`;
 
       const res = await fetch("https://api.resend.com/emails", {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${resendKey}`,
-          "Content-Type": "application/json",
-        },
+        headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
         body: JSON.stringify({
           from: "SistecPOS <notificaciones@sistecpos.com>",
           to: [p.recipient_email],
@@ -298,36 +458,23 @@ Deno.serve(async (req) => {
           html: ticketResponseHtml(p.recipient_name, p.subject, p.admin_response || "", p.new_status, portalUrl),
         }),
       });
-
-      if (!res.ok) {
-        const err = await res.text();
-        console.error("Resend error:", err);
-        return new Response(JSON.stringify({ error: "Email send failed" }), {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-
+      if (!res.ok) console.error("Resend error:", await res.text());
       return new Response(JSON.stringify({ success: true }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
+    // ─── Reseller status change ────────────────────────────
     if (payload.type === "reseller_status_changed") {
       const p = payload as ResellerStatusPayload;
-
       if (p.new_status === "approved") {
         return new Response(JSON.stringify({ success: true, skipped: "handled_by_approval_flow" }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-
       const res = await fetch("https://api.resend.com/emails", {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${resendKey}`,
-          "Content-Type": "application/json",
-        },
+        headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
         body: JSON.stringify({
           from: "SistecPOS <notificaciones@sistecpos.com>",
           to: [p.email],
@@ -335,12 +482,7 @@ Deno.serve(async (req) => {
           html: resellerStatusHtml(p.name, p.old_status, p.new_status, waNumber),
         }),
       });
-
-      if (!res.ok) {
-        const err = await res.text();
-        console.error("Resend error:", err);
-      }
-
+      if (!res.ok) console.error("Resend error:", await res.text());
       return new Response(JSON.stringify({ success: true }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
