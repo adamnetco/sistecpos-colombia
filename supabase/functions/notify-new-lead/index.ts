@@ -115,7 +115,7 @@ function welcomeDemoHtml(name: string, business: string, supportNumber: string, 
       </div>
 
       <div style="text-align:center;margin:20px 0;">
-        <a href="https://wa.me/${supportNumber}?text=Hola,%20acabo%20de%20registrarme%20para%20una%20demo%20de%20SistecPOS" style="display:inline-block;background:#25D366;color:#ffffff;font-size:14px;font-weight:600;padding:12px 28px;border-radius:10px;text-decoration:none;">
+        <a href="https://wa.me/${supportNumber}?text=Hola,+acabo+de+registrarme+para+una+demo+de+SistecPOS" style="display:inline-block;background:#25D366;color:#ffffff;font-size:14px;font-weight:600;padding:12px 28px;border-radius:10px;text-decoration:none;">
           💬 WhatsApp Soporte
         </a>
       </div>
@@ -195,7 +195,7 @@ function activationCompletedClientHtml(name: string, business: string, supportNu
       </div>
 
       <div style="text-align:center;margin:16px 0;">
-        <a href="https://wa.me/${supportNumber}?text=Hola,%20ya%20completé%20mi%20activación%20de%20demo%20y%20quiero%20agendar%20mi%20capacitación" style="display:inline-block;background:#25D366;color:#ffffff;font-size:14px;font-weight:600;padding:12px 28px;border-radius:10px;text-decoration:none;">
+        <a href="https://wa.me/${supportNumber}?text=Hola,+ya+complete+mi+activacion+de+demo+y+quiero+agendar+mi+capacitacion" style="display:inline-block;background:#25D366;color:#ffffff;font-size:14px;font-weight:600;padding:12px 28px;border-radius:10px;text-decoration:none;">
           💬 Agendar capacitación por WhatsApp
         </a>
       </div>
