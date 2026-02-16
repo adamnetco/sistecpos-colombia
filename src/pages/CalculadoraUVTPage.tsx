@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { motion } from "framer-motion";
-import { Calculator, ArrowRight, MessageCircle, ArrowLeftRight } from "lucide-react";
+import { Calculator, ArrowRight, ArrowLeftRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,7 +11,7 @@ import { SEO } from "@/components/seo/SEO";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { JsonLd, faqSchema } from "@/components/seo/JsonLd";
 import { Link } from "react-router-dom";
-import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
+
 
 // UVT values by year (official DIAN)
 const UVT_VALUES: Record<number, number> = {
@@ -49,7 +49,6 @@ const faqs = [
 ];
 
 export default function CalculadoraUVTPage() {
-  const { buildUrl } = useWhatsAppConfig();
   const [amount, setAmount] = useState("");
   const [year, setYear] = useState(currentYear);
   const [mode, setMode] = useState<"pesos-to-uvt" | "uvt-to-pesos">("pesos-to-uvt");
@@ -246,11 +245,11 @@ export default function CalculadoraUVTPage() {
             SistecPOS actualiza la UVT automáticamente cada año. Tú vendes, nosotros hacemos las cuentas.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="btn-whatsapp gap-2" asChild>
-              <a href={buildUrl("Hola, quiero un POS que maneje la UVT automáticamente")} target="_blank" rel="noopener noreferrer">
-                <MessageCircle className="h-5 w-5" />
-                Prueba Gratis 7 Días
-              </a>
+            <Button size="lg" className="bg-cta hover:bg-cta/90 text-cta-foreground gap-2" asChild>
+              <Link to="/lp/demo">
+                <ArrowRight className="h-5 w-5" />
+                Prueba Gratis 30 Días
+              </Link>
             </Button>
             <Button size="lg" variant="secondary" asChild>
               <Link to="/guias-dian" className="gap-2">

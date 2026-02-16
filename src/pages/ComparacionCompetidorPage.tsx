@@ -196,7 +196,7 @@ export default function ComparacionCompetidorPage() {
                 </a>
               </Button>
               <Button size="lg" variant="secondary" asChild>
-                <Link to="/contacto#demo">Prueba Gratis 7 Días</Link>
+                <Link to="/lp/demo">Prueba Gratis 30 Días</Link>
               </Button>
             </div>
             {heroImages[competitor.slug] && (
@@ -406,7 +406,7 @@ export default function ComparacionCompetidorPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" className="bg-cta hover:bg-cta/90 text-cta-foreground gap-2" asChild>
-                <Link to="/contacto#demo">
+                <Link to="/lp/demo">
                   Migrar Ahora — Prueba Gratis
                 </Link>
               </Button>

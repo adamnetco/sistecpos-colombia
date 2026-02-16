@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { motion } from "framer-motion";
-import { Hash, CheckCircle2, XCircle, MessageCircle, ArrowRight } from "lucide-react";
+import { Hash, CheckCircle2, XCircle, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,7 +11,7 @@ import { SEO } from "@/components/seo/SEO";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { JsonLd, faqSchema } from "@/components/seo/JsonLd";
 import { Link } from "react-router-dom";
-import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
+
 
 /**
  * Calculates the verification digit for a Colombian NIT.
@@ -44,7 +44,6 @@ const faqs = [
 ];
 
 export default function ValidadorNITPage() {
-  const { buildUrl } = useWhatsAppConfig();
   const [nit, setNit] = useState("");
   const [userDigit, setUserDigit] = useState("");
   const [result, setResult] = useState<{
@@ -244,11 +243,11 @@ export default function ValidadorNITPage() {
             SistecPOS valida el dígito de verificación automáticamente al registrar clientes y proveedores. Cero errores en tus facturas electrónicas.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="btn-whatsapp gap-2" asChild>
-              <a href={buildUrl("Hola, quiero un POS que valide NITs automáticamente")} target="_blank" rel="noopener noreferrer">
-                <MessageCircle className="h-5 w-5" />
-                Prueba Gratis 7 Días
-              </a>
+            <Button size="lg" className="bg-cta hover:bg-cta/90 text-cta-foreground gap-2" asChild>
+              <Link to="/lp/demo">
+                <ArrowRight className="h-5 w-5" />
+                Prueba Gratis 30 Días
+              </Link>
             </Button>
             <Button size="lg" variant="secondary" asChild>
               <Link to="/herramientas/calculadora-uvt" className="gap-2">
