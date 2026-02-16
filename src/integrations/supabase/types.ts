@@ -1194,6 +1194,63 @@ export type Database = {
         }
         Relationships: []
       }
+      page_seo_settings: {
+        Row: {
+          canonical_url: string | null
+          changefreq: string | null
+          created_at: string
+          id: string
+          json_ld: Json | null
+          meta_description: string | null
+          meta_title: string | null
+          noindex: boolean | null
+          notes: string | null
+          og_image: string | null
+          og_type: string | null
+          page_label: string
+          page_path: string
+          priority: number | null
+          robots: string | null
+          updated_at: string
+        }
+        Insert: {
+          canonical_url?: string | null
+          changefreq?: string | null
+          created_at?: string
+          id?: string
+          json_ld?: Json | null
+          meta_description?: string | null
+          meta_title?: string | null
+          noindex?: boolean | null
+          notes?: string | null
+          og_image?: string | null
+          og_type?: string | null
+          page_label?: string
+          page_path: string
+          priority?: number | null
+          robots?: string | null
+          updated_at?: string
+        }
+        Update: {
+          canonical_url?: string | null
+          changefreq?: string | null
+          created_at?: string
+          id?: string
+          json_ld?: Json | null
+          meta_description?: string | null
+          meta_title?: string | null
+          noindex?: boolean | null
+          notes?: string | null
+          og_image?: string | null
+          og_type?: string | null
+          page_label?: string
+          page_path?: string
+          priority?: number | null
+          robots?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       payments: {
         Row: {
           amount: number
