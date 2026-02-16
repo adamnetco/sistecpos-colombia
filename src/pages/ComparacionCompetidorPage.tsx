@@ -34,6 +34,7 @@ import contodaHeroImage from "@/assets/contoda-vs-sistecpos-hero.jpg";
 import doscarHeroImage from "@/assets/doscar-vs-sistecpos-hero.jpg";
 import contapymeHeroImage from "@/assets/contapyme-vs-sistecpos-hero.jpg";
 import sysplusHeroImage from "@/assets/sysplus-vs-sistecpos-hero.jpg";
+import tiendatekHeroImage from "@/assets/tiendatek-vs-sistecpos-hero.jpg";
 
 const heroImages: Record<string, string> = {
   "facturador-gratuito-dian": dianHeroImage,
@@ -58,6 +59,7 @@ const heroImages: Record<string, string> = {
   "doscar": doscarHeroImage,
   "contapyme": contapymeHeroImage,
   "sysplus": sysplusHeroImage,
+  "tiendatek": tiendatekHeroImage,
 };
 import {
   Accordion,
