@@ -123,7 +123,7 @@ export function LeadConversionDialog({ lead, onClose, onConverted }: Props) {
         price_paid: price,
         expires_at: expiresAt,
         lead_id: lead.id,
-        created_by_reseller_id: (lead as any).requested_by_reseller_id || null,
+        created_by_reseller_id: lead.requested_by_reseller_id || null,
         notes: notes || `Convertido desde Lead/Demo. Origen: ${lead.source || "web"}`,
         provider_notes: providerNotes || null,
         payment_proof_url: proofUrl,
@@ -207,7 +207,7 @@ export function LeadConversionDialog({ lead, onClose, onConverted }: Props) {
                 <div className="flex items-center gap-2"><Mail className="h-3.5 w-3.5 text-muted-foreground" /> {lead.email}</div>
                 <div className="flex items-center gap-2"><Phone className="h-3.5 w-3.5 text-muted-foreground" /> {lead.phone}</div>
                 <div className="flex items-center gap-2"><MapPin className="h-3.5 w-3.5 text-muted-foreground" /> {lead.city || "—"}</div>
-                {(lead as any).requested_by_reseller_id && (
+                {lead.requested_by_reseller_id && (
                   <Badge variant="outline" className="text-xs text-amber-600 border-amber-300 bg-amber-50 w-fit">🤝 Vía Socio</Badge>
                 )}
               </div>
