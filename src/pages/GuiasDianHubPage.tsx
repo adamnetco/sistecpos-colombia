@@ -79,6 +79,7 @@ export default function GuiasDianHubPage() {
     "facturacion-electronica-pymes-colombia": "comercial",
     "software-inventario-facturacion-electronica": "comercial",
     "top-10-software-pos-colombia": "comercial",
+    "como-elegir-sistema-pos-colombia": "comercial",
   };
 
   // Build cluster groups from allArticles
