@@ -26,6 +26,7 @@ import xubioHeroImage from "@/assets/xubio-vs-sistecpos-hero.jpg";
 import tiendanaHeroImage from "@/assets/tiendana-vs-sistecpos-hero.jpg";
 import vectorposHeroImage from "@/assets/vectorpos-vs-sistecpos-hero.jpg";
 import sitricposHeroImage from "@/assets/sitricpos-vs-sistecpos-hero.jpg";
+import conexionPosHeroImage from "@/assets/conexion-pos-vs-sistecpos-hero.jpg";
 
 const heroImages: Record<string, string> = {
   "facturador-gratuito-dian": dianHeroImage,
@@ -42,6 +43,7 @@ const heroImages: Record<string, string> = {
   "tiendana": tiendanaHeroImage,
   "vectorpos": vectorposHeroImage,
   "sitricpos": sitricposHeroImage,
+  "conexion-pos": conexionPosHeroImage,
 };
 import {
   Accordion,
