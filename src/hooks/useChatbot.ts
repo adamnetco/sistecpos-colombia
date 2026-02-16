@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef, createContext, useContext, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
+import { useActivityTracker } from "./useActivityTracker";
 import React from "react";
 
 type Msg = { role: "user" | "assistant"; content: string; messageDbId?: string };
@@ -43,6 +44,7 @@ const ChatbotContext = createContext<ChatbotContextType | null>(null);
 
 export function ChatbotProvider({ children }: { children: ReactNode }) {
   const { user, roles } = useAuth();
+  const { trackActivity } = useActivityTracker();
   const [messages, setMessages] = useState<Msg[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -50,6 +52,7 @@ export function ChatbotProvider({ children }: { children: ReactNode }) {
   const [feedbackGiven, setFeedbackGiven] = useState<Set<number>>(new Set());
   const sessionIdRef = useRef(generateSessionId());
   const sourcePageRef = useRef(window.location.pathname);
+  const chatTrackedRef = useRef(false);
 
   // Determine primary role for context
   const userRole = roles.includes("admin")
@@ -90,6 +93,19 @@ export function ChatbotProvider({ children }: { children: ReactNode }) {
       };
 
       try {
+        // Track chatbot interaction (once per session)
+        if (!chatTrackedRef.current && user) {
+          chatTrackedRef.current = true;
+          const portal = sourcePageRef.current.startsWith("/admin")
+            ? "/admin"
+            : sourcePageRef.current.startsWith("/socio")
+            ? "/socio"
+            : sourcePageRef.current.startsWith("/clientes")
+            ? "/clientes"
+            : "/public";
+          trackActivity("chatbot_interaction", portal, { topic: input.slice(0, 100) });
+        }
+
         const resp = await fetch(CHAT_URL, {
           method: "POST",
           headers: {
@@ -102,6 +118,7 @@ export function ChatbotProvider({ children }: { children: ReactNode }) {
             source_page: sourcePageRef.current,
             user_role: userRole,
             user_email: user?.email || null,
+            user_id: user?.id || null,
           }),
         });
 
@@ -181,7 +198,7 @@ export function ChatbotProvider({ children }: { children: ReactNode }) {
         setIsLoading(false);
       }
     },
-    [messages, isLoading, userRole, user?.email]
+    [messages, isLoading, userRole, user?.email, user?.id, trackActivity]
   );
 
   const reset = useCallback(() => {
@@ -189,6 +206,7 @@ export function ChatbotProvider({ children }: { children: ReactNode }) {
     setError(null);
     setFeedbackGiven(new Set());
     sessionIdRef.current = generateSessionId();
+    chatTrackedRef.current = false;
   }, []);
 
   const submitFeedback = useCallback(async (msgIndex: number, isPositive: boolean, comment?: string) => {

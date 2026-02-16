@@ -1,7 +1,8 @@
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useEffect } from "react";
 import { Routes, Route, Navigate, Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useReseller } from "@/hooks/useReseller";
+import { useActivityTracker } from "@/hooks/useActivityTracker";
 import { ResellerLayout } from "@/components/reseller/ResellerLayout";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
@@ -176,6 +177,13 @@ function RestrictedPage({ variant }: { variant: "no-access" | "pending" | "not-l
 function ResellerGuard({ children }: { children: React.ReactNode }) {
   const { user, loading: authLoading } = useAuth();
   const { isReseller, loading: resellerLoading, reseller } = useReseller();
+  const { trackActivity } = useActivityTracker();
+
+  useEffect(() => {
+    if (user && isReseller && reseller?.status === "approved") {
+      trackActivity("portal_access", "/socio");
+    }
+  }, [user, isReseller, reseller?.status, trackActivity]);
 
   if (authLoading || resellerLoading) {
     return (

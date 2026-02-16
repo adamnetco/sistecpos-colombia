@@ -1,4 +1,6 @@
+import { useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { useActivityTracker } from "@/hooks/useActivityTracker";
 import { Layout } from "@/components/layout/Layout";
 import { RoleSwitcherBar } from "@/components/shared/RoleSwitcherBar";
 import { ClientPOSLogin } from "@/components/clientes/ClientPOSLogin";
@@ -116,6 +118,13 @@ function ClientRestricted() {
 
 export default function ClientesPage() {
   const { user, loading, isAdmin, isCustomer, isReseller } = useAuth();
+  const { trackActivity } = useActivityTracker();
+
+  useEffect(() => {
+    if (user && (isAdmin || isCustomer || isReseller)) {
+      trackActivity("portal_access", "/clientes");
+    }
+  }, [user, isAdmin, isCustomer, isReseller, trackActivity]);
 
   if (loading) return <ClientLoadingSkeleton />;
 

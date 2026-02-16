@@ -13,7 +13,7 @@ serve(async (req) => {
   }
 
   try {
-    const { messages, session_id, source_page, user_role, user_email } = await req.json();
+    const { messages, session_id, source_page, user_role, user_email, user_id } = await req.json();
 
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
       return new Response(JSON.stringify({ error: "messages required" }), {
@@ -300,7 +300,7 @@ No lo repitas si ya lo preguntaste en las últimas 2 respuestas.`;
     if (session_id) {
       const { data: existing } = await supabase
         .from("ai_conversations")
-        .select("id")
+        .select("id, user_id")
         .eq("session_id", session_id)
         .maybeSingle();
 
@@ -308,7 +308,14 @@ No lo repitas si ya lo preguntaste en las últimas 2 respuestas.`;
         await supabase.from("ai_conversations").insert({
           session_id,
           source_page: source_page || null,
+          user_id: user_id || null,
+          user_role: user_role || null,
         });
+      } else if (user_id && !existing.user_id) {
+        // Update existing conversation with user info if logged in later
+        await supabase.from("ai_conversations")
+          .update({ user_id, user_role: user_role || null })
+          .eq("session_id", session_id);
       }
 
       // Save user message

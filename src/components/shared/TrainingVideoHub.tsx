@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { mainTutorials, quickVideos, getYouTubeId, getLoomEmbedUrl, getLoomId } from "@/data/trainingVideos";
 import { useChatbot } from "@/hooks/useChatbot";
 import { useIncrementVideoView } from "@/hooks/useTrainingVideos";
+import { useActivityTracker } from "@/hooks/useActivityTracker";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -195,6 +196,7 @@ export default function TrainingVideoHub({ userRole }: TrainingVideoHubProps) {
 
   const { data: dbVideos } = useVideosFromDB(userRole);
   const incrementView = useIncrementVideoView();
+  const { trackActivity } = useActivityTracker();
   const allVideos = useMemo(() => mapToVideoItems(dbVideos), [dbVideos]);
 
   // Reliable scroll to player — waits for ref to be mounted
@@ -215,11 +217,13 @@ export default function TrainingVideoHub({ userRole }: TrainingVideoHubProps) {
     setActiveVideo(v);
     setIsDeepLink(false);
     incrementView.mutate(v.id);
+    const portal = userRole === "reseller" ? "/socio" : "/clientes";
+    trackActivity("video_view", portal, { video_title: v.title, video_id: v.id, category: v.category });
     const slug = videoSlug(v.title);
     window.history.replaceState(null, "", `#video-${slug}`);
     closeChatbot?.();
     scrollToPlayer();
-  }, [incrementView, scrollToPlayer, closeChatbot]);
+  }, [incrementView, scrollToPlayer, closeChatbot, trackActivity, userRole]);
 
   // Auto-open video from URL hash (deep link)
   useEffect(() => {
