@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { SEO } from "@/components/seo/SEO";
+import { useResellerFunnelTracker } from "@/hooks/useResellerFunnelTracker";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -94,13 +95,17 @@ const objections = [
 
 export default function ResellerWelcomePage() {
   const { buildUrl } = useWhatsAppConfig();
+  const { trackEvent } = useResellerFunnelTracker();
   const [videoWatched, setVideoWatched] = useState(false);
 
+  // Get the email stored during registration
+  const resellerEmail = sessionStorage.getItem("reseller_email") || "";
+
   useEffect(() => {
-    // Track page view
-    const key = "reseller_welcome_visited";
-    sessionStorage.setItem(key, "true");
-  }, []);
+    if (resellerEmail) {
+      trackEvent(resellerEmail, "page_view", { page: "bienvenida" });
+    }
+  }, [resellerEmail, trackEvent]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-foreground via-foreground to-background">
@@ -186,32 +191,64 @@ export default function ResellerWelcomePage() {
 
             <div className="relative rounded-2xl overflow-hidden border-2 border-primary/20 shadow-2xl bg-foreground aspect-video">
               <iframe
-                src="https://www.youtube.com/embed/VIDEO_ID"
+                src="https://www.youtube.com/embed/VIDEO_ID?enablejsapi=1"
                 className="w-full h-full"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
                 title="Presentación SistecPOS para Socios"
-                onLoad={() => setVideoWatched(true)}
+                onLoad={() => {
+                  if (resellerEmail) {
+                    trackEvent(resellerEmail, "video_started", { video: "presentacion-socios" });
+                  }
+                }}
               />
               {/* Placeholder until real video ID is set */}
               <div className="absolute inset-0 flex items-center justify-center bg-foreground/90 text-primary-foreground">
                 <div className="text-center space-y-4">
-                  <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-primary/20 cursor-pointer hover:bg-primary/30 transition-colors">
+                  <div
+                    className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-primary/20 cursor-pointer hover:bg-primary/30 transition-colors"
+                    onClick={() => {
+                      if (resellerEmail) {
+                        trackEvent(resellerEmail, "video_started", { video: "presentacion-socios" });
+                      }
+                      window.open("https://sistecpos.com/socio/entrenamientos#video-presentacion", "_blank");
+                    }}
+                  >
                     <Play className="h-10 w-10 text-primary" />
                   </div>
                   <p className="text-lg font-semibold">Video de Presentación del Programa</p>
                   <p className="text-sm text-primary-foreground/60">
-                    Próximamente — El video se vinculará desde el panel de entrenamientos
+                    Haz clic para ver el video de presentación
                   </p>
-                  <Button
-                    variant="outline"
-                    className="border-primary/30 text-primary hover:bg-primary/10"
-                    asChild
-                  >
-                    <a href="https://sistecpos.com/socio/entrenamientos#video-presentacion" target="_blank" rel="noopener noreferrer">
-                      Ver en el Portal de Socios
-                    </a>
-                  </Button>
+                  <div className="flex flex-col sm:flex-row gap-2 justify-center">
+                    <Button
+                      variant="outline"
+                      className="border-primary/30 text-primary hover:bg-primary/10"
+                      onClick={() => {
+                        if (resellerEmail) {
+                          trackEvent(resellerEmail, "video_started", { video: "presentacion-socios" });
+                        }
+                        window.open("https://sistecpos.com/socio/entrenamientos#video-presentacion", "_blank");
+                      }}
+                    >
+                      <Play className="h-4 w-4 mr-1" /> Ver Video de Presentación
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="text-green-400 hover:bg-green-500/10"
+                      onClick={() => {
+                        if (resellerEmail) {
+                          trackEvent(resellerEmail, "video_completed", { video: "presentacion-socios" });
+                          setVideoWatched(true);
+                        }
+                      }}
+                    >
+                      <CheckCircle2 className="h-4 w-4 mr-1" /> Ya vi el video
+                    </Button>
+                  </div>
+                  {videoWatched && (
+                    <p className="text-xs text-green-400">✓ Video marcado como visto</p>
+                  )}
                 </div>
               </div>
             </div>
@@ -383,6 +420,9 @@ export default function ResellerWelcomePage() {
               <Button
                 size="lg"
                 className="w-full h-14 text-base font-bold bg-white text-primary hover:bg-white/90 gap-2 shadow-xl"
+                onClick={() => {
+                  if (resellerEmail) trackEvent(resellerEmail, "cta_clicked", { label: "registrarme_google" });
+                }}
                 asChild
               >
                 <Link to="/auth">

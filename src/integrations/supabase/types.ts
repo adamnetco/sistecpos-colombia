@@ -1507,6 +1507,7 @@ export type Database = {
           id: string
           notes: string | null
           phone: string
+          pipeline_stage: string
           status: string
           updated_at: string
           user_id: string | null
@@ -1523,6 +1524,7 @@ export type Database = {
           id?: string
           notes?: string | null
           phone: string
+          pipeline_stage?: string
           status?: string
           updated_at?: string
           user_id?: string | null
@@ -1539,6 +1541,7 @@ export type Database = {
           id?: string
           notes?: string | null
           phone?: string
+          pipeline_stage?: string
           status?: string
           updated_at?: string
           user_id?: string | null
@@ -1629,6 +1632,44 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "reseller_commissions_reseller_id_fkey"
+            columns: ["reseller_id"]
+            isOneToOne: false
+            referencedRelation: "reseller_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reseller_funnel_events: {
+        Row: {
+          created_at: string
+          event_data: Json | null
+          event_type: string
+          id: string
+          page_url: string | null
+          reseller_email: string
+          reseller_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_data?: Json | null
+          event_type: string
+          id?: string
+          page_url?: string | null
+          reseller_email: string
+          reseller_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_data?: Json | null
+          event_type?: string
+          id?: string
+          page_url?: string | null
+          reseller_email?: string
+          reseller_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reseller_funnel_events_reseller_id_fkey"
             columns: ["reseller_id"]
             isOneToOne: false
             referencedRelation: "reseller_applications"

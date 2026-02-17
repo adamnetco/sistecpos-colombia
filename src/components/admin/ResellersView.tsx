@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, lazy, Suspense } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -8,8 +8,18 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { Settings2, DollarSign, Plus, Trash2, Download } from "lucide-react";
+import { Settings2, DollarSign, Plus, Trash2, Download, Kanban, List } from "lucide-react";
 import { exportToCsv } from "@/lib/exportCsv";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+
+const ResellerPipelineView = lazy(() => import("./ResellerPipelineView"));
+
+const statusOptions = [
+  { value: "pending", label: "Pendiente" },
+  { value: "reviewing", label: "En Revisión" },
+  { value: "approved", label: "Aprobado" },
+  { value: "rejected", label: "Rechazado" },
+];
 
 interface Reseller {
   id: string;
@@ -38,13 +48,6 @@ interface Commission {
   max_amount: number | null;
   is_active: boolean;
 }
-
-const statusOptions = [
-  { value: "pending", label: "Pendiente" },
-  { value: "reviewing", label: "En Revisión" },
-  { value: "approved", label: "Aprobado" },
-  { value: "rejected", label: "Rechazado" },
-];
 
 const ALL_MODULES = [
   { key: "licencias", label: "Licencias", alwaysOn: true },
@@ -212,58 +215,77 @@ export default function ResellersView() {
         </div>
       </div>
 
-      <div className="rounded-lg border bg-card overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b bg-muted/50">
-              <th className="px-4 py-3 text-left font-medium">Nombre</th>
-              <th className="px-4 py-3 text-left font-medium">Ciudad</th>
-              <th className="px-4 py-3 text-left font-medium">Contacto</th>
-              <th className="px-4 py-3 text-left font-medium">Fecha</th>
-              <th className="px-4 py-3 text-left font-medium">Estado</th>
-              <th className="px-4 py-3 text-left font-medium">Config</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <tr><td colSpan={6} className="py-8 text-center text-muted-foreground">Cargando...</td></tr>
-            ) : apps.length === 0 ? (
-              <tr><td colSpan={6} className="py-8 text-center text-muted-foreground">No hay solicitudes</td></tr>
-            ) : (
-              apps.map((a) => (
-                <tr key={a.id} className={`border-b hover:bg-muted/30 transition-colors ${a.status === "pending" ? "bg-yellow-500/5" : ""}`}>
-                  <td className="px-4 py-3 font-medium">{a.full_name}</td>
-                  <td className="px-4 py-3">{a.city}</td>
-                  <td className="px-4 py-3">
-                    <a href={`mailto:${a.email}`} className="block text-xs text-primary hover:underline active:opacity-70">{a.email}</a>
-                    <a href={`tel:${a.phone}`} className="block text-xs text-primary hover:underline active:opacity-70">{a.phone}</a>
-                  </td>
-                  <td className="px-4 py-3 text-xs text-muted-foreground whitespace-nowrap">
-                    {new Date(a.created_at).toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" })}
-                  </td>
-                  <td className="px-4 py-3">
-                    <Select value={a.status} onValueChange={(v) => updateStatus(a.id, v)}>
-                      <SelectTrigger className="w-32 h-8 text-xs">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {statusOptions.map((s) => (
-                          <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </td>
-                  <td className="px-4 py-3">
-                    <Button size="sm" variant="ghost" onClick={() => openConfig(a)} title="Configurar módulos y comisiones">
-                      <Settings2 className="h-4 w-4" />
-                    </Button>
-                  </td>
+      <Tabs defaultValue="pipeline" className="mt-4">
+        <TabsList>
+          <TabsTrigger value="pipeline" className="gap-1.5">
+            <Kanban className="h-3.5 w-3.5" />Embudo
+          </TabsTrigger>
+          <TabsTrigger value="list" className="gap-1.5">
+            <List className="h-3.5 w-3.5" />Lista
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="pipeline" className="mt-4">
+          <Suspense fallback={<div className="flex h-64 items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" /></div>}>
+            <ResellerPipelineView />
+          </Suspense>
+        </TabsContent>
+
+        <TabsContent value="list" className="mt-4">
+          <div className="rounded-lg border bg-card overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b bg-muted/50">
+                  <th className="px-4 py-3 text-left font-medium">Nombre</th>
+                  <th className="px-4 py-3 text-left font-medium">Ciudad</th>
+                  <th className="px-4 py-3 text-left font-medium">Contacto</th>
+                  <th className="px-4 py-3 text-left font-medium">Fecha</th>
+                  <th className="px-4 py-3 text-left font-medium">Estado</th>
+                  <th className="px-4 py-3 text-left font-medium">Config</th>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+              </thead>
+              <tbody>
+                {loading ? (
+                  <tr><td colSpan={6} className="py-8 text-center text-muted-foreground">Cargando...</td></tr>
+                ) : apps.length === 0 ? (
+                  <tr><td colSpan={6} className="py-8 text-center text-muted-foreground">No hay solicitudes</td></tr>
+                ) : (
+                  apps.map((a) => (
+                    <tr key={a.id} className={`border-b hover:bg-muted/30 transition-colors ${a.status === "pending" ? "bg-yellow-500/5" : ""}`}>
+                      <td className="px-4 py-3 font-medium">{a.full_name}</td>
+                      <td className="px-4 py-3">{a.city}</td>
+                      <td className="px-4 py-3">
+                        <a href={`mailto:${a.email}`} className="block text-xs text-primary hover:underline active:opacity-70">{a.email}</a>
+                        <a href={`tel:${a.phone}`} className="block text-xs text-primary hover:underline active:opacity-70">{a.phone}</a>
+                      </td>
+                      <td className="px-4 py-3 text-xs text-muted-foreground whitespace-nowrap">
+                        {new Date(a.created_at).toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" })}
+                      </td>
+                      <td className="px-4 py-3">
+                        <Select value={a.status} onValueChange={(v) => updateStatus(a.id, v)}>
+                          <SelectTrigger className="w-32 h-8 text-xs">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {statusOptions.map((s) => (
+                              <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </td>
+                      <td className="px-4 py-3">
+                        <Button size="sm" variant="ghost" onClick={() => openConfig(a)} title="Configurar módulos y comisiones">
+                          <Settings2 className="h-4 w-4" />
+                        </Button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </TabsContent>
+      </Tabs>
 
       {/* Configuration Dialog */}
       <Dialog open={!!configTarget} onOpenChange={() => setConfigTarget(null)}>
