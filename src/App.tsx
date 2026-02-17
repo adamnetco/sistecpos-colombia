@@ -46,6 +46,9 @@ const AdminPage = lazy(() => import("./pages/AdminPage"));
 const ResellerPage = lazy(() => import("./pages/ResellerPage"));
 const LandingDemoPage = lazy(() => import("./pages/LandingDemoPage"));
 const LandingRepresentantesPage = lazy(() => import("./pages/LandingRepresentantesPage"));
+const ResellerWelcomePage = lazy(() => import("./pages/ResellerWelcomePage"));
+const ResellerOnboardingPage = lazy(() => import("./pages/ResellerOnboardingPage"));
+const ResellerSalesPitchPage = lazy(() => import("./pages/ResellerSalesPitchPage"));
 const CasosExitoPage = lazy(() => import("./pages/CasosExitoPage"));
 const CasoExitoDetallePage = lazy(() => import("./pages/CasoExitoDetallePage"));
 const PagoResultadoPage = lazy(() => import("./pages/PagoResultadoPage"));
@@ -109,6 +112,9 @@ const App = () => (
                 {/* Landing pages for campaigns */}
                 <Route path="/lp/demo" element={<LandingDemoPage />} />
                 <Route path="/lp/representantes" element={<LandingRepresentantesPage />} />
+                <Route path="/lp/representantes/bienvenida" element={<ResellerWelcomePage />} />
+                <Route path="/lp/socio/primeros-pasos" element={<ResellerOnboardingPage />} />
+                <Route path="/lp/socio/presentacion" element={<ResellerSalesPitchPage />} />
                 <Route path="/activar-demo/:token" element={<ActivarDemoPage />} />
                 {/* Auth & Admin */}
                 <Route path="/auth" element={<AuthPage />} />

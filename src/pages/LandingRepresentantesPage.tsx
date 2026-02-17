@@ -150,7 +150,7 @@ export default function LandingRepresentantesPage() {
         description: "Revisaremos tu perfil y te contactaremos en menos de 24 horas.",
       });
 
-      setTimeout(() => navigate("/gracias"), 1000);
+      setTimeout(() => navigate("/lp/representantes/bienvenida"), 1000);
     } catch (err) {
       console.error(err);
       toast({ title: "Error inesperado", variant: "destructive" });
