@@ -41,9 +41,14 @@ export default function CasosExitoPage() {
       <section className="relative py-16 md:py-20 overflow-hidden">
         <div className="absolute inset-0 gradient-bg opacity-5" />
         <div className="container px-4 md:px-6 relative">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-3xl mx-auto text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="max-w-3xl mx-auto text-center"
+          >
             <Badge className="mb-4 bg-yellow-500/10 text-yellow-600 border-0">
-              <Trophy className="h-3 w-3 mr-1" />Historias Reales
+              <Trophy className="h-3 w-3 mr-1" />
+              Historias Reales
             </Badge>
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
               Casos de <span className="gradient-text">Éxito</span>
@@ -60,7 +65,7 @@ export default function CasosExitoPage() {
         <section className="border-b">
           <div className="container px-4 md:px-6 py-4">
             <div className="flex flex-wrap gap-2">
-              {businessTypes.map(t => (
+              {businessTypes.map((t) => (
                 <Badge key={t} variant="outline" className="capitalize cursor-pointer hover:bg-primary/10">
                   {t}
                 </Badge>
@@ -74,7 +79,9 @@ export default function CasosExitoPage() {
         <div className="container px-4 md:px-6">
           {isLoading ? (
             <div className="grid md:grid-cols-2 gap-8">
-              {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-72 rounded-2xl" />)}
+              {[1, 2, 3, 4].map((i) => (
+                <Skeleton key={i} className="h-72 rounded-2xl" />
+              ))}
             </div>
           ) : stories.length === 0 ? (
             <p className="text-center text-muted-foreground py-16">Próximamente compartiremos casos de éxito</p>
@@ -97,9 +104,17 @@ export default function CasosExitoPage() {
                       )}
                       <CardContent className="p-6">
                         <div className="flex items-center gap-2 mb-3">
-                          <Badge variant="secondary" className="capitalize text-xs">{story.business_type}</Badge>
-                          {story.city && <Badge variant="outline" className="text-xs">{story.city}</Badge>}
-                          {story.is_featured && <Badge className="bg-yellow-500/10 text-yellow-600 text-xs">Destacado</Badge>}
+                          <Badge variant="secondary" className="capitalize text-xs">
+                            {story.business_type}
+                          </Badge>
+                          {story.city && (
+                            <Badge variant="outline" className="text-xs">
+                              {story.city}
+                            </Badge>
+                          )}
+                          {story.is_featured && (
+                            <Badge className="bg-yellow-500/10 text-yellow-600 text-xs">Destacado</Badge>
+                          )}
                         </div>
                         <h2 className="text-xl font-bold mb-2">{story.title}</h2>
                         <p className="text-sm text-muted-foreground mb-3">{story.business_name}</p>
@@ -136,10 +151,17 @@ export default function CasosExitoPage() {
         <div className="container px-4 md:px-6">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-2xl md:text-3xl font-bold mb-4">¿Quieres ser nuestro próximo caso de éxito?</h2>
-            <p className="text-muted-foreground mb-6">Contacta a nuestro equipo y descubre cómo SistecPOS puede transformar tu negocio.</p>
+            <p className="text-muted-foreground mb-6">
+              Contacta a nuestro equipo y descubre cómo SistecPOS puede transformar tu negocio.
+            </p>
             <Button size="lg" className="btn-whatsapp gap-2" asChild>
-              <a href={buildUrl("Hola, quiero saber cómo SistecPOS puede ayudar a mi negocio")} target="_blank" rel="noopener noreferrer">
-                <MessageCircle className="h-5 w-5" />Hablar con un Asesor
+              <a
+                href={buildUrl("Hola, quiero saber cómo SistecPOS puede ayudar a mi negocio")}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <MessageCircle className="h-5 w-5" />
+                Hablar con un Asesor
               </a>
             </Button>
           </div>
