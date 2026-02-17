@@ -145,6 +145,9 @@ export default function LandingRepresentantesPage() {
         },
       }).catch(console.error);
 
+      // Store email for tracking on welcome page
+      sessionStorage.setItem("reseller_email", data.email);
+
       toast({
         title: "¡Postulación enviada! 🎉",
         description: "Revisaremos tu perfil y te contactaremos en menos de 24 horas.",

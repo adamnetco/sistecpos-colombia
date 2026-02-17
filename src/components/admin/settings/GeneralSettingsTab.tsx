@@ -5,16 +5,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Loader2, Save, Monitor, Globe, Plus, X } from "lucide-react";
+import { Loader2, Save, Monitor, Globe, Plus, X, Calendar } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 export default function GeneralSettingsTab() {
   const [playstoreUrl, setPlaystoreUrl] = useState("");
+  const [calendarUrl, setCalendarUrl] = useState("");
   const [demoPosUser, setDemoPosUser] = useState("");
   const [demoPosStore, setDemoPosStore] = useState("");
   const [demoPosPass, setDemoPosPass] = useState("");
   const [domains, setDomains] = useState<string[]>([]);
   const [newDomain, setNewDomain] = useState("");
+  const [savingCalendar, setSavingCalendar] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [savingDemo, setSavingDemo] = useState(false);
@@ -24,10 +26,11 @@ export default function GeneralSettingsTab() {
     supabase
       .from("app_settings")
       .select("key, value")
-      .in("key", ["playstore_url", "demo_pos_user", "demo_pos_store", "demo_pos_pass", "allowed_license_domains"])
+      .in("key", ["playstore_url", "demo_pos_user", "demo_pos_store", "demo_pos_pass", "allowed_license_domains", "google_calendar_url"])
       .then(({ data }) => {
         (data || []).forEach((row) => {
           if (row.key === "playstore_url") setPlaystoreUrl(row.value);
+          if (row.key === "google_calendar_url") setCalendarUrl(row.value);
           if (row.key === "demo_pos_user") setDemoPosUser(row.value);
           if (row.key === "demo_pos_store") setDemoPosStore(row.value);
           if (row.key === "demo_pos_pass") setDemoPosPass(row.value);
@@ -38,6 +41,16 @@ export default function GeneralSettingsTab() {
         setLoading(false);
       });
   }, []);
+
+  const handleSaveCalendar = async () => {
+    setSavingCalendar(true);
+    const { error } = await supabase
+      .from("app_settings")
+      .upsert({ key: "google_calendar_url", value: calendarUrl, updated_at: new Date().toISOString() }, { onConflict: "key" });
+    if (error) toast.error("Error al guardar: " + error.message);
+    else toast.success("URL de Google Calendar actualizada");
+    setSavingCalendar(false);
+  };
 
   const handleSave = async () => {
     setSaving(true);
@@ -181,7 +194,36 @@ export default function GeneralSettingsTab() {
         </CardContent>
       </Card>
 
-      {/* Play Store URL */}
+      {/* Google Calendar URL */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Calendar className="h-5 w-5" />
+            Google Calendar — Agenda de Citas
+          </CardTitle>
+          <CardDescription>
+            URL de Google Calendar Appointment Scheduling. Se usará en el embudo de socios para agendar llamadas de calificación.
+            Crea una página de citas en Google Calendar y pega aquí la URL pública.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="calendar-url">URL de Agenda</Label>
+            <Input
+              id="calendar-url"
+              type="url"
+              placeholder="https://calendar.google.com/calendar/appointments/..."
+              value={calendarUrl}
+              onChange={(e) => setCalendarUrl(e.target.value)}
+            />
+          </div>
+          <Button onClick={handleSaveCalendar} disabled={savingCalendar} className="gap-2">
+            {savingCalendar ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            Guardar URL de Agenda
+          </Button>
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
