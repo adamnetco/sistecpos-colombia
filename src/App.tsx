@@ -52,6 +52,7 @@ const ResellerSalesPitchPage = lazy(() => import("./pages/ResellerSalesPitchPage
 const CasosExitoPage = lazy(() => import("./pages/CasosExitoPage"));
 const CasoExitoDetallePage = lazy(() => import("./pages/CasoExitoDetallePage"));
 const PagoResultadoPage = lazy(() => import("./pages/PagoResultadoPage"));
+const ServiciosPage = lazy(() => import("./pages/ServiciosPage"));
 const ClientesPage = lazy(() => import("./pages/ClientesPage"));
 const AyudaPage = lazy(() => import("./pages/AyudaPage"));
 const ActivarDemoPage = lazy(() => import("./pages/ActivarDemoPage"));
@@ -89,6 +90,7 @@ const App = () => (
                 <Route path="/software-pos-colombia" element={<SoftwarePosColombiaPage />} />
                 <Route path="/facturacion-electronica" element={<FacturacionElectronicaPage />} />
                 <Route path="/software-pos/:city" element={<SoftwarePosLocalPage />} />
+                <Route path="/servicios" element={<ServiciosPage />} />
                 <Route path="/productos" element={<ProductosPage />} />
                 <Route path="/productos/:slug" element={<ProductoDetallePage />} />
                 <Route path="/nosotros" element={<NosotrosPage />} />
