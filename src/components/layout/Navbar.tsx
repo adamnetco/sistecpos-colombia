@@ -119,7 +119,7 @@ export function Navbar() {
               size="icon"
               title={user ? "Mi Panel" : "Iniciar Sesión"}
               className={cn(user && "text-primary")}
-              onClick={() => !user && navigate("/auth")}
+              onClick={() => !user && navigate("/clientes")}
             >
               {user ? <UserCircle className="h-5 w-5" /> : <User className="h-5 w-5" />}
             </Button>

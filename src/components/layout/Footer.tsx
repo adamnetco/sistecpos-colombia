@@ -180,8 +180,8 @@ export const Footer = forwardRef<HTMLElement>((_props, ref) => {
         {/* Legal + Copyright */}
         <div className="mt-6 pt-6 border-t border-primary-foreground/10 text-center space-y-3">
           <div className="flex flex-wrap justify-center gap-4 text-xs items-center">
-            <Link to="/clientes" className="inline-flex items-center gap-1 text-primary-foreground/50 hover:text-primary-foreground transition-colors">
-              <User className="h-3 w-3" />Portal Clientes
+            <Link to="/admin" className="inline-flex items-center gap-1 text-primary-foreground/50 hover:text-primary-foreground transition-colors">
+              <User className="h-3 w-3" />Portal Admin
             </Link>
             <span className="text-primary-foreground/20">|</span>
             <Link to="/socio" className="inline-flex items-center gap-1 text-primary-foreground/50 hover:text-primary-foreground transition-colors">

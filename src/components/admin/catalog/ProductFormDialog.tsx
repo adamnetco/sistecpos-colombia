@@ -325,7 +325,17 @@ export default function ProductFormDialog({ open, onOpenChange, editing, onSaved
                 </div>
                 <div className="flex flex-wrap gap-2 mt-2">
                   {form.video_urls.map((v, i) => (
-                    <span key={i} className="inline-flex items-center gap-1 bg-muted px-2 py-1 rounded text-xs max-w-xs truncate">🎥 {v}<button onClick={() => set("video_urls", form.video_urls.filter((_, j) => j !== i))}><X className="h-3 w-3" /></button></span>
+                    <span key={i} className="inline-flex items-center gap-1.5 bg-muted px-2.5 py-1.5 rounded-md text-xs max-w-xs group">
+                      🎥 <span className="truncate max-w-[200px]">{v}</span>
+                      <button
+                        type="button"
+                        onClick={() => set("video_urls", form.video_urls.filter((_, j) => j !== i))}
+                        className="shrink-0 rounded-full p-0.5 hover:bg-destructive hover:text-destructive-foreground transition-colors"
+                        title="Eliminar video"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    </span>
                   ))}
                 </div>
               </div>
