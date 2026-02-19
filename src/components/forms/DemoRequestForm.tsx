@@ -61,7 +61,7 @@ export function DemoRequestForm() {
         phone: data.whatsapp,
         email: data.email,
         source: "formulario_web",
-        status: "welcome_sent",
+        status: "activation_completed",
         trial_ends_at: trialEnds.toISOString(),
       });
 

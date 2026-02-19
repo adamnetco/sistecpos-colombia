@@ -26,6 +26,7 @@ interface Contact {
   tags: string[] | null;
   lead_score: number;
   pipeline_stage: string;
+  lead_id: string | null;
   created_at: string;
 }
 

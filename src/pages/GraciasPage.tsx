@@ -55,12 +55,12 @@ const GraciasPage = () => {
             </div>
 
             <h1 className="text-3xl font-bold md:text-5xl" id="titulo">
-              ¡Tu solicitud está en camino!
+              ¡Solicitud de Demo Activa!
             </h1>
 
             <p className="mt-4 text-lg text-muted-foreground md:text-xl">
-              Hemos recibido tu información. Nuestro equipo se pondrá en
-              contacto contigo <strong className="text-foreground">en menos de 5 minutos</strong>.
+              Tus credenciales llegarán pronto a tu correo electrónico.
+              Nuestro equipo te contactará <strong className="text-foreground">en menos de 5 minutos</strong> por WhatsApp.
             </p>
           </motion.div>
 
