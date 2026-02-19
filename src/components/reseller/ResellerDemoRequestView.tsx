@@ -64,7 +64,7 @@ export default function ResellerDemoRequestView() {
         business_type: data.businessType,
         country: data.country,
         source: "socio_panel",
-        status: "welcome_sent",
+        status: "activation_completed",
         trial_ends_at: trialEnds.toISOString(),
         activation_token: token,
         requested_by_reseller_id: reseller?.id || null,

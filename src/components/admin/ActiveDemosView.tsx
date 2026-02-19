@@ -34,12 +34,13 @@ interface DemoLead {
 }
 
 const stageConfig: Record<string, { label: string; color: string; icon: string; bg: string }> = {
+  welcome_sent: { label: "Activación Solicitada", color: "bg-orange-500 text-white", icon: "📋", bg: "border-orange-200 bg-orange-50" },
   activation_completed: { label: "Activación Solicitada", color: "bg-orange-500 text-white", icon: "📋", bg: "border-orange-200 bg-orange-50" },
   demo_personalized: { label: "Gestionando Demo", color: "bg-purple-500 text-white", icon: "⚙️", bg: "border-purple-200 bg-purple-50" },
   active_trial: { label: "Demo Activa", color: "bg-green-600 text-white", icon: "🟢", bg: "border-green-200 bg-green-50" },
 };
 
-const DEMO_STATUSES = ["activation_completed", "demo_personalized", "active_trial"];
+const DEMO_STATUSES = ["welcome_sent", "activation_completed", "demo_personalized", "active_trial"];
 
 export default function ActiveDemosView() {
   const [leads, setLeads] = useState<DemoLead[]>([]);
@@ -156,8 +157,8 @@ export default function ActiveDemosView() {
     return matchesStage && matchesSearch;
   });
 
-  const countByStage = (stage: string) => leads.filter((l) => l.status === stage).length;
-  const pendingCredentials = leads.filter((l) => !hasCredentials(l) && (l.status === "demo_personalized" || l.status === "activation_completed")).length;
+  const countByStage = (stage: string) => leads.filter((l) => l.status === stage || (stage === "activation_completed" && l.status === "welcome_sent")).length;
+  const pendingCredentials = leads.filter((l) => !hasCredentials(l) && ["demo_personalized", "activation_completed", "welcome_sent"].includes(l.status)).length;
   const expiringSoon = leads.filter((l) => {
     const t = trialProgress(l);
     return t && t.daysLeft <= 5 && t.daysLeft > 0;
@@ -289,7 +290,7 @@ export default function ActiveDemosView() {
                         <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
                           <CheckCircle2 className="h-3 w-3 mr-1" /> Enviadas
                         </Badge>
-                      ) : l.status === "demo_personalized" || l.status === "activation_completed" ? (
+                      ) : ["demo_personalized", "activation_completed", "welcome_sent"].includes(l.status) ? (
                         <Badge variant="outline" className="text-xs bg-purple-50 text-purple-700 border-purple-200 animate-pulse">
                           <Lock className="h-3 w-3 mr-1" /> Pendiente
                         </Badge>
@@ -420,7 +421,7 @@ export default function ActiveDemosView() {
                     {sending ? "Reenviando..." : "Reenviar credenciales por correo"}
                   </Button>
                 </div>
-              ) : (selectedLead.status === "demo_personalized" || selectedLead.status === "activation_completed") ? (
+              ) : ["demo_personalized", "activation_completed", "welcome_sent"].includes(selectedLead.status) ? (
                 <div className="rounded-lg border-2 border-dashed border-purple-300 bg-purple-50/50 p-4 space-y-3">
                   <p className="text-sm font-semibold text-purple-800">🔐 Asignar Credenciales POS</p>
                   <p className="text-xs text-purple-600">Ingresa los datos de acceso. Al enviar, el estado cambiará automáticamente a <strong>Demo Activa</strong> y el cliente recibirá un correo.</p>
@@ -450,7 +451,7 @@ export default function ActiveDemosView() {
 
           <DialogFooter className="gap-2">
             <Button variant="outline" onClick={() => setCredDialog(false)}>Cerrar</Button>
-            {selectedLead && !hasCredentials(selectedLead) && (selectedLead.status === "demo_personalized" || selectedLead.status === "activation_completed") && (
+            {selectedLead && !hasCredentials(selectedLead) && ["demo_personalized", "activation_completed", "welcome_sent"].includes(selectedLead.status) && (
               <Button onClick={handleSendCredentials} disabled={sending} className="bg-green-600 hover:bg-green-700 text-white">
                 {sending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
                 {sending ? "Enviando..." : "Enviar Credenciales y Activar Demo"}

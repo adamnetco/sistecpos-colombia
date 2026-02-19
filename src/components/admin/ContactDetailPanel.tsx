@@ -8,11 +8,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import {
   Mail, Phone, Building2, MapPin, Bot, Clock, Plus,
-  MessageSquare, PhoneCall, FileText, Calendar,
+  MessageSquare, PhoneCall, FileText, Calendar, Rocket, Loader2,
 } from "lucide-react";
+import { BUSINESS_TYPES_DEMO, COUNTRIES } from "@/data/demoFormOptions";
 
 interface Contact {
   id: string;
@@ -30,6 +32,7 @@ interface Contact {
   tags: string[] | null;
   lead_score: number;
   pipeline_stage: string;
+  lead_id: string | null;
   created_at: string;
 }
 
@@ -59,6 +62,14 @@ export default function ContactDetailPanel({
   const [newNote, setNewNote] = useState("");
   const [activityType, setActivityType] = useState("note");
   const [saving, setSaving] = useState(false);
+  const [showLeadDialog, setShowLeadDialog] = useState(false);
+  const [leadForm, setLeadForm] = useState({
+    business_name: contact.business_name || "",
+    business_type: contact.business_type || "",
+    city: contact.city || "",
+    country: "Colombia",
+  });
+  const [creatingLead, setCreatingLead] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -149,6 +160,151 @@ export default function ContactDetailPanel({
         <div>
           <Label className="text-xs text-muted-foreground">Notas</Label>
           <p className="text-sm mt-1 bg-muted/50 rounded-lg p-3">{contact.notes}</p>
+        </div>
+      )}
+
+      {/* Pasar a Leads/Demos */}
+      {!contact.lead_id && (
+        <>
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full gap-2 border-primary/30 text-primary hover:bg-primary/10"
+            onClick={() => {
+              setLeadForm({
+                business_name: contact.business_name || "",
+                business_type: contact.business_type || "",
+                city: contact.city || "",
+                country: "Colombia",
+              });
+              setShowLeadDialog(true);
+            }}
+          >
+            <Rocket className="h-4 w-4" />
+            Pasar a Leads / Demos
+          </Button>
+
+          <Dialog open={showLeadDialog} onOpenChange={setShowLeadDialog}>
+            <DialogContent className="max-w-md">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <Rocket className="h-5 w-5 text-primary" />
+                  Crear Demo para {contact.full_name}
+                </DialogTitle>
+              </DialogHeader>
+              <div className="space-y-3">
+                <p className="text-sm text-muted-foreground">
+                  Se creará un registro en Leads/Demos con estado "Activación Solicitada" para gestionar credenciales.
+                </p>
+                <div>
+                  <Label className="text-xs">Nombre del Negocio *</Label>
+                  <Input
+                    value={leadForm.business_name}
+                    onChange={(e) => setLeadForm(p => ({ ...p, business_name: e.target.value }))}
+                    placeholder="Ej: Droguería San Ángel"
+                    className="h-9"
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs">Tipo de Negocio</Label>
+                  <Select value={leadForm.business_type} onValueChange={(v) => setLeadForm(p => ({ ...p, business_type: v }))}>
+                    <SelectTrigger className="h-9"><SelectValue placeholder="Seleccione" /></SelectTrigger>
+                    <SelectContent>
+                      {BUSINESS_TYPES_DEMO.map(t => (
+                        <SelectItem key={t} value={t}>{t}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-xs">País</Label>
+                    <Select value={leadForm.country} onValueChange={(v) => setLeadForm(p => ({ ...p, country: v }))}>
+                      <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {COUNTRIES.map(c => (
+                          <SelectItem key={c} value={c}>{c}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-xs">Ciudad</Label>
+                    <Input
+                      value={leadForm.city}
+                      onChange={(e) => setLeadForm(p => ({ ...p, city: e.target.value }))}
+                      placeholder="Ej: Bucaramanga"
+                      className="h-9"
+                    />
+                  </div>
+                </div>
+                <div className="rounded-lg border bg-muted/30 p-3 text-xs space-y-1">
+                  <p><strong>Contacto:</strong> {contact.full_name}</p>
+                  <p><strong>Email:</strong> {contact.email || "—"}</p>
+                  <p><strong>Teléfono:</strong> {contact.phone || "—"}</p>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setShowLeadDialog(false)}>Cancelar</Button>
+                <Button
+                  disabled={creatingLead || !leadForm.business_name.trim()}
+                  onClick={async () => {
+                    if (!contact.email || !contact.phone) {
+                      toast({ title: "El contacto necesita email y teléfono", variant: "destructive" });
+                      return;
+                    }
+                    setCreatingLead(true);
+                    try {
+                      const token = crypto.randomUUID().replace(/-/g, "").slice(0, 32);
+                      const trialEnds = new Date();
+                      trialEnds.setDate(trialEnds.getDate() + 30);
+
+                      const { data: newLead, error } = await supabase.from("leads_trials").insert({
+                        contact_name: contact.full_name,
+                        business_name: leadForm.business_name,
+                        business_type: leadForm.business_type || null,
+                        city: leadForm.city || null,
+                        country: leadForm.country,
+                        phone: contact.phone,
+                        email: contact.email,
+                        source: "crm_manual",
+                        status: "activation_completed",
+                        trial_ends_at: trialEnds.toISOString(),
+                        activation_token: token,
+                      }).select("id").single();
+
+                      if (error) throw error;
+
+                      // Link contact to lead
+                      await supabase.from("contacts").update({
+                        lead_id: newLead.id,
+                      }).eq("id", contact.id);
+
+                      toast({ title: "✅ Lead creado", description: "Ahora puedes gestionar credenciales en Demos Activas." });
+                      setShowLeadDialog(false);
+                      onUpdate();
+                    } catch (err) {
+                      console.error(err);
+                      toast({ title: "Error al crear lead", variant: "destructive" });
+                    } finally {
+                      setCreatingLead(false);
+                    }
+                  }}
+                  className="bg-primary hover:bg-primary/90"
+                >
+                  {creatingLead ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Rocket className="mr-2 h-4 w-4" />}
+                  {creatingLead ? "Creando..." : "Crear Lead y Demo"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </>
+      )}
+
+      {contact.lead_id && (
+        <div className="flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-xs">
+          <Rocket className="h-3.5 w-3.5 text-primary" />
+          <span className="text-primary font-medium">Vinculado a Leads/Demos</span>
         </div>
       )}
 
