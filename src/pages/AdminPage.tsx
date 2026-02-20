@@ -32,6 +32,7 @@ const UserActivityView = lazy(() => import("@/components/admin/UserActivityView"
 const WhatsAppNotificationsView = lazy(() => import("@/components/admin/WhatsAppNotificationsView"));
 const AdminSubscriptionsView = lazy(() => import("@/components/admin/AdminSubscriptionsView"));
 const AdminContractsView = lazy(() => import("@/components/admin/AdminContractsView"));
+const TagsView = lazy(() => import("@/components/admin/catalog/TagsView"));
 
 function Loader() {
   return (
@@ -51,6 +52,7 @@ export default function AdminPage() {
             <Route path="productos" element={<ProductsView />} />
             <Route path="marcas" element={<BrandsView />} />
             <Route path="categorias" element={<CategoriesView />} />
+            <Route path="etiquetas" element={<TagsView />} />
             <Route path="licencias" element={<LicensesView />} />
             <Route path="precios-licencias" element={<LicensePricingView />} />
             <Route path="leads" element={<Navigate to="/admin/contactos" replace />} />

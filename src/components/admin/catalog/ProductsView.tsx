@@ -17,11 +17,12 @@ import {
 import { toast } from "sonner";
 import {
   Plus, Pencil, Trash2, Package, Search, Image, Eye, EyeOff,
-  Star, Sparkles, Grid3X3, List, Puzzle,
+  Star, Sparkles, Grid3X3, List, Puzzle, Hash,
 } from "lucide-react";
 import ProductFormDialog from "./ProductFormDialog";
 import ProductCSVTools from "./ProductCSVTools";
 import PlanModulesManager from "./PlanModulesManager";
+import TagsView from "./TagsView";
 
 interface Product {
   id: string;
@@ -135,6 +136,9 @@ export default function ProductsView() {
           </TabsTrigger>
           <TabsTrigger value="modules" className="gap-1.5">
             <Puzzle className="h-4 w-4" /> Módulos de Plan
+          </TabsTrigger>
+          <TabsTrigger value="tags" className="gap-1.5">
+            <Hash className="h-4 w-4" /> Etiquetas
           </TabsTrigger>
         </TabsList>
 
@@ -377,6 +381,10 @@ export default function ProductsView() {
 
         <TabsContent value="modules" className="mt-4">
           <PlanModulesManager />
+        </TabsContent>
+
+        <TabsContent value="tags" className="mt-4">
+          <TagsView />
         </TabsContent>
       </Tabs>
     </div>
