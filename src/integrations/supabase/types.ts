@@ -393,6 +393,42 @@ export type Database = {
         }
         Relationships: []
       }
+      catalog_product_modules: {
+        Row: {
+          created_at: string
+          id: string
+          module_id: string
+          product_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          module_id: string
+          product_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          module_id?: string
+          product_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "catalog_product_modules_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "plan_modules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "catalog_product_modules_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "catalog_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       catalog_products: {
         Row: {
           availability: string | null
@@ -1685,6 +1721,54 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      plan_modules: {
+        Row: {
+          allowed_plan_keys: string[]
+          created_at: string
+          description: string | null
+          icon: string
+          id: string
+          is_active: boolean
+          is_free: boolean
+          is_included_in_plans: string[]
+          name: string
+          price_cop: number
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          allowed_plan_keys?: string[]
+          created_at?: string
+          description?: string | null
+          icon?: string
+          id?: string
+          is_active?: boolean
+          is_free?: boolean
+          is_included_in_plans?: string[]
+          name: string
+          price_cop?: number
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          allowed_plan_keys?: string[]
+          created_at?: string
+          description?: string | null
+          icon?: string
+          id?: string
+          is_active?: boolean
+          is_free?: boolean
+          is_included_in_plans?: string[]
+          name?: string
+          price_cop?: number
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
       }
       product_events: {
         Row: {

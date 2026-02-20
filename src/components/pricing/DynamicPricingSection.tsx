@@ -4,6 +4,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSearchParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { CouponBanner } from "@/components/pricing/CouponBanner";
 import {
   MessageCircle,
@@ -18,6 +20,9 @@ import {
   Sparkles,
   GraduationCap,
   Info,
+  Puzzle,
+  Lock,
+  Gift,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
@@ -50,6 +55,13 @@ const planIncludes = [
 export function DynamicPricingSection() {
   const { buildUrl } = useWhatsAppConfig();
   const { data: plans = [], isLoading } = useLicensePricing();
+  const { data: allModules = [] } = useQuery({
+    queryKey: ["plan_modules_public"],
+    queryFn: async () => {
+      const { data } = await supabase.from("plan_modules").select("*").eq("is_active", true).order("sort_order");
+      return data || [];
+    },
+  });
   const [searchParams] = useSearchParams();
   const cuponFromUrl = searchParams.get("cupon");
 
@@ -207,6 +219,45 @@ export function DynamicPricingSection() {
                             <GraduationCap className="h-4 w-4 text-whatsapp shrink-0" />
                             <span>Capacitación a tu equipo incluida</span>
                           </div>
+                          {/* Módulos add-on del plan */}
+                          {allModules.filter((m: any) =>
+                            m.allowed_plan_keys.length === 0 || m.allowed_plan_keys.includes(plan.plan_key)
+                          ).length > 0 && (
+                            <div className="border-t pt-3 mt-2 space-y-1.5">
+                              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                                Módulos del software
+                              </p>
+                              {allModules
+                                .filter((m: any) =>
+                                  m.allowed_plan_keys.length === 0 || m.allowed_plan_keys.includes(plan.plan_key)
+                                )
+                                .map((m: any) => {
+                                  const isIncluded = m.is_included_in_plans.includes(plan.plan_key);
+                                  return (
+                                    <div key={m.id} className="flex items-center gap-2 text-sm">
+                                      {isIncluded ? (
+                                        <CheckCircle2 className="h-3.5 w-3.5 text-whatsapp shrink-0" />
+                                      ) : (
+                                        <Puzzle className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                                      )}
+                                      <span className={isIncluded ? "" : "text-muted-foreground"}>
+                                        {m.name}
+                                        {!isIncluded && m.price_cop > 0 && (
+                                          <span className="ml-1 text-xs font-medium text-primary">
+                                            +{formatCOP(m.price_cop)}
+                                          </span>
+                                        )}
+                                        {!isIncluded && m.price_cop === 0 && (
+                                          <Badge className="ml-1 text-[10px] h-4 px-1 bg-primary/10 text-primary border-0">
+                                            Disponible
+                                          </Badge>
+                                        )}
+                                      </span>
+                                    </div>
+                                  );
+                                })}
+                            </div>
+                          )}
                         </div>
 
                         <Button
@@ -241,9 +292,9 @@ export function DynamicPricingSection() {
             className="space-y-8"
           >
             {/* Warning banner */}
-            <div className="rounded-xl border border-amber-300 bg-amber-50 dark:bg-amber-950/40 dark:border-amber-700 p-4 text-center max-w-3xl mx-auto">
-              <p className="text-sm text-amber-900 dark:text-amber-100 font-medium">
-                <Info className="inline h-4 w-4 mr-1 -mt-0.5 text-amber-600 dark:text-amber-400" />
+            <div className="rounded-xl border border-border bg-muted/60 p-4 text-center max-w-3xl mx-auto">
+              <p className="text-sm text-foreground font-medium">
+                <Info className="inline h-4 w-4 mr-1 -mt-0.5 text-muted-foreground" />
                 La licencia por sí sola <strong>no incluye</strong> instalación, capacitación ni soporte.
                 Si eres nuevo, te recomendamos un <strong>Plan Todo Incluido</strong> para arrancar sin complicaciones.
               </p>

@@ -7,6 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -17,7 +19,7 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
-import { Plus, X, Upload, Search, Globe } from "lucide-react";
+import { Plus, X, Upload, Search, Globe, Puzzle, Gift, Lock } from "lucide-react";
 
 interface Props {
   open: boolean;
@@ -172,6 +174,7 @@ export default function ProductFormDialog({ open, onOpenChange, editing, onSaved
               <TabsTrigger value="media">Multimedia</TabsTrigger>
               <TabsTrigger value="pricing">Precios</TabsTrigger>
               <TabsTrigger value="details">Detalles</TabsTrigger>
+              <TabsTrigger value="modules" className="gap-1"><Puzzle className="h-3 w-3" />Módulos</TabsTrigger>
               <TabsTrigger value="seo" className="gap-1"><Search className="h-3 w-3" />SEO</TabsTrigger>
               <TabsTrigger value="merchant" className="gap-1"><Globe className="h-3 w-3" />Merchant</TabsTrigger>
             </TabsList>
@@ -419,6 +422,11 @@ export default function ProductFormDialog({ open, onOpenChange, editing, onSaved
               </div>
             </TabsContent>
 
+            {/* === MODULES TAB === */}
+            <TabsContent value="modules" className="space-y-4">
+              <PlanModulesTab productId={editing?.id} />
+            </TabsContent>
+
             {/* === SEO TAB === */}
             <TabsContent value="seo" className="space-y-4">
               <div className="space-y-1.5">
@@ -519,5 +527,85 @@ export default function ProductFormDialog({ open, onOpenChange, editing, onSaved
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+/* ─── PLAN MODULES TAB ─── */
+function PlanModulesTab({ productId }: { productId?: string }) {
+  const { data: allModules = [] } = useQuery({
+    queryKey: ["plan_modules_public"],
+    queryFn: async () => {
+      const { data } = await supabase.from("plan_modules").select("*").order("sort_order");
+      return data || [];
+    },
+  });
+
+  const { data: linked = [], refetch } = useQuery({
+    queryKey: ["product_modules", productId],
+    enabled: !!productId,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("catalog_product_modules")
+        .select("module_id")
+        .eq("product_id", productId!);
+      return (data || []).map((r: any) => r.module_id as string);
+    },
+  });
+
+  const toggle = async (moduleId: string, checked: boolean) => {
+    if (!productId) { toast.info("Guarda el producto primero para asociar módulos"); return; }
+    if (checked) {
+      await supabase.from("catalog_product_modules").insert({ product_id: productId, module_id: moduleId });
+    } else {
+      await supabase.from("catalog_product_modules").delete().eq("product_id", productId).eq("module_id", moduleId);
+    }
+    refetch();
+  };
+
+  if (!productId) {
+    return (
+      <div className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
+        <Puzzle className="h-8 w-8 mx-auto mb-2 opacity-30" />
+        Guarda el producto primero para asociarle módulos de plan.
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      <p className="text-sm text-muted-foreground">
+        Selecciona los módulos relacionados con este producto. Aparecerán en las tarjetas de precios de licencias.
+      </p>
+      {allModules.map((m: any) => {
+        const isLinked = linked.includes(m.id);
+        return (
+          <div key={m.id} className="flex items-start gap-3 p-3 rounded-lg border hover:bg-muted/30 transition-colors">
+            <Checkbox
+              id={`mod-${m.id}`}
+              checked={isLinked}
+              onCheckedChange={(v) => toggle(m.id, !!v)}
+              className="mt-0.5"
+            />
+            <label htmlFor={`mod-${m.id}`} className="flex-1 cursor-pointer space-y-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="font-medium text-sm">{m.name}</span>
+                {m.is_free ? (
+                  <Badge className="bg-primary/10 text-primary border-0 text-xs gap-1">
+                    <Gift className="h-3 w-3" /> Incluido
+                  </Badge>
+                ) : (
+                  <Badge variant="secondary" className="text-xs gap-1">
+                    <Lock className="h-3 w-3" /> Add-on
+                  </Badge>
+                )}
+              </div>
+              {m.description && (
+                <p className="text-xs text-muted-foreground">{m.description}</p>
+              )}
+            </label>
+          </div>
+        );
+      })}
+    </div>
   );
 }
