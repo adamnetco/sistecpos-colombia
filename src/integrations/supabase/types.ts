@@ -279,6 +279,45 @@ export type Database = {
         }
         Relationships: []
       }
+      businesses: {
+        Row: {
+          address: string | null
+          business_name: string
+          city: string | null
+          created_at: string
+          email: string | null
+          id: string
+          nit: string | null
+          owner_user_id: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          business_name: string
+          city?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          nit?: string | null
+          owner_user_id: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          business_name?: string
+          city?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          nit?: string | null
+          owner_user_id?: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       catalog_brands: {
         Row: {
           created_at: string
@@ -833,6 +872,56 @@ export type Database = {
             columns: ["reseller_id"]
             isOneToOne: false
             referencedRelation: "reseller_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contracts: {
+        Row: {
+          business_id: string | null
+          contract_type: string
+          created_at: string
+          expires_at: string | null
+          id: string
+          notes: string | null
+          pdf_url: string | null
+          signed_at: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          business_id?: string | null
+          contract_type?: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          notes?: string | null
+          pdf_url?: string | null
+          signed_at?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string | null
+          contract_type?: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          notes?: string | null
+          pdf_url?: string | null
+          signed_at?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contracts_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
             referencedColumns: ["id"]
           },
         ]
@@ -1572,6 +1661,7 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          business_id: string | null
           created_at: string
           email: string | null
           full_name: string | null
@@ -1582,6 +1672,7 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          business_id?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
@@ -1592,6 +1683,7 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          business_id?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
@@ -1600,7 +1692,15 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       reseller_applications: {
         Row: {
@@ -2073,6 +2173,97 @@ export type Database = {
           website?: string | null
         }
         Relationships: []
+      }
+      support_subscriptions: {
+        Row: {
+          billing_anchor_day: number | null
+          business_id: string | null
+          created_at: string
+          current_period_end: string | null
+          current_period_start: string | null
+          id: string
+          payment_method: string | null
+          plan: string
+          price_cop: number
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          billing_anchor_day?: number | null
+          business_id?: string | null
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          payment_method?: string | null
+          plan?: string
+          price_cop?: number
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          billing_anchor_day?: number | null
+          business_id?: string | null
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          payment_method?: string | null
+          plan?: string
+          price_cop?: number
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_subscriptions_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ticket_messages: {
+        Row: {
+          attachment_url: string | null
+          content: string
+          created_at: string
+          id: string
+          sender_id: string
+          sender_role: string
+          ticket_id: string
+        }
+        Insert: {
+          attachment_url?: string | null
+          content: string
+          created_at?: string
+          id?: string
+          sender_id: string
+          sender_role?: string
+          ticket_id: string
+        }
+        Update: {
+          attachment_url?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          sender_id?: string
+          sender_role?: string
+          ticket_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_messages_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "client_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tracking_scripts: {
         Row: {

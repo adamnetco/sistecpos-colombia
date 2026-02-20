@@ -72,22 +72,33 @@ export default function ClientSubscriptionTab() {
   const { user } = useAuth();
   const { buildUrl } = useWhatsAppConfig();
   const [license, setLicense] = useState<LicenseInfo | null>(null);
+  const [activeSub, setActiveSub] = useState<{ plan: string; price_cop: number; current_period_end: string | null } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!user) return;
-    supabase
-      .from("licenses")
-      .select("plan_type, status, business_name, expires_at, start_date")
-      .eq("contact_email", user.email ?? "")
-      .eq("status", "active")
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .then(({ data }) => {
-        setLicense(data?.[0] ?? null);
-        setLoading(false);
-      });
+    Promise.all([
+      supabase
+        .from("licenses")
+        .select("plan_type, status, business_name, expires_at, start_date")
+        .eq("contact_email", user.email ?? "")
+        .eq("status", "active")
+        .order("created_at", { ascending: false })
+        .limit(1),
+      supabase
+        .from("support_subscriptions")
+        .select("plan, price_cop, current_period_end")
+        .eq("user_id", user.id)
+        .eq("status", "active")
+        .limit(1),
+    ]).then(([licRes, subRes]) => {
+      setLicense(licRes.data?.[0] ?? null);
+      setActiveSub(subRes.data?.[0] ?? null);
+      setLoading(false);
+    });
   }, [user]);
+
+  const activePlanKey = activeSub?.plan ?? "autogestion";
 
   function handleUpgrade(planName: string) {
     const msg = `Hola, me interesa el plan de soporte "${planName}" para mi negocio. Mi correo es ${user?.email}`;
@@ -137,6 +148,9 @@ export default function ClientSubscriptionTab() {
         <h3 className="text-lg font-semibold mb-1">Planes de Soporte Técnico</h3>
         <p className="text-sm text-muted-foreground mb-4">
           Elige el nivel de acompañamiento que necesita tu negocio.
+          {activeSub?.current_period_end && (
+            <span className="block mt-1">Próximo cobro: {new Date(activeSub.current_period_end).toLocaleDateString("es-CO")}</span>
+          )}
         </p>
 
         <div className="grid gap-4 md:grid-cols-3">
@@ -180,7 +194,9 @@ export default function ClientSubscriptionTab() {
                   </ul>
                 </CardContent>
                 <CardFooter className="pt-0">
-                  {plan.price === 0 ? (
+                  {(plan.price === 0 && activePlanKey === "autogestion") ||
+                   (plan.name === "Tranquilidad" && activePlanKey === "tranquilidad") ||
+                   (plan.name === "Socio Estratégico" && activePlanKey === "socio_estrategico") ? (
                     <Button variant="outline" className="w-full" disabled>
                       Plan Actual
                     </Button>
@@ -189,7 +205,7 @@ export default function ClientSubscriptionTab() {
                       className={`w-full ${plan.highlighted ? "gradient-bg text-primary-foreground" : ""}`}
                       onClick={() => handleUpgrade(plan.name)}
                     >
-                      Actualizar Plan
+                      {plan.price === 0 ? "Cambiar a este plan" : "Actualizar Plan"}
                     </Button>
                   )}
                 </CardFooter>

@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, Monitor, TicketCheck, GraduationCap, Download, CreditCard, ShieldCheck, LogOut } from "lucide-react";
+import { LayoutDashboard, Monitor, TicketCheck, GraduationCap, Download, CreditCard, ShieldCheck, ScrollText, LogOut } from "lucide-react";
 import { ClientPOSAccess } from "./ClientPOSAccess";
 
 const ClientDashboardTab = lazy(() => import("./ClientDashboardTab"));
@@ -12,6 +12,7 @@ const ClientTicketsTab = lazy(() => import("./ClientTicketsTab"));
 const ClientTrainingsTab = lazy(() => import("./ClientTrainingsTab"));
 const ClientDownloadsTab = lazy(() => import("./ClientDownloadsTab"));
 const ClientBillingTab = lazy(() => import("./ClientBillingTab"));
+const ClientContractsTab = lazy(() => import("./ClientContractsTab"));
 
 function Loader() {
   return <div className="flex h-32 items-center justify-center"><div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>;
@@ -55,6 +56,7 @@ export function ClientPortal() {
               <TabsTrigger value="subscription" className="gap-2"><ShieldCheck className="h-4 w-4" />Suscripción</TabsTrigger>
               <TabsTrigger value="tickets" className="gap-2"><TicketCheck className="h-4 w-4" />Soporte</TabsTrigger>
               <TabsTrigger value="billing" className="gap-2"><CreditCard className="h-4 w-4" />Facturación</TabsTrigger>
+              <TabsTrigger value="contracts" className="gap-2"><ScrollText className="h-4 w-4" />Contratos</TabsTrigger>
               <TabsTrigger value="trainings" className="gap-2"><GraduationCap className="h-4 w-4" />Entrenamientos</TabsTrigger>
               <TabsTrigger value="downloads" className="gap-2"><Download className="h-4 w-4" />Descargas</TabsTrigger>
             </TabsList>
@@ -64,6 +66,7 @@ export function ClientPortal() {
             <TabsContent value="subscription"><Suspense fallback={<Loader />}><ClientSubscriptionTab /></Suspense></TabsContent>
             <TabsContent value="tickets"><Suspense fallback={<Loader />}><ClientTicketsTab /></Suspense></TabsContent>
             <TabsContent value="billing"><Suspense fallback={<Loader />}><ClientBillingTab /></Suspense></TabsContent>
+            <TabsContent value="contracts"><Suspense fallback={<Loader />}><ClientContractsTab /></Suspense></TabsContent>
             <TabsContent value="trainings"><Suspense fallback={<Loader />}><ClientTrainingsTab /></Suspense></TabsContent>
             <TabsContent value="downloads"><Suspense fallback={<Loader />}><ClientDownloadsTab /></Suspense></TabsContent>
           </Tabs>
