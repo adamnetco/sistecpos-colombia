@@ -11,7 +11,7 @@ import {
   Printer, Tag, CircleDollarSign, Barcode, ScrollText,
   MessageCircle, CheckCircle2, FileText, ArrowRight,
   Sparkles, Crown, Building2, ShoppingCart, Truck,
-  TrendingDown, CalendarClock, Puzzle, Gift, Lock,
+  TrendingDown, CalendarClock, Puzzle, Gift, BookOpen, Store, ShoppingBag, Box,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useCart } from "@/hooks/useCart";
@@ -29,6 +29,22 @@ interface ModuleInfo {
   is_free: boolean;
   price_cop: number;
   slug: string;
+}
+
+interface PlanModule {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  icon: string;
+  is_free: boolean;
+  price_cop: number;
+  is_included_in_plans: string[];
+  allowed_plan_keys: string[];
+  show_in_catalog: boolean;
+  is_active: boolean;
+  sort_order: number;
+  _isModule: true;
 }
 
 interface DBProduct {
@@ -266,9 +282,84 @@ const ProductCard = ({ product, index }: { product: DBProduct; index: number }) 
   );
 };
 
+// ─── Module icon map ───
+const MODULE_ICON_MAP: Record<string, React.ElementType> = {
+  BookOpen, Store, FileText, ShoppingBag, Box, Puzzle,
+};
+const getModuleIcon = (icon: string) => MODULE_ICON_MAP[icon] || Puzzle;
+
+// ─── ModuleCard ───
+const ModuleCard = ({ mod, index }: { mod: PlanModule; index: number }) => {
+  const isPaid = !mod.is_free && mod.price_cop > 0;
+  const ModIcon = getModuleIcon(mod.icon);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, delay: index * 0.05 }}
+    >
+      <Card className="h-full flex flex-col border-0 shadow-card hover:shadow-card-hover transition-all hover:-translate-y-1 relative overflow-hidden">
+        <div className="absolute top-0 right-0 z-10 p-2">
+          <Badge className="bg-primary/10 text-primary border-0 text-xs">
+            <Puzzle className="h-3 w-3 mr-1" />Módulo
+          </Badge>
+        </div>
+
+        <CardContent className="p-5 flex-1">
+          {/* Icon */}
+          <div className="mb-4">
+            <div className="w-11 h-11 rounded-xl flex items-center justify-center bg-gradient-to-br from-primary/20 to-primary/5">
+              <ModIcon className="h-5 w-5 text-primary" />
+            </div>
+          </div>
+
+          <h3 className="font-semibold text-base mb-1.5 leading-tight">{mod.name}</h3>
+          <p className="text-muted-foreground text-sm mb-4 line-clamp-2">{mod.description}</p>
+
+          {/* Included in plans */}
+          {mod.is_included_in_plans.length > 0 && (
+            <div className="mb-3 flex items-center gap-1.5 text-xs text-whatsapp">
+              <Gift className="h-3 w-3 shrink-0" />
+              <span>Incluido en {mod.is_included_in_plans.length} plan{mod.is_included_in_plans.length > 1 ? "es" : ""}</span>
+            </div>
+          )}
+
+          {/* Pricing */}
+          <div className="mt-auto pt-4 border-t space-y-1.5">
+            {isPaid ? (
+              <>
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-2xl font-black text-primary">{formatPrice(mod.price_cop)}</span>
+                  <span className="text-xs font-medium text-muted-foreground">COP</span>
+                </div>
+                <p className="text-[11px] text-muted-foreground">Complemento adicional a tu licencia</p>
+              </>
+            ) : (
+              <div className="flex items-center gap-1.5">
+                <Gift className="h-4 w-4 text-whatsapp shrink-0" />
+                <span className="text-sm font-semibold text-whatsapp">Incluido en el plan</span>
+              </div>
+            )}
+          </div>
+        </CardContent>
+
+        <CardFooter className="p-5 pt-0">
+          <Button variant="outline" size="sm" className="w-full gap-1" asChild>
+            <Link to={`/productos/modulo-${mod.slug}`}>
+              Ver detalle <ArrowRight className="h-4 w-4" />
+            </Link>
+          </Button>
+        </CardFooter>
+      </Card>
+    </motion.div>
+  );
+};
+
 const ProductosPage = () => {
   const { buildUrl } = useWhatsAppConfig();
-  const { data: products = [], isLoading } = useQuery({
+
+  const { data: products = [], isLoading: loadingProducts } = useQuery({
     queryKey: ["public_catalog_products_with_modules"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -278,7 +369,7 @@ const ProductosPage = () => {
         .order("sort_order");
       if (error) throw error;
 
-      // Fetch modules that should show in catalog
+      // Fetch modules that should show in catalog (for attaching to product cards)
       const { data: catalogModules } = await supabase
         .from("plan_modules")
         .select("id, name, is_free, price_cop, slug")
@@ -287,10 +378,12 @@ const ProductosPage = () => {
 
       // Fetch product-module links
       const productIds = (data || []).map((p: any) => p.id);
-      const { data: links } = await supabase
-        .from("catalog_product_modules")
-        .select("product_id, module_id")
-        .in("product_id", productIds);
+      const { data: links } = productIds.length
+        ? await supabase
+            .from("catalog_product_modules")
+            .select("product_id, module_id")
+            .in("product_id", productIds)
+        : { data: [] };
 
       // Attach modules to each product
       const modulesMap: Record<string, ModuleInfo[]> = {};
@@ -306,13 +399,33 @@ const ProductosPage = () => {
     },
   });
 
-  const maxPrice = useMemo(() => Math.max(...products.map(p => p.price_cop), 1), [products]);
+  // Fetch standalone module catalog entries
+  const { data: catalogModules = [], isLoading: loadingModules } = useQuery({
+    queryKey: ["public_catalog_modules"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("plan_modules")
+        .select("id, name, slug, description, icon, is_free, price_cop, is_included_in_plans, allowed_plan_keys, show_in_catalog, is_active, sort_order")
+        .eq("is_active", true)
+        .eq("show_in_catalog", true)
+        .order("sort_order");
+      if (error) throw error;
+      return (data || []).map((m: any) => ({ ...m, _isModule: true as const })) as PlanModule[];
+    },
+  });
+
+  const isLoading = loadingProducts || loadingModules;
+
+  const allPrices = useMemo(
+    () => [...products.map(p => p.price_cop), ...catalogModules.filter(m => m.price_cop > 0).map(m => m.price_cop)],
+    [products, catalogModules]
+  );
+  const maxPrice = useMemo(() => Math.max(...allPrices, 1), [allPrices]);
 
   const [filters, setFilters] = useState<ProductFiltersState>({
     search: "", category: "all", brand: "all", priceRange: [0, 99999999], offersOnly: false,
   });
 
-  // When products load, adjust max price
   const effectiveMaxPrice = maxPrice > 1 ? maxPrice : 99999999;
 
   const categories = useMemo(() => {
@@ -329,7 +442,8 @@ const ProductosPage = () => {
       .map(p => ({ name: p.catalog_brands!.name }));
   }, [products]);
 
-  const filtered = useMemo(() => {
+  // Filter products
+  const filteredProducts = useMemo(() => {
     return products.filter(p => {
       if (filters.search) {
         const s = filters.search.toLowerCase();
@@ -342,6 +456,23 @@ const ProductosPage = () => {
       return true;
     });
   }, [products, filters]);
+
+  // Filter modules (only show if no category/brand filter active; search by name/description)
+  const filteredModules = useMemo(() => {
+    if (filters.offersOnly) return [];
+    if (filters.category !== "all") return [];
+    if (filters.brand !== "all") return [];
+    return catalogModules.filter(m => {
+      if (filters.search) {
+        const s = filters.search.toLowerCase();
+        if (!m.name.toLowerCase().includes(s) && !m.description?.toLowerCase().includes(s)) return false;
+      }
+      if (m.price_cop < filters.priceRange[0]) return false;
+      return true;
+    });
+  }, [catalogModules, filters]);
+
+  const totalItems = filteredProducts.length + filteredModules.length;
 
   return (
     <Layout>
@@ -387,7 +518,7 @@ const ProductosPage = () => {
                 maxPrice={effectiveMaxPrice}
               />
 
-              {filtered.length === 0 ? (
+              {totalItems === 0 ? (
                 <div className="py-16 text-center text-muted-foreground">
                   <p className="text-lg">No se encontraron productos con esos filtros</p>
                   <Button variant="outline" className="mt-4" onClick={() => setFilters({ search: "", category: "all", brand: "all", priceRange: [0, effectiveMaxPrice], offersOnly: false })}>
@@ -396,14 +527,17 @@ const ProductosPage = () => {
                 </div>
               ) : (
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {filtered.map((product, index) => (
+                  {filteredProducts.map((product, index) => (
                     <ProductCard key={product.id} product={product} index={index} />
+                  ))}
+                  {filteredModules.map((mod, index) => (
+                    <ModuleCard key={`mod-${mod.id}`} mod={mod} index={filteredProducts.length + index} />
                   ))}
                 </div>
               )}
 
               <p className="text-center text-sm text-muted-foreground mt-6">
-                Mostrando {filtered.length} de {products.length} productos
+                Mostrando {totalItems} de {products.length + catalogModules.length} productos y módulos
               </p>
             </>
           )}
