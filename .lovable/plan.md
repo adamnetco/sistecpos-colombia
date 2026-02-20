@@ -1,133 +1,124 @@
 
-# Plan: Ecosistema Centralizado del Portal de Clientes
+# Audit y Plan: Mejora del Portal de Socios (/socio)
 
-## Resumen Ejecutivo
+## Auditoria Comparativa: Portal Clientes vs Portal Socios
 
-Crear la infraestructura completa para el portal de clientes de SistecPOS con 4 nuevas tablas, chat de soporte en tiempo real, y refactorización de los componentes existentes.
+### Lo que tiene el Portal de Clientes (avanzado)
+| Funcionalidad | Estado |
+|---|---|
+| Dashboard con metricas (plan activo, estado cuenta, tickets) | Implementado |
+| Suscripcion con planes de soporte (Autogestion/Tranquilidad/Socio Estrategico) | Implementado |
+| Chat de tickets en tiempo real (ticket_messages + Realtime) | Implementado |
+| Facturacion con historial de pagos | Implementado |
+| Contratos/SLA con descarga de PDF | Implementado |
+| Vinculacion a tabla `businesses` | Implementado |
 
-## Fase 1: Base de Datos (Migración)
+### Lo que tiene el Portal de Socios (basico)
+| Funcionalidad | Estado | Brecha |
+|---|---|---|
+| Dashboard basico con 4 KPIs + grafico barras | OK pero limitado | Falta plan de soporte, estado de cuenta, accesos rapidos inteligentes |
+| Tickets con dialog estatico (admin_response unico) | Obsoleto | No usa `ticket_messages` ni Realtime como clientes |
+| Comisiones con tabla basica | OK | Falta resumen ejecutivo y tendencia |
+| Licencias con CRUD completo | Bien implementado | Solo falta vincular con `businesses` |
+| Entrenamientos (reutiliza TrainingVideoHub) | OK | Sin brechas |
+| Solicitar Demo (formulario independiente) | OK | Sin brechas |
+| Sin tab de "Perfil de Negocio" | No existe | El socio no puede ver/editar sus datos |
+| Sin tab de "Contratos" | No existe | No puede ver SLAs firmados |
+| Sin vinculacion a `businesses` | No existe | No hay perfil de empresa |
 
-### Tabla `businesses`
-Entidad central del negocio del cliente. Un negocio puede tener varios usuarios.
+### Brechas Criticas Detectadas
 
-| Columna | Tipo | Descripcion |
-|---------|------|-------------|
-| id | UUID PK | Identificador unico |
-| owner_user_id | UUID | Usuario principal (auth.uid) |
-| business_name | TEXT | Razon social |
-| nit | TEXT | NIT del negocio |
-| phone | TEXT | Telefono del negocio |
-| email | TEXT | Correo corporativo |
-| city | TEXT | Ciudad |
-| address | TEXT | Direccion |
-| created_at / updated_at | TIMESTAMPTZ | Fechas de control |
+1. **Tickets sin chat Realtime**: El socio usa `reseller_tickets` con `admin_response` (campo unico), mientras los clientes ya tienen hilo de mensajes con `ticket_messages` + Realtime. Inconsistencia grave.
 
-- RLS: El propietario puede ver/editar su negocio. Admins acceso total.
+2. **Sin perfil de empresa**: El socio no puede ver ni editar su NIT, razon social, telefono. No esta vinculado a `businesses`.
 
-### Tabla `support_subscriptions`
-Suscripciones de soporte separadas de las licencias del software.
+3. **Sin contratos**: No tiene acceso a sus SLAs/contratos firmados.
 
-| Columna | Tipo | Descripcion |
-|---------|------|-------------|
-| id | UUID PK | Identificador unico |
-| business_id | UUID FK | Referencia a businesses |
-| user_id | UUID | Usuario que contrato |
-| plan | TEXT | autogestion, tranquilidad, socio_estrategico |
-| status | TEXT | active, cancelled, past_due |
-| price_cop | INTEGER | Valor mensual en COP |
-| billing_anchor_day | INTEGER | Dia de corte (1-28) |
-| current_period_start | DATE | Inicio del periodo actual |
-| current_period_end | DATE | Fin del periodo actual |
-| payment_method | TEXT | wompi, mercadopago, manual |
-| created_at / updated_at | TIMESTAMPTZ | Control |
+4. **Dashboard limitado**: No muestra plan de soporte, no tiene alertas inteligentes ni accesos contextuales.
 
-- RLS: Usuario ve su propia suscripcion. Admins acceso total.
+---
 
-### Tabla `contracts`
-Contratos/SLA firmados.
+## Plan de Implementacion
 
-| Columna | Tipo | Descripcion |
-|---------|------|-------------|
-| id | UUID PK | Identificador unico |
-| business_id | UUID FK | Referencia a businesses |
-| contract_type | TEXT | sla_soporte, licencia, otro |
-| title | TEXT | Nombre del contrato |
-| signed_at | DATE | Fecha de firma |
-| expires_at | DATE | Fecha de vencimiento (nullable) |
-| pdf_url | TEXT | URL del documento firmado |
-| status | TEXT | active, expired, cancelled |
-| notes | TEXT | Observaciones |
-| created_at / updated_at | TIMESTAMPTZ | Control |
+### Fase 1: Base de Datos
 
-- RLS: Visibles para el owner del business. Admins acceso total.
+**1.1 Vincular socios a `businesses`**
+- Cuando un socio accede al portal, si no tiene `business_id` en su perfil, crear automaticamente un registro en `businesses` usando los datos de `reseller_applications` (full_name, email, phone, city).
+- Esto permite que el socio comparta la infraestructura de contratos y suscripciones con clientes.
 
-### Tabla `ticket_messages`
-Hilo de conversacion dentro de cada ticket. Reemplaza el campo unico `admin_response`.
+**1.2 Agregar soporte de `ticket_messages` para `reseller_tickets`**
+- La tabla `ticket_messages` ya tiene `ticket_id UUID` que referencia a `client_tickets`. Necesitamos hacerla generica:
+  - Agregar columna `ticket_source TEXT DEFAULT 'client'` (valores: 'client', 'reseller') a `ticket_messages`
+  - Actualizar RLS para que socios puedan leer/escribir mensajes de sus propios tickets
+  - Esto evita crear una tabla duplicada y unifica la experiencia de chat
 
-| Columna | Tipo | Descripcion |
-|---------|------|-------------|
-| id | UUID PK | Identificador unico |
-| ticket_id | UUID FK | Referencia a client_tickets |
-| sender_id | UUID | auth.uid del emisor |
-| sender_role | TEXT | customer, admin, ai_agent |
-| content | TEXT | Contenido del mensaje |
-| attachment_url | TEXT | Archivo adjunto (nullable) |
-| created_at | TIMESTAMPTZ | Fecha de envio |
+### Fase 2: Nuevos Componentes del Portal Socio
 
-- RLS: El cliente ve mensajes de sus tickets. Admins ven todos. Ambos pueden insertar.
-- **Realtime**: Se habilitara `ALTER PUBLICATION supabase_realtime ADD TABLE public.ticket_messages;`
+**2.1 Dashboard mejorado (`ResellerDashboard.tsx`)**
+- Agregar metrica de "Plan de Soporte" leyendo de `support_subscriptions` via `business_id`
+- Agregar alerta de "Licencias por vencer" con enlace directo
+- Agregar alerta de "Tickets abiertos sin respuesta" 
+- Mejorar accesos rapidos con badges de conteo
 
-### Columna adicional en `profiles`
-- Agregar `business_id UUID` (nullable, FK a businesses) para vincular usuario a su empresa.
+**2.2 Perfil de Empresa (nuevo tab)**
+- Nuevo componente `ResellerProfileView.tsx` con formulario editable:
+  - Razon social, NIT, telefono, email corporativo, ciudad, direccion
+  - Datos del representante (solo lectura, de `reseller_applications`)
+  - Boton "Guardar cambios" que actualiza `businesses`
 
-## Fase 2: Refactorizacion del Frontend
+**2.3 Chat Realtime en Tickets (`ResellerTicketsView.tsx`)**
+- Reemplazar el dialog estatico por `TicketChatView` (reutilizar el componente de clientes adaptandolo)
+- Crear version compartida del chat que reciba `ticketSource: 'client' | 'reseller'` como prop
+- Suscripcion Realtime identica a la del portal de clientes
 
-### 2.1 ClientDashboardTab
-- Agregar metrica de "Plan de Soporte" leyendo de `support_subscriptions`.
-- El boton "Solicitar Soporte" redirigira a la pestana de tickets (ya existe la logica de tabs).
+**2.4 Contratos (nuevo tab)**
+- Reutilizar logica de `ClientContractsTab` adaptada para socio
+- Leer contratos vinculados al `business_id` del socio
 
-### 2.2 ClientSubscriptionTab
-- Leer el plan activo de `support_subscriptions` en vez de asumir "Autogestion" por defecto.
-- Al hacer clic en "Actualizar Plan", registrar interes en la tabla (o redirigir a Wompi/WhatsApp segun el metodo disponible).
-- Mostrar fecha de corte y proximo cobro.
+**2.5 Suscripcion de Soporte (nuevo tab)**
+- Reutilizar estructura de `ClientSubscriptionTab` 
+- Mostrar plan activo del socio desde `support_subscriptions`
+- Mismos 3 planes (Autogestion, Tranquilidad, Socio Estrategico)
 
-### 2.3 ClientTicketsTab (Chat de Soporte)
-- Reemplazar el dialog de "detalle" por una vista de chat con hilo de mensajes (`ticket_messages`).
-- Input para escribir mensajes con soporte para adjuntos.
-- Suscripcion Realtime para ver mensajes nuevos al instante.
-- Indicador visual de quien escribe (cliente, admin, agente IA).
-- Mantener el formulario de creacion de ticket existente intacto.
+### Fase 3: Actualizacion de Layout y Navegacion
 
-### 2.4 ClientBillingTab
-- Ademas de pagos por licencia, mostrar pagos vinculados a `support_subscriptions`.
-- Mostrar proximo cobro pendiente segun la fecha de corte.
+**3.1 Sidebar del socio (`ResellerLayout.tsx`)**
+Agregar nuevos items de navegacion:
+- "Mi Empresa" (nuevo) -> /socio/empresa
+- "Suscripcion" (nuevo) -> /socio/suscripcion  
+- "Contratos" (nuevo) -> /socio/contratos
+- Los existentes se mantienen (Licencias, Entrenamientos, Tickets, Comisiones, Solicitar Demo)
 
-### 2.5 Nuevo: Pestana "Contratos"
-- Agregar tab "Contratos" al portal mostrando lista de contratos con descarga de PDF.
-- UI simple: lista de cards con titulo, tipo, fecha firma, estado y boton "Ver PDF".
+**3.2 Rutas (`ResellerPage.tsx`)**
+Agregar rutas para los nuevos componentes.
 
-## Fase 3: Integraciones
+### Fase 4: Admin
 
-### 3.1 WhatsApp
-- Crear template `support_plan_upgrade` en `whatsapp_templates` para notificar al equipo cuando un cliente solicita upgrade de plan.
-- Crear template `new_ticket_message` para notificar por WhatsApp cuando hay un nuevo mensaje en un ticket.
+**4.1 Actualizar `AdminTicketChatDialog`**
+- Hacerlo compatible con `reseller_tickets` ademas de `client_tickets`
+- Pasar `ticket_source` para filtrar mensajes correctamente
 
-### 3.2 Admin Panel
-- Agregar vista de gestion de `support_subscriptions` en admin.
-- Agregar vista de contratos en admin.
-- Actualizar la vista de tickets del admin para usar el hilo de mensajes en vez del campo `admin_response`.
+---
 
-## Secuencia de Implementacion
+## Resumen de Archivos a Crear/Modificar
 
-1. **Migracion SQL**: Crear las 4 tablas + columna en profiles + RLS + Realtime
-2. **Tipos**: Se actualizan automaticamente con la migracion
-3. **Componentes de cliente**: Refactorizar las 4 pestanas existentes + agregar pestana Contratos
-4. **Templates WhatsApp**: Insertar templates para los nuevos eventos
-5. **Admin**: Actualizar vistas administrativas para las nuevas tablas
+| Archivo | Accion |
+|---|---|
+| Migracion SQL | Crear: columna `ticket_source` en `ticket_messages`, RLS para socios |
+| `ResellerDashboard.tsx` | Modificar: agregar metricas de soporte y alertas |
+| `ResellerProfileView.tsx` | Crear: formulario de perfil de empresa |
+| `ResellerTicketsView.tsx` | Modificar: reemplazar dialog por chat Realtime |
+| `TicketChatView.tsx` | Modificar: hacerlo generico (client/reseller) |
+| `ResellerContractsView.tsx` | Crear: lista de contratos con descarga PDF |
+| `ResellerSubscriptionView.tsx` | Crear: planes de soporte para socios |
+| `ResellerLayout.tsx` | Modificar: agregar 3 nuevos items de nav |
+| `ResellerPage.tsx` | Modificar: agregar 3 nuevas rutas |
+| `AdminTicketChatDialog.tsx` | Modificar: soporte para reseller_tickets |
 
-## Consideraciones de Seguridad
+## Secuencia
 
-- Todas las tablas usan la funcion `has_role()` existente para evitar recursividad en RLS.
-- Los clientes solo ven datos de su propio `user_id` o `business_id`.
-- Los archivos adjuntos de contratos iran al bucket `certificate-docs` (privado) o se crea uno nuevo `contract-docs`.
-- `ticket_messages` con Realtime tendra RLS que filtra por propiedad del ticket.
+1. Migracion SQL (ticket_messages generico + RLS + auto-crear business para socio)
+2. Adaptar TicketChatView para ser reutilizable
+3. Crear los 3 nuevos componentes (Perfil, Contratos, Suscripcion)
+4. Mejorar Dashboard existente
+5. Actualizar Layout, rutas y admin
