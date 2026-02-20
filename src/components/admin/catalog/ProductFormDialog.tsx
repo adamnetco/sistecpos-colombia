@@ -558,8 +558,8 @@ export default function ProductFormDialog({ open, onOpenChange, editing, onSaved
 
 /* ─── PLAN MODULES TAB ─── */
 function PlanModulesTab({ productId }: { productId?: string }) {
-  const { data: allModules = [] } = useQuery({
-    queryKey: ["plan_modules_public"],
+  const { data: allModules = [], refetch: refetchModules } = useQuery({
+    queryKey: ["plan_modules_admin"],
     queryFn: async () => {
       const { data } = await supabase.from("plan_modules").select("*").order("sort_order");
       return data || [];
@@ -588,6 +588,11 @@ function PlanModulesTab({ productId }: { productId?: string }) {
     refetch();
   };
 
+  const toggleShowInCatalog = async (moduleId: string, show: boolean) => {
+    await supabase.from("plan_modules").update({ show_in_catalog: show }).eq("id", moduleId);
+    refetchModules();
+  };
+
   if (!productId) {
     return (
       <div className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
@@ -600,35 +605,51 @@ function PlanModulesTab({ productId }: { productId?: string }) {
   return (
     <div className="space-y-3">
       <p className="text-sm text-muted-foreground">
-        Selecciona los módulos relacionados con este producto. Aparecerán en las tarjetas de precios de licencias.
+        Selecciona los módulos de este producto. El toggle <strong>"Visible en catálogo"</strong> controla si aparece en las tarjetas del catálogo público.
       </p>
       {allModules.map((m: any) => {
         const isLinked = linked.includes(m.id);
         return (
-          <div key={m.id} className="flex items-start gap-3 p-3 rounded-lg border hover:bg-muted/30 transition-colors">
-            <Checkbox
-              id={`mod-${m.id}`}
-              checked={isLinked}
-              onCheckedChange={(v) => toggle(m.id, !!v)}
-              className="mt-0.5"
-            />
-            <label htmlFor={`mod-${m.id}`} className="flex-1 cursor-pointer space-y-1">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="font-medium text-sm">{m.name}</span>
-                {m.is_free ? (
-                  <Badge className="bg-primary/10 text-primary border-0 text-xs gap-1">
-                    <Gift className="h-3 w-3" /> Incluido
-                  </Badge>
-                ) : (
-                  <Badge variant="secondary" className="text-xs gap-1">
-                    <Lock className="h-3 w-3" /> Add-on
-                  </Badge>
+          <div key={m.id} className={`rounded-lg border transition-colors ${isLinked ? "border-primary/30 bg-primary/5" : "hover:bg-muted/30"}`}>
+            {/* Row 1: asociación al producto */}
+            <div className="flex items-start gap-3 p-3">
+              <Checkbox
+                id={`mod-${m.id}`}
+                checked={isLinked}
+                onCheckedChange={(v) => toggle(m.id, !!v)}
+                className="mt-0.5"
+              />
+              <label htmlFor={`mod-${m.id}`} className="flex-1 cursor-pointer space-y-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-medium text-sm">{m.name}</span>
+                  {m.is_free ? (
+                    <Badge className="bg-primary/10 text-primary border-0 text-xs gap-1">
+                      <Gift className="h-3 w-3" /> Incluido
+                    </Badge>
+                  ) : (
+                    <Badge variant="secondary" className="text-xs gap-1">
+                      <Lock className="h-3 w-3" /> Add-on
+                    </Badge>
+                  )}
+                </div>
+                {m.description && (
+                  <p className="text-xs text-muted-foreground">{m.description}</p>
                 )}
+              </label>
+            </div>
+            {/* Row 2: toggle visible en catálogo (solo si está asociado) */}
+            {isLinked && (
+              <div className="border-t px-3 py-2 flex items-center justify-between gap-2 bg-muted/20 rounded-b-lg">
+                <div>
+                  <p className="text-xs font-medium">Visible en catálogo de productos</p>
+                  <p className="text-[11px] text-muted-foreground">Muestra este módulo en las tarjetas del catálogo público</p>
+                </div>
+                <Switch
+                  checked={!!m.show_in_catalog}
+                  onCheckedChange={(v) => toggleShowInCatalog(m.id, v)}
+                />
               </div>
-              {m.description && (
-                <p className="text-xs text-muted-foreground">{m.description}</p>
-              )}
-            </label>
+            )}
           </div>
         );
       })}

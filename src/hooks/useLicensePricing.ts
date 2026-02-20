@@ -13,6 +13,8 @@ export interface LicensePricing {
   is_annual: boolean;
   last_synced_at: string | null;
   image_url: string | null;
+  max_cajas: number | null;
+  max_usuarios: number | null;
 }
 
 export function useLicensePricing() {

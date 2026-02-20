@@ -29,6 +29,7 @@ interface PlanModule {
   is_included_in_plans: string[];
   sort_order: number;
   is_active: boolean;
+  show_in_catalog: boolean;
 }
 
 const defaultForm = {
@@ -42,6 +43,7 @@ const defaultForm = {
   is_included_in_plans: [] as string[],
   sort_order: 0,
   is_active: true,
+  show_in_catalog: false,
 };
 
 export default function PlanModulesManager() {
@@ -83,6 +85,7 @@ export default function PlanModulesManager() {
       is_included_in_plans: m.is_included_in_plans,
       sort_order: m.sort_order,
       is_active: m.is_active,
+      show_in_catalog: m.show_in_catalog,
     });
     setDialogOpen(true);
   };
@@ -312,6 +315,10 @@ export default function PlanModulesManager() {
             <div className="flex items-center gap-3">
               <Switch checked={form.is_active} onCheckedChange={v => set("is_active", v)} />
               <Label>Módulo activo (visible en pricing)</Label>
+            </div>
+            <div className="flex items-center gap-3">
+              <Switch checked={form.show_in_catalog} onCheckedChange={v => set("show_in_catalog", v)} />
+              <Label>Visible en tarjetas de productos del catálogo</Label>
             </div>
             <div>
               <Label>Orden</Label>
