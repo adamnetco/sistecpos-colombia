@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import {
   LayoutDashboard, KeyRound, GraduationCap, TicketCheck,
   DollarSign, LogOut, ChevronLeft, Menu, X, Rocket,
+  Building2, ScrollText, CreditCard,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -15,10 +16,13 @@ import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
 const allNavItems = [
   { name: "Inicio", href: "/socio", icon: LayoutDashboard, exact: true, moduleKey: null },
   { name: "Solicitar Demo", href: "/socio/solicitar-demo", icon: Rocket, moduleKey: null },
+  { name: "Mi Empresa", href: "/socio/empresa", icon: Building2, moduleKey: null },
   { name: "Licencias", href: "/socio/licencias", icon: KeyRound, moduleKey: "licencias" },
   { name: "Entrenamientos", href: "/socio/entrenamientos", icon: GraduationCap, moduleKey: "entrenamientos" },
   { name: "Tickets", href: "/socio/tickets", icon: TicketCheck, moduleKey: "tickets" },
   { name: "Comisiones", href: "/socio/comisiones", icon: DollarSign, moduleKey: "comisiones" },
+  { name: "Suscripción", href: "/socio/suscripcion", icon: CreditCard, moduleKey: null },
+  { name: "Contratos", href: "/socio/contratos", icon: ScrollText, moduleKey: null },
 ];
 
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {

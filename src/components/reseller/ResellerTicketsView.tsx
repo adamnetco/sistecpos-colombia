@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Plus, MessageSquare, Paperclip, X, FileText, Image as ImageIcon, Video, Phone } from "lucide-react";
 import { POS_MODULES } from "@/data/posModules";
+import TicketChatView from "@/components/clientes/TicketChatView";
 
 interface Ticket {
   id: string;
@@ -34,7 +35,7 @@ export default function ResellerTicketsView() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
-  const [detailTarget, setDetailTarget] = useState<Ticket | null>(null);
+  const [chatTicket, setChatTicket] = useState<Ticket | null>(null);
   const [statusFilter, setStatusFilter] = useState<TicketFilter>("all");
   const [attachFile, setAttachFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -83,38 +84,27 @@ export default function ResellerTicketsView() {
     const fd = new FormData(e.currentTarget);
 
     let attachment_url: string | null = null;
-
     if (attachFile) {
       const ext = attachFile.name.split(".").pop();
       const path = `${reseller.id}/${Date.now()}.${ext}`;
-      const { error: upErr } = await supabase.storage
-        .from("ticket-attachments")
-        .upload(path, attachFile, { upsert: false });
-
+      const { error: upErr } = await supabase.storage.from("ticket-attachments").upload(path, attachFile, { upsert: false });
       if (upErr) {
         toast({ title: "Error al subir archivo", description: upErr.message, variant: "destructive" });
         setUploading(false);
         return;
       }
-
-      const { data: urlData } = supabase.storage
-        .from("ticket-attachments")
-        .getPublicUrl(path);
+      const { data: urlData } = supabase.storage.from("ticket-attachments").getPublicUrl(path);
       attachment_url = urlData.publicUrl;
     }
-
-    const module = fd.get("module") as string;
-    const whatsapp = (fd.get("whatsapp") as string)?.trim() || null;
-    const video_url = (fd.get("video_url") as string)?.trim() || null;
 
     const { error } = await supabase.from("reseller_tickets").insert({
       reseller_id: reseller.id,
       subject: fd.get("subject") as string,
       description: fd.get("description") as string,
       priority: fd.get("priority") as string,
-      module: module || null,
-      whatsapp,
-      video_url,
+      module: (fd.get("module") as string) || null,
+      whatsapp: (fd.get("whatsapp") as string)?.trim() || null,
+      video_url: (fd.get("video_url") as string)?.trim() || null,
       attachment_url,
     });
 
@@ -141,16 +131,27 @@ export default function ResellerTicketsView() {
     return s;
   };
 
-  const isImage = (url: string) => /\.(jpg|jpeg|png|webp)$/i.test(url);
+  // If chatting with a ticket, show chat view
+  if (chatTicket) {
+    return (
+      <div>
+        <h1 className="text-2xl font-bold font-display mb-4">Tickets de Soporte</h1>
+        <TicketChatView
+          ticket={{ id: chatTicket.id, subject: chatTicket.subject, status: chatTicket.status, module: chatTicket.module, priority: chatTicket.priority }}
+          onBack={() => { setChatTicket(null); load(); }}
+          ticketSource="reseller"
+          senderRole="customer"
+        />
+      </div>
+    );
+  }
 
   return (
     <div>
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <h1 className="text-2xl font-bold font-display">Tickets de Soporte</h1>
-          {openCount > 0 && (
-            <Badge className="bg-yellow-500 text-white">{openCount} abiertos</Badge>
-          )}
+          {openCount > 0 && <Badge className="bg-yellow-500 text-white">{openCount} abiertos</Badge>}
         </div>
         <Dialog open={showCreate} onOpenChange={(o) => { setShowCreate(o); if (!o) setAttachFile(null); }}>
           <DialogTrigger asChild>
@@ -159,21 +160,14 @@ export default function ResellerTicketsView() {
           <DialogContent className="max-h-[90vh] overflow-y-auto">
             <DialogHeader><DialogTitle>Crear Ticket</DialogTitle></DialogHeader>
             <form onSubmit={handleCreate} className="space-y-4">
-              {/* Module */}
               <div>
                 <Label>Módulo del Software *</Label>
                 <select name="module" required className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
                   <option value="">Selecciona un módulo</option>
-                  {POS_MODULES.map((m) => (
-                    <option key={m} value={m}>{m}</option>
-                  ))}
+                  {POS_MODULES.map(m => <option key={m} value={m}>{m}</option>)}
                 </select>
               </div>
-
-              {/* Subject */}
               <div><Label>Asunto *</Label><Input name="subject" required placeholder="Resumen breve del problema" /></div>
-
-              {/* Priority */}
               <div>
                 <Label>Prioridad</Label>
                 <select name="priority" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
@@ -182,47 +176,26 @@ export default function ResellerTicketsView() {
                   <option value="urgent">Urgente</option>
                 </select>
               </div>
-
-              {/* Description */}
               <div><Label>Descripción *</Label><Textarea name="description" rows={4} required placeholder="Describe tu problema con el mayor detalle posible..." /></div>
-
-              {/* WhatsApp */}
               <div>
                 <Label className="flex items-center gap-1.5"><Phone className="h-3.5 w-3.5" />WhatsApp (opcional)</Label>
                 <div className="flex gap-2">
                   <Input value="+57" disabled className="w-16 text-center" />
                   <Input name="whatsapp" type="tel" placeholder="Número de WhatsApp" className="flex-1" />
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">Para contactarte más rápido si es necesario.</p>
               </div>
-
-              {/* Video URL */}
               <div>
                 <Label className="flex items-center gap-1.5"><Video className="h-3.5 w-3.5" />Video (opcional)</Label>
-                <Input name="video_url" type="url" placeholder="https://youtube.com/watch?v=... o enlace de video" />
-                <p className="text-xs text-muted-foreground mt-1">Graba tu pantalla para mostrarnos el error.</p>
+                <Input name="video_url" type="url" placeholder="https://youtube.com/watch?v=..." />
               </div>
-
-              {/* File attachment */}
               <div>
                 <Label>Adjuntar imagen o PDF (opcional)</Label>
-                <p className="text-xs text-muted-foreground mb-2">
-                  📎 Capturas de pantalla ayudan a resolver más rápido. Máx 5 MB.
-                </p>
-                <input
-                  ref={fileRef}
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp,application/pdf"
-                  className="hidden"
-                  onChange={handleFileSelect}
-                />
+                <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp,application/pdf" className="hidden" onChange={handleFileSelect} />
                 {attachFile ? (
                   <div className="flex items-center gap-2 rounded-md border bg-muted/40 px-3 py-2 text-sm">
                     {attachFile.type === "application/pdf" ? <FileText className="h-4 w-4 text-red-500" /> : <ImageIcon className="h-4 w-4 text-blue-500" />}
                     <span className="truncate flex-1">{attachFile.name}</span>
-                    <button type="button" onClick={() => setAttachFile(null)} className="text-muted-foreground hover:text-destructive">
-                      <X className="h-4 w-4" />
-                    </button>
+                    <button type="button" onClick={() => setAttachFile(null)} className="text-muted-foreground hover:text-destructive"><X className="h-4 w-4" /></button>
                   </div>
                 ) : (
                   <Button type="button" variant="outline" size="sm" onClick={() => fileRef.current?.click()}>
@@ -230,24 +203,15 @@ export default function ResellerTicketsView() {
                   </Button>
                 )}
               </div>
-
-              <Button type="submit" className="w-full" disabled={uploading}>
-                {uploading ? "Enviando..." : "Enviar Ticket"}
-              </Button>
+              <Button type="submit" className="w-full" disabled={uploading}>{uploading ? "Enviando..." : "Enviar Ticket"}</Button>
             </form>
           </DialogContent>
         </Dialog>
       </div>
 
-      {/* Status filter */}
       <div className="flex flex-wrap gap-2 mb-4">
-        {(["all", "open", "resolved"] as TicketFilter[]).map((f) => (
-          <Button
-            key={f}
-            size="sm"
-            variant={statusFilter === f ? "default" : "outline"}
-            onClick={() => setStatusFilter(f)}
-          >
+        {(["all", "open", "resolved"] as TicketFilter[]).map(f => (
+          <Button key={f} size="sm" variant={statusFilter === f ? "default" : "outline"} onClick={() => setStatusFilter(f)}>
             {f === "all" ? `Todos (${tickets.length})` : f === "open" ? `Abiertos (${openCount})` : "Resueltos"}
           </Button>
         ))}
@@ -262,12 +226,8 @@ export default function ResellerTicketsView() {
             <p className="text-muted-foreground">No tienes tickets.</p>
           </div>
         ) : (
-          filtered.map((t) => (
-            <div
-              key={t.id}
-              onClick={() => setDetailTarget(t)}
-              className="cursor-pointer rounded-lg border bg-card p-4 hover:bg-muted/30 transition-colors"
-            >
+          filtered.map(t => (
+            <div key={t.id} onClick={() => setChatTicket(t)} className="cursor-pointer rounded-lg border bg-card p-4 hover:bg-muted/30 transition-colors">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <h3 className="font-medium">{t.subject}</h3>
@@ -277,75 +237,13 @@ export default function ResellerTicketsView() {
                 <Badge className={statusColor(t.status)}>{statusLabel(t.status)}</Badge>
               </div>
               <p className="mt-1 text-xs text-muted-foreground">
-                {t.module && <><Badge variant="outline" className="mr-2 text-[10px] py-0">{t.module}</Badge></>}
+                {t.module && <Badge variant="outline" className="mr-2 text-[10px] py-0">{t.module}</Badge>}
                 {new Date(t.created_at).toLocaleDateString("es-CO")} · Prioridad: {t.priority}
-                {t.admin_response && t.updated_at !== t.created_at && (
-                  <> · Respondido: {new Date(t.updated_at).toLocaleDateString("es-CO")}</>
-                )}
               </p>
             </div>
           ))
         )}
       </div>
-
-      {/* Detail Dialog */}
-      <Dialog open={!!detailTarget} onOpenChange={() => setDetailTarget(null)}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>{detailTarget?.subject}</DialogTitle></DialogHeader>
-          {detailTarget && (
-            <div className="space-y-4">
-              {detailTarget.module && (
-                <Badge variant="outline">{detailTarget.module}</Badge>
-              )}
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Descripción</p>
-                <p className="text-sm whitespace-pre-wrap">{detailTarget.description}</p>
-              </div>
-              {detailTarget.whatsapp && (
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">WhatsApp</p>
-                  <p className="text-sm">{detailTarget.whatsapp}</p>
-                </div>
-              )}
-              {detailTarget.video_url && (
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground mb-1">Video</p>
-                  <a href={detailTarget.video_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-md border bg-muted/40 px-3 py-2 text-sm hover:bg-muted/60 transition-colors">
-                    <Video className="h-4 w-4 text-blue-500" />Ver video
-                  </a>
-                </div>
-              )}
-              {detailTarget.attachment_url && (
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground mb-2">Archivo adjunto</p>
-                  {isImage(detailTarget.attachment_url) ? (
-                    <a href={detailTarget.attachment_url} target="_blank" rel="noopener noreferrer">
-                      <img src={detailTarget.attachment_url} alt="Adjunto" className="max-h-48 rounded-md border object-contain" />
-                    </a>
-                  ) : (
-                    <a href={detailTarget.attachment_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-md border bg-muted/40 px-3 py-2 text-sm hover:bg-muted/60 transition-colors">
-                      <FileText className="h-4 w-4 text-red-500" />Ver documento PDF
-                    </a>
-                  )}
-                </div>
-              )}
-              {detailTarget.admin_response && (
-                <div className="rounded-md bg-primary/5 p-3">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium text-primary">Respuesta del equipo</p>
-                    {detailTarget.updated_at !== detailTarget.created_at && (
-                      <span className="text-[10px] text-muted-foreground">
-                        {new Date(detailTarget.updated_at).toLocaleDateString("es-CO")}
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-sm whitespace-pre-wrap mt-1">{detailTarget.admin_response}</p>
-                </div>
-              )}
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
