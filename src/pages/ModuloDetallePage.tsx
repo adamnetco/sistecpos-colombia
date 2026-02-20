@@ -107,7 +107,7 @@ const ModuloDetallePage = () => {
       <SEO
         title={`${module.name} | Módulo Software POS | SistecPOS`}
         description={module.description || `Conoce el ${module.name} para tu software POS. Amplía las funcionalidades de tu negocio con SistecPOS.`}
-        canonical={`https://sistecpos.com/productos/modulo-${module.slug}`}
+        canonical={`https://sistecpos.com/modulos/${module.slug}`}
       />
       <Breadcrumbs
         items={[
@@ -120,9 +120,9 @@ const ModuloDetallePage = () => {
         <div className="container px-4 md:px-6">
           <Link
             to="/productos"
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors"
+            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors group"
           >
-            <ArrowLeft className="h-4 w-4" />Volver al catálogo
+            <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />Volver al catálogo
           </Link>
 
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">

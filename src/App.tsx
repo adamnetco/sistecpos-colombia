@@ -93,8 +93,9 @@ const App = () => (
                 <Route path="/software-pos/:city" element={<SoftwarePosLocalPage />} />
                 <Route path="/servicios" element={<ServiciosPage />} />
                 <Route path="/productos" element={<ProductosPage />} />
+                {/* Module route MUST be before /productos/:slug to avoid param capture */}
+                <Route path="/modulos/:slug" element={<ModuloDetallePage />} />
                 <Route path="/productos/:slug" element={<ProductoDetallePage />} />
-                <Route path="/productos/modulo-:slug" element={<ModuloDetallePage />} />
                 <Route path="/nosotros" element={<NosotrosPage />} />
                 <Route path="/comparativa-licencias" element={<ComparativaLicenciasPage />} />
                 <Route path="/comparar" element={<CompararPage />} />

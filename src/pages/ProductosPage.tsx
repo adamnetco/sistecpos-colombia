@@ -292,6 +292,7 @@ const getModuleIcon = (icon: string) => MODULE_ICON_MAP[icon] || Puzzle;
 const ModuleCard = ({ mod, index }: { mod: PlanModule; index: number }) => {
   const isPaid = !mod.is_free && mod.price_cop > 0;
   const ModIcon = getModuleIcon(mod.icon);
+  const { buildUrl } = useWhatsAppConfig();
 
   return (
     <motion.div
@@ -300,13 +301,15 @@ const ModuleCard = ({ mod, index }: { mod: PlanModule; index: number }) => {
       transition={{ duration: 0.3, delay: index * 0.05 }}
     >
       <Card className="h-full flex flex-col border-0 shadow-card hover:shadow-card-hover transition-all hover:-translate-y-1 relative overflow-hidden">
+        {/* Badge top-right */}
         <div className="absolute top-0 right-0 z-10 p-2">
-          <Badge className="bg-primary/10 text-primary border-0 text-xs">
-            <Puzzle className="h-3 w-3 mr-1" />Módulo
+          <Badge className={`text-xs border-0 ${isPaid ? "bg-primary/10 text-primary" : "bg-whatsapp/10 text-whatsapp"}`}>
+            {isPaid ? <Puzzle className="h-3 w-3 mr-1" /> : <Gift className="h-3 w-3 mr-1" />}
+            {isPaid ? "Add-on" : "Incluido"}
           </Badge>
         </div>
 
-        <CardContent className="p-5 flex-1">
+        <CardContent className="p-5 flex-1 flex flex-col">
           {/* Icon */}
           <div className="mb-4">
             <div className="w-11 h-11 rounded-xl flex items-center justify-center bg-gradient-to-br from-primary/20 to-primary/5">
@@ -314,18 +317,24 @@ const ModuleCard = ({ mod, index }: { mod: PlanModule; index: number }) => {
             </div>
           </div>
 
-          <h3 className="font-semibold text-base mb-1.5 leading-tight">{mod.name}</h3>
+          <h3 className="font-semibold text-base mb-1.5 leading-tight pr-14">{mod.name}</h3>
           <p className="text-muted-foreground text-sm mb-4 line-clamp-2">{mod.description}</p>
 
-          {/* Included in plans */}
+          {/* Plan compatibility info */}
           {mod.is_included_in_plans.length > 0 && (
             <div className="mb-3 flex items-center gap-1.5 text-xs text-whatsapp">
-              <Gift className="h-3 w-3 shrink-0" />
+              <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
               <span>Incluido en {mod.is_included_in_plans.length} plan{mod.is_included_in_plans.length > 1 ? "es" : ""}</span>
             </div>
           )}
+          {mod.allowed_plan_keys.length > 0 && !mod.is_free && (
+            <div className="mb-3 flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Puzzle className="h-3.5 w-3.5 shrink-0" />
+              <span>Disponible en {mod.allowed_plan_keys.length} plan{mod.allowed_plan_keys.length > 1 ? "es" : ""}</span>
+            </div>
+          )}
 
-          {/* Pricing */}
+          {/* Pricing — pushes to bottom */}
           <div className="mt-auto pt-4 border-t space-y-1.5">
             {isPaid ? (
               <>
@@ -333,22 +342,33 @@ const ModuleCard = ({ mod, index }: { mod: PlanModule; index: number }) => {
                   <span className="text-2xl font-black text-primary">{formatPrice(mod.price_cop)}</span>
                   <span className="text-xs font-medium text-muted-foreground">COP</span>
                 </div>
-                <p className="text-[11px] text-muted-foreground">Complemento adicional a tu licencia</p>
+                <p className="text-[11px] text-muted-foreground flex items-center gap-1">
+                  <Puzzle className="h-3 w-3 shrink-0" />Complemento adicional a tu licencia
+                </p>
               </>
             ) : (
               <div className="flex items-center gap-1.5">
                 <Gift className="h-4 w-4 text-whatsapp shrink-0" />
-                <span className="text-sm font-semibold text-whatsapp">Incluido en el plan</span>
+                <span className="text-sm font-semibold text-whatsapp">Sin costo adicional</span>
               </div>
             )}
           </div>
         </CardContent>
 
-        <CardFooter className="p-5 pt-0">
-          <Button variant="outline" size="sm" className="w-full gap-1" asChild>
-            <Link to={`/productos/modulo-${mod.slug}`}>
+        <CardFooter className="p-5 pt-0 flex gap-2">
+          <Button variant="outline" size="sm" className="flex-1 gap-1" asChild>
+            <Link to={`/modulos/${mod.slug}`}>
               Ver detalle <ArrowRight className="h-4 w-4" />
             </Link>
+          </Button>
+          <Button size="sm" className="flex-1 gap-1 btn-whatsapp" asChild>
+            <a
+              href={buildUrl(`Hola, quiero información sobre el módulo ${mod.name} para SistecPOS`)}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <MessageCircle className="h-4 w-4" />Consultar
+            </a>
           </Button>
         </CardFooter>
       </Card>
@@ -526,14 +546,38 @@ const ProductosPage = () => {
                   </Button>
                 </div>
               ) : (
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {filteredProducts.map((product, index) => (
-                    <ProductCard key={product.id} product={product} index={index} />
-                  ))}
-                  {filteredModules.map((mod, index) => (
-                    <ModuleCard key={`mod-${mod.id}`} mod={mod} index={filteredProducts.length + index} />
-                  ))}
-                </div>
+                <>
+                  {/* Products grid */}
+                  {filteredProducts.length > 0 && (
+                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                      {filteredProducts.map((product, index) => (
+                        <ProductCard key={product.id} product={product} index={index} />
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Modules section — separate heading for clarity */}
+                  {filteredModules.length > 0 && (
+                    <div className={filteredProducts.length > 0 ? "mt-12" : ""}>
+                      {filteredProducts.length > 0 && (
+                        <div className="flex items-center gap-3 mb-6">
+                          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                            <Puzzle className="h-5 w-5 text-primary" />
+                          </div>
+                          <div>
+                            <h2 className="text-xl font-bold">Módulos y Add-ons</h2>
+                            <p className="text-sm text-muted-foreground">Amplía las funcionalidades de tu software POS</p>
+                          </div>
+                        </div>
+                      )}
+                      <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        {filteredModules.map((mod, index) => (
+                          <ModuleCard key={`mod-${mod.id}`} mod={mod} index={index} />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
 
               <p className="text-center text-sm text-muted-foreground mt-6">
