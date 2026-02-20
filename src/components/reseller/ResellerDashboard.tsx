@@ -1,18 +1,20 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useReseller } from "@/hooks/useReseller";
 import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { BarChart, Bar, XAxis, YAxis } from "recharts";
-import { KeyRound, TicketCheck, DollarSign, TrendingUp, AlertTriangle, GraduationCap, MessageSquare, Wallet, Building2, ScrollText, CreditCard } from "lucide-react";
+import { KeyRound, TicketCheck, DollarSign, TrendingUp, AlertTriangle, GraduationCap, MessageSquare, Wallet, Building2, ScrollText, CreditCard, Headphones } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 
 export default function ResellerDashboard() {
   const { reseller } = useReseller();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [stats, setStats] = useState({ licenses: 0, tickets: 0, openTickets: 0, expiringSoon: 0, pendingCommissions: 0 });
   const [supportPlan, setSupportPlan] = useState<string | null>(null);
   const [licensesByMonth, setLicensesByMonth] = useState<{ month: string; count: number }[]>([]);
@@ -163,6 +165,22 @@ export default function ResellerDashboard() {
           </Link>
         ))}
       </div>
+
+      {/* Support CTA */}
+      <Card className="bg-primary/5 border-primary/20 mb-6">
+        <CardContent className="flex flex-col sm:flex-row items-center gap-4 py-5">
+          <div className="flex-1 text-center sm:text-left">
+            <h3 className="font-semibold">¿Necesitas soporte técnico?</h3>
+            <p className="text-sm text-muted-foreground">
+              Abre un ticket y nuestro equipo te responderá lo antes posible.
+            </p>
+          </div>
+          <Button className="gap-2 shrink-0" onClick={() => navigate("/socio/tickets")}>
+            <Headphones className="h-4 w-4" />
+            Solicitar Soporte
+          </Button>
+        </CardContent>
+      </Card>
 
       {!loading && (
         <Card>

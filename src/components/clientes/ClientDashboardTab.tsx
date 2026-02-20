@@ -25,7 +25,11 @@ interface DashboardMetrics {
   loading: boolean;
 }
 
-export default function ClientDashboardTab() {
+interface Props {
+  onRequestSupport?: () => void;
+}
+
+export default function ClientDashboardTab({ onRequestSupport }: Props = {}) {
   const { user } = useAuth();
   const [metrics, setMetrics] = useState<DashboardMetrics>({
     activePlan: null,
@@ -184,7 +188,7 @@ export default function ClientDashboardTab() {
               Crea un ticket de soporte y nuestro equipo te responderá lo más pronto posible.
             </p>
           </div>
-          <Button size="lg" className="gap-2 shrink-0">
+          <Button size="lg" className="gap-2 shrink-0" onClick={onRequestSupport}>
             <Headphones className="h-4 w-4" />
             Solicitar Soporte
           </Button>
