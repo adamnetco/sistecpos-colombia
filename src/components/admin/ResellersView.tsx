@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { Settings2, DollarSign, Plus, Trash2, Download, Kanban, List } from "lucide-react";
+import { Settings2, DollarSign, Plus, Trash2, Download, Kanban, List, UserPlus } from "lucide-react";
 import { exportToCsv } from "@/lib/exportCsv";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
@@ -63,6 +63,9 @@ export default function ResellersView() {
   const [modules, setModules] = useState<ResellerModule[]>([]);
   const [commissions, setCommissions] = useState<Commission[]>([]);
   const [tab, setTab] = useState<"modules" | "commissions">("modules");
+  const [addingNew, setAddingNew] = useState(false);
+  const [newForm, setNewForm] = useState({ full_name: "", email: "", phone: "", city: "", experience_summary: "" });
+  const [savingNew, setSavingNew] = useState(false);
   const { toast } = useToast();
 
   const load = async () => {
@@ -71,13 +74,37 @@ export default function ResellersView() {
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, []); // eslint-disable-line
+
+  const handleCreateReseller = async () => {
+    if (!newForm.full_name || !newForm.email || !newForm.phone) {
+      toast({ title: "Nombre, email y teléfono son requeridos", variant: "destructive" });
+      return;
+    }
+    setSavingNew(true);
+    const { error } = await supabase.from("reseller_applications").insert({
+      full_name: newForm.full_name,
+      email: newForm.email,
+      phone: newForm.phone,
+      city: newForm.city || null,
+      experience_summary: newForm.experience_summary || null,
+      status: "approved",
+    });
+    setSavingNew(false);
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({ title: "✅ Socio creado", description: "Cambia el estado a 'Aprobado' para enviar el correo de activación." });
+    setAddingNew(false);
+    setNewForm({ full_name: "", email: "", phone: "", city: "", experience_summary: "" });
+    load();
+  };
 
   const updateStatus = async (id: string, newStatus: string) => {
     const reseller = apps.find((a) => a.id === id);
     if (!reseller) return;
 
-    // Prevent re-approving if already approved and user_id already linked
     if (newStatus === "approved" && reseller.status === "approved" && reseller.user_id) {
       toast({ title: "Este socio ya fue aprobado y activado previamente" });
       return;
@@ -90,7 +117,6 @@ export default function ResellersView() {
       return;
     }
 
-    // Send status change notification (non-approval states)
     if (newStatus !== "approved" && oldStatus !== newStatus) {
       try {
         await supabase.functions.invoke("notify-ticket-status", {
@@ -108,7 +134,6 @@ export default function ResellersView() {
       }
     }
 
-    // When approving, trigger full activation flow
     if (newStatus === "approved") {
       toast({ title: "Activando socio...", description: "Creando cuenta y enviando correo de bienvenida" });
       try {
@@ -148,19 +173,12 @@ export default function ResellersView() {
 
   const toggleModule = async (moduleKey: string, enabled: boolean) => {
     if (!configTarget) return;
-
     const existing = modules.find((m) => m.module_key === moduleKey);
     if (existing) {
       await supabase.from("reseller_modules").update({ is_enabled: enabled }).eq("id", existing.id);
     } else {
-      await supabase.from("reseller_modules").insert({
-        reseller_id: configTarget.id,
-        module_key: moduleKey,
-        is_enabled: enabled,
-      });
+      await supabase.from("reseller_modules").insert({ reseller_id: configTarget.id, module_key: moduleKey, is_enabled: enabled });
     }
-
-    // Reload modules
     const { data } = await supabase.from("reseller_modules").select("*").eq("reseller_id", configTarget.id);
     setModules((data as ResellerModule[]) || []);
   };
@@ -169,7 +187,6 @@ export default function ResellersView() {
     e.preventDefault();
     if (!configTarget) return;
     const fd = new FormData(e.currentTarget);
-
     const { error } = await supabase.from("reseller_commissions").insert({
       reseller_id: configTarget.id,
       product_type: fd.get("product_type") as string,
@@ -178,7 +195,6 @@ export default function ResellersView() {
       min_amount: Number(fd.get("min_amount") || 0),
       max_amount: fd.get("max_amount") ? Number(fd.get("max_amount")) : null,
     });
-
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {
@@ -198,14 +214,13 @@ export default function ResellersView() {
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold font-display">Socios</h1>
         <div className="flex items-center gap-2">
+          <Button size="sm" onClick={() => setAddingNew(true)}>
+            <UserPlus className="h-3.5 w-3.5 mr-1" />Nuevo Socio
+          </Button>
           <Button size="sm" variant="outline" onClick={() => exportToCsv(apps as any[], [
-            { key: "full_name", label: "Nombre" },
-            { key: "email", label: "Email" },
-            { key: "phone", label: "Teléfono" },
-            { key: "city", label: "Ciudad" },
-            { key: "experience_summary", label: "Experiencia" },
-            { key: "status", label: "Estado" },
-            { key: "created_at", label: "Fecha" },
+            { key: "full_name", label: "Nombre" }, { key: "email", label: "Email" },
+            { key: "phone", label: "Teléfono" }, { key: "city", label: "Ciudad" },
+            { key: "status", label: "Estado" }, { key: "created_at", label: "Fecha" },
           ], "socios")}>
             <Download className="h-3.5 w-3.5 mr-1" /> Exportar
           </Button>
@@ -214,6 +229,48 @@ export default function ResellersView() {
           </Badge>
         </div>
       </div>
+
+      {/* Create Reseller Dialog */}
+      <Dialog open={addingNew} onOpenChange={setAddingNew}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2"><UserPlus className="h-5 w-5" />Nuevo Socio Manual</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="col-span-2">
+                <Label>Nombre completo *</Label>
+                <Input value={newForm.full_name} onChange={(e) => setNewForm((p) => ({ ...p, full_name: e.target.value }))} placeholder="Juan Rodríguez" />
+              </div>
+              <div>
+                <Label>Email *</Label>
+                <Input type="email" value={newForm.email} onChange={(e) => setNewForm((p) => ({ ...p, email: e.target.value }))} placeholder="juan@empresa.com" />
+              </div>
+              <div>
+                <Label>Teléfono *</Label>
+                <Input value={newForm.phone} onChange={(e) => setNewForm((p) => ({ ...p, phone: e.target.value }))} placeholder="3001234567" />
+              </div>
+              <div>
+                <Label>Ciudad</Label>
+                <Input value={newForm.city} onChange={(e) => setNewForm((p) => ({ ...p, city: e.target.value }))} placeholder="Bogotá" />
+              </div>
+              <div>
+                <Label>Experiencia</Label>
+                <Input value={newForm.experience_summary} onChange={(e) => setNewForm((p) => ({ ...p, experience_summary: e.target.value }))} placeholder="Ventas software" />
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground bg-muted p-2 rounded-md">
+              💡 Se crea como <strong>Aprobado</strong>. Para enviar el correo de bienvenida, cambia el estado a "Aprobado" en la lista tras guardarlo.
+            </p>
+            <div className="flex gap-2">
+              <Button variant="outline" className="flex-1" onClick={() => setAddingNew(false)}>Cancelar</Button>
+              <Button className="flex-1" onClick={handleCreateReseller} disabled={savingNew}>
+                {savingNew ? "Guardando..." : "Crear Socio"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Tabs defaultValue="pipeline" className="mt-4">
         <TabsList>
@@ -255,21 +312,17 @@ export default function ResellersView() {
                       <td className="px-4 py-3 font-medium">{a.full_name}</td>
                       <td className="px-4 py-3">{a.city}</td>
                       <td className="px-4 py-3">
-                        <a href={`mailto:${a.email}`} className="block text-xs text-primary hover:underline active:opacity-70">{a.email}</a>
-                        <a href={`tel:${a.phone}`} className="block text-xs text-primary hover:underline active:opacity-70">{a.phone}</a>
+                        <a href={`mailto:${a.email}`} className="block text-xs text-primary hover:underline">{a.email}</a>
+                        <a href={`tel:${a.phone}`} className="block text-xs text-primary hover:underline">{a.phone}</a>
                       </td>
                       <td className="px-4 py-3 text-xs text-muted-foreground whitespace-nowrap">
                         {new Date(a.created_at).toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" })}
                       </td>
                       <td className="px-4 py-3">
                         <Select value={a.status} onValueChange={(v) => updateStatus(a.id, v)}>
-                          <SelectTrigger className="w-32 h-8 text-xs">
-                            <SelectValue />
-                          </SelectTrigger>
+                          <SelectTrigger className="w-32 h-8 text-xs"><SelectValue /></SelectTrigger>
                           <SelectContent>
-                            {statusOptions.map((s) => (
-                              <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
-                            ))}
+                            {statusOptions.map((s) => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
                           </SelectContent>
                         </Select>
                       </td>
@@ -294,55 +347,37 @@ export default function ResellersView() {
             <DialogTitle>Configurar: {configTarget?.full_name}</DialogTitle>
           </DialogHeader>
 
-          {/* Tabs */}
           <div className="flex gap-2 border-b pb-2">
-            <Button
-              size="sm"
-              variant={tab === "modules" ? "default" : "ghost"}
-              onClick={() => setTab("modules")}
-            >
+            <Button size="sm" variant={tab === "modules" ? "default" : "ghost"} onClick={() => setTab("modules")}>
               <Settings2 className="mr-1 h-3 w-3" />Módulos
             </Button>
-            <Button
-              size="sm"
-              variant={tab === "commissions" ? "default" : "ghost"}
-              onClick={() => setTab("commissions")}
-            >
+            <Button size="sm" variant={tab === "commissions" ? "default" : "ghost"} onClick={() => setTab("commissions")}>
               <DollarSign className="mr-1 h-3 w-3" />Comisiones
             </Button>
           </div>
 
-          {/* Modules tab */}
           {tab === "modules" && (
             <div className="space-y-3">
               <p className="text-sm text-muted-foreground">Define qué secciones puede ver este socio en su panel.</p>
               {ALL_MODULES.map((mod) => {
                 const current = modules.find((m) => m.module_key === mod.key);
                 const isEnabled = mod.alwaysOn || (current?.is_enabled ?? false);
-
                 return (
                   <div key={mod.key} className="flex items-center justify-between rounded-md border p-3">
                     <div>
                       <p className="text-sm font-medium">{mod.label}</p>
                       {mod.alwaysOn && <p className="text-xs text-muted-foreground">Siempre activo</p>}
                     </div>
-                    <Switch
-                      checked={isEnabled}
-                      disabled={mod.alwaysOn}
-                      onCheckedChange={(v) => toggleModule(mod.key, v)}
-                    />
+                    <Switch checked={isEnabled} disabled={mod.alwaysOn} onCheckedChange={(v) => toggleModule(mod.key, v)} />
                   </div>
                 );
               })}
             </div>
           )}
 
-          {/* Commissions tab */}
           {tab === "commissions" && (
             <div className="space-y-4">
               <p className="text-sm text-muted-foreground">Configura las comisiones de este socio por producto.</p>
-
-              {/* Existing commissions */}
               {commissions.length > 0 && (
                 <div className="space-y-2">
                   {commissions.map((c) => (
@@ -351,12 +386,6 @@ export default function ResellersView() {
                         <span className="font-medium capitalize">{c.product_type}</span>
                         <span className="mx-2 text-muted-foreground">·</span>
                         <span>{c.commission_type === "percentage" ? `${c.commission_value}%` : `$${c.commission_value.toLocaleString()}`}</span>
-                        {(c.min_amount > 0 || c.max_amount) && (
-                          <span className="ml-2 text-xs text-muted-foreground">
-                            ({c.min_amount > 0 && `min $${c.min_amount.toLocaleString()}`}
-                            {c.max_amount && ` max $${c.max_amount.toLocaleString()}`})
-                          </span>
-                        )}
                       </div>
                       <Button size="sm" variant="ghost" onClick={() => deleteCommission(c.id)}>
                         <Trash2 className="h-3 w-3 text-destructive" />
@@ -365,8 +394,6 @@ export default function ResellersView() {
                   ))}
                 </div>
               )}
-
-              {/* Add commission form */}
               <form onSubmit={addCommission} className="space-y-3 rounded-md border p-3">
                 <p className="text-xs font-medium text-muted-foreground">Agregar comisión</p>
                 <div className="grid grid-cols-2 gap-2">
@@ -388,22 +415,11 @@ export default function ResellersView() {
                   </div>
                 </div>
                 <div className="grid grid-cols-3 gap-2">
-                  <div>
-                    <Label className="text-xs">Valor</Label>
-                    <Input name="commission_value" type="number" step="0.01" required className="h-9" />
-                  </div>
-                  <div>
-                    <Label className="text-xs">Min ($)</Label>
-                    <Input name="min_amount" type="number" defaultValue={0} className="h-9" />
-                  </div>
-                  <div>
-                    <Label className="text-xs">Max ($)</Label>
-                    <Input name="max_amount" type="number" placeholder="∞" className="h-9" />
-                  </div>
+                  <div><Label className="text-xs">Valor</Label><Input name="commission_value" type="number" step="0.01" required className="h-9" /></div>
+                  <div><Label className="text-xs">Min ($)</Label><Input name="min_amount" type="number" defaultValue={0} className="h-9" /></div>
+                  <div><Label className="text-xs">Max ($)</Label><Input name="max_amount" type="number" placeholder="∞" className="h-9" /></div>
                 </div>
-                <Button type="submit" size="sm" className="w-full">
-                  <Plus className="mr-1 h-3 w-3" />Agregar
-                </Button>
+                <Button type="submit" size="sm" className="w-full"><Plus className="mr-1 h-3 w-3" />Agregar</Button>
               </form>
             </div>
           )}
