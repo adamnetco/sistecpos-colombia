@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
-import { Plus, X, Upload, Search, Globe, Puzzle, Gift, Lock } from "lucide-react";
+import { Plus, X, Upload, Search, Globe, Puzzle, Gift, Lock, ChevronUp, ChevronDown } from "lucide-react";
 
 interface Props {
   open: boolean;
@@ -380,21 +380,31 @@ export default function ProductFormDialog({ open, onOpenChange, editing, onSaved
             </TabsContent>
 
             {/* === DETAILS TAB === */}
-            <TabsContent value="details" className="space-y-4">
+            <TabsContent value="details" className="space-y-5">
               {/* Features */}
               <div>
-                <Label>Características</Label>
+                <Label className="font-semibold">Características</Label>
                 <div className="flex gap-2 mt-2">
                   <Input value={newFeature} onChange={e => setNewFeature(e.target.value)} placeholder="Nueva característica" onKeyDown={e => { if (e.key === "Enter" && newFeature.trim()) { set("features", [...form.features, newFeature.trim()]); setNewFeature(""); } }} />
                   <Button variant="outline" size="icon" onClick={() => { if (newFeature.trim()) { set("features", [...form.features, newFeature.trim()]); setNewFeature(""); } }}><Plus className="h-4 w-4" /></Button>
                 </div>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {form.features.map((f, i) => (<span key={i} className="inline-flex items-center gap-1 bg-muted px-2 py-1 rounded text-xs">{f}<button onClick={() => set("features", form.features.filter((_, j) => j !== i))}><X className="h-3 w-3" /></button></span>))}
+                <div className="mt-2 space-y-1">
+                  {form.features.map((f, i) => (
+                    <div key={i} className="group flex items-center gap-2 bg-muted/60 border rounded-lg px-3 py-1.5 text-sm">
+                      <span className="flex-1 truncate">{f}</span>
+                      <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button type="button" disabled={i === 0} onClick={() => { const a=[...form.features];[a[i],a[i-1]]=[a[i-1],a[i]];set("features",a); }} className="p-0.5 rounded hover:bg-muted disabled:opacity-30"><ChevronUp className="h-3.5 w-3.5" /></button>
+                        <button type="button" disabled={i === form.features.length-1} onClick={() => { const a=[...form.features];[a[i],a[i+1]]=[a[i+1],a[i]];set("features",a); }} className="p-0.5 rounded hover:bg-muted disabled:opacity-30"><ChevronDown className="h-3.5 w-3.5" /></button>
+                        <button type="button" onClick={() => set("features", form.features.filter((_,j)=>j!==i))} className="p-0.5 ml-1 rounded hover:bg-destructive hover:text-destructive-foreground"><X className="h-3 w-3" /></button>
+                      </div>
+                      <span className="text-[10px] text-muted-foreground w-4 text-right">{i+1}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
               {/* Specifications */}
               <div>
-                <Label>Especificaciones Técnicas</Label>
+                <Label className="font-semibold">Especificaciones Técnicas</Label>
                 <div className="flex gap-2 mt-2">
                   <Input value={newSpecLabel} onChange={e => setNewSpecLabel(e.target.value)} placeholder="Etiqueta" className="flex-1" />
                   <Input value={newSpecValue} onChange={e => setNewSpecValue(e.target.value)} placeholder="Valor" className="flex-1" />
@@ -402,22 +412,38 @@ export default function ProductFormDialog({ open, onOpenChange, editing, onSaved
                 </div>
                 <div className="mt-2 space-y-1">
                   {form.specifications.map((s: any, i: number) => (
-                    <div key={i} className="flex items-center gap-2 bg-muted px-3 py-1.5 rounded text-xs">
-                      <span className="font-medium">{s.label}:</span><span className="flex-1">{s.value}</span>
-                      <button onClick={() => set("specifications", form.specifications.filter((_, j) => j !== i))}><X className="h-3 w-3" /></button>
+                    <div key={i} className="group flex items-center gap-2 bg-muted/60 border rounded-lg px-3 py-1.5 text-xs">
+                      <span className="font-medium shrink-0">{s.label}:</span>
+                      <span className="flex-1 truncate text-muted-foreground">{s.value}</span>
+                      <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button type="button" disabled={i===0} onClick={() => { const a=[...form.specifications];[a[i],a[i-1]]=[a[i-1],a[i]];set("specifications",a); }} className="p-0.5 rounded hover:bg-muted disabled:opacity-30"><ChevronUp className="h-3.5 w-3.5" /></button>
+                        <button type="button" disabled={i===form.specifications.length-1} onClick={() => { const a=[...form.specifications];[a[i],a[i+1]]=[a[i+1],a[i]];set("specifications",a); }} className="p-0.5 rounded hover:bg-muted disabled:opacity-30"><ChevronDown className="h-3.5 w-3.5" /></button>
+                        <button type="button" onClick={() => set("specifications", form.specifications.filter((_,j)=>j!==i))} className="p-0.5 ml-1 rounded hover:bg-destructive hover:text-destructive-foreground"><X className="h-3 w-3" /></button>
+                      </div>
+                      <span className="text-[10px] text-muted-foreground w-4 text-right">{i+1}</span>
                     </div>
                   ))}
                 </div>
               </div>
               {/* Includes */}
               <div>
-                <Label>¿Qué incluye?</Label>
+                <Label className="font-semibold">¿Qué incluye?</Label>
                 <div className="flex gap-2 mt-2">
                   <Input value={newInclude} onChange={e => setNewInclude(e.target.value)} placeholder="Elemento incluido" onKeyDown={e => { if (e.key === "Enter" && newInclude.trim()) { set("includes", [...form.includes, newInclude.trim()]); setNewInclude(""); } }} />
                   <Button variant="outline" size="icon" onClick={() => { if (newInclude.trim()) { set("includes", [...form.includes, newInclude.trim()]); setNewInclude(""); } }}><Plus className="h-4 w-4" /></Button>
                 </div>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {form.includes.map((f, i) => (<span key={i} className="inline-flex items-center gap-1 bg-muted px-2 py-1 rounded text-xs">{f}<button onClick={() => set("includes", form.includes.filter((_, j) => j !== i))}><X className="h-3 w-3" /></button></span>))}
+                <div className="mt-2 space-y-1">
+                  {form.includes.map((f, i) => (
+                    <div key={i} className="group flex items-center gap-2 bg-muted/60 border rounded-lg px-3 py-1.5 text-sm">
+                      <span className="flex-1 truncate">{f}</span>
+                      <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button type="button" disabled={i===0} onClick={() => { const a=[...form.includes];[a[i],a[i-1]]=[a[i-1],a[i]];set("includes",a); }} className="p-0.5 rounded hover:bg-muted disabled:opacity-30"><ChevronUp className="h-3.5 w-3.5" /></button>
+                        <button type="button" disabled={i===form.includes.length-1} onClick={() => { const a=[...form.includes];[a[i],a[i+1]]=[a[i+1],a[i]];set("includes",a); }} className="p-0.5 rounded hover:bg-muted disabled:opacity-30"><ChevronDown className="h-3.5 w-3.5" /></button>
+                        <button type="button" onClick={() => set("includes", form.includes.filter((_,j)=>j!==i))} className="p-0.5 ml-1 rounded hover:bg-destructive hover:text-destructive-foreground"><X className="h-3 w-3" /></button>
+                      </div>
+                      <span className="text-[10px] text-muted-foreground w-4 text-right">{i+1}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
             </TabsContent>

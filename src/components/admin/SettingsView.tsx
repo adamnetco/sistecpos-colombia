@@ -1,6 +1,6 @@
 import { Suspense, lazy } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MessageCircle, Trophy, HelpCircle, Navigation, Settings, Bot, Search, Chrome, KeyRound } from "lucide-react";
+import { MessageCircle, Trophy, HelpCircle, Navigation, Settings, Bot, Search, Chrome, KeyRound, ListChecks } from "lucide-react";
 
 const WhatsAppSettingsTab = lazy(() => import("./settings/WhatsAppSettingsTab"));
 const SuccessStoriesTab = lazy(() => import("./settings/SuccessStoriesTab"));
@@ -11,6 +11,7 @@ const ChatbotSettingsTab = lazy(() => import("./ChatbotSettingsTab"));
 const SEOManagerTab = lazy(() => import("./settings/SEOManagerTab"));
 const GoogleConnectionCard = lazy(() => import("@/components/shared/GoogleConnectionCard"));
 const SecretsManagerTab = lazy(() => import("./settings/SecretsManagerTab"));
+const MiscListsTab = lazy(() => import("./settings/MiscListsTab"));
 
 function Loader() {
   return <div className="flex h-32 items-center justify-center"><div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>;
@@ -33,6 +34,7 @@ export default function SettingsView() {
           <TabsTrigger value="stories" className="gap-2"><Trophy className="h-4 w-4" />Casos de Éxito</TabsTrigger>
           <TabsTrigger value="faqs" className="gap-2"><HelpCircle className="h-4 w-4" />FAQs</TabsTrigger>
           <TabsTrigger value="nav" className="gap-2"><Navigation className="h-4 w-4" />Navegación</TabsTrigger>
+          <TabsTrigger value="misc" className="gap-2"><ListChecks className="h-4 w-4" />Misceláneos</TabsTrigger>
           <TabsTrigger value="chatbot" className="gap-2"><Bot className="h-4 w-4" />Chatbot</TabsTrigger>
           <TabsTrigger value="seo" className="gap-2"><Search className="h-4 w-4" />SEO</TabsTrigger>
         </TabsList>
@@ -44,6 +46,7 @@ export default function SettingsView() {
         <TabsContent value="stories"><Suspense fallback={<Loader />}><SuccessStoriesTab /></Suspense></TabsContent>
         <TabsContent value="faqs"><Suspense fallback={<Loader />}><DynamicFAQsTab /></Suspense></TabsContent>
         <TabsContent value="nav"><Suspense fallback={<Loader />}><NavManagerTab /></Suspense></TabsContent>
+        <TabsContent value="misc"><Suspense fallback={<Loader />}><MiscListsTab /></Suspense></TabsContent>
         <TabsContent value="chatbot"><Suspense fallback={<Loader />}><ChatbotSettingsTab /></Suspense></TabsContent>
         <TabsContent value="seo"><Suspense fallback={<Loader />}><SEOManagerTab /></Suspense></TabsContent>
       </Tabs>
