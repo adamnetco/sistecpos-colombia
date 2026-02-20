@@ -2236,6 +2236,7 @@ export type Database = {
           sender_id: string
           sender_role: string
           ticket_id: string
+          ticket_source: string
         }
         Insert: {
           attachment_url?: string | null
@@ -2245,6 +2246,7 @@ export type Database = {
           sender_id: string
           sender_role?: string
           ticket_id: string
+          ticket_source?: string
         }
         Update: {
           attachment_url?: string | null
@@ -2254,6 +2256,7 @@ export type Database = {
           sender_id?: string
           sender_role?: string
           ticket_id?: string
+          ticket_source?: string
         }
         Relationships: [
           {

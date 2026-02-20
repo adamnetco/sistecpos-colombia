@@ -16,6 +16,9 @@ const ResellerTrainingsView = lazy(() => import("@/components/reseller/ResellerT
 const ResellerTicketsView = lazy(() => import("@/components/reseller/ResellerTicketsView"));
 const ResellerCommissionsView = lazy(() => import("@/components/reseller/ResellerCommissionsView"));
 const ResellerDemoRequestView = lazy(() => import("@/components/reseller/ResellerDemoRequestView"));
+const ResellerProfileView = lazy(() => import("@/components/reseller/ResellerProfileView"));
+const ResellerSubscriptionView = lazy(() => import("@/components/reseller/ResellerSubscriptionView"));
+const ResellerContractsView = lazy(() => import("@/components/reseller/ResellerContractsView"));
 
 function Loader() {
   return (
@@ -214,6 +217,9 @@ export default function ResellerPage() {
             <Route path="tickets" element={<ResellerTicketsView />} />
             <Route path="comisiones" element={<ResellerCommissionsView />} />
             <Route path="solicitar-demo" element={<ResellerDemoRequestView />} />
+            <Route path="empresa" element={<ResellerProfileView />} />
+            <Route path="suscripcion" element={<ResellerSubscriptionView />} />
+            <Route path="contratos" element={<ResellerContractsView />} />
           </Routes>
         </Suspense>
       </ResellerLayout>

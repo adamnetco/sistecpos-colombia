@@ -30,6 +30,8 @@ interface TicketInfo {
 interface Props {
   ticket: TicketInfo;
   onBack: () => void;
+  ticketSource?: "client" | "reseller";
+  senderRole?: string;
 }
 
 const roleConfig: Record<string, { label: string; icon: typeof User; className: string }> = {
@@ -38,7 +40,7 @@ const roleConfig: Record<string, { label: string; icon: typeof User; className: 
   ai_agent: { label: "Asistente IA", icon: Bot, className: "bg-violet-600 text-white" },
 };
 
-export default function TicketChatView({ ticket, onBack }: Props) {
+export default function TicketChatView({ ticket, onBack, ticketSource = "client", senderRole = "customer" }: Props) {
   const { user } = useAuth();
   const { toast } = useToast();
   const [messages, setMessages] = useState<TicketMessage[]>([]);
@@ -125,9 +127,10 @@ export default function TicketChatView({ ticket, onBack }: Props) {
     const { error } = await supabase.from("ticket_messages").insert({
       ticket_id: ticket.id,
       sender_id: user.id,
-      sender_role: "customer",
+      sender_role: senderRole,
       content: text.trim() || (attachment_url ? "📎 Archivo adjunto" : ""),
       attachment_url,
+      ticket_source: ticketSource,
     });
 
     if (error) {

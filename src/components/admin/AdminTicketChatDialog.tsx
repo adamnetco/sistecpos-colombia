@@ -94,6 +94,7 @@ export default function AdminTicketChatDialog({ ticketId, ticketSubject, ticketS
       sender_role: "admin",
       content: text.trim() || (attachment_url ? "📎 Archivo adjunto" : ""),
       attachment_url,
+      ticket_source: ticketSource,
     });
 
     if (error) { toast({ title: "Error al enviar", variant: "destructive" }); }
