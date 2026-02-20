@@ -1090,6 +1090,72 @@ export type Database = {
         }
         Relationships: []
       }
+      google_calendar_configs: {
+        Row: {
+          calendar_id: string
+          created_at: string
+          id: string
+          is_active: boolean
+          label: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          calendar_id?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          calendar_id?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      google_user_tokens: {
+        Row: {
+          access_token_encrypted: string
+          created_at: string
+          google_email: string | null
+          id: string
+          refresh_token_encrypted: string
+          scopes: string[]
+          token_expires_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_token_encrypted: string
+          created_at?: string
+          google_email?: string | null
+          id?: string
+          refresh_token_encrypted: string
+          scopes?: string[]
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_token_encrypted?: string
+          created_at?: string
+          google_email?: string | null
+          id?: string
+          refresh_token_encrypted?: string
+          scopes?: string[]
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       leads_trials: {
         Row: {
           activation_completed_at: string | null
@@ -2677,6 +2743,16 @@ export type Database = {
           pos_username: string
         }[]
       }
+      get_google_tokens: {
+        Args: { _user_id: string }
+        Returns: {
+          access_token: string
+          google_email: string
+          refresh_token: string
+          scopes: string[]
+          token_expires_at: string
+        }[]
+      }
       get_pos_users_for_license: {
         Args: { _license_id: string }
         Returns: {
@@ -2739,6 +2815,17 @@ export type Database = {
           _pos_password: string
           _pos_store: string
           _pos_username: string
+          _user_id: string
+        }
+        Returns: string
+      }
+      upsert_google_tokens: {
+        Args: {
+          _access_token: string
+          _expires_at: string
+          _google_email?: string
+          _refresh_token: string
+          _scopes: string[]
           _user_id: string
         }
         Returns: string
