@@ -31,22 +31,51 @@ export function LicenseCreateDialog({ open, onOpenChange, onCreated }: Props) {
     const fd = new FormData(e.currentTarget);
     const planType = fd.get("plan_type") as string;
     const expiresAt = planExpirationDate(planType);
+    const businessName = fd.get("business_name") as string;
+    const businessNit = (fd.get("business_nit") as string) || null;
+    const contactName = fd.get("contact_name") as string;
+    const contactEmail = (fd.get("contact_email") as string) || null;
+    const contactPhone = (fd.get("contact_phone") as string) || null;
+    const pricePaid = Number(fd.get("price_paid"));
+    const notes = (fd.get("notes") as string) || null;
 
     const { error } = await supabase.from("licenses").insert({
-      business_name: fd.get("business_name") as string,
-      business_nit: (fd.get("business_nit") as string) || null,
-      contact_name: fd.get("contact_name") as string,
-      contact_email: (fd.get("contact_email") as string) || null,
-      contact_phone: (fd.get("contact_phone") as string) || null,
+      business_name: businessName,
+      business_nit: businessNit,
+      contact_name: contactName,
+      contact_email: contactEmail,
+      contact_phone: contactPhone,
       plan_type: planType,
-      price_paid: Number(fd.get("price_paid")),
+      price_paid: pricePaid,
       expires_at: expiresAt,
-      notes: (fd.get("notes") as string) || null,
+      notes,
     });
 
     if (error) {
       toast({ title: "Error al crear licencia", description: error.message, variant: "destructive" });
     } else {
+      // Send WhatsApp activation request to supplier
+      try {
+        await supabase.functions.invoke("send-whatsapp", {
+          body: {
+            event_type: "license_activation_request",
+            variables: {
+              business: businessName,
+              nit: businessNit || "No indicado",
+              plan: planType,
+              name: contactName,
+              phone: contactPhone || "-",
+              email: contactEmail || "-",
+              pos_user: "-",
+              pos_store: "-",
+              price: `$${pricePaid.toLocaleString("es-CO")} COP`,
+              payment_proof: "Pendiente de adjuntar",
+            },
+            skip_rate_limit: true,
+          },
+        });
+      } catch (_) { /* silent */ }
+
       toast({ title: "Licencia creada exitosamente" });
       onOpenChange(false);
       onCreated();

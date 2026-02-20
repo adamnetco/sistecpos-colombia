@@ -3,6 +3,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useSearchParams } from "react-router-dom";
+import { CouponBanner } from "@/components/pricing/CouponBanner";
 import {
   MessageCircle,
   Shield,
@@ -48,6 +50,8 @@ const planIncludes = [
 export function DynamicPricingSection() {
   const { buildUrl } = useWhatsAppConfig();
   const { data: plans = [], isLoading } = useLicensePricing();
+  const [searchParams] = useSearchParams();
+  const cuponFromUrl = searchParams.get("cupon");
 
   if (isLoading) {
     return (
@@ -90,6 +94,11 @@ export function DynamicPricingSection() {
                 Nuestros planes incluyen <strong>licencia + instalación + capacitación + soporte</strong>.
                 Tú solo te dedicas a vender, nosotros hacemos el resto.
               </p>
+            </div>
+
+            {/* Coupon Banner — auto-applies from ?cupon= URL param or manual input */}
+            <div className="max-w-2xl mx-auto">
+              <CouponBanner initialCode={cuponFromUrl} />
             </div>
 
             {/* Plan cards */}
