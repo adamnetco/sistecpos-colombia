@@ -22,8 +22,10 @@ export function ClientPortal() {
   const { user, signOut } = useAuth();
   const location = useLocation();
 
-  // Auto-switch to trainings tab when URL has #video-* hash (deep-link from chatbot)
-  const initialTab = location.hash.startsWith("#video-") ? "trainings" : "dashboard";
+  // Auto-switch tabs: trainings via hash, support via ?tab=tickets
+  const searchParams = new URLSearchParams(location.search);
+  const tabFromUrl = searchParams.get("tab");
+  const initialTab = location.hash.startsWith("#video-") ? "trainings" : tabFromUrl ?? "dashboard";
   const [activeTab, setActiveTab] = useState(initialTab);
 
   useEffect(() => {
@@ -61,7 +63,7 @@ export function ClientPortal() {
               <TabsTrigger value="downloads" className="gap-2"><Download className="h-4 w-4" />Descargas</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="dashboard"><Suspense fallback={<Loader />}><ClientDashboardTab /></Suspense></TabsContent>
+            <TabsContent value="dashboard"><Suspense fallback={<Loader />}><ClientDashboardTab onRequestSupport={() => setActiveTab("tickets")} /></Suspense></TabsContent>
             <TabsContent value="pos"><ClientPOSAccess /></TabsContent>
             <TabsContent value="subscription"><Suspense fallback={<Loader />}><ClientSubscriptionTab /></Suspense></TabsContent>
             <TabsContent value="tickets"><Suspense fallback={<Loader />}><ClientTicketsTab /></Suspense></TabsContent>
