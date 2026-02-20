@@ -30,6 +30,8 @@ const POSUsersView = lazy(() => import("@/components/admin/POSUsersView"));
 const ActiveDemosView = lazy(() => import("@/components/admin/ActiveDemosView"));
 const UserActivityView = lazy(() => import("@/components/admin/UserActivityView"));
 const WhatsAppNotificationsView = lazy(() => import("@/components/admin/WhatsAppNotificationsView"));
+const AdminSubscriptionsView = lazy(() => import("@/components/admin/AdminSubscriptionsView"));
+const AdminContractsView = lazy(() => import("@/components/admin/AdminContractsView"));
 
 function Loader() {
   return (
@@ -70,6 +72,8 @@ export default function AdminPage() {
             <Route path="actividad" element={<UserActivityView />} />
             <Route path="roles" element={<RolesManagerView />} />
             <Route path="notificaciones-wa" element={<WhatsAppNotificationsView />} />
+            <Route path="suscripciones" element={<AdminSubscriptionsView />} />
+            <Route path="contratos" element={<AdminContractsView />} />
             <Route path="configuracion" element={<SettingsView />} />
           </Routes>
         </Suspense>

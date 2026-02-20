@@ -9,6 +9,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MessageSquare, User, Handshake, Mail, Phone, Building2, Paperclip, Video, FileText, Image as ImageIcon } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { lazy, Suspense, useState as useStateLazy } from "react";
+const AdminTicketChatDialog = lazy(() => import("@/components/admin/AdminTicketChatDialog"));
 
 interface UnifiedTicket {
   id: string;
@@ -42,6 +44,9 @@ export default function ClientTicketsView() {
   const [saving, setSaving] = useState(false);
   const [statusFilter, setStatusFilter] = useState<TicketFilter>("all");
   const [sourceFilter, setSourceFilter] = useState<SourceFilter>("all");
+  const [chatTicketId, setChatTicketId] = useState<string | null>(null);
+  const [chatTicketSubject, setChatTicketSubject] = useState("");
+  const [chatTicketSource, setChatTicketSource] = useState<"client" | "reseller">("client");
 
   const load = async () => {
     setLoading(true);
@@ -265,7 +270,10 @@ export default function ClientTicketsView() {
                   <TableCell><Badge className={priorityColor(t.priority)}>{t.priority}</Badge></TableCell>
                   <TableCell className="text-xs text-muted-foreground whitespace-nowrap">{new Date(t.created_at).toLocaleDateString("es-CO")}</TableCell>
                   <TableCell className="text-right">
-                    <Button size="sm" variant="ghost">Ver</Button>
+                    <div className="flex gap-1 justify-end">
+                      <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); setChatTicketId(t.id); setChatTicketSubject(t.subject); setChatTicketSource(t.source); }}>💬 Chat</Button>
+                      <Button size="sm" variant="ghost">Ver</Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
@@ -380,6 +388,16 @@ export default function ClientTicketsView() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Chat Dialog */}
+      <Suspense fallback={null}>
+        <AdminTicketChatDialog
+          ticketId={chatTicketId}
+          ticketSubject={chatTicketSubject}
+          ticketSource={chatTicketSource}
+          onClose={() => setChatTicketId(null)}
+        />
+      </Suspense>
     </div>
   );
 }
