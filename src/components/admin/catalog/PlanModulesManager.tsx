@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, Puzzle, Lock, Gift, Tag, X } from "lucide-react";
 import { LICENSE_PLANS } from "@/data/licensePlans";
+import TagSelector from "./TagSelector";
 
 const formatCOP = (v: number) =>
   new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0 }).format(v);
@@ -315,31 +316,13 @@ export default function PlanModulesManager() {
 
             {/* Tags */}
             <div>
-              <Label className="flex items-center gap-1.5"><Tag className="h-3.5 w-3.5" /> Tags para búsqueda</Label>
-              <div className="flex gap-2 mt-1">
-                <Input
-                  ref={tagInputRef}
-                  value={tagInput}
-                  onChange={e => setTagInput(e.target.value)}
-                  onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); addTag(); } }}
-                  placeholder="facturacion, inventario... (Enter para agregar)"
-                  className="flex-1"
-                />
-                <Button type="button" variant="outline" size="sm" onClick={addTag}>Agregar</Button>
-              </div>
-              {form.tags.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 mt-2">
-                  {form.tags.map(t => (
-                    <Badge key={t} variant="secondary" className="gap-1 text-xs pr-1">
-                      #{t}
-                      <button onClick={() => removeTag(t)} className="ml-0.5 hover:text-destructive transition-colors">
-                        <X className="h-3 w-3" />
-                      </button>
-                    </Badge>
-                  ))}
-                </div>
-              )}
-              <p className="text-xs text-muted-foreground mt-1">Los tags permiten encontrar el módulo en el buscador del catálogo</p>
+              <Label className="flex items-center gap-1.5 mb-2"><Tag className="h-3.5 w-3.5" /> Etiquetas y Tags</Label>
+              <TagSelector
+                entityType="module"
+                freeTags={form.tags}
+                onFreeTagsChange={tags => set("tags", tags)}
+                showBoth
+              />
             </div>
 
             {/* Pricing */}
