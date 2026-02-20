@@ -21,6 +21,7 @@ interface Subscription {
   current_period_start: string | null;
   current_period_end: string | null;
   payment_method: string;
+  target_audience: string;
   created_at: string;
   updated_at: string;
   // joined
@@ -32,6 +33,12 @@ const planLabels: Record<string, string> = {
   autogestion: "Autogestión",
   tranquilidad: "Tranquilidad",
   socio_estrategico: "Socio Estratégico",
+};
+
+const audienceLabels: Record<string, { label: string; color: string }> = {
+  client: { label: "Clientes", color: "bg-blue-100 text-blue-800" },
+  reseller: { label: "Socios", color: "bg-purple-100 text-purple-800" },
+  both: { label: "Todos", color: "bg-muted text-muted-foreground" },
 };
 
 const statusColors: Record<string, string> = {
@@ -49,12 +56,15 @@ export default function AdminSubscriptionsView() {
   const [editPlan, setEditPlan] = useState("");
   const [editStatus, setEditStatus] = useState("");
   const [editPrice, setEditPrice] = useState("");
+  const [editAudience, setEditAudience] = useState("both");
   const [saving, setSaving] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
   const [newUserId, setNewUserId] = useState("");
   const [newPlan, setNewPlan] = useState("autogestion");
   const [newPrice, setNewPrice] = useState("0");
   const [newPayment, setNewPayment] = useState("manual");
+  const [newAudience, setNewAudience] = useState("both");
+  const [filterAudience, setFilterAudience] = useState("all");
 
   const load = async () => {
     setLoading(true);
@@ -97,7 +107,9 @@ export default function AdminSubscriptionsView() {
 
   const filtered = subs.filter((s) => {
     const q = search.toLowerCase();
-    return !q || (s.user_email?.toLowerCase().includes(q)) || (s.business_name?.toLowerCase().includes(q)) || s.plan.includes(q);
+    const matchSearch = !q || (s.user_email?.toLowerCase().includes(q)) || (s.business_name?.toLowerCase().includes(q)) || s.plan.includes(q);
+    const matchAudience = filterAudience === "all" || s.target_audience === filterAudience || s.target_audience === "both";
+    return matchSearch && matchAudience;
   });
 
   const openEdit = (s: Subscription) => {
@@ -105,6 +117,7 @@ export default function AdminSubscriptionsView() {
     setEditPlan(s.plan);
     setEditStatus(s.status);
     setEditPrice(String(s.price_cop));
+    setEditAudience(s.target_audience || "both");
   };
 
   const handleSave = async () => {
@@ -112,7 +125,7 @@ export default function AdminSubscriptionsView() {
     setSaving(true);
     const { error } = await supabase
       .from("support_subscriptions")
-      .update({ plan: editPlan, status: editStatus, price_cop: parseInt(editPrice) || 0 })
+      .update({ plan: editPlan, status: editStatus, price_cop: parseInt(editPrice) || 0, target_audience: editAudience })
       .eq("id", selected.id);
     setSaving(false);
     if (error) { toast({ title: "Error al guardar", variant: "destructive" }); return; }
@@ -130,6 +143,7 @@ export default function AdminSubscriptionsView() {
       price_cop: parseInt(newPrice) || 0,
       payment_method: newPayment,
       status: "active",
+      target_audience: newAudience,
       billing_anchor_day: new Date().getDate(),
       current_period_start: new Date().toISOString().split("T")[0],
       current_period_end: new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0],
@@ -154,9 +168,22 @@ export default function AdminSubscriptionsView() {
         </Button>
       </div>
 
-      <div className="relative max-w-sm">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input placeholder="Buscar por email, negocio o plan..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+        <div className="relative max-w-sm flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input placeholder="Buscar por email, negocio o plan..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
+        </div>
+        <Select value={filterAudience} onValueChange={setFilterAudience}>
+          <SelectTrigger className="w-40 h-9">
+            <SelectValue placeholder="Audiencia" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos</SelectItem>
+            <SelectItem value="client">Solo Clientes</SelectItem>
+            <SelectItem value="reseller">Solo Socios</SelectItem>
+            <SelectItem value="both">Compartidos</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       {loading ? (
@@ -176,6 +203,7 @@ export default function AdminSubscriptionsView() {
                 <TableHead>Usuario</TableHead>
                 <TableHead>Negocio</TableHead>
                 <TableHead>Plan</TableHead>
+                <TableHead>Audiencia</TableHead>
                 <TableHead>Estado</TableHead>
                 <TableHead>Precio</TableHead>
                 <TableHead>Periodo</TableHead>
@@ -183,19 +211,23 @@ export default function AdminSubscriptionsView() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filtered.map((s) => (
-                <TableRow key={s.id} className="cursor-pointer hover:bg-muted/40" onClick={() => openEdit(s)}>
-                  <TableCell className="text-sm">{s.user_email || "—"}</TableCell>
-                  <TableCell className="text-sm">{s.business_name || "—"}</TableCell>
-                  <TableCell><Badge variant="outline">{planLabels[s.plan] || s.plan}</Badge></TableCell>
-                  <TableCell><Badge className={statusColors[s.status] || "bg-muted"}>{s.status}</Badge></TableCell>
-                  <TableCell className="text-sm font-medium">${s.price_cop.toLocaleString("es-CO")}</TableCell>
-                  <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
-                    {s.current_period_start && new Date(s.current_period_start).toLocaleDateString("es-CO")} — {s.current_period_end && new Date(s.current_period_end).toLocaleDateString("es-CO")}
-                  </TableCell>
-                  <TableCell className="text-right"><Button size="sm" variant="ghost">Editar</Button></TableCell>
-                </TableRow>
-              ))}
+              {filtered.map((s) => {
+                const aud = audienceLabels[s.target_audience] || audienceLabels.both;
+                return (
+                  <TableRow key={s.id} className="cursor-pointer hover:bg-muted/40" onClick={() => openEdit(s)}>
+                    <TableCell className="text-sm">{s.user_email || "—"}</TableCell>
+                    <TableCell className="text-sm">{s.business_name || "—"}</TableCell>
+                    <TableCell><Badge variant="outline">{planLabels[s.plan] || s.plan}</Badge></TableCell>
+                    <TableCell><span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${aud.color}`}>{aud.label}</span></TableCell>
+                    <TableCell><Badge className={statusColors[s.status] || "bg-muted"}>{s.status}</Badge></TableCell>
+                    <TableCell className="text-sm font-medium">${s.price_cop.toLocaleString("es-CO")}</TableCell>
+                    <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
+                      {s.current_period_start && new Date(s.current_period_start).toLocaleDateString("es-CO")} — {s.current_period_end && new Date(s.current_period_end).toLocaleDateString("es-CO")}
+                    </TableCell>
+                    <TableCell className="text-right"><Button size="sm" variant="ghost">Editar</Button></TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </div>
@@ -214,6 +246,17 @@ export default function AdminSubscriptionsView() {
                   <SelectItem value="autogestion">Autogestión</SelectItem>
                   <SelectItem value="tranquilidad">Tranquilidad</SelectItem>
                   <SelectItem value="socio_estrategico">Socio Estratégico</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Visible para</Label>
+              <Select value={editAudience} onValueChange={setEditAudience}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="both">Todos (Clientes y Socios)</SelectItem>
+                  <SelectItem value="client">Solo Clientes</SelectItem>
+                  <SelectItem value="reseller">Solo Socios</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -251,6 +294,17 @@ export default function AdminSubscriptionsView() {
                   <SelectItem value="autogestion">Autogestión</SelectItem>
                   <SelectItem value="tranquilidad">Tranquilidad</SelectItem>
                   <SelectItem value="socio_estrategico">Socio Estratégico</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Visible para</Label>
+              <Select value={newAudience} onValueChange={setNewAudience}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="both">Todos (Clientes y Socios)</SelectItem>
+                  <SelectItem value="client">Solo Clientes</SelectItem>
+                  <SelectItem value="reseller">Solo Socios</SelectItem>
                 </SelectContent>
               </Select>
             </div>

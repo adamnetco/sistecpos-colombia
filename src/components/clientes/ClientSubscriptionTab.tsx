@@ -87,7 +87,7 @@ export default function ClientSubscriptionTab() {
         .limit(1),
       supabase
         .from("support_subscriptions")
-        .select("plan, price_cop, current_period_end")
+        .select("plan, price_cop, current_period_end, target_audience")
         .eq("user_id", user.id)
         .eq("status", "active")
         .limit(1),

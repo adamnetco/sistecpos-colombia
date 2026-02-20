@@ -50,10 +50,14 @@ interface Commission {
 }
 
 const ALL_MODULES = [
-  { key: "licencias", label: "Licencias", alwaysOn: true },
-  { key: "entrenamientos", label: "Entrenamientos" },
-  { key: "tickets", label: "Tickets de Soporte" },
-  { key: "comisiones", label: "Comisiones" },
+  { key: "licencias", label: "Licencias", alwaysOn: true, description: "Crear y gestionar licencias de clientes" },
+  { key: "entrenamientos", label: "Entrenamientos", description: "Acceso a videos de capacitación" },
+  { key: "tickets", label: "Tickets de Soporte", description: "Abrir y gestionar tickets de soporte" },
+  { key: "comisiones", label: "Comisiones", description: "Ver historial de comisiones y pagos" },
+  { key: "suscripcion", label: "Suscripción", description: "Ver y gestionar planes de soporte técnico" },
+  { key: "contratos", label: "Contratos", description: "Acceso a contratos y SLA" },
+  { key: "solicitar_demo", label: "Solicitar Demo", description: "Solicitar demos para prospectos" },
+  { key: "empresa", label: "Mi Empresa", description: "Perfil y datos de la empresa" },
 ];
 
 export default function ResellersView() {
@@ -361,14 +365,15 @@ export default function ResellersView() {
               <p className="text-sm text-muted-foreground">Define qué secciones puede ver este socio en su panel.</p>
               {ALL_MODULES.map((mod) => {
                 const current = modules.find((m) => m.module_key === mod.key);
-                const isEnabled = mod.alwaysOn || (current?.is_enabled ?? false);
+                const isAlwaysOn = mod.alwaysOn ?? false;
+                const isEnabled = isAlwaysOn || (current?.is_enabled ?? false);
                 return (
                   <div key={mod.key} className="flex items-center justify-between rounded-md border p-3">
                     <div>
                       <p className="text-sm font-medium">{mod.label}</p>
-                      {mod.alwaysOn && <p className="text-xs text-muted-foreground">Siempre activo</p>}
+                      <p className="text-xs text-muted-foreground">{isAlwaysOn ? "Siempre activo" : mod.description}</p>
                     </div>
-                    <Switch checked={isEnabled} disabled={mod.alwaysOn} onCheckedChange={(v) => toggleModule(mod.key, v)} />
+                    <Switch checked={isEnabled} disabled={isAlwaysOn} onCheckedChange={(v) => toggleModule(mod.key, v)} />
                   </div>
                 );
               })}
