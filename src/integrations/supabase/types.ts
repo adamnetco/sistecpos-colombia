@@ -1764,6 +1764,7 @@ export type Database = {
       plan_modules: {
         Row: {
           allowed_plan_keys: string[]
+          category_id: string | null
           created_at: string
           description: string | null
           icon: string
@@ -1776,10 +1777,12 @@ export type Database = {
           show_in_catalog: boolean
           slug: string
           sort_order: number
+          tags: string[]
           updated_at: string
         }
         Insert: {
           allowed_plan_keys?: string[]
+          category_id?: string | null
           created_at?: string
           description?: string | null
           icon?: string
@@ -1792,10 +1795,12 @@ export type Database = {
           show_in_catalog?: boolean
           slug: string
           sort_order?: number
+          tags?: string[]
           updated_at?: string
         }
         Update: {
           allowed_plan_keys?: string[]
+          category_id?: string | null
           created_at?: string
           description?: string | null
           icon?: string
@@ -1808,9 +1813,18 @@ export type Database = {
           show_in_catalog?: boolean
           slug?: string
           sort_order?: number
+          tags?: string[]
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "plan_modules_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "catalog_categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       product_events: {
         Row: {

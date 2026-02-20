@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -7,11 +7,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, Puzzle, Lock, Gift } from "lucide-react";
+import { Plus, Pencil, Trash2, Puzzle, Lock, Gift, Tag, X } from "lucide-react";
 import { LICENSE_PLANS } from "@/data/licensePlans";
 
 const formatCOP = (v: number) =>
@@ -30,6 +31,9 @@ interface PlanModule {
   sort_order: number;
   is_active: boolean;
   show_in_catalog: boolean;
+  category_id: string | null;
+  tags: string[];
+  catalog_categories?: { name: string; slug: string } | null;
 }
 
 const defaultForm = {
@@ -44,6 +48,8 @@ const defaultForm = {
   sort_order: 0,
   is_active: true,
   show_in_catalog: false,
+  category_id: "" as string,
+  tags: [] as string[],
 };
 
 export default function PlanModulesManager() {
@@ -51,16 +57,31 @@ export default function PlanModulesManager() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<PlanModule | null>(null);
   const [form, setForm] = useState(defaultForm);
+  const [tagInput, setTagInput] = useState("");
+  const tagInputRef = useRef<HTMLInputElement>(null);
 
   const { data: modules = [], isLoading } = useQuery({
     queryKey: ["plan_modules_admin"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("plan_modules")
-        .select("*")
+        .select("*, catalog_categories(name, slug)")
         .order("sort_order");
       if (error) throw error;
       return data as PlanModule[];
+    },
+  });
+
+  const { data: categories = [] } = useQuery({
+    queryKey: ["catalog_categories_active"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("catalog_categories")
+        .select("id, name, slug")
+        .eq("is_active", true)
+        .order("sort_order");
+      if (error) throw error;
+      return data as { id: string; name: string; slug: string }[];
     },
   });
 
@@ -69,6 +90,7 @@ export default function PlanModulesManager() {
   const openNew = () => {
     setEditing(null);
     setForm(defaultForm);
+    setTagInput("");
     setDialogOpen(true);
   };
 
@@ -86,14 +108,32 @@ export default function PlanModulesManager() {
       sort_order: m.sort_order,
       is_active: m.is_active,
       show_in_catalog: m.show_in_catalog,
+      category_id: m.category_id || "",
+      tags: m.tags || [],
     });
+    setTagInput("");
     setDialogOpen(true);
   };
+
+  const addTag = () => {
+    const t = tagInput.trim().toLowerCase().replace(/\s+/g, "-");
+    if (t && !form.tags.includes(t)) {
+      set("tags", [...form.tags, t]);
+    }
+    setTagInput("");
+    tagInputRef.current?.focus();
+  };
+
+  const removeTag = (tag: string) => set("tags", form.tags.filter(t => t !== tag));
 
   const saveMutation = useMutation({
     mutationFn: async () => {
       const slug = form.slug || form.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
-      const payload = { ...form, slug };
+      const payload = {
+        ...form,
+        slug,
+        category_id: form.category_id || null,
+      };
       if (editing) {
         const { error } = await supabase.from("plan_modules").update(payload).eq("id", editing.id);
         if (error) throw error;
@@ -105,6 +145,7 @@ export default function PlanModulesManager() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["plan_modules_admin"] });
       qc.invalidateQueries({ queryKey: ["plan_modules_public"] });
+      qc.invalidateQueries({ queryKey: ["public_catalog_modules"] });
       toast.success(editing ? "Módulo actualizado" : "Módulo creado");
       setDialogOpen(false);
     },
@@ -155,7 +196,7 @@ export default function PlanModulesManager() {
                     <div className="flex items-center gap-2 mb-1 flex-wrap">
                       <span className="font-semibold text-sm">{m.name}</span>
                       {m.is_free ? (
-                      <Badge className="bg-primary/10 text-primary border-0 text-xs gap-1">
+                        <Badge className="bg-primary/10 text-primary border-0 text-xs gap-1">
                           <Gift className="h-3 w-3" /> Incluido
                         </Badge>
                       ) : (
@@ -168,6 +209,19 @@ export default function PlanModulesManager() {
                     {m.description && (
                       <p className="text-xs text-muted-foreground line-clamp-2 mb-2">{m.description}</p>
                     )}
+                    {/* Category + Tags */}
+                    <div className="flex flex-wrap items-center gap-1 mb-2">
+                      {m.catalog_categories && (
+                        <span className="text-[10px] bg-muted text-muted-foreground px-1.5 py-0.5 rounded font-medium">
+                          📂 {m.catalog_categories.name}
+                        </span>
+                      )}
+                      {(m.tags || []).map(t => (
+                        <span key={t} className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded font-medium">
+                          #{t}
+                        </span>
+                      ))}
+                    </div>
                     {/* Plans available */}
                     <div className="space-y-1">
                       <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
@@ -240,6 +294,52 @@ export default function PlanModulesManager() {
             <div>
               <Label>Descripción</Label>
               <Textarea value={form.description} onChange={e => set("description", e.target.value)} rows={2} />
+            </div>
+
+            {/* Categoría */}
+            <div>
+              <Label>Categoría del catálogo</Label>
+              <Select value={form.category_id || "none"} onValueChange={v => set("category_id", v === "none" ? "" : v)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Sin categoría" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Sin categoría</SelectItem>
+                  {categories.map(c => (
+                    <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground mt-1">Asigna una categoría para que aparezca en el filtro del catálogo</p>
+            </div>
+
+            {/* Tags */}
+            <div>
+              <Label className="flex items-center gap-1.5"><Tag className="h-3.5 w-3.5" /> Tags para búsqueda</Label>
+              <div className="flex gap-2 mt-1">
+                <Input
+                  ref={tagInputRef}
+                  value={tagInput}
+                  onChange={e => setTagInput(e.target.value)}
+                  onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); addTag(); } }}
+                  placeholder="facturacion, inventario... (Enter para agregar)"
+                  className="flex-1"
+                />
+                <Button type="button" variant="outline" size="sm" onClick={addTag}>Agregar</Button>
+              </div>
+              {form.tags.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  {form.tags.map(t => (
+                    <Badge key={t} variant="secondary" className="gap-1 text-xs pr-1">
+                      #{t}
+                      <button onClick={() => removeTag(t)} className="ml-0.5 hover:text-destructive transition-colors">
+                        <X className="h-3 w-3" />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              )}
+              <p className="text-xs text-muted-foreground mt-1">Los tags permiten encontrar el módulo en el buscador del catálogo</p>
             </div>
 
             {/* Pricing */}
@@ -318,7 +418,7 @@ export default function PlanModulesManager() {
             </div>
             <div className="flex items-center gap-3">
               <Switch checked={form.show_in_catalog} onCheckedChange={v => set("show_in_catalog", v)} />
-              <Label>Visible en tarjetas de productos del catálogo</Label>
+              <Label>Visible en catálogo público como producto</Label>
             </div>
             <div>
               <Label>Orden</Label>

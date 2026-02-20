@@ -44,6 +44,9 @@ interface PlanModule {
   show_in_catalog: boolean;
   is_active: boolean;
   sort_order: number;
+  category_id: string | null;
+  tags: string[];
+  catalog_categories: { name: string; slug: string } | null;
   _isModule: true;
 }
 
@@ -318,7 +321,21 @@ const ModuleCard = ({ mod, index }: { mod: PlanModule; index: number }) => {
           </div>
 
           <h3 className="font-semibold text-base mb-1.5 leading-tight pr-14">{mod.name}</h3>
-          <p className="text-muted-foreground text-sm mb-4 line-clamp-2">{mod.description}</p>
+          <p className="text-muted-foreground text-sm mb-3 line-clamp-2">{mod.description}</p>
+
+          {/* Category + Tags */}
+          {((mod.catalog_categories) || (mod.tags && mod.tags.length > 0)) && (
+            <div className="flex flex-wrap gap-1 mb-3">
+              {mod.catalog_categories && (
+                <Badge variant="outline" className="text-[10px] h-5 px-1.5 gap-0.5">
+                  📂 {mod.catalog_categories.name}
+                </Badge>
+              )}
+              {(mod.tags || []).slice(0, 3).map(t => (
+                <Badge key={t} variant="secondary" className="text-[10px] h-5 px-1.5">#{t}</Badge>
+              ))}
+            </div>
+          )}
 
           {/* Plan compatibility info */}
           {mod.is_included_in_plans.length > 0 && (
@@ -425,7 +442,7 @@ const ProductosPage = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("plan_modules")
-        .select("id, name, slug, description, icon, is_free, price_cop, is_included_in_plans, allowed_plan_keys, show_in_catalog, is_active, sort_order")
+        .select("id, name, slug, description, icon, is_free, price_cop, is_included_in_plans, allowed_plan_keys, show_in_catalog, is_active, sort_order, category_id, tags, catalog_categories(name, slug)")
         .eq("is_active", true)
         .eq("show_in_catalog", true)
         .order("sort_order");
@@ -448,12 +465,24 @@ const ProductosPage = () => {
 
   const effectiveMaxPrice = maxPrice > 1 ? maxPrice : 99999999;
 
+  // Categories: merge product categories + module categories
   const categories = useMemo(() => {
     const slugs = new Set<string>();
-    return products
-      .filter(p => p.catalog_categories && !slugs.has(p.catalog_categories.slug) && slugs.add(p.catalog_categories.slug))
-      .map(p => ({ slug: p.catalog_categories!.slug, name: p.catalog_categories!.name }));
-  }, [products]);
+    const result: { slug: string; name: string }[] = [];
+    products.forEach(p => {
+      if (p.catalog_categories && !slugs.has(p.catalog_categories.slug)) {
+        slugs.add(p.catalog_categories.slug);
+        result.push({ slug: p.catalog_categories.slug, name: p.catalog_categories.name });
+      }
+    });
+    catalogModules.forEach(m => {
+      if (m.catalog_categories && !slugs.has(m.catalog_categories.slug)) {
+        slugs.add(m.catalog_categories.slug);
+        result.push({ slug: m.catalog_categories.slug, name: m.catalog_categories.name });
+      }
+    });
+    return result;
+  }, [products, catalogModules]);
 
   const brands = useMemo(() => {
     const names = new Set<string>();
@@ -477,15 +506,22 @@ const ProductosPage = () => {
     });
   }, [products, filters]);
 
-  // Filter modules (only show if no category/brand filter active; search by name/description)
+  // Filter modules — now support category filter and tags in search
   const filteredModules = useMemo(() => {
     if (filters.offersOnly) return [];
-    if (filters.category !== "all") return [];
     if (filters.brand !== "all") return [];
     return catalogModules.filter(m => {
+      // Category filter: if active, only show modules that match (or no category on module → hide)
+      if (filters.category !== "all") {
+        if (m.catalog_categories?.slug !== filters.category) return false;
+      }
+      // Search: name, description, AND tags
       if (filters.search) {
         const s = filters.search.toLowerCase();
-        if (!m.name.toLowerCase().includes(s) && !m.description?.toLowerCase().includes(s)) return false;
+        const inName = m.name.toLowerCase().includes(s);
+        const inDesc = m.description?.toLowerCase().includes(s) ?? false;
+        const inTags = (m.tags || []).some(t => t.toLowerCase().includes(s));
+        if (!inName && !inDesc && !inTags) return false;
       }
       if (m.price_cop < filters.priceRange[0]) return false;
       return true;
