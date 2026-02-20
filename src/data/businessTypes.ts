@@ -2,7 +2,8 @@ import {
   Utensils, ShoppingCart, Shirt, Wrench, Laptop, Scissors, 
   Store, Building2, Stethoscope, PawPrint, Globe, Banknote,
   Settings, BookOpen, Briefcase, Warehouse, Package, Pill,
-  CakeSlice, Apple, Beef, Coffee, Car, Glasses
+  CakeSlice, Apple, Beef, Coffee, Car, Glasses,
+  IceCreamCone, Wine, Pizza, Gem
 } from "lucide-react";
 
 export interface BusinessType {
@@ -697,6 +698,118 @@ export const businessTypes: BusinessType[] = [
     cta: "Agenda tu demo para lavaderos",
     metaTitle: "Software POS para Lavaderos de Autos | SistecPOS",
     metaDescription: "Sistema POS para lavaderos con turnos y comisiones. Instalación en Bucaramanga."
+  },
+  {
+    slug: "heladerias",
+    title: "POS para Heladerías y Fruterías",
+    titleShort: "Heladerías",
+    description: "Heladerías, fruterías, juguerías y postres.",
+    longDescription: "Software POS especializado para heladerías y fruterías con gestión de toppings, porciones, combos de helado y control de insumos perecederos. Ideal para heladerías artesanales, fruterías con jugos naturales, açaí bowls y negocios de postres fríos.",
+    icon: IceCreamCone,
+    color: "bg-fuchsia-400/10 text-fuchsia-500",
+    features: [
+      "Toppings y porciones",
+      "Combos de helado",
+      "Ventas rápidas",
+      "Control de insumos perecederos",
+      "Modificadores de producto",
+      "Domicilios integrados",
+      "Facturación electrónica",
+      "Reportes de merma"
+    ],
+    modules: ["Ventas", "Modificadores", "Ingredientes", "Inventario", "Reportes"],
+    benefits: [
+      { title: "Personalización total", description: "Toppings, salsas y porciones configurables por producto" },
+      { title: "Control de merma", description: "Registra pérdidas de insumos perecederos (frutas, crema)" },
+      { title: "Ventas ágiles", description: "Despacha rápido con pantalla táctil y atajos" },
+    ],
+    cta: "Agenda tu demo para heladerías",
+    metaTitle: "Software POS para Heladerías y Fruterías | SistecPOS",
+    metaDescription: "Sistema POS para heladerías y fruterías con toppings, combos y control de insumos. Instalación presencial en Colombia."
+  },
+  {
+    slug: "bares-discotecas",
+    title: "POS para Bares y Discotecas",
+    titleShort: "Bares y Discotecas",
+    description: "Bares, discotecas, lounges y vida nocturna.",
+    longDescription: "Software POS para bares y discotecas con control de barra, cuentas abiertas, cierres de caja por turnos e inventario de licores por onza. Diseñado para ambientes de alta congestión y turnos nocturnos.",
+    icon: Wine,
+    color: "bg-violet-400/10 text-violet-500",
+    features: [
+      "Cuentas abiertas",
+      "Control de barra por onza",
+      "Cierres de caja por turno",
+      "Inventario de licores",
+      "Prevención de fugas",
+      "Happy hour automático",
+      "Facturación electrónica",
+      "Reportes por turno"
+    ],
+    modules: ["Barra", "Cuentas", "Inventario", "Turnos", "Reportes"],
+    benefits: [
+      { title: "Cuentas abiertas", description: "Los clientes consumen y pagan al final sin perder el control" },
+      { title: "Sin fugas de inventario", description: "Controla cada onza de licor servida vs vendida" },
+      { title: "Cierres por turno", description: "Cada mesero cuadra su caja al final del turno" },
+    ],
+    cta: "Agenda tu demo para bares",
+    metaTitle: "Software POS para Bares y Discotecas | SistecPOS",
+    metaDescription: "Sistema POS para bares y discotecas con cuentas abiertas, control de barra y cierres por turno. Instalación presencial en Colombia."
+  },
+  {
+    slug: "pizzerias",
+    title: "POS para Pizzerías y Comidas Rápidas",
+    titleShort: "Pizzerías",
+    description: "Pizzerías, comidas rápidas y domicilios.",
+    longDescription: "Software POS para pizzerías y comidas rápidas con integración profunda de domicilios, captura rápida de datos del cliente para facturación electrónica y zonas de entrega configurables. Optimizado para alto volumen de pedidos.",
+    icon: Pizza,
+    color: "bg-red-400/10 text-red-500",
+    features: [
+      "Domicilios integrados",
+      "Zonas de entrega",
+      "Captura rápida de cliente",
+      "Modificadores de masa y tamaño",
+      "Combos y promociones",
+      "Impresión de órdenes",
+      "Facturación electrónica DIAN",
+      "Reportes por zona"
+    ],
+    modules: ["Domicilios", "Ventas", "Modificadores", "Clientes", "Reportes"],
+    benefits: [
+      { title: "Domicilios eficientes", description: "Captura datos del cliente y asigna zona de entrega en segundos" },
+      { title: "Personalización", description: "Masa delgada, gruesa, mitad y mitad con facilidad" },
+      { title: "Alto volumen", description: "Optimizado para despachar muchos pedidos simultáneos" },
+    ],
+    cta: "Agenda tu demo para pizzerías",
+    metaTitle: "Software POS para Pizzerías y Comidas Rápidas | SistecPOS",
+    metaDescription: "Sistema POS para pizzerías con domicilios, zonas de entrega y facturación DIAN. Instalación presencial en Colombia."
+  },
+  {
+    slug: "joyerias",
+    title: "POS para Joyerías",
+    titleShort: "Joyerías",
+    description: "Joyerías, relojerías y artículos de alto valor.",
+    longDescription: "Software POS para joyerías con trazabilidad por gramo, certificados de autenticidad integrados en la factura, control de materiales preciosos y gestión de consignaciones. Seguridad y auditoría en cada transacción.",
+    icon: Gem,
+    color: "bg-amber-500/10 text-amber-600",
+    features: [
+      "Trazabilidad por gramo",
+      "Certificados de autenticidad",
+      "Control de materiales preciosos",
+      "Consignaciones",
+      "Avalúos y cotizaciones",
+      "Garantías de producto",
+      "Facturación electrónica DIAN",
+      "Auditoría de transacciones"
+    ],
+    modules: ["Inventario", "Certificados", "Consignaciones", "Garantías", "Reportes"],
+    benefits: [
+      { title: "Trazabilidad total", description: "Rastrea cada gramo de oro, plata o piedras preciosas" },
+      { title: "Certificados en factura", description: "Emite certificados de autenticidad integrados en la factura" },
+      { title: "Máxima seguridad", description: "Auditoría completa de cada transacción y movimiento" },
+    ],
+    cta: "Agenda tu demo para joyerías",
+    metaTitle: "Software POS para Joyerías | SistecPOS",
+    metaDescription: "Sistema POS para joyerías con trazabilidad, certificados de autenticidad y control de materiales preciosos. Instalación presencial en Colombia."
   },
   {
     slug: "farmacia",

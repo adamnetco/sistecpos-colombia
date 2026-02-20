@@ -16,8 +16,8 @@ export default function SolucionesPage() {
   return (
     <Layout>
       <SEO
-        title="Soluciones POS para 24 Tipos de Negocio | SistecPOS"
-        description="Software POS especializado para restaurantes, tiendas, ferreterías, farmacias y 20 industrias más. Instalación presencial en Colombia."
+        title={`Soluciones POS para ${businessTypes.length} Tipos de Negocio | SistecPOS`}
+        description={`Software POS especializado para restaurantes, tiendas, ferreterías, farmacias, heladerías, pizzerías, joyerías y ${businessTypes.length - 7} industrias más. Instalación presencial en Colombia.`}
         canonical="https://sistecpos.com/soluciones"
       />
       <JsonLd data={softwareApplicationSchema({ name: "SistecPOS", description: "Soluciones POS especializadas para 24 tipos de negocio en Colombia.", url: "https://sistecpos.com/soluciones" })} />
