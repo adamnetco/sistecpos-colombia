@@ -47,3 +47,15 @@ verify_jwt = false
 
 [functions.scrape-site]
 verify_jwt = false
+
+[functions.google-oauth-start]
+verify_jwt = false
+
+[functions.google-oauth-callback]
+verify_jwt = false
+
+[functions.sync-google-contacts]
+verify_jwt = false
+
+[functions.sync-google-calendar]
+verify_jwt = false
