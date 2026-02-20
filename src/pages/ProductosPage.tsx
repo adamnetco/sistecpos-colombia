@@ -11,7 +11,7 @@ import {
   Printer, Tag, CircleDollarSign, Barcode, ScrollText,
   MessageCircle, CheckCircle2, FileText, ArrowRight,
   Sparkles, Crown, Building2, ShoppingCart, Truck,
-  TrendingDown, CalendarClock,
+  TrendingDown, CalendarClock, Puzzle, Gift, Lock,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useCart } from "@/hooks/useCart";
@@ -22,6 +22,14 @@ import { JsonLd, collectionPageSchema } from "@/components/seo/JsonLd";
 import { toast } from "sonner";
 import { useState, useMemo } from "react";
 import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
+
+interface ModuleInfo {
+  id: string;
+  name: string;
+  is_free: boolean;
+  price_cop: number;
+  slug: string;
+}
 
 interface DBProduct {
   id: string;
@@ -43,6 +51,7 @@ interface DBProduct {
   sort_order: number;
   catalog_categories: { name: string; slug: string } | null;
   catalog_brands: { name: string } | null;
+  modules?: ModuleInfo[];
 }
 
 const formatPrice = (price: number) =>
@@ -132,6 +141,31 @@ const ProductCard = ({ product, index }: { product: DBProduct; index: number }) 
               </div>
             ))}
           </div>
+
+          {/* Módulos asociados con show_in_catalog */}
+          {product.modules && product.modules.length > 0 && (
+            <div className="mb-3 space-y-1">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">Módulos</p>
+              {product.modules.map((m) => (
+                <div key={m.id} className="flex items-center gap-1.5 text-xs">
+                  {m.is_free ? (
+                    <Gift className="h-3 w-3 text-whatsapp shrink-0" />
+                  ) : (
+                    <Puzzle className="h-3 w-3 text-primary shrink-0" />
+                  )}
+                  <span className="truncate">{m.name}</span>
+                  {!m.is_free && m.price_cop > 0 && (
+                    <span className="ml-auto shrink-0 text-primary font-medium">
+                      +{new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0 }).format(m.price_cop)}
+                    </span>
+                  )}
+                  {m.is_free && (
+                    <Badge className="ml-auto shrink-0 text-[9px] h-4 px-1 bg-whatsapp/10 text-whatsapp border-0">Incluido</Badge>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* ─── PRICING BLOCK ─── */}
           <div className="mt-auto pt-4 border-t space-y-1.5">
@@ -235,7 +269,7 @@ const ProductCard = ({ product, index }: { product: DBProduct; index: number }) 
 const ProductosPage = () => {
   const { buildUrl } = useWhatsAppConfig();
   const { data: products = [], isLoading } = useQuery({
-    queryKey: ["public_catalog_products"],
+    queryKey: ["public_catalog_products_with_modules"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("catalog_products")
@@ -243,7 +277,32 @@ const ProductosPage = () => {
         .eq("is_active", true)
         .order("sort_order");
       if (error) throw error;
-      return data as DBProduct[];
+
+      // Fetch modules that should show in catalog
+      const { data: catalogModules } = await supabase
+        .from("plan_modules")
+        .select("id, name, is_free, price_cop, slug")
+        .eq("is_active", true)
+        .eq("show_in_catalog", true);
+
+      // Fetch product-module links
+      const productIds = (data || []).map((p: any) => p.id);
+      const { data: links } = await supabase
+        .from("catalog_product_modules")
+        .select("product_id, module_id")
+        .in("product_id", productIds);
+
+      // Attach modules to each product
+      const modulesMap: Record<string, ModuleInfo[]> = {};
+      (links || []).forEach((link: any) => {
+        const mod = (catalogModules || []).find((m: any) => m.id === link.module_id);
+        if (mod) {
+          if (!modulesMap[link.product_id]) modulesMap[link.product_id] = [];
+          modulesMap[link.product_id].push(mod);
+        }
+      });
+
+      return (data || []).map((p: any) => ({ ...p, modules: modulesMap[p.id] || [] })) as DBProduct[];
     },
   });
 

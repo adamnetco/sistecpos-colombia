@@ -1392,6 +1392,8 @@ export type Database = {
           implementation_price_cop: number
           is_annual: boolean
           last_synced_at: string | null
+          max_cajas: number | null
+          max_usuarios: number | null
           official_price_cop: number
           plan_description: string | null
           plan_key: string
@@ -1409,6 +1411,8 @@ export type Database = {
           implementation_price_cop?: number
           is_annual?: boolean
           last_synced_at?: string | null
+          max_cajas?: number | null
+          max_usuarios?: number | null
           official_price_cop?: number
           plan_description?: string | null
           plan_key: string
@@ -1426,6 +1430,8 @@ export type Database = {
           implementation_price_cop?: number
           is_annual?: boolean
           last_synced_at?: string | null
+          max_cajas?: number | null
+          max_usuarios?: number | null
           official_price_cop?: number
           plan_description?: string | null
           plan_key?: string
@@ -1765,10 +1771,9 @@ export type Database = {
           is_active: boolean
           is_free: boolean
           is_included_in_plans: string[]
-          max_cajas: Json | null
-          max_usuarios: Json | null
           name: string
           price_cop: number
+          show_in_catalog: boolean
           slug: string
           sort_order: number
           updated_at: string
@@ -1782,10 +1787,9 @@ export type Database = {
           is_active?: boolean
           is_free?: boolean
           is_included_in_plans?: string[]
-          max_cajas?: Json | null
-          max_usuarios?: Json | null
           name: string
           price_cop?: number
+          show_in_catalog?: boolean
           slug: string
           sort_order?: number
           updated_at?: string
@@ -1799,10 +1803,9 @@ export type Database = {
           is_active?: boolean
           is_free?: boolean
           is_included_in_plans?: string[]
-          max_cajas?: Json | null
-          max_usuarios?: Json | null
           name?: string
           price_cop?: number
+          show_in_catalog?: boolean
           slug?: string
           sort_order?: number
           updated_at?: string

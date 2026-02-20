@@ -219,10 +219,34 @@ export function DynamicPricingSection() {
                             <GraduationCap className="h-4 w-4 text-whatsapp shrink-0" />
                             <span>Capacitación a tu equipo incluida</span>
                           </div>
+                          {/* Cajas y Usuarios del plan (de license_pricing) */}
+                          {(plan.max_cajas != null || plan.max_usuarios != null) && (
+                            <div className="rounded-lg bg-primary/5 border border-primary/10 px-3 py-2 space-y-1">
+                              {plan.max_cajas != null && (
+                                <div className="flex items-center gap-2 text-sm">
+                                  <CheckCircle2 className="h-3.5 w-3.5 text-whatsapp shrink-0" />
+                                  <span>
+                                    {plan.max_cajas === -1
+                                      ? <><strong>Cajas ilimitadas</strong></>
+                                      : <><strong>{plan.max_cajas}</strong> caja{plan.max_cajas !== 1 ? "s" : ""} simultánea{plan.max_cajas !== 1 ? "s" : ""}</>}
+                                  </span>
+                                </div>
+                              )}
+                              {plan.max_usuarios != null && (
+                                <div className="flex items-center gap-2 text-sm">
+                                  <CheckCircle2 className="h-3.5 w-3.5 text-whatsapp shrink-0" />
+                                  <span>
+                                    {plan.max_usuarios === -1
+                                      ? <><strong>Usuarios ilimitados</strong></>
+                                      : <><strong>{plan.max_usuarios}</strong> usuario{plan.max_usuarios !== 1 ? "s" : ""}</>}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          )}
                           {/* Módulos add-on del plan */}
                           {(() => {
                             const visibleModules = allModules.filter((m: any) =>
-                              m.slug === "cajas-usuarios" ||
                               m.allowed_plan_keys.length === 0 ||
                               m.allowed_plan_keys.includes(plan.plan_key)
                             );
@@ -231,37 +255,9 @@ export function DynamicPricingSection() {
                             return (
                               <div className="border-t pt-3 mt-2 space-y-1.5">
                                 <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                                  Límites y módulos
+                                  Módulos
                                 </p>
                                 {visibleModules.map((m: any) => {
-                                  // Special rendering for cajas/usuarios module
-                                  if (m.slug === "cajas-usuarios" && (m.max_cajas || m.max_usuarios)) {
-                                    const cajas = m.max_cajas?.[plan.plan_key];
-                                    const usuarios = m.max_usuarios?.[plan.plan_key];
-                                    return (
-                                      <div key={m.id} className="rounded-lg bg-primary/5 border border-primary/10 px-3 py-2 space-y-1">
-                                        {cajas !== undefined && (
-                                          <div className="flex items-center gap-2 text-sm">
-                                            <CheckCircle2 className="h-3.5 w-3.5 text-whatsapp shrink-0" />
-                                            <span>
-                                              <strong>{cajas}</strong> caja{cajas !== 1 ? "s" : ""} simultánea{cajas !== 1 ? "s" : ""}
-                                            </span>
-                                          </div>
-                                        )}
-                                        {usuarios !== undefined && (
-                                          <div className="flex items-center gap-2 text-sm">
-                                            <CheckCircle2 className="h-3.5 w-3.5 text-whatsapp shrink-0" />
-                                            <span>
-                                              {usuarios === -1
-                                                ? <><strong>Usuarios ilimitados</strong></>
-                                                : <><strong>{usuarios}</strong> usuario{usuarios !== 1 ? "s" : ""}</>}
-                                            </span>
-                                          </div>
-                                        )}
-                                      </div>
-                                    );
-                                  }
-
                                   const isIncluded = m.is_included_in_plans.includes(plan.plan_key);
                                   return (
                                     <div key={m.id} className="flex items-center gap-2 text-sm">

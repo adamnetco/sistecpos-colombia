@@ -42,6 +42,8 @@ interface PricingRow {
   last_synced_at: string | null;
   sort_order: number;
   image_url: string | null;
+  max_cajas: number | null;
+  max_usuarios: number | null;
 }
 
 export default function LicensePricingView() {
