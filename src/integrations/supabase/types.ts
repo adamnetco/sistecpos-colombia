@@ -2209,6 +2209,7 @@ export type Database = {
           supplier_type: string
           updated_at: string
           website: string | null
+          whatsapp_support: string | null
         }
         Insert: {
           city?: string | null
@@ -2223,6 +2224,7 @@ export type Database = {
           supplier_type?: string
           updated_at?: string
           website?: string | null
+          whatsapp_support?: string | null
         }
         Update: {
           city?: string | null
@@ -2237,6 +2239,7 @@ export type Database = {
           supplier_type?: string
           updated_at?: string
           website?: string | null
+          whatsapp_support?: string | null
         }
         Relationships: []
       }
