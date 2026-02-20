@@ -1,6 +1,6 @@
 import { Suspense, lazy } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MessageCircle, Trophy, HelpCircle, Navigation, Settings, Bot, Search, Globe } from "lucide-react";
+import { MessageCircle, Trophy, HelpCircle, Navigation, Settings, Bot, Search } from "lucide-react";
 
 const WhatsAppSettingsTab = lazy(() => import("./settings/WhatsAppSettingsTab"));
 const SuccessStoriesTab = lazy(() => import("./settings/SuccessStoriesTab"));
@@ -9,7 +9,6 @@ const NavManagerTab = lazy(() => import("./settings/NavManagerTab"));
 const GeneralSettingsTab = lazy(() => import("./settings/GeneralSettingsTab"));
 const ChatbotSettingsTab = lazy(() => import("./ChatbotSettingsTab"));
 const SEOManagerTab = lazy(() => import("./settings/SEOManagerTab"));
-const EmailDomainsTab = lazy(() => import("./settings/EmailDomainsTab"));
 
 function Loader() {
   return <div className="flex h-32 items-center justify-center"><div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>;
@@ -32,7 +31,6 @@ export default function SettingsView() {
           <TabsTrigger value="nav" className="gap-2"><Navigation className="h-4 w-4" />Navegación</TabsTrigger>
           <TabsTrigger value="chatbot" className="gap-2"><Bot className="h-4 w-4" />Chatbot</TabsTrigger>
           <TabsTrigger value="seo" className="gap-2"><Search className="h-4 w-4" />SEO</TabsTrigger>
-          <TabsTrigger value="domains" className="gap-2"><Globe className="h-4 w-4" />Dominios</TabsTrigger>
         </TabsList>
 
         <TabsContent value="general"><Suspense fallback={<Loader />}><GeneralSettingsTab /></Suspense></TabsContent>
@@ -42,7 +40,6 @@ export default function SettingsView() {
         <TabsContent value="nav"><Suspense fallback={<Loader />}><NavManagerTab /></Suspense></TabsContent>
         <TabsContent value="chatbot"><Suspense fallback={<Loader />}><ChatbotSettingsTab /></Suspense></TabsContent>
         <TabsContent value="seo"><Suspense fallback={<Loader />}><SEOManagerTab /></Suspense></TabsContent>
-        <TabsContent value="domains"><Suspense fallback={<Loader />}><EmailDomainsTab /></Suspense></TabsContent>
       </Tabs>
     </div>
   );

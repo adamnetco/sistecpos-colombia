@@ -76,13 +76,13 @@ export default function ResellerLicensesView() {
   const load = async () => {
     if (!reseller) return;
     setLoading(true);
-    const [{ data }, { data: settings }] = await Promise.all([
+    const [{ data }, { data: domainRows }] = await Promise.all([
       supabase.from("licenses").select("*").eq("created_by_reseller_id", reseller.id).order("created_at", { ascending: false }),
-      supabase.from("app_settings").select("value").eq("key", "allowed_license_domains").maybeSingle(),
+      supabase.from("approved_email_domains").select("domain").eq("is_active", true),
     ]);
     setLicenses((data as License[]) || []);
-    if (settings?.value) {
-      setAllowedDomains(settings.value.split(",").map((d: string) => d.trim()).filter(Boolean));
+    if (domainRows) {
+      setAllowedDomains(domainRows.map((r: any) => r.domain));
     }
     setLoading(false);
   };
