@@ -23,6 +23,7 @@ import Index from "./pages/Index";
 const SolucionesPage = lazy(() => import("./pages/SolucionesPage"));
 const ProductosPage = lazy(() => import("./pages/ProductosPage"));
 const ProductoDetallePage = lazy(() => import("./pages/ProductoDetallePage"));
+const ModuloDetallePage = lazy(() => import("./pages/ModuloDetallePage"));
 const NosotrosPage = lazy(() => import("./pages/NosotrosPage"));
 const ComparativaLicenciasPage = lazy(() => import("./pages/ComparativaLicenciasPage"));
 const ContactoPage = lazy(() => import("./pages/ContactoPage"));
@@ -93,6 +94,7 @@ const App = () => (
                 <Route path="/servicios" element={<ServiciosPage />} />
                 <Route path="/productos" element={<ProductosPage />} />
                 <Route path="/productos/:slug" element={<ProductoDetallePage />} />
+                <Route path="/productos/modulo-:slug" element={<ModuloDetallePage />} />
                 <Route path="/nosotros" element={<NosotrosPage />} />
                 <Route path="/comparativa-licencias" element={<ComparativaLicenciasPage />} />
                 <Route path="/comparar" element={<CompararPage />} />
