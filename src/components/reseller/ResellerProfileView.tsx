@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense, lazy } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useReseller } from "@/hooks/useReseller";
@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Building2, Save, User } from "lucide-react";
+
+const GoogleConnectionCard = lazy(() => import("@/components/shared/GoogleConnectionCard"));
 
 interface BusinessData {
   id: string;
@@ -161,6 +163,11 @@ export default function ResellerProfileView() {
           </Button>
         </CardContent>
       </Card>
+
+      {/* Google Connection */}
+      <Suspense fallback={<Skeleton className="h-32 w-full" />}>
+        <GoogleConnectionCard />
+      </Suspense>
 
       {/* Representative info (read-only) */}
       {reseller && (
