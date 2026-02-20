@@ -91,7 +91,7 @@ export function DemoRequestForm() {
 
       setTimeout(() => {
         setIsSubmitting(false);
-        navigate("/gracias");
+        navigate("/gracias?from=demo");
       }, 1500);
     } catch (err) {
       console.error(err);
