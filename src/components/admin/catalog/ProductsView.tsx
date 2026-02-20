@@ -4,8 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -14,18 +12,16 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
-} from "@/components/ui/dialog";
-import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import { toast } from "sonner";
 import {
   Plus, Pencil, Trash2, Package, Search, Image, Eye, EyeOff,
-  Star, Sparkles, Grid3X3, List,
+  Star, Sparkles, Grid3X3, List, Puzzle,
 } from "lucide-react";
 import ProductFormDialog from "./ProductFormDialog";
 import ProductCSVTools from "./ProductCSVTools";
+import PlanModulesManager from "./PlanModulesManager";
 
 interface Product {
   id: string;
@@ -132,6 +128,17 @@ export default function ProductsView() {
 
   return (
     <div className="space-y-6">
+      <Tabs defaultValue="products">
+        <TabsList className="gap-1">
+          <TabsTrigger value="products" className="gap-1.5">
+            <Package className="h-4 w-4" /> Productos
+          </TabsTrigger>
+          <TabsTrigger value="modules" className="gap-1.5">
+            <Puzzle className="h-4 w-4" /> Módulos de Plan
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="products" className="space-y-6 mt-4">
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
@@ -283,7 +290,7 @@ export default function ProductsView() {
                           checked={p.is_active}
                           onCheckedChange={v => toggleActive.mutate({ id: p.id, is_active: v })}
                         />
-                        {p.is_offer && <Sparkles className="h-3 w-3 text-amber-500" />}
+                        {p.is_offer && <Sparkles className="h-3 w-3 text-primary" />}
                         {p.is_featured && <Star className="h-3 w-3 text-primary" />}
                       </div>
                     </TableCell>
@@ -366,6 +373,12 @@ export default function ProductsView() {
           setEditing(null);
         }}
       />
+        </TabsContent>
+
+        <TabsContent value="modules" className="mt-4">
+          <PlanModulesManager />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
