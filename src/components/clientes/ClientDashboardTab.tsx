@@ -19,6 +19,7 @@ interface DashboardMetrics {
   activePlan: string | null;
   licenseStatus: string | null;
   expiresAt: string | null;
+  supportPlan: string | null;
   openTickets: number;
   pendingPayments: number;
   loading: boolean;
@@ -30,6 +31,7 @@ export default function ClientDashboardTab() {
     activePlan: null,
     licenseStatus: null,
     expiresAt: null,
+    supportPlan: null,
     openTickets: 0,
     pendingPayments: 0,
     loading: true,
@@ -38,7 +40,7 @@ export default function ClientDashboardTab() {
   useEffect(() => {
     if (!user) return;
     async function load() {
-      const [licRes, ticketRes, payRes] = await Promise.all([
+      const [licRes, ticketRes, payRes, subRes] = await Promise.all([
         supabase
           .from("licenses")
           .select("plan_type, status, expires_at")
@@ -55,13 +57,21 @@ export default function ClientDashboardTab() {
           .from("payments")
           .select("id", { count: "exact", head: true })
           .eq("status", "pending"),
+        supabase
+          .from("support_subscriptions")
+          .select("plan, status")
+          .eq("user_id", user!.id)
+          .eq("status", "active")
+          .limit(1),
       ]);
 
       const lic = licRes.data?.[0];
+      const sub = subRes.data?.[0];
       setMetrics({
         activePlan: lic?.plan_type ?? null,
         licenseStatus: lic?.status ?? null,
         expiresAt: lic?.expires_at ?? null,
+        supportPlan: sub?.plan ?? null,
         openTickets: ticketRes.count ?? 0,
         pendingPayments: payRes.count ?? 0,
         loading: false,
