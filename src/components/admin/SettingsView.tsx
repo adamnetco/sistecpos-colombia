@@ -1,6 +1,6 @@
 import { Suspense, lazy } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MessageCircle, Trophy, HelpCircle, Navigation, Settings, Bot, Search } from "lucide-react";
+import { MessageCircle, Trophy, HelpCircle, Navigation, Settings, Bot, Search, Chrome } from "lucide-react";
 
 const WhatsAppSettingsTab = lazy(() => import("./settings/WhatsAppSettingsTab"));
 const SuccessStoriesTab = lazy(() => import("./settings/SuccessStoriesTab"));
@@ -9,6 +9,7 @@ const NavManagerTab = lazy(() => import("./settings/NavManagerTab"));
 const GeneralSettingsTab = lazy(() => import("./settings/GeneralSettingsTab"));
 const ChatbotSettingsTab = lazy(() => import("./ChatbotSettingsTab"));
 const SEOManagerTab = lazy(() => import("./settings/SEOManagerTab"));
+const GoogleConnectionCard = lazy(() => import("@/components/shared/GoogleConnectionCard"));
 
 function Loader() {
   return <div className="flex h-32 items-center justify-center"><div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>;
@@ -25,6 +26,7 @@ export default function SettingsView() {
       <Tabs defaultValue="general" className="space-y-4">
         <TabsList className="flex-wrap h-auto gap-1">
           <TabsTrigger value="general" className="gap-2"><Settings className="h-4 w-4" />General</TabsTrigger>
+          <TabsTrigger value="google" className="gap-2"><Chrome className="h-4 w-4" />Google</TabsTrigger>
           <TabsTrigger value="whatsapp" className="gap-2"><MessageCircle className="h-4 w-4" />WhatsApp</TabsTrigger>
           <TabsTrigger value="stories" className="gap-2"><Trophy className="h-4 w-4" />Casos de Éxito</TabsTrigger>
           <TabsTrigger value="faqs" className="gap-2"><HelpCircle className="h-4 w-4" />FAQs</TabsTrigger>
@@ -34,6 +36,7 @@ export default function SettingsView() {
         </TabsList>
 
         <TabsContent value="general"><Suspense fallback={<Loader />}><GeneralSettingsTab /></Suspense></TabsContent>
+        <TabsContent value="google"><Suspense fallback={<Loader />}><GoogleConnectionCard /></Suspense></TabsContent>
         <TabsContent value="whatsapp"><Suspense fallback={<Loader />}><WhatsAppSettingsTab /></Suspense></TabsContent>
         <TabsContent value="stories"><Suspense fallback={<Loader />}><SuccessStoriesTab /></Suspense></TabsContent>
         <TabsContent value="faqs"><Suspense fallback={<Loader />}><DynamicFAQsTab /></Suspense></TabsContent>
