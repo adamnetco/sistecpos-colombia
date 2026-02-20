@@ -61,13 +61,16 @@ Deno.serve(async (req) => {
       return jsonResponse({ status: "skipped", message: "Template not found or inactive" });
     }
 
-    // 2. Fetch default provider
-    const { data: provider, error: pErr } = await sb
-      .from("whatsapp_providers")
-      .select("*")
-      .eq("is_default", true)
-      .eq("is_active", true)
-      .single();
+    // 2. Fetch provider — use template's provider_name if set, otherwise the default
+    let providerQuery = sb.from("whatsapp_providers").select("*").eq("is_active", true);
+
+    if (template.provider_name) {
+      providerQuery = providerQuery.eq("name", template.provider_name);
+    } else {
+      providerQuery = providerQuery.eq("is_default", true);
+    }
+
+    const { data: provider, error: pErr } = await providerQuery.single();
 
     if (pErr || !provider) {
       await logNotification(sb, event_type, "none", null, null, "failed", "No active default provider");

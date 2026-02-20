@@ -43,7 +43,9 @@ interface Template {
   is_active: boolean;
   sort_order: number;
   notes: string | null;
+  provider_name: string | null;
 }
+
 
 interface LogEntry {
   id: string;
@@ -123,7 +125,7 @@ export default function WhatsAppNotificationsView() {
         </TabsList>
 
         <TabsContent value="templates">
-          <TemplatesTab templates={templates} loading={loadingTemplates} />
+          <TemplatesTab templates={templates} loading={loadingTemplates} providers={providers} />
         </TabsContent>
         <TabsContent value="providers">
           <ProvidersTab providers={providers} loading={loadingProviders} />
@@ -138,11 +140,12 @@ export default function WhatsAppNotificationsView() {
 
 /* ═══ TEMPLATES TAB ═══════════════════════════════════════ */
 
-function TemplatesTab({ templates, loading }: { templates: Template[]; loading: boolean }) {
+function TemplatesTab({ templates, loading, providers }: { templates: Template[]; loading: boolean; providers: Provider[] }) {
   const { toast } = useToast();
   const qc = useQueryClient();
   const [editing, setEditing] = useState<Template | null>(null);
   const [creating, setCreating] = useState(false);
+
 
   const toggleActive = useMutation({
     mutationFn: async ({ id, is_active }: { id: string; is_active: boolean }) => {
@@ -199,9 +202,19 @@ function TemplatesTab({ templates, loading }: { templates: Template[]; loading: 
             <div key={t.id} className="flex items-start gap-4 rounded-lg border p-4">
               <div className="text-2xl">{t.emoji}</div>
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
+                <div className="flex items-center gap-2 mb-1 flex-wrap">
                   <span className="font-semibold text-sm">{t.event_label}</span>
                   <Badge variant="outline" className="text-[10px]">{t.event_type}</Badge>
+                  {t.provider_name && (
+                    <Badge variant="secondary" className="text-[10px] gap-1">
+                      📡 {t.provider_name}
+                    </Badge>
+                  )}
+                  {!t.provider_name && (
+                    <Badge variant="outline" className="text-[10px] text-muted-foreground">
+                      predeterminado
+                    </Badge>
+                  )}
                   {!t.is_active && <Badge variant="secondary">Inactiva</Badge>}
                 </div>
                 <pre className="text-xs text-muted-foreground whitespace-pre-wrap font-sans leading-relaxed max-h-24 overflow-y-auto">{t.template_text}</pre>
@@ -226,6 +239,7 @@ function TemplatesTab({ templates, loading }: { templates: Template[]; loading: 
       {(editing || creating) && (
         <TemplateDialog
           template={editing}
+          providers={providers}
           open
           onClose={() => { setEditing(null); setCreating(false); }}
         />
@@ -236,7 +250,7 @@ function TemplatesTab({ templates, loading }: { templates: Template[]; loading: 
 
 /* ─── Template Dialog ──────────────────────────────────── */
 
-function TemplateDialog({ template, open, onClose }: { template: Template | null; open: boolean; onClose: () => void }) {
+function TemplateDialog({ template, providers, open, onClose }: { template: Template | null; providers: Provider[]; open: boolean; onClose: () => void }) {
   const { toast } = useToast();
   const qc = useQueryClient();
   const isEdit = !!template;
@@ -247,6 +261,7 @@ function TemplateDialog({ template, open, onClose }: { template: Template | null
     template_text: template?.template_text || "",
     emoji: template?.emoji || "📱",
     notes: template?.notes || "",
+    provider_name: template?.provider_name || "",
   });
 
   const save = async () => {
@@ -254,17 +269,19 @@ function TemplateDialog({ template, open, onClose }: { template: Template | null
       toast({ title: "Completa todos los campos", variant: "destructive" });
       return;
     }
+    const payload = { ...form, provider_name: form.provider_name || null };
     if (isEdit) {
-      const { error } = await supabase.from("whatsapp_templates").update(form).eq("id", template.id);
+      const { error } = await supabase.from("whatsapp_templates").update(payload).eq("id", template.id);
       if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
     } else {
-      const { error } = await supabase.from("whatsapp_templates").insert(form);
+      const { error } = await supabase.from("whatsapp_templates").insert(payload);
       if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
     }
     qc.invalidateQueries({ queryKey: ["whatsapp_templates"] });
     toast({ title: isEdit ? "Plantilla actualizada" : "Plantilla creada" });
     onClose();
   };
+
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -297,6 +314,22 @@ function TemplateDialog({ template, open, onClose }: { template: Template | null
                 </Button>
               ))}
             </div>
+          </div>
+          <div>
+            <Label>Enrutar a proveedor</Label>
+            <select
+              value={form.provider_name}
+              onChange={(e) => setForm((p) => ({ ...p, provider_name: e.target.value }))}
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            >
+              <option value="">— Predeterminado (is_default) —</option>
+              {providers.map((p) => (
+                <option key={p.id} value={p.name}>
+                  {p.display_name} ({p.provider_type})
+                </option>
+              ))}
+            </select>
+            <p className="text-xs text-muted-foreground mt-1">Si no se selecciona, se usará el proveedor marcado como predeterminado.</p>
           </div>
           <div>
             <Label>Notas internas</Label>

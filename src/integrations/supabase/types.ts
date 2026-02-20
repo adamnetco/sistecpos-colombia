@@ -2613,6 +2613,7 @@ export type Database = {
           id: string
           is_active: boolean
           notes: string | null
+          provider_name: string | null
           sort_order: number
           template_text: string
           updated_at: string
@@ -2625,6 +2626,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           notes?: string | null
+          provider_name?: string | null
           sort_order?: number
           template_text: string
           updated_at?: string
@@ -2637,6 +2639,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           notes?: string | null
+          provider_name?: string | null
           sort_order?: number
           template_text?: string
           updated_at?: string
