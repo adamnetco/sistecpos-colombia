@@ -6,7 +6,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ChartContainer } from "@/components/ui/chart";
 import { BarChart, Bar } from "recharts";
-import { CreditCard, DollarSign, Clock, Wallet, CheckCircle2, XCircle, AlertTriangle, Download } from "lucide-react";
+import { CreditCard, DollarSign, Clock, Wallet, CheckCircle2, XCircle, AlertTriangle, Download, Zap } from "lucide-react";
+import { lazy, Suspense } from "react";
+const CouponsTab = lazy(() => import("./CouponsTab"));
 import { exportToCsv } from "@/lib/exportCsv";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -197,6 +199,10 @@ export default function PaymentsView() {
             <CreditCard className="h-4 w-4" />
             Manuales ({payments.length})
           </TabsTrigger>
+          <TabsTrigger value="coupons" className="gap-1.5">
+            <Zap className="h-4 w-4" />
+            Cupones
+          </TabsTrigger>
         </TabsList>
 
         {/* Wompi Transactions Tab */}
@@ -323,7 +329,15 @@ export default function PaymentsView() {
             </table>
           </div>
         </TabsContent>
+
+        {/* Coupons Tab */}
+        <TabsContent value="coupons">
+          <Suspense fallback={<div className="flex h-32 items-center justify-center"><div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>}>
+            <CouponsTab />
+          </Suspense>
+        </TabsContent>
       </Tabs>
     </div>
   );
 }
+
