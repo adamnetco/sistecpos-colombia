@@ -1534,6 +1534,39 @@ export type Database = {
           },
         ]
       }
+      misc_lists: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          items: string[]
+          label: string
+          list_key: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          items?: string[]
+          label: string
+          list_key: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          items?: string[]
+          label?: string
+          list_key?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       nav_items: {
         Row: {
           created_at: string
@@ -1732,6 +1765,8 @@ export type Database = {
           is_active: boolean
           is_free: boolean
           is_included_in_plans: string[]
+          max_cajas: Json | null
+          max_usuarios: Json | null
           name: string
           price_cop: number
           slug: string
@@ -1747,6 +1782,8 @@ export type Database = {
           is_active?: boolean
           is_free?: boolean
           is_included_in_plans?: string[]
+          max_cajas?: Json | null
+          max_usuarios?: Json | null
           name: string
           price_cop?: number
           slug: string
@@ -1762,6 +1799,8 @@ export type Database = {
           is_active?: boolean
           is_free?: boolean
           is_included_in_plans?: string[]
+          max_cajas?: Json | null
+          max_usuarios?: Json | null
           name?: string
           price_cop?: number
           slug?: string
