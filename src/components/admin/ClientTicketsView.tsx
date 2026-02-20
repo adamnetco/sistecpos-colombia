@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MessageSquare, User, Handshake, Mail, Phone, Building2, Paperclip, Video, FileText, Image as ImageIcon } from "lucide-react";
+import { MessageSquare, User, Handshake, Mail, Phone, Building2, Paperclip, Video, FileText, Image as ImageIcon, AlertTriangle } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { lazy, Suspense, useState as useStateLazy } from "react";
 const AdminTicketChatDialog = lazy(() => import("@/components/admin/AdminTicketChatDialog"));
@@ -152,6 +152,37 @@ export default function ClientTicketsView() {
       return;
     }
 
+    // If escalating, send WhatsApp via CallMeBot
+    if (finalStatus === "escalated") {
+      try {
+        const attachInfo = selected.attachment_url
+          ? `\n📎 Adjunto: ${selected.attachment_url}`
+          : "";
+        const videoInfo = selected.video_url
+          ? `\n🎥 Video: ${selected.video_url}`
+          : "";
+        await supabase.functions.invoke("send-whatsapp", {
+          body: {
+            event_type: "ticket_escalated",
+            variables: {
+              name: selected.creator_name,
+              subject: selected.subject,
+              description: selected.description.substring(0, 300),
+              module: selected.module || "General",
+              source: selected.source === "client" ? "Cliente" : "Socio",
+              attachment: attachInfo + videoInfo,
+              phone: selected.creator_phone || selected.whatsapp || "-",
+              priority: selected.priority,
+            },
+            skip_rate_limit: true,
+          },
+        });
+        toast({ title: "📲 WhatsApp enviado al proveedor de segundo nivel" });
+      } catch (e) {
+        console.error("WhatsApp escalation error:", e);
+      }
+    }
+
     // Send notification email
     try {
       await supabase.functions.invoke("notify-ticket-status", {
@@ -180,7 +211,15 @@ export default function ClientTicketsView() {
   const statusColor = (s: string) => {
     if (s === "open") return "bg-yellow-500 text-white";
     if (s === "resolved") return "bg-green-600 text-white";
+    if (s === "escalated") return "bg-orange-500 text-white";
     return "bg-muted";
+  };
+
+  const statusLabel = (s: string) => {
+    if (s === "open") return "Abierto";
+    if (s === "resolved") return "Resuelto";
+    if (s === "escalated") return "Escalado N2";
+    return s;
   };
 
   const priorityColor = (p: string) => {
@@ -266,7 +305,7 @@ export default function ClientTicketsView() {
                     </div>
                   </TableCell>
                   <TableCell className="font-medium max-w-[200px] truncate">{t.subject}</TableCell>
-                  <TableCell><Badge className={statusColor(t.status)}>{t.status === "open" ? "Abierto" : "Resuelto"}</Badge></TableCell>
+                  <TableCell><Badge className={statusColor(t.status)}>{statusLabel(t.status)}</Badge></TableCell>
                   <TableCell><Badge className={priorityColor(t.priority)}>{t.priority}</Badge></TableCell>
                   <TableCell className="text-xs text-muted-foreground whitespace-nowrap">{new Date(t.created_at).toLocaleDateString("es-CO")}</TableCell>
                   <TableCell className="text-right">
@@ -374,10 +413,21 @@ export default function ClientTicketsView() {
                 />
               </div>
 
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap">
                 <Button onClick={() => handleRespond("resolved")} className="flex-1" disabled={saving}>
                   {saving ? "Enviando..." : selected.status === "open" ? "✅ Responder y Resolver" : "Actualizar Respuesta"}
                 </Button>
+                {selected.status !== "escalated" && (
+                  <Button
+                    variant="outline"
+                    className="gap-1.5 border-orange-400 text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-950"
+                    onClick={() => handleRespond("escalated")}
+                    disabled={saving}
+                  >
+                    <AlertTriangle className="h-4 w-4" />
+                    Escalar Proveedor
+                  </Button>
+                )}
                 {selected.status === "resolved" && (
                   <Button variant="outline" onClick={() => handleRespond("open")} disabled={saving}>
                     Reabrir
