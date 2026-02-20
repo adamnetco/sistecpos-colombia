@@ -66,6 +66,16 @@ interface DemoProcessingPayload {
   business: string;
 }
 
+interface SoftwarePresentationPayload {
+  type: "software_presentation";
+  name: string;
+  email: string;
+  business: string;
+  coupon_code: string;
+  expires_at: string;
+  plans: Array<{ label: string; original: number; discounted: number }>;
+}
+
 interface LicenseActivationPayload {
   type: "license_activation_request";
   business_name: string;
@@ -84,7 +94,7 @@ interface LicenseActivationPayload {
   provider_name?: string;
 }
 
-type Payload = TicketPayload | ResellerStatusPayload | DemoCredentialsPayload | DemoProcessingPayload | LicenseActivationPayload;
+type Payload = TicketPayload | ResellerStatusPayload | DemoCredentialsPayload | DemoProcessingPayload | SoftwarePresentationPayload | LicenseActivationPayload;
 
 const statusLabels: Record<string, string> = {
   open: "Abierto",
@@ -416,6 +426,118 @@ Deno.serve(async (req) => {
         }),
       });
       if (!res.ok) console.error("Resend error:", await res.text());
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // ─── Software Presentation + Coupon email ──────────────
+    if (payload.type === "software_presentation") {
+      const p = payload as SoftwarePresentationPayload;
+      const expiresDate = new Date(p.expires_at);
+      const expiresFormatted = expiresDate.toLocaleString("es-CO", { 
+        day: "2-digit", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" 
+      });
+      
+      const formatCOP = (n: number) => new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(n);
+      
+      const planRows = p.plans.map(plan => {
+        const savings = plan.original - plan.discounted;
+        const pct = Math.round((savings / plan.original) * 100);
+        return `
+          <tr>
+            <td style="padding:10px;border-bottom:1px solid #e5e7eb;font-size:14px;font-weight:600;color:#1a1a2e;">${plan.label}</td>
+            <td style="padding:10px;border-bottom:1px solid #e5e7eb;font-size:14px;color:#9ca3af;text-decoration:line-through;">${formatCOP(plan.original)}</td>
+            <td style="padding:10px;border-bottom:1px solid #e5e7eb;font-size:16px;font-weight:800;color:#16a34a;">${formatCOP(plan.discounted)}</td>
+            <td style="padding:10px;border-bottom:1px solid #e5e7eb;font-size:13px;font-weight:700;color:#dc2626;">-${pct}%</td>
+          </tr>`;
+      }).join("");
+
+      const html = `
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+<div style="max-width:600px;margin:0 auto;padding:40px 20px;">
+<div style="background:#ffffff;border-radius:16px;padding:40px 32px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+  <div style="text-align:center;margin-bottom:24px;">
+    <img src="${SITE_URL}/lovable-uploads/43a24c53-78c0-4ca3-b642-99a376d90a0f.png" alt="SistecPOS" style="height:40px;" />
+  </div>
+
+  <div style="text-align:center;margin-bottom:12px;">
+    <span style="display:inline-block;background:#dc2626;color:#fff;font-size:13px;font-weight:800;padding:6px 18px;border-radius:20px;text-transform:uppercase;letter-spacing:0.5px;">⏰ OFERTA EXCLUSIVA — 24 HORAS</span>
+  </div>
+
+  <h1 style="text-align:center;color:#1a1a2e;font-size:24px;margin:0 0 8px;">¡${p.name}, tu descuento exclusivo te espera!</h1>
+  <p style="text-align:center;color:#6b7280;font-size:14px;margin:0 0 24px;line-height:1.6;">
+    Después de la presentación de SistecPOS para <strong>${p.business}</strong>, hemos activado un <strong>cupón con precios especiales</strong> que expira pronto.
+  </p>
+
+  <!-- Urgency Timer -->
+  <div style="background:linear-gradient(135deg, #fef2f2, #fee2e2);border:2px solid #fca5a5;border-radius:16px;padding:20px;margin-bottom:24px;text-align:center;">
+    <p style="margin:0 0 4px;color:#991b1b;font-size:20px;font-weight:800;">⏳ Expira: ${expiresFormatted}</p>
+    <p style="margin:0;color:#b91c1c;font-size:13px;">Después de esta fecha, los precios volverán a su valor original.</p>
+  </div>
+
+  <!-- Coupon Code -->
+  <div style="background:linear-gradient(135deg, #f0fdf4, #dcfce7);border:2px dashed #22c55e;border-radius:16px;padding:24px;margin-bottom:24px;text-align:center;">
+    <p style="margin:0 0 8px;color:#166534;font-size:13px;font-weight:600;">TU CUPÓN DE DESCUENTO</p>
+    <p style="margin:0;color:#166534;font-size:32px;font-weight:900;letter-spacing:4px;font-family:monospace;">${p.coupon_code}</p>
+    <p style="margin:8px 0 0;color:#15803d;font-size:12px;">Menciónalo al momento de tu compra</p>
+  </div>
+
+  <!-- Pricing Table -->
+  <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;margin-bottom:24px;">
+    <table style="width:100%;border-collapse:collapse;">
+      <thead>
+        <tr style="background:#1a1a2e;">
+          <th style="padding:12px;text-align:left;color:#fff;font-size:13px;">Plan</th>
+          <th style="padding:12px;text-align:left;color:#9ca3af;font-size:13px;">Precio Normal</th>
+          <th style="padding:12px;text-align:left;color:#22c55e;font-size:13px;">Tu Precio</th>
+          <th style="padding:12px;text-align:left;color:#fbbf24;font-size:13px;">Ahorro</th>
+        </tr>
+      </thead>
+      <tbody>${planRows}</tbody>
+    </table>
+  </div>
+
+  <!-- CTA -->
+  <div style="text-align:center;margin:28px 0;">
+    <a href="https://wa.me/${waNumber}?text=Hola,+quiero+usar+mi+cup%C3%B3n+${encodeURIComponent(p.coupon_code)}+para+adquirir+mi+licencia+de+SistecPOS" style="display:inline-block;background:linear-gradient(135deg, #16a34a, #15803d);color:#ffffff;font-size:16px;font-weight:800;padding:16px 48px;border-radius:12px;text-decoration:none;box-shadow:0 4px 14px rgba(22,163,74,0.4);">
+      💳 Quiero mi Licencia con Descuento
+    </a>
+  </div>
+
+  <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:16px;margin-bottom:20px;text-align:center;">
+    <p style="margin:0;color:#92400e;font-size:13px;line-height:1.6;">
+      💡 <strong>Incluye:</strong> Instalación, configuración de productos, capacitación personalizada y soporte técnico prioritario.
+    </p>
+  </div>
+
+  <hr style="border:none;border-top:1px solid #e5e7eb;margin:32px 0;" />
+  <p style="text-align:center;color:#9ca3af;font-size:12px;margin:0;">© ${new Date().getFullYear()} SistecPOS · Software POS Colombia</p>
+</div></div></body></html>`;
+
+      const res = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          from: "SistecPOS <notificaciones@sistecpos.com>",
+          to: [p.email],
+          subject: `⏰ ${p.name}, tu descuento EXCLUSIVO de 24h para ${p.business} — SistecPOS`,
+          html,
+        }),
+      });
+      if (!res.ok) console.error("Resend error:", await res.text());
+      
+      // WhatsApp alert to admin
+      try {
+        const waPhone = Deno.env.get("CALLMEBOT_PHONE");
+        const waKey = Deno.env.get("CALLMEBOT_API_KEY");
+        if (waPhone && waKey) {
+          const msg = `🎬 *Presentación enviada*\n${p.business}\nCupón: ${p.coupon_code}\nExpira: 24h\nCliente: ${p.name}`;
+          await fetch(`https://api.callmebot.com/whatsapp.php?phone=${waPhone}&text=${encodeURIComponent(msg)}&apikey=${waKey}`);
+        }
+      } catch (e) { console.warn("WA notification failed:", e); }
+      
       return new Response(JSON.stringify({ success: true }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
