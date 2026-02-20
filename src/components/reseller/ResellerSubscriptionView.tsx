@@ -72,9 +72,10 @@ export default function ResellerSubscriptionView() {
     if (!user) return;
     supabase
       .from("support_subscriptions")
-      .select("plan, price_cop, current_period_end")
+      .select("plan, price_cop, current_period_end, target_audience")
       .eq("user_id", user.id)
       .eq("status", "active")
+      .in("target_audience", ["reseller", "both"])
       .limit(1)
       .then(({ data }) => {
         setActiveSub(data?.[0] ?? null);

@@ -87,7 +87,9 @@ export function useReseller() {
   }, [user]);
 
   const hasModule = useCallback((key: string): boolean => {
-    if (key === "licencias") return true;
+    // These modules are always on for all resellers
+    const alwaysOn = ["licencias", "suscripcion", "contratos", "solicitar_demo", "empresa"];
+    if (alwaysOn.includes(key)) return true;
     return modules.some((m) => m.module_key === key && m.is_enabled);
   }, [modules]);
 

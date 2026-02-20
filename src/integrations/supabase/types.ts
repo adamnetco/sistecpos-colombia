@@ -2252,6 +2252,7 @@ export type Database = {
           plan: string
           price_cop: number
           status: string
+          target_audience: string
           updated_at: string
           user_id: string
         }
@@ -2266,6 +2267,7 @@ export type Database = {
           plan?: string
           price_cop?: number
           status?: string
+          target_audience?: string
           updated_at?: string
           user_id: string
         }
@@ -2280,6 +2282,7 @@ export type Database = {
           plan?: string
           price_cop?: number
           status?: string
+          target_audience?: string
           updated_at?: string
           user_id?: string
         }
