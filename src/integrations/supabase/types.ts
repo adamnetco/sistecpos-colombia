@@ -249,6 +249,36 @@ export type Database = {
         }
         Relationships: []
       }
+      approved_email_domains: {
+        Row: {
+          created_at: string
+          domain: string
+          id: string
+          is_active: boolean
+          is_default: boolean
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          domain: string
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          domain?: string
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       catalog_brands: {
         Row: {
           created_at: string
@@ -876,6 +906,65 @@ export type Database = {
         }
         Relationships: []
       }
+      discount_coupons: {
+        Row: {
+          code: string
+          created_at: string
+          created_by: string | null
+          discount_type: string
+          discount_value: number
+          discounted_price_cop: number
+          expires_at: string
+          id: string
+          is_active: boolean
+          lead_id: string | null
+          original_price_cop: number
+          plan_key: string
+          updated_at: string
+          used_at: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          created_by?: string | null
+          discount_type?: string
+          discount_value?: number
+          discounted_price_cop?: number
+          expires_at: string
+          id?: string
+          is_active?: boolean
+          lead_id?: string | null
+          original_price_cop?: number
+          plan_key: string
+          updated_at?: string
+          used_at?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          discount_type?: string
+          discount_value?: number
+          discounted_price_cop?: number
+          expires_at?: string
+          id?: string
+          is_active?: boolean
+          lead_id?: string | null
+          original_price_cop?: number
+          plan_key?: string
+          updated_at?: string
+          used_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "discount_coupons_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads_trials"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dynamic_faqs: {
         Row: {
           answer: string
@@ -916,12 +1005,14 @@ export type Database = {
         Row: {
           activation_completed_at: string | null
           activation_token: string | null
+          assigned_email: string | null
           business_name: string
           business_type: string | null
           city: string | null
           contact_name: string
           converted_at: string | null
           country: string | null
+          coupon_id: string | null
           created_at: string
           daily_sales: string | null
           email: string
@@ -936,6 +1027,7 @@ export type Database = {
           pos_password: string | null
           pos_username: string | null
           requested_by_reseller_id: string | null
+          short_name: string | null
           source: string | null
           status: string
           trial_ends_at: string | null
@@ -951,12 +1043,14 @@ export type Database = {
         Insert: {
           activation_completed_at?: string | null
           activation_token?: string | null
+          assigned_email?: string | null
           business_name: string
           business_type?: string | null
           city?: string | null
           contact_name: string
           converted_at?: string | null
           country?: string | null
+          coupon_id?: string | null
           created_at?: string
           daily_sales?: string | null
           email: string
@@ -971,6 +1065,7 @@ export type Database = {
           pos_password?: string | null
           pos_username?: string | null
           requested_by_reseller_id?: string | null
+          short_name?: string | null
           source?: string | null
           status?: string
           trial_ends_at?: string | null
@@ -986,12 +1081,14 @@ export type Database = {
         Update: {
           activation_completed_at?: string | null
           activation_token?: string | null
+          assigned_email?: string | null
           business_name?: string
           business_type?: string | null
           city?: string | null
           contact_name?: string
           converted_at?: string | null
           country?: string | null
+          coupon_id?: string | null
           created_at?: string
           daily_sales?: string | null
           email?: string
@@ -1006,6 +1103,7 @@ export type Database = {
           pos_password?: string | null
           pos_username?: string | null
           requested_by_reseller_id?: string | null
+          short_name?: string | null
           source?: string | null
           status?: string
           trial_ends_at?: string | null
@@ -1019,6 +1117,13 @@ export type Database = {
           utm_term?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "leads_trials_coupon_id_fkey"
+            columns: ["coupon_id"]
+            isOneToOne: false
+            referencedRelation: "discount_coupons"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "leads_trials_requested_by_reseller_id_fkey"
             columns: ["requested_by_reseller_id"]

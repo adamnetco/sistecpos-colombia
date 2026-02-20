@@ -19,7 +19,7 @@ import { BUSINESS_TYPES_DEMO, COUNTRIES } from "@/data/demoFormOptions";
 
 const resellerDemoSchema = z.object({
   fullName: z.string().trim().min(3, "Mínimo 3 caracteres").max(100),
-  businessName: z.string().trim().min(2, "Mínimo 2 caracteres").max(100),
+  businessName: z.string().trim().min(2, "Mínimo 2 caracteres").max(30),
   whatsapp: z.string().trim().regex(/^\d{10}$/, "Ingresa 10 dígitos"),
   email: z.string().trim().email("Correo no válido").max(255),
   city: z.string().trim().min(2, "Ingresa la ciudad").max(100),
@@ -140,8 +140,8 @@ export default function ResellerDemoRequestView() {
               <FormField control={form.control} name="businessName" render={({ field }) => (
                 <FormItem>
                   <FormLabel>Nombre del negocio *</FormLabel>
-                  <FormControl><Input placeholder="Máximo 15 caracteres. Ej: mitiendaexito" maxLength={15} {...field} /></FormControl>
-                  <p className="text-xs text-muted-foreground">Máximo 15 caracteres, ejemplo: mitiendaexito</p>
+                  <FormControl><Input placeholder="Máximo 30 caracteres. Ej: DrogueriaSanAngel" maxLength={30} {...field} /></FormControl>
+                  <p className="text-xs text-muted-foreground">Máximo 30 caracteres</p>
                   <FormMessage />
                 </FormItem>
               )} />

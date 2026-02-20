@@ -9,9 +9,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
 import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
+import {
   Send, Loader2, Mail, Phone, MapPin,
   Building2, User, CheckCircle2, RefreshCw, Lock, Eye, Search,
-  Rocket, Clock, AlertTriangle, Calendar,
+  Rocket, Clock, AlertTriangle, Calendar, Presentation, Tag, Globe, Ticket,
 } from "lucide-react";
 
 interface DemoLead {
@@ -31,6 +34,15 @@ interface DemoLead {
   business_type: string | null;
   country: string | null;
   source: string | null;
+  assigned_email: string | null;
+  short_name: string | null;
+  coupon_id: string | null;
+}
+
+interface EmailDomain {
+  id: string;
+  domain: string;
+  is_default: boolean;
 }
 
 const stageConfig: Record<string, { label: string; color: string; icon: string; bg: string }> = {
@@ -38,9 +50,17 @@ const stageConfig: Record<string, { label: string; color: string; icon: string; 
   activation_completed: { label: "Activación Solicitada", color: "bg-orange-500 text-white", icon: "📋", bg: "border-orange-200 bg-orange-50" },
   demo_personalized: { label: "Gestionando Demo", color: "bg-purple-500 text-white", icon: "⚙️", bg: "border-purple-200 bg-purple-50" },
   active_trial: { label: "Demo Activa", color: "bg-green-600 text-white", icon: "🟢", bg: "border-green-200 bg-green-50" },
+  software_presentation: { label: "Presentación del Software", color: "bg-blue-600 text-white", icon: "🎬", bg: "border-blue-200 bg-blue-50" },
 };
 
-const DEMO_STATUSES = ["welcome_sent", "activation_completed", "demo_personalized", "active_trial"];
+const DEMO_STATUSES = ["welcome_sent", "activation_completed", "demo_personalized", "active_trial", "software_presentation"];
+
+function generateCouponCode(): string {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let code = "STC-";
+  for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+  return code;
+}
 
 export default function ActiveDemosView() {
   const [leads, setLeads] = useState<DemoLead[]>([]);
@@ -49,9 +69,22 @@ export default function ActiveDemosView() {
   const [filterStage, setFilterStage] = useState<string>("all");
   const [selectedLead, setSelectedLead] = useState<DemoLead | null>(null);
   const [credDialog, setCredDialog] = useState(false);
-  const [credForm, setCredForm] = useState({ pos_username: "", pos_company: "", pos_password: "" });
+  const [credForm, setCredForm] = useState({ 
+    pos_username: "admin", 
+    pos_company: "", 
+    pos_password: "",
+    short_name: "",
+    assigned_email: "",
+    selected_domain: "",
+  });
   const [sending, setSending] = useState(false);
+  const [domains, setDomains] = useState<EmailDomain[]>([]);
   const { toast } = useToast();
+
+  const loadDomains = async () => {
+    const { data } = await supabase.from("approved_email_domains").select("*").eq("is_active", true).order("sort_order");
+    if (data) setDomains(data as EmailDomain[]);
+  };
 
   const load = async () => {
     setLoading(true);
@@ -64,7 +97,14 @@ export default function ActiveDemosView() {
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); loadDomains(); }, []);
+
+  // Auto-generate email when short_name or domain changes
+  const updateAssignedEmail = (shortName: string, domain: string) => {
+    if (shortName && domain) {
+      setCredForm(p => ({ ...p, assigned_email: `${shortName.toLowerCase().replace(/\s+/g, "")}@${domain}` }));
+    }
+  };
 
   const trialProgress = (lead: DemoLead) => {
     if (!lead.trial_ends_at) return null;
@@ -96,6 +136,8 @@ export default function ActiveDemosView() {
         pos_username: credForm.pos_username,
         pos_company: credForm.pos_company,
         pos_password: credForm.pos_password,
+        short_name: credForm.short_name || null,
+        assigned_email: credForm.assigned_email || null,
         trial_ends_at: selectedLead.trial_ends_at || ends.toISOString(),
       }).eq("id", selectedLead.id);
       if (error) throw error;
@@ -149,6 +191,73 @@ export default function ActiveDemosView() {
     }
   };
 
+  /* ─── SEND SOFTWARE PRESENTATION + COUPON ────── */
+  const handleSoftwarePresentation = async () => {
+    if (!selectedLead) return;
+    setSending(true);
+    try {
+      // Get pricing from license_pricing to calculate discount
+      const { data: pricingData } = await supabase
+        .from("license_pricing")
+        .select("plan_key, plan_label, selling_price_cop, official_price_cop")
+        .order("sort_order");
+
+      // Create coupon for each plan (use first plan as default)
+      const firstPlan = pricingData?.[0];
+      if (!firstPlan) throw new Error("No hay planes de precios configurados");
+
+      const couponCode = generateCouponCode();
+      const expiresAt = new Date();
+      expiresAt.setHours(expiresAt.getHours() + 24);
+
+      const { data: coupon, error: couponError } = await supabase.from("discount_coupons").insert({
+        code: couponCode,
+        lead_id: selectedLead.id,
+        plan_key: "all",
+        discount_type: "fixed",
+        discount_value: 0,
+        original_price_cop: Number(firstPlan.selling_price_cop),
+        discounted_price_cop: Number(firstPlan.official_price_cop),
+        expires_at: expiresAt.toISOString(),
+      }).select("id").single();
+
+      if (couponError) throw couponError;
+
+      // Update lead status
+      await supabase.from("leads_trials").update({
+        status: "software_presentation",
+        coupon_id: coupon.id,
+      }).eq("id", selectedLead.id);
+
+      // Send email with coupon
+      await supabase.functions.invoke("notify-ticket-status", {
+        body: {
+          type: "software_presentation",
+          name: selectedLead.contact_name,
+          email: selectedLead.email,
+          business: selectedLead.business_name,
+          coupon_code: couponCode,
+          expires_at: expiresAt.toISOString(),
+          plans: pricingData?.map(p => ({
+            label: p.plan_label,
+            original: Number(p.selling_price_cop),
+            discounted: Number(p.official_price_cop),
+          })) || [],
+        },
+      });
+
+      toast({ title: "🎬 Presentación enviada", description: `Cupón ${couponCode} enviado a ${selectedLead.email}. Vence en 24h.` });
+      setCredDialog(false);
+      setSelectedLead(null);
+      load();
+    } catch (err) {
+      console.error(err);
+      toast({ title: "Error al enviar presentación", variant: "destructive" });
+    } finally {
+      setSending(false);
+    }
+  };
+
   /* ─── FILTER ────────────────────────────────── */
   const filtered = leads.filter((l) => {
     const matchesStage = filterStage === "all" || l.status === filterStage;
@@ -173,22 +282,22 @@ export default function ActiveDemosView() {
           Demos Activas
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Gestiona demos en curso: asigna credenciales, envía correos y supervisa vencimientos.
+          Gestiona demos en curso: asigna credenciales, envía cupones y supervisa vencimientos.
         </p>
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6">
         <Card className="cursor-pointer hover:shadow-sm transition-shadow" onClick={() => setFilterStage("all")}>
           <CardContent className="p-4 text-center">
             <div className="text-2xl font-bold text-foreground">{leads.length}</div>
-            <div className="text-xs text-muted-foreground">Total en Proceso</div>
+            <div className="text-xs text-muted-foreground">Total</div>
           </CardContent>
         </Card>
         <Card className="cursor-pointer hover:shadow-sm transition-shadow border-orange-200" onClick={() => setFilterStage("activation_completed")}>
           <CardContent className="p-4 text-center">
             <div className="text-2xl font-bold text-orange-600">{countByStage("activation_completed")}</div>
-            <div className="text-xs text-muted-foreground">📋 Activación Solicitada</div>
+            <div className="text-xs text-muted-foreground">📋 Solicitada</div>
           </CardContent>
         </Card>
         <Card className="cursor-pointer hover:shadow-sm transition-shadow border-purple-200" onClick={() => setFilterStage("demo_personalized")}>
@@ -200,7 +309,13 @@ export default function ActiveDemosView() {
         <Card className="cursor-pointer hover:shadow-sm transition-shadow border-green-200" onClick={() => setFilterStage("active_trial")}>
           <CardContent className="p-4 text-center">
             <div className="text-2xl font-bold text-green-600">{countByStage("active_trial")}</div>
-            <div className="text-xs text-muted-foreground">🟢 Demo Activa</div>
+            <div className="text-xs text-muted-foreground">🟢 Activa</div>
+          </CardContent>
+        </Card>
+        <Card className="cursor-pointer hover:shadow-sm transition-shadow border-blue-200" onClick={() => setFilterStage("software_presentation")}>
+          <CardContent className="p-4 text-center">
+            <div className="text-2xl font-bold text-blue-600">{countByStage("software_presentation")}</div>
+            <div className="text-xs text-muted-foreground">🎬 Presentación</div>
           </CardContent>
         </Card>
       </div>
@@ -234,8 +349,8 @@ export default function ActiveDemosView() {
             className="pl-9 h-9"
           />
         </div>
-        <div className="flex gap-1">
-          {[{ key: "all", label: "Todos" }, ...DEMO_STATUSES.map((s) => ({ key: s, label: stageConfig[s].label }))].map((s) => (
+        <div className="flex gap-1 flex-wrap">
+          {[{ key: "all", label: "Todos" }, ...DEMO_STATUSES.map((s) => ({ key: s, label: stageConfig[s]?.label || s }))].map((s) => (
             <Button
               key={s.key}
               variant={filterStage === s.key ? "default" : "outline"}
@@ -277,6 +392,11 @@ export default function ActiveDemosView() {
                     <td className="px-4 py-3">
                       <div className="font-medium">{l.business_name}</div>
                       <div className="text-xs text-muted-foreground">{l.business_type || l.city || "—"}</div>
+                      {l.assigned_email && (
+                        <div className="text-xs text-primary flex items-center gap-1 mt-0.5">
+                          <Globe className="h-3 w-3" />{l.assigned_email}
+                        </div>
+                      )}
                     </td>
                     <td className="px-4 py-3">
                       <div className="text-sm">{l.contact_name}</div>
@@ -293,6 +413,10 @@ export default function ActiveDemosView() {
                       ) : ["demo_personalized", "activation_completed", "welcome_sent"].includes(l.status) ? (
                         <Badge variant="outline" className="text-xs bg-purple-50 text-purple-700 border-purple-200 animate-pulse">
                           <Lock className="h-3 w-3 mr-1" /> Pendiente
+                        </Badge>
+                      ) : l.status === "software_presentation" ? (
+                        <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+                          <Ticket className="h-3 w-3 mr-1" /> Cupón enviado
                         </Badge>
                       ) : (
                         <span className="text-xs text-muted-foreground">—</span>
@@ -320,10 +444,15 @@ export default function ActiveDemosView() {
                         className="h-8 text-xs"
                         onClick={() => {
                           setSelectedLead(l);
+                          const defaultDomain = domains.find(d => d.is_default)?.domain || domains[0]?.domain || "";
+                          const sName = l.short_name || l.business_name.toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 15);
                           setCredForm({
-                            pos_username: l.pos_username || "",
-                            pos_company: l.pos_company || l.business_name,
+                            pos_username: l.pos_username || "admin",
+                            pos_company: l.pos_company || sName,
                             pos_password: l.pos_password || "",
+                            short_name: l.short_name || sName,
+                            assigned_email: l.assigned_email || (sName && defaultDomain ? `${sName}@${defaultDomain}` : ""),
+                            selected_domain: defaultDomain,
                           });
                           setCredDialog(true);
                         }}
@@ -365,6 +494,11 @@ export default function ActiveDemosView() {
                   <div className="flex items-center gap-2"><MapPin className="h-3.5 w-3.5 text-muted-foreground" /> {selectedLead.city || "—"}</div>
                   <div className="flex items-center gap-2"><Calendar className="h-3.5 w-3.5 text-muted-foreground" /> {new Date(selectedLead.created_at).toLocaleDateString("es-CO")}</div>
                 </div>
+                {selectedLead.assigned_email && (
+                  <div className="flex items-center gap-2 text-sm text-primary">
+                    <Globe className="h-3.5 w-3.5" /> Correo asignado: <strong>{selectedLead.assigned_email}</strong>
+                  </div>
+                )}
                 <div className="pt-1">
                   <Badge className={stageConfig[selectedLead.status]?.color || ""}>{stageConfig[selectedLead.status]?.icon} {stageConfig[selectedLead.status]?.label}</Badge>
                 </div>
@@ -398,17 +532,23 @@ export default function ActiveDemosView() {
                   </div>
                   <div className="bg-white border border-green-200 rounded-lg p-3 space-y-1">
                     <div className="flex items-center gap-2 text-sm">
-                      <span className="text-muted-foreground w-20">Usuario:</span>
+                      <span className="text-muted-foreground w-24">Usuario:</span>
                       <span className="font-mono font-medium">{selectedLead.pos_username}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
-                      <span className="text-muted-foreground w-20">Empresa:</span>
+                      <span className="text-muted-foreground w-24">Empresa:</span>
                       <span className="font-mono font-medium">{selectedLead.pos_company}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
-                      <span className="text-muted-foreground w-20">Contraseña:</span>
+                      <span className="text-muted-foreground w-24">Contraseña:</span>
                       <span className="font-mono font-medium">{selectedLead.pos_password}</span>
                     </div>
+                    {selectedLead.assigned_email && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <span className="text-muted-foreground w-24">Correo POS:</span>
+                        <span className="font-mono font-medium text-primary">{selectedLead.assigned_email}</span>
+                      </div>
+                    )}
                   </div>
                   <Button
                     variant="outline"
@@ -420,19 +560,79 @@ export default function ActiveDemosView() {
                     {sending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
                     {sending ? "Reenviando..." : "Reenviar credenciales por correo"}
                   </Button>
+
+                  {/* Software Presentation button for active demos */}
+                  {selectedLead.status === "active_trial" && !selectedLead.coupon_id && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleSoftwarePresentation}
+                      disabled={sending}
+                      className="w-full border-blue-300 text-blue-700 hover:bg-blue-100"
+                    >
+                      {sending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Presentation className="mr-2 h-4 w-4" />}
+                      {sending ? "Enviando..." : "🎬 Enviar Presentación + Cupón 24h"}
+                    </Button>
+                  )}
                 </div>
               ) : ["demo_personalized", "activation_completed", "welcome_sent"].includes(selectedLead.status) ? (
                 <div className="rounded-lg border-2 border-dashed border-purple-300 bg-purple-50/50 p-4 space-y-3">
                   <p className="text-sm font-semibold text-purple-800">🔐 Asignar Credenciales POS</p>
                   <p className="text-xs text-purple-600">Ingresa los datos de acceso. Al enviar, el estado cambiará automáticamente a <strong>Demo Activa</strong> y el cliente recibirá un correo.</p>
                   <div className="space-y-2">
+                    {/* Short Name */}
+                    <div>
+                      <Label className="text-xs">Nombre Corto (≤15 caracteres)</Label>
+                      <Input 
+                        value={credForm.short_name} 
+                        onChange={(e) => {
+                          const val = e.target.value.slice(0, 15);
+                          setCredForm(p => ({ ...p, short_name: val }));
+                          updateAssignedEmail(val, credForm.selected_domain);
+                        }} 
+                        placeholder="Ej: mitienda" 
+                        maxLength={15}
+                      />
+                    </div>
+                    {/* Assigned Email */}
+                    <div>
+                      <Label className="text-xs flex items-center gap-1"><Globe className="h-3 w-3" /> Correo Asignado</Label>
+                      <div className="flex gap-2">
+                        <Input 
+                          value={credForm.assigned_email} 
+                          onChange={(e) => setCredForm(p => ({ ...p, assigned_email: e.target.value }))}
+                          placeholder="mitienda@ventas.click" 
+                          className="flex-1"
+                        />
+                        {domains.length > 0 && (
+                          <Select 
+                            value={credForm.selected_domain} 
+                            onValueChange={(v) => {
+                              setCredForm(p => ({ ...p, selected_domain: v }));
+                              updateAssignedEmail(credForm.short_name, v);
+                            }}
+                          >
+                            <SelectTrigger className="w-[160px]">
+                              <SelectValue placeholder="Dominio" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {domains.map(d => (
+                                <SelectItem key={d.id} value={d.domain}>@{d.domain}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        )}
+                      </div>
+                    </div>
+                    <hr className="my-2" />
                     <div>
                       <Label className="text-xs">Usuario</Label>
-                      <Input value={credForm.pos_username} onChange={(e) => setCredForm((p) => ({ ...p, pos_username: e.target.value }))} placeholder="Ej: carlos.martinez" />
+                      <Input value={credForm.pos_username} onChange={(e) => setCredForm((p) => ({ ...p, pos_username: e.target.value }))} placeholder="admin" />
                     </div>
                     <div>
                       <Label className="text-xs">Empresa</Label>
-                      <Input value={credForm.pos_company} onChange={(e) => setCredForm((p) => ({ ...p, pos_company: e.target.value }))} placeholder="Ej: DrogueriaSanAngel" />
+                      <Input value={credForm.pos_company} onChange={(e) => setCredForm((p) => ({ ...p, pos_company: e.target.value }))} placeholder="Ej: DrogueriaSanAngel" maxLength={30} />
+                      <p className="text-xs text-muted-foreground mt-0.5">Máximo 30 caracteres</p>
                     </div>
                     <div>
                       <Label className="text-xs">Contraseña</Label>

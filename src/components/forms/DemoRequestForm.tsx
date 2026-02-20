@@ -21,7 +21,7 @@ import {
 
 const demoSchema = z.object({
   fullName: z.string().trim().min(3, "Mínimo 3 caracteres").max(100),
-  businessName: z.string().trim().min(2, "Mínimo 2 caracteres").max(100),
+  businessName: z.string().trim().min(2, "Mínimo 2 caracteres").max(30),
   whatsapp: z.string().trim().regex(/^\d{10}$/, "Ingresa 10 dígitos (ej: 3176268307)"),
   email: z.string().trim().email("Correo no válido").max(255),
   habeasData: z.literal(true, {

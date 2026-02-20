@@ -27,7 +27,7 @@ import {
 
 const demoSchema = z.object({
   fullName: z.string().trim().min(3, "Mínimo 3 caracteres").max(100),
-  businessName: z.string().trim().min(2, "Mínimo 2 caracteres").max(100),
+  businessName: z.string().trim().min(2, "Mínimo 2 caracteres").max(30),
   businessType: z.string().min(1, "Selecciona tipo de negocio"),
   country: z.string().min(1, "Selecciona un país"),
   whatsapp: z.string().trim().regex(/^\d{10}$/, "Ingresa 10 dígitos"),
@@ -221,7 +221,7 @@ export default function LandingDemoPage() {
                 <FormField control={form.control} name="businessName" render={({ field }) => (
                   <FormItem>
                     <FormLabel>Nombre del Negocio *</FormLabel>
-                    <FormControl><Input placeholder="Máx. 15 caracteres. Ej: mitiendaexito" maxLength={15} {...field} /></FormControl>
+                    <FormControl><Input placeholder="Máx. 30 caracteres. Ej: DrogueriaSanAngel" maxLength={30} {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />
