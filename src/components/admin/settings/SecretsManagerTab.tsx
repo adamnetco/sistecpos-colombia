@@ -109,9 +109,18 @@ const SECRET_CONFIGS: SecretConfig[] = [
   },
   // reCAPTCHA
   {
+    key: "secret_recaptcha_site_key",
+    label: "reCAPTCHA — Site Key (pública)",
+    description: "Clave pública de Google reCAPTCHA v3 que va en el HTML del frontend (render=...)",
+    placeholder: "6Lxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    group: "Seguridad",
+    icon: <ShieldCheck className="h-4 w-4" />,
+    sensitive: false,
+  },
+  {
     key: "secret_recaptcha_secret_key",
-    label: "reCAPTCHA — Secret Key",
-    description: "Clave secreta de Google reCAPTCHA v3 (console de reCAPTCHA)",
+    label: "reCAPTCHA — Secret Key (privada)",
+    description: "Clave secreta de Google reCAPTCHA v3 para validación en el servidor",
     placeholder: "6Lxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
     group: "Seguridad",
     icon: <ShieldCheck className="h-4 w-4" />,
