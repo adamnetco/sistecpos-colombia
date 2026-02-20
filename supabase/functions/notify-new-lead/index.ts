@@ -367,53 +367,46 @@ Deno.serve(async (req) => {
       results.push("email_skipped");
     }
 
-    // ─── WhatsApp notification via CallMeBot ─────────────────────
-    const apiKey = Deno.env.get("CALLMEBOT_API_KEY");
-    const whatsappPhone = Deno.env.get("CALLMEBOT_PHONE");
-
-    if (apiKey && whatsappPhone) {
+    // ─── WhatsApp notification via centralized send-whatsapp ────
+    try {
       const isDemo = payload.type === "demo";
       const isActivation = payload.type === "activation_completed";
 
-      let emoji: string, label: string;
-      if (isActivation) {
-        emoji = "🟠";
-        label = "Activación Completada — Listo para credenciales";
-      } else if (isDemo) {
-        emoji = "🟢";
-        label = "Nuevo Lead Demo";
+      let eventType: string;
+      if (isActivation) eventType = "activation_completed";
+      else if (isDemo) eventType = "new_demo";
+      else eventType = "new_reseller";
+
+      const waVariables: Record<string, string> = {
+        name: payload.name,
+        business: payload.business || "-",
+        phone: payload.phone,
+        email: payload.email,
+        city: payload.city || "-",
+        urgency: payload.qualificationData?.urgency || "-",
+      };
+
+      const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+      const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
+      const waRes = await fetch(`${supabaseUrl}/functions/v1/send-whatsapp`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${serviceKey}`,
+        },
+        body: JSON.stringify({ event_type: eventType, variables: waVariables }),
+      });
+
+      if (waRes.ok) {
+        results.push("whatsapp_sent");
       } else {
-        emoji = "🔵";
-        label = "Nuevo Prospecto Representante";
+        results.push("whatsapp_failed");
+        console.error("send-whatsapp error:", await waRes.text());
       }
-
-      const message = [
-        `${emoji} *${label}*`,
-        "",
-        `👤 *Nombre:* ${payload.name}`,
-        isDemo || isActivation ? `🏪 *Negocio:* ${payload.business || "-"}` : null,
-        `📱 *WhatsApp:* ${payload.phone}`,
-        `📧 *Email:* ${payload.email}`,
-        `📍 *Ciudad:* ${payload.city || "-"}`,
-        isActivation && payload.qualificationData ? `🎯 *Urgencia:* ${payload.qualificationData.urgency}` : null,
-        "",
-        isActivation ? "🔐 Crear credenciales POS desde el panel admin." : "⚡ Ver detalles en el panel admin.",
-      ].filter(Boolean).join("\n");
-
-      try {
-        const url = `https://api.callmebot.com/whatsapp.php?phone=${whatsappPhone}&text=${encodeURIComponent(message)}&apikey=${apiKey}`;
-        const waRes = await fetch(url);
-        if (waRes.ok) {
-          results.push("whatsapp_sent");
-        } else {
-          results.push("whatsapp_failed");
-        }
-      } catch (waErr) {
-        console.error("WhatsApp error:", waErr);
-        results.push("whatsapp_error");
-      }
-    } else {
-      results.push("whatsapp_skipped");
+    } catch (waErr) {
+      console.error("WhatsApp error:", waErr);
+      results.push("whatsapp_error");
     }
 
     return new Response(

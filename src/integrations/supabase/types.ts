@@ -2269,6 +2269,120 @@ export type Database = {
         }
         Relationships: []
       }
+      whatsapp_notification_log: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          event_type: string
+          id: string
+          message_sent: string | null
+          metadata: Json | null
+          provider_name: string
+          recipient_phone: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          event_type: string
+          id?: string
+          message_sent?: string | null
+          metadata?: Json | null
+          provider_name: string
+          recipient_phone?: string | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          event_type?: string
+          id?: string
+          message_sent?: string | null
+          metadata?: Json | null
+          provider_name?: string
+          recipient_phone?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
+      whatsapp_providers: {
+        Row: {
+          config: Json
+          created_at: string
+          display_name: string
+          id: string
+          is_active: boolean
+          is_default: boolean
+          name: string
+          notes: string | null
+          provider_type: string
+          updated_at: string
+        }
+        Insert: {
+          config?: Json
+          created_at?: string
+          display_name: string
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          name: string
+          notes?: string | null
+          provider_type?: string
+          updated_at?: string
+        }
+        Update: {
+          config?: Json
+          created_at?: string
+          display_name?: string
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          name?: string
+          notes?: string | null
+          provider_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      whatsapp_templates: {
+        Row: {
+          created_at: string
+          emoji: string
+          event_label: string
+          event_type: string
+          id: string
+          is_active: boolean
+          notes: string | null
+          sort_order: number
+          template_text: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          emoji?: string
+          event_label: string
+          event_type: string
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          sort_order?: number
+          template_text: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          emoji?: string
+          event_label?: string
+          event_type?: string
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          sort_order?: number
+          template_text?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       wompi_transactions: {
         Row: {
           amount_cents: number
