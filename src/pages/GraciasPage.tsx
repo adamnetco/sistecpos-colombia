@@ -2,30 +2,121 @@ import { Layout } from "@/components/layout/Layout";
 import { SEO } from "@/components/seo/SEO";
 import {
   CheckCircle, MessageCircle, ArrowRight, Clock, Mail, Zap,
-  Monitor, Star, Shield, UserCheck,
+  Monitor, Star, Shield, UserCheck, FileCheck, Phone,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
 
-const nextSteps = [
-  {
-    icon: MessageCircle,
-    title: "WhatsApp en < 5 min",
-    description: "Nuestro equipo te contactará por WhatsApp en menos de 5 minutos para activar tu acceso.",
+/* ─── Flow-specific content by ?from= param ─────────────────── */
+
+interface StepInfo {
+  icon: React.ElementType;
+  title: string;
+  description: string;
+  highlight?: boolean;
+}
+
+interface FlowContent {
+  badge: string;
+  heading: string;
+  subtitle: string;
+  steps: StepInfo[];
+}
+
+const FLOW_CONTENT: Record<string, FlowContent> = {
+  demo: {
+    badge: "🎉 ¡Registro Exitoso!",
+    heading: "¡Tu solicitud de demo fue recibida!",
+    subtitle: "Necesitamos confirmar tu correo y tu WhatsApp para entregarte tu demo personalizada.",
+    steps: [
+      {
+        icon: Mail,
+        title: "1. Revisa tu correo electrónico",
+        description: "Te enviamos un correo con un enlace para completar tu perfil. Revisa también la carpeta de spam.",
+        highlight: true,
+      },
+      {
+        icon: FileCheck,
+        title: "2. Completa el formulario de activación",
+        description: "Al hacer clic en el enlace del correo, responde unas breves preguntas para personalizar tu demo a la medida de tu negocio.",
+      },
+      {
+        icon: Phone,
+        title: "3. Te escribimos por WhatsApp",
+        description: "Nuestro equipo te contactará en menos de 5 minutos al número que registraste. Así confirmamos tu línea y te damos soporte directo.",
+      },
+    ],
   },
-  {
-    icon: Mail,
-    title: "Correo de bienvenida",
-    description: "Recibirás un correo con tu usuario de acceso y la guía para comenzar.",
+  contacto: {
+    badge: "✅ ¡Mensaje Enviado!",
+    heading: "Recibimos tu mensaje",
+    subtitle: "Nuestro equipo revisará tu solicitud y te responderá lo antes posible.",
+    steps: [
+      {
+        icon: Mail,
+        title: "Revisamos tu solicitud",
+        description: "Un asesor revisará tu mensaje y te contactará por el medio que indicaste.",
+      },
+      {
+        icon: MessageCircle,
+        title: "Te respondemos rápido",
+        description: "Nos comprometemos a darte respuesta en menos de 24 horas hábiles.",
+      },
+      {
+        icon: Monitor,
+        title: "Mientras tanto, explora",
+        description: "Puedes conocer todas las funcionalidades del software en nuestra demo en vivo.",
+      },
+    ],
   },
-  {
-    icon: Monitor,
-    title: "30 días de acceso completo",
-    description: "Acceso a todas las funcionalidades sin restricciones. Sin tarjeta de crédito.",
+  representante: {
+    badge: "🔵 ¡Postulación Recibida!",
+    heading: "¡Gracias por tu interés en ser socio!",
+    subtitle: "Revisaremos tu perfil y te contactaremos para los siguientes pasos.",
+    steps: [
+      {
+        icon: Mail,
+        title: "Revisa tu correo",
+        description: "Te enviamos un correo de confirmación con los detalles de tu postulación.",
+      },
+      {
+        icon: Clock,
+        title: "Evaluación en 24-48h",
+        description: "Nuestro equipo revisará tu perfil y experiencia comercial.",
+      },
+      {
+        icon: Phone,
+        title: "Te contactamos",
+        description: "Si tu perfil es aprobado, te llamaremos para coordinar la capacitación inicial.",
+      },
+    ],
   },
-];
+};
+
+const DEFAULT_FLOW: FlowContent = {
+  badge: "✅ ¡Solicitud Recibida!",
+  heading: "¡Solicitud de Demo Activa!",
+  subtitle: "Tus credenciales llegarán pronto a tu correo electrónico. Nuestro equipo te contactará en menos de 5 minutos por WhatsApp.",
+  steps: [
+    {
+      icon: MessageCircle,
+      title: "WhatsApp en < 5 min",
+      description: "Nuestro equipo te contactará por WhatsApp en menos de 5 minutos para activar tu acceso.",
+    },
+    {
+      icon: Mail,
+      title: "Correo de bienvenida",
+      description: "Recibirás un correo con tu usuario de acceso y la guía para comenzar.",
+    },
+    {
+      icon: Monitor,
+      title: "30 días de acceso completo",
+      description: "Acceso a todas las funcionalidades sin restricciones. Sin tarjeta de crédito.",
+    },
+  ],
+};
 
 const differentiators = [
   { icon: UserCheck, text: "Soporte humano real, no un chatbot" },
@@ -34,12 +125,16 @@ const differentiators = [
 ];
 
 const GraciasPage = () => {
+  const [searchParams] = useSearchParams();
+  const from = searchParams.get("from") || "";
+  const flow = FLOW_CONTENT[from] || DEFAULT_FLOW;
   const { buildUrl } = useWhatsAppConfig();
+
   return (
     <Layout>
       <SEO
         title="¡Gracias! Tu solicitud fue recibida | SistecPOS"
-        description="Hemos recibido tu solicitud de demo. Te contactaremos por WhatsApp en los próximos minutos."
+        description="Hemos recibido tu solicitud. Revisa tu correo electrónico para continuar con el proceso."
         noindex
       />
       <section className="py-16 md:py-28">
@@ -54,40 +149,51 @@ const GraciasPage = () => {
               <CheckCircle className="h-12 w-12 text-whatsapp" />
             </div>
 
-            <h1 className="text-3xl font-bold md:text-5xl" id="titulo">
-              ¡Solicitud de Demo Activa!
+            <span className="inline-block mb-4 rounded-full bg-primary/10 px-4 py-1.5 text-sm font-semibold text-primary">
+              {flow.badge}
+            </span>
+
+            <h1 className="text-3xl font-bold md:text-5xl">
+              {flow.heading}
             </h1>
 
             <p className="mt-4 text-lg text-muted-foreground md:text-xl">
-              Tus credenciales llegarán pronto a tu correo electrónico.
-              Nuestro equipo te contactará <strong className="text-foreground">en menos de 5 minutos</strong> por WhatsApp.
+              {flow.subtitle}
             </p>
           </motion.div>
 
-          {/* Next Steps */}
+          {/* Steps Timeline */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="mx-auto mt-12 max-w-3xl"
+            className="mx-auto mt-12 max-w-2xl"
           >
             <h2 className="text-center text-xl font-semibold mb-6">
-              ¿Qué sigue ahora?
+              ¿Qué debes hacer ahora?
             </h2>
-            <div className="grid gap-4 sm:grid-cols-3">
-              {nextSteps.map((step, index) => (
+            <div className="space-y-4">
+              {flow.steps.map((step, index) => (
                 <motion.div
                   key={step.title}
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 + index * 0.1 }}
-                  className="rounded-xl border bg-card p-5 text-center shadow-soft"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.3 + index * 0.15 }}
+                  className={`flex gap-4 rounded-xl border p-5 shadow-soft transition-colors ${
+                    step.highlight
+                      ? "border-primary/30 bg-primary/5 ring-1 ring-primary/20"
+                      : "bg-card"
+                  }`}
                 >
-                  <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-                    <step.icon className="h-6 w-6 text-primary" />
+                  <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full ${
+                    step.highlight ? "bg-primary text-primary-foreground" : "bg-primary/10"
+                  }`}>
+                    <step.icon className={`h-6 w-6 ${step.highlight ? "" : "text-primary"}`} />
                   </div>
-                  <h3 className="font-semibold text-sm mb-1">{step.title}</h3>
-                  <p className="text-xs text-muted-foreground">{step.description}</p>
+                  <div>
+                    <h3 className="font-semibold text-sm mb-1">{step.title}</h3>
+                    <p className="text-sm text-muted-foreground">{step.description}</p>
+                  </div>
                 </motion.div>
               ))}
             </div>
@@ -97,7 +203,7 @@ const GraciasPage = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.5 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
             className="mx-auto mt-12 max-w-lg"
           >
             <div className="rounded-2xl border-2 border-whatsapp/30 bg-whatsapp/5 p-6 md:p-8 text-center">
@@ -128,7 +234,7 @@ const GraciasPage = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.6 }}
+            transition={{ duration: 0.5, delay: 0.7 }}
             className="mx-auto mt-12 max-w-2xl"
           >
             <div className="rounded-xl border bg-card p-6 shadow-soft">
@@ -156,7 +262,7 @@ const GraciasPage = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.7 }}
+            transition={{ duration: 0.5, delay: 0.8 }}
             className="mx-auto mt-8 max-w-lg text-center"
           >
             <p className="text-sm text-muted-foreground mb-3">Mientras esperas, puedes explorar el software:</p>
@@ -172,7 +278,7 @@ const GraciasPage = () => {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.8 }}
+            transition={{ delay: 0.9 }}
             className="mt-8 text-center"
           >
             <Button asChild variant="ghost" size="sm">

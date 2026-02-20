@@ -135,7 +135,7 @@ export default function LandingDemoPage() {
         description: "Te contactaremos en menos de 5 minutos por WhatsApp.",
       });
 
-      setTimeout(() => navigate("/gracias"), 1000);
+      setTimeout(() => navigate("/gracias?from=demo"), 1000);
     } catch (err) {
       console.error(err);
       toast({ title: "Error inesperado", variant: "destructive" });
