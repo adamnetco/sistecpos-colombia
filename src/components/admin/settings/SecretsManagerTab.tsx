@@ -126,6 +126,35 @@ const SECRET_CONFIGS: SecretConfig[] = [
     icon: <ShieldCheck className="h-4 w-4" />,
     sensitive: true,
   },
+  // Alegra
+  {
+    key: "secret_alegra_email",
+    label: "Alegra — Email de autenticación",
+    description: "Correo registrado en Alegra para autenticación API (Basic Auth = base64(email:token))",
+    placeholder: "miempresa@ejemplo.com",
+    group: "Facturación / Alegra",
+    icon: <Mail className="h-4 w-4" />,
+    sensitive: false,
+  },
+  {
+    key: "secret_alegra_token",
+    label: "Alegra — Token API",
+    description: "Token de acceso obtenido en Alegra → Configuración → API - Integraciones",
+    placeholder: "cb92260becc0d2b76c9a",
+    group: "Facturación / Alegra",
+    icon: <Key className="h-4 w-4" />,
+    sensitive: true,
+  },
+  // n8n
+  {
+    key: "secret_n8n_webhook_url",
+    label: "n8n — Webhook URL",
+    description: "URL del webhook de n8n para despachar eventos (ventas, renovaciones, tickets)",
+    placeholder: "https://tu-instancia.app.n8n.cloud/webhook/xxxxx",
+    group: "Automatización / n8n",
+    icon: <RefreshCw className="h-4 w-4" />,
+    sensitive: false,
+  },
 ];
 
 const GROUPS = [...new Set(SECRET_CONFIGS.map((s) => s.group))];
@@ -135,6 +164,8 @@ function groupIcon(group: string) {
   if (group.includes("Email")) return <Mail className="h-4 w-4" />;
   if (group.includes("Pagos")) return <CreditCard className="h-4 w-4" />;
   if (group.includes("Google")) return <Bot className="h-4 w-4" />;
+  if (group.includes("Alegra")) return <CreditCard className="h-4 w-4" />;
+  if (group.includes("n8n")) return <RefreshCw className="h-4 w-4" />;
   return <ShieldCheck className="h-4 w-4" />;
 }
 
