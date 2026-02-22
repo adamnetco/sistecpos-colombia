@@ -851,6 +851,89 @@ export type Database = {
         }
         Relationships: []
       }
+      commercial_packs: {
+        Row: {
+          badge: string | null
+          created_at: string
+          cta_whatsapp_message: string | null
+          description: string | null
+          features: string[] | null
+          id: string
+          image_url: string | null
+          implementation_included: boolean
+          included_module_ids: string[] | null
+          is_active: boolean
+          is_popular: boolean
+          license_pricing_id: string | null
+          name: string
+          original_price_cop: number | null
+          price_cop: number
+          savings_cop: number | null
+          slug: string
+          sort_order: number
+          support_months_included: number
+          tagline: string | null
+          target_business_types: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          badge?: string | null
+          created_at?: string
+          cta_whatsapp_message?: string | null
+          description?: string | null
+          features?: string[] | null
+          id?: string
+          image_url?: string | null
+          implementation_included?: boolean
+          included_module_ids?: string[] | null
+          is_active?: boolean
+          is_popular?: boolean
+          license_pricing_id?: string | null
+          name: string
+          original_price_cop?: number | null
+          price_cop?: number
+          savings_cop?: number | null
+          slug: string
+          sort_order?: number
+          support_months_included?: number
+          tagline?: string | null
+          target_business_types?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          badge?: string | null
+          created_at?: string
+          cta_whatsapp_message?: string | null
+          description?: string | null
+          features?: string[] | null
+          id?: string
+          image_url?: string | null
+          implementation_included?: boolean
+          included_module_ids?: string[] | null
+          is_active?: boolean
+          is_popular?: boolean
+          license_pricing_id?: string | null
+          name?: string
+          original_price_cop?: number | null
+          price_cop?: number
+          savings_cop?: number | null
+          slug?: string
+          sort_order?: number
+          support_months_included?: number
+          tagline?: string | null
+          target_business_types?: string[] | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commercial_packs_license_pricing_id_fkey"
+            columns: ["license_pricing_id"]
+            isOneToOne: false
+            referencedRelation: "license_pricing"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contact_activities: {
         Row: {
           activity_type: string
@@ -2462,12 +2545,19 @@ export type Database = {
           billing_anchor_day: number | null
           business_id: string | null
           created_at: string
+          cta_whatsapp_message: string | null
           current_period_end: string | null
           current_period_start: string | null
+          features: string[] | null
           id: string
+          is_popular: boolean | null
           payment_method: string | null
           plan: string
+          plan_description: string | null
+          plan_label: string | null
           price_cop: number
+          show_in_landing: boolean | null
+          sort_order: number | null
           status: string
           target_audience: string
           updated_at: string
@@ -2477,12 +2567,19 @@ export type Database = {
           billing_anchor_day?: number | null
           business_id?: string | null
           created_at?: string
+          cta_whatsapp_message?: string | null
           current_period_end?: string | null
           current_period_start?: string | null
+          features?: string[] | null
           id?: string
+          is_popular?: boolean | null
           payment_method?: string | null
           plan?: string
+          plan_description?: string | null
+          plan_label?: string | null
           price_cop?: number
+          show_in_landing?: boolean | null
+          sort_order?: number | null
           status?: string
           target_audience?: string
           updated_at?: string
@@ -2492,12 +2589,19 @@ export type Database = {
           billing_anchor_day?: number | null
           business_id?: string | null
           created_at?: string
+          cta_whatsapp_message?: string | null
           current_period_end?: string | null
           current_period_start?: string | null
+          features?: string[] | null
           id?: string
+          is_popular?: boolean | null
           payment_method?: string | null
           plan?: string
+          plan_description?: string | null
+          plan_label?: string | null
           price_cop?: number
+          show_in_landing?: boolean | null
+          sort_order?: number | null
           status?: string
           target_audience?: string
           updated_at?: string
