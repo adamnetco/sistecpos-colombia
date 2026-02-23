@@ -1354,6 +1354,8 @@ export type Database = {
           activation_completed_at: string | null
           activation_token: string | null
           assigned_email: string | null
+          business_age_period: string | null
+          business_age_value: number | null
           business_name: string
           business_type: string | null
           city: string | null
@@ -1376,6 +1378,7 @@ export type Database = {
           pos_username: string | null
           requested_by_reseller_id: string | null
           short_name: string | null
+          software_change_reason: string | null
           source: string | null
           status: string
           trial_ends_at: string | null
@@ -1392,6 +1395,8 @@ export type Database = {
           activation_completed_at?: string | null
           activation_token?: string | null
           assigned_email?: string | null
+          business_age_period?: string | null
+          business_age_value?: number | null
           business_name: string
           business_type?: string | null
           city?: string | null
@@ -1414,6 +1419,7 @@ export type Database = {
           pos_username?: string | null
           requested_by_reseller_id?: string | null
           short_name?: string | null
+          software_change_reason?: string | null
           source?: string | null
           status?: string
           trial_ends_at?: string | null
@@ -1430,6 +1436,8 @@ export type Database = {
           activation_completed_at?: string | null
           activation_token?: string | null
           assigned_email?: string | null
+          business_age_period?: string | null
+          business_age_value?: number | null
           business_name?: string
           business_type?: string | null
           city?: string | null
@@ -1452,6 +1460,7 @@ export type Database = {
           pos_username?: string | null
           requested_by_reseller_id?: string | null
           short_name?: string | null
+          software_change_reason?: string | null
           source?: string | null
           status?: string
           trial_ends_at?: string | null
@@ -2540,6 +2549,63 @@ export type Database = {
         }
         Relationships: []
       }
+      support_articles: {
+        Row: {
+          author_name: string | null
+          category: string
+          content: string
+          cover_image_url: string | null
+          created_at: string
+          excerpt: string | null
+          id: string
+          is_pinned: boolean
+          is_published: boolean
+          slug: string
+          sort_order: number
+          tags: string[] | null
+          title: string
+          updated_at: string
+          video_url: string | null
+          view_count: number
+        }
+        Insert: {
+          author_name?: string | null
+          category?: string
+          content?: string
+          cover_image_url?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          is_pinned?: boolean
+          is_published?: boolean
+          slug: string
+          sort_order?: number
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          video_url?: string | null
+          view_count?: number
+        }
+        Update: {
+          author_name?: string | null
+          category?: string
+          content?: string
+          cover_image_url?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          is_pinned?: boolean
+          is_published?: boolean
+          slug?: string
+          sort_order?: number
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          video_url?: string | null
+          view_count?: number
+        }
+        Relationships: []
+      }
       support_subscriptions: {
         Row: {
           billing_anchor_day: number | null
@@ -2702,6 +2768,7 @@ export type Database = {
           approval_status: string
           category: string
           created_at: string
+          description: string | null
           duration: string | null
           id: string
           is_active: boolean
@@ -2720,6 +2787,7 @@ export type Database = {
           approval_status?: string
           category?: string
           created_at?: string
+          description?: string | null
           duration?: string | null
           id?: string
           is_active?: boolean
@@ -2738,6 +2806,7 @@ export type Database = {
           approval_status?: string
           category?: string
           created_at?: string
+          description?: string | null
           duration?: string | null
           id?: string
           is_active?: boolean
@@ -3103,6 +3172,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      increment_article_view: {
+        Args: { article_id: string }
+        Returns: undefined
       }
       increment_video_view: { Args: { video_id: string }; Returns: undefined }
       insert_pos_user: {

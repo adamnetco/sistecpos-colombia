@@ -1,0 +1,308 @@
+import { useState } from "react";
+import { useSupportArticles, useSupportArticlesMutations, type SupportArticleRow } from "@/hooks/useSupportArticles";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Plus, Pencil, Trash2, Search, Eye, Pin, FileText, Video } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+
+const CATEGORIES = [
+  "general", "facturación", "inventario", "ventas", "configuración",
+  "impresoras", "reportes", "solución de problemas", "actualizaciones",
+];
+
+const emptyForm = {
+  title: "",
+  slug: "",
+  excerpt: "",
+  content: "",
+  category: "general",
+  cover_image_url: "",
+  video_url: "",
+  is_published: false,
+  is_pinned: false,
+  sort_order: 0,
+  author_name: "Equipo SistecPOS",
+  tags: [] as string[],
+};
+
+export default function SupportArticlesView() {
+  const { data: articles = [], isLoading } = useSupportArticles();
+  const { create, update, remove } = useSupportArticlesMutations();
+  const [search, setSearch] = useState("");
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [editing, setEditing] = useState<SupportArticleRow | null>(null);
+  const [form, setForm] = useState(emptyForm);
+  const [previewArticle, setPreviewArticle] = useState<SupportArticleRow | null>(null);
+
+  const filtered = articles.filter((a) => {
+    const q = search.toLowerCase();
+    return !q || a.title.toLowerCase().includes(q) || a.category.toLowerCase().includes(q) || (a.tags || []).some(t => t.includes(q));
+  });
+
+  const generateSlug = (title: string) =>
+    title.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+
+  const openCreate = () => {
+    setEditing(null);
+    setForm(emptyForm);
+    setDialogOpen(true);
+  };
+
+  const openEdit = (a: SupportArticleRow) => {
+    setEditing(a);
+    setForm({
+      title: a.title,
+      slug: a.slug,
+      excerpt: a.excerpt || "",
+      content: a.content,
+      category: a.category,
+      cover_image_url: a.cover_image_url || "",
+      video_url: a.video_url || "",
+      is_published: a.is_published,
+      is_pinned: a.is_pinned,
+      sort_order: a.sort_order,
+      author_name: a.author_name || "Equipo SistecPOS",
+      tags: a.tags || [],
+    });
+    setDialogOpen(true);
+  };
+
+  const handleSave = async () => {
+    const payload = {
+      ...form,
+      cover_image_url: form.cover_image_url || null,
+      video_url: form.video_url || null,
+      excerpt: form.excerpt || null,
+    };
+    if (editing) {
+      await update.mutateAsync({ id: editing.id, ...payload } as any);
+    } else {
+      await create.mutateAsync(payload as any);
+    }
+    setDialogOpen(false);
+  };
+
+  const [tagInput, setTagInput] = useState("");
+  const addTag = (tag: string) => {
+    const t = tag.trim().toLowerCase();
+    if (t && !form.tags.includes(t)) setForm({ ...form, tags: [...form.tags, t] });
+    setTagInput("");
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold flex items-center gap-2"><FileText className="h-6 w-6 text-primary" />Artículos de Soporte</h1>
+          <p className="text-muted-foreground text-sm">{articles.length} artículos · Base de conocimiento para clientes</p>
+        </div>
+        <Button onClick={openCreate} size="sm"><Plus className="mr-1.5 h-3.5 w-3.5" />Nuevo Artículo</Button>
+      </div>
+
+      <div className="relative max-w-xs">
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Input placeholder="Buscar..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10" />
+      </div>
+
+      <div className="rounded-lg border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Título</TableHead>
+              <TableHead>Categoría</TableHead>
+              <TableHead>Estado</TableHead>
+              <TableHead className="text-center">Vistas</TableHead>
+              <TableHead className="w-36">Acciones</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
+              <TableRow><TableCell colSpan={5} className="text-center py-8">Cargando...</TableCell></TableRow>
+            ) : filtered.length === 0 ? (
+              <TableRow><TableCell colSpan={5} className="text-center py-8 text-muted-foreground">Sin artículos</TableCell></TableRow>
+            ) : filtered.map((a) => (
+              <TableRow key={a.id}>
+                <TableCell className="font-medium max-w-[250px]">
+                  <div className="flex items-center gap-1.5">
+                    {a.is_pinned && <Pin className="h-3 w-3 text-primary shrink-0" />}
+                    {a.video_url && <Video className="h-3 w-3 text-red-500 shrink-0" />}
+                    <span className="truncate">{a.title}</span>
+                  </div>
+                </TableCell>
+                <TableCell><Badge variant="secondary" className="capitalize text-xs">{a.category}</Badge></TableCell>
+                <TableCell>
+                  {a.is_published
+                    ? <Badge className="bg-green-600 text-[10px]">Publicado</Badge>
+                    : <Badge variant="outline" className="text-[10px]">Borrador</Badge>}
+                </TableCell>
+                <TableCell className="text-center font-mono text-sm">{a.view_count}</TableCell>
+                <TableCell>
+                  <div className="flex gap-0.5">
+                    <Button variant="ghost" size="icon" onClick={() => { setPreviewArticle(a); setPreviewOpen(true); }}><Eye className="h-4 w-4 text-primary" /></Button>
+                    <Button variant="ghost" size="icon" onClick={() => openEdit(a)}><Pencil className="h-4 w-4" /></Button>
+                    <Button variant="ghost" size="icon" onClick={() => remove.mutate(a.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Preview Dialog */}
+      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+        <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{previewArticle?.title}</DialogTitle>
+          </DialogHeader>
+          {previewArticle && (
+            <div className="prose prose-sm dark:prose-invert max-w-none">
+              {previewArticle.video_url && (
+                <div className="relative w-full overflow-hidden rounded-lg mb-4" style={{ paddingBottom: "56.25%" }}>
+                  <iframe
+                    className="absolute inset-0 h-full w-full"
+                    src={previewArticle.video_url.includes("youtube") 
+                      ? previewArticle.video_url.replace("watch?v=", "embed/")
+                      : previewArticle.video_url}
+                    title="Video" allowFullScreen
+                  />
+                </div>
+              )}
+              <ReactMarkdown
+                components={{
+                  input: ({ type, checked, ...props }) => {
+                    if (type === "checkbox") {
+                      return <input type="checkbox" checked={checked} readOnly className="mr-2" />;
+                    }
+                    return <input type={type} {...props} />;
+                  },
+                }}
+              >
+                {previewArticle.content}
+              </ReactMarkdown>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Create/Edit Dialog */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{editing ? "Editar Artículo" : "Nuevo Artículo"}</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Título *</Label>
+                <Input
+                  value={form.title}
+                  onChange={(e) => {
+                    const title = e.target.value;
+                    setForm({ ...form, title, slug: editing ? form.slug : generateSlug(title) });
+                  }}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Slug</Label>
+                <Input value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Categoría</Label>
+                <Select value={form.category} onValueChange={(v) => setForm({ ...form, category: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>{CATEGORIES.map((c) => <SelectItem key={c} value={c} className="capitalize">{c}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Autor</Label>
+                <Input value={form.author_name} onChange={(e) => setForm({ ...form, author_name: e.target.value })} />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Extracto (resumen corto)</Label>
+              <Input value={form.excerpt} onChange={(e) => setForm({ ...form, excerpt: e.target.value })} placeholder="Breve descripción del artículo..." />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>URL Video explicativo</Label>
+                <Input value={form.video_url} onChange={(e) => setForm({ ...form, video_url: e.target.value })} placeholder="https://youtube.com/..." />
+              </div>
+              <div className="space-y-2">
+                <Label>URL Imagen de portada</Label>
+                <Input value={form.cover_image_url} onChange={(e) => setForm({ ...form, cover_image_url: e.target.value })} placeholder="https://..." />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Contenido (Markdown) *</Label>
+              <p className="text-xs text-muted-foreground">
+                Soporta **negrita**, *cursiva*, listas, enlaces, imágenes, videos embebidos y checklists: <code>- [x] Tarea completada</code>, <code>- [ ] Tarea pendiente</code>
+              </p>
+              <Textarea
+                value={form.content}
+                onChange={(e) => setForm({ ...form, content: e.target.value })}
+                rows={16}
+                className="font-mono text-sm"
+                placeholder={`# Título del artículo\n\n## Paso 1: Preparación\nDescripción del paso...\n\n## Checklist\n- [x] Paso completado\n- [ ] Paso pendiente\n\n## Video Tutorial\n[Ver video](https://youtube.com/...)`}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Tags</Label>
+              <div className="flex flex-wrap gap-1.5 rounded-md border p-2 min-h-[32px]">
+                {form.tags.map((tag) => (
+                  <Badge key={tag} variant="secondary" className="gap-1 text-xs">
+                    {tag}
+                    <button onClick={() => setForm({ ...form, tags: form.tags.filter(t => t !== tag) })} className="ml-0.5 hover:text-destructive">×</button>
+                  </Badge>
+                ))}
+                <input
+                  value={tagInput}
+                  onChange={(e) => setTagInput(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); addTag(tagInput); } }}
+                  placeholder="Añadir tag..."
+                  className="flex-1 min-w-[80px] bg-transparent text-sm outline-none"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label>Orden</Label>
+                <Input type="number" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) })} />
+              </div>
+              <div className="flex items-center gap-2 pt-6">
+                <Switch checked={form.is_published} onCheckedChange={(v) => setForm({ ...form, is_published: v })} />
+                <Label>Publicado</Label>
+              </div>
+              <div className="flex items-center gap-2 pt-6">
+                <Switch checked={form.is_pinned} onCheckedChange={(v) => setForm({ ...form, is_pinned: v })} />
+                <Label>Fijado</Label>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancelar</Button>
+            <Button onClick={handleSave} disabled={!form.title || !form.slug || !form.content || create.isPending || update.isPending}>
+              {editing ? "Guardar" : "Crear"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}

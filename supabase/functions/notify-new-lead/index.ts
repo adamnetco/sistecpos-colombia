@@ -30,7 +30,7 @@ async function getWhatsAppNumbers(): Promise<{ main: string; support: string; sa
 }
 
 interface LeadPayload {
-  type: "demo" | "representante" | "activation_completed";
+  type: "demo" | "representante" | "activation_completed" | "demo_credentials";
   name: string;
   email: string;
   phone: string;
@@ -39,14 +39,22 @@ interface LeadPayload {
   experience?: string;
   activationToken?: string;
   requestedBy?: string;
+  credentials?: {
+    username: string;
+    store: string;
+    password: string;
+  };
   qualificationData?: {
     uses_software: boolean;
+    software_change_reason?: string;
     knows_inventory: boolean;
     main_pain: string;
     ideal_pos_features: string;
     daily_sales: string;
     employee_count: string;
     urgency: string;
+    business_age_value?: string;
+    business_age_period?: string;
   };
 }
 
@@ -238,6 +246,99 @@ function activationCompletedInternalHtml(payload: LeadPayload): string {
   `;
 }
 
+function credentialsEmailHtml(name: string, business: string, username: string, store: string, password: string, supportNumber: string): string {
+  const tutorialUrl = `${SITE_URL}/clientes#capacitacion`;
+  const accessUrl = `${SITE_URL}/clientes#pos`;
+  return `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <div style="max-width:600px;margin:0 auto;padding:40px 20px;">
+    <div style="background:#ffffff;border-radius:16px;padding:40px 32px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+      <div style="text-align:center;margin-bottom:24px;">
+        <img src="${SITE_URL}/lovable-uploads/43a24c53-78c0-4ca3-b642-99a376d90a0f.png" alt="SistecPOS" style="height:40px;" />
+      </div>
+
+      <div style="text-align:center;margin-bottom:20px;">
+        <span style="display:inline-block;background:#16a34a;color:#fff;font-size:12px;font-weight:700;padding:4px 14px;border-radius:20px;text-transform:uppercase;">✅ Licencia Creada Exitosamente</span>
+      </div>
+
+      <h1 style="text-align:center;color:#1a1a2e;font-size:22px;margin:0 0 8px;">¡Hola ${name}, felicitaciones!</h1>
+      <p style="text-align:center;color:#6b7280;font-size:14px;margin:0 0 16px;line-height:1.6;">
+        Tu licencia de prueba de <strong>1 mes</strong> fue creada exitosamente. Con ella podrás controlar tu negocio desde tu celular, evitar pérdidas y vender más.
+      </p>
+
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:16px;margin-bottom:20px;">
+        <p style="margin:0;color:#166534;font-size:14px;font-weight:600;">📦 Tu licencia incluye:</p>
+        <ul style="margin:8px 0 0;padding-left:18px;color:#374151;font-size:13px;line-height:1.8;">
+          <li>200 ventas al mes</li>
+          <li>1 caja registradora</li>
+          <li>2 empleados</li>
+          <li>Todas las funciones excepto contabilidad y tienda online</li>
+        </ul>
+      </div>
+
+      <div style="background:linear-gradient(135deg, #dbeafe, #ede9fe);border:1px solid #bfdbfe;border-radius:12px;padding:24px;margin-bottom:20px;">
+        <p style="margin:0 0 16px;color:#1e40af;font-size:16px;font-weight:700;">🚀 Activa la licencia en 2 simples pasos</p>
+        
+        <div style="margin-bottom:16px;">
+          <p style="margin:0 0 8px;color:#1e3a5f;font-size:14px;font-weight:700;">Paso 1: Contacta a Soporte</p>
+          <p style="margin:0 0 8px;color:#374151;font-size:13px;">Escribe a nuestro número de WhatsApp <strong>antes de 3 días</strong> para que tu licencia quede completamente activa y recibir <strong>gratis</strong> implementación y capacitación del software POS.</p>
+          <div style="text-align:center;">
+            <a href="https://wa.me/${supportNumber}?text=Hola,+soy+${encodeURIComponent(name)}+y+acabo+de+recibir+mis+credenciales+de+demo+para+${encodeURIComponent(business)}" style="display:inline-block;background:#25D366;color:#ffffff;font-size:14px;font-weight:600;padding:12px 28px;border-radius:10px;text-decoration:none;">
+              💬 Contactar Soporte
+            </a>
+          </div>
+        </div>
+
+        <div>
+          <p style="margin:0 0 8px;color:#1e3a5f;font-size:14px;font-weight:700;">Paso 2: Ingresa con tus datos</p>
+          <p style="margin:0 0 8px;color:#374151;font-size:13px;">Usa las credenciales de abajo para acceder. Si no carga, dale <strong>recargar</strong> a la página.</p>
+        </div>
+      </div>
+
+      <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:16px;margin-bottom:20px;">
+        <p style="margin:0 0 8px;color:#92400e;font-size:14px;font-weight:600;">⚠️ Importante</p>
+        <p style="margin:0;color:#78350f;font-size:13px;">Antes de usar el software, ve el siguiente tutorial para el manejo básico:</p>
+        <div style="text-align:center;margin-top:10px;">
+          <a href="${tutorialUrl}" style="display:inline-block;background:#8b5cf6;color:#ffffff;font-size:14px;font-weight:600;padding:10px 24px;border-radius:10px;text-decoration:none;">
+            🎓 Ver Tutorial
+          </a>
+        </div>
+      </div>
+
+      <div style="background:#f9fafb;border:2px solid #2563eb;border-radius:12px;padding:20px;margin-bottom:20px;">
+        <p style="margin:0 0 12px;color:#1e40af;font-size:15px;font-weight:700;text-align:center;">🔑 Tus datos de acceso</p>
+        <table style="width:100%;border-collapse:collapse;">
+          <tr><td style="padding:8px 12px;font-weight:bold;color:#374151;font-size:14px;">Usuario:</td><td style="padding:8px 12px;font-size:14px;color:#1a1a2e;font-weight:600;">${username}</td></tr>
+          <tr><td style="padding:8px 12px;font-weight:bold;color:#374151;font-size:14px;">Tienda:</td><td style="padding:8px 12px;font-size:14px;color:#1a1a2e;font-weight:600;">${store}</td></tr>
+          <tr><td style="padding:8px 12px;font-weight:bold;color:#374151;font-size:14px;">Clave:</td><td style="padding:8px 12px;font-size:14px;color:#1a1a2e;font-weight:600;">${password}</td></tr>
+        </table>
+      </div>
+
+      <div style="text-align:center;margin:24px 0;">
+        <a href="${accessUrl}" style="display:inline-block;background:#2563eb;color:#ffffff;font-size:16px;font-weight:700;padding:16px 40px;border-radius:12px;text-decoration:none;box-shadow:0 4px 12px rgba(37,99,235,0.3);">
+          🖥️ Click para acceder al Sistema
+        </a>
+      </div>
+
+      <hr style="border:none;border-top:1px solid #e5e7eb;margin:28px 0;" />
+
+      <p style="text-align:center;color:#374151;font-size:13px;margin:0 0 4px;">Cordialmente,</p>
+      <p style="text-align:center;color:#1a1a2e;font-size:14px;font-weight:600;margin:0 0 8px;">Equipo de SistecPOS</p>
+      <p style="text-align:center;color:#9ca3af;font-size:12px;margin:0;">
+        Soporte gratis de 8am a 5pm: +57 3176268307 · +57 3107690204
+      </p>
+
+      <hr style="border:none;border-top:1px solid #e5e7eb;margin:20px 0;" />
+      <p style="text-align:center;color:#9ca3af;font-size:11px;margin:0;">© ${new Date().getFullYear()} SistecPOS · Software POS Colombia</p>
+    </div>
+  </div>
+</body>
+</html>`;
+}
+
 // ─── MAIN HANDLER ──────────────────────────────────────────────────
 
 Deno.serve(async (req) => {
@@ -256,12 +357,22 @@ Deno.serve(async (req) => {
     if (resendKey) {
       const isDemo = payload.type === "demo";
       const isActivation = payload.type === "activation_completed";
+      const isCredentials = payload.type === "demo_credentials";
 
       // ─── Internal notification email ─────────────────────────
       let subject: string;
       let htmlBody: string;
 
-      if (isActivation) {
+      if (isCredentials && payload.credentials) {
+        // Credentials emails go directly to client, no internal needed
+        subject = `🟢 Credenciales enviadas: ${payload.name} - ${payload.business || "N/A"}`;
+        htmlBody = `<h2>🟢 Credenciales Demo Enviadas</h2>
+          <p>Se enviaron credenciales POS a <strong>${payload.name}</strong> (${payload.email})</p>
+          <table style="border-collapse:collapse;width:100%;max-width:400px;">
+            <tr><td style="padding:6px;border:1px solid #ddd;font-weight:bold;">Usuario</td><td style="padding:6px;border:1px solid #ddd;">${payload.credentials.username}</td></tr>
+            <tr><td style="padding:6px;border:1px solid #ddd;font-weight:bold;">Tienda</td><td style="padding:6px;border:1px solid #ddd;">${payload.credentials.store}</td></tr>
+          </table>`;
+      } else if (isActivation) {
         subject = `🟠 Activación Completada: ${payload.name} - ${payload.business || "N/A"} — ¡Listo para credenciales!`;
         htmlBody = activationCompletedInternalHtml(payload);
       } else if (isDemo) {
@@ -324,7 +435,14 @@ Deno.serve(async (req) => {
         let clientSubject: string | null = null;
         let clientHtml: string | null = null;
 
-        if (isDemo) {
+        if (isCredentials && payload.credentials) {
+          clientSubject = `🎉 ¡${payload.name}, tu licencia de prueba está lista! — SistecPOS`;
+          clientHtml = credentialsEmailHtml(
+            payload.name, payload.business || "tu negocio",
+            payload.credentials.username, payload.credentials.store, payload.credentials.password,
+            waNumbers.support
+          );
+        } else if (isDemo) {
           clientSubject = `🎉 ¡Bienvenido a SistecPOS, ${payload.name}! Tu demo está lista`;
           clientHtml = welcomeDemoHtml(payload.name, payload.business || "tu negocio", waNumbers.support, payload.activationToken);
         } else if (isActivation) {

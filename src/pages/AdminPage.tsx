@@ -33,6 +33,7 @@ const WhatsAppNotificationsView = lazy(() => import("@/components/admin/WhatsApp
 const AdminSubscriptionsView = lazy(() => import("@/components/admin/AdminSubscriptionsView"));
 const AdminContractsView = lazy(() => import("@/components/admin/AdminContractsView"));
 const TagsView = lazy(() => import("@/components/admin/catalog/TagsView"));
+const SupportArticlesView = lazy(() => import("@/components/admin/SupportArticlesView"));
 
 function Loader() {
   return (
@@ -76,6 +77,7 @@ export default function AdminPage() {
             <Route path="notificaciones-wa" element={<WhatsAppNotificationsView />} />
             <Route path="suscripciones" element={<AdminSubscriptionsView />} />
             <Route path="contratos" element={<AdminContractsView />} />
+            <Route path="articulos-soporte" element={<SupportArticlesView />} />
             <Route path="configuracion" element={<SettingsView />} />
           </Routes>
         </Suspense>

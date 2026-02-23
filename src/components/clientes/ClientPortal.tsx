@@ -3,8 +3,10 @@ import { useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, Monitor, TicketCheck, GraduationCap, Download, CreditCard, ShieldCheck, ScrollText, LogOut } from "lucide-react";
+import { LayoutDashboard, Monitor, TicketCheck, GraduationCap, Download, CreditCard, ShieldCheck, ScrollText, LogOut, FileText } from "lucide-react";
 import { ClientPOSAccess } from "./ClientPOSAccess";
+
+const SupportArticlesHub = lazy(() => import("@/components/shared/SupportArticlesHub"));
 
 const ClientDashboardTab = lazy(() => import("./ClientDashboardTab"));
 const ClientSubscriptionTab = lazy(() => import("./ClientSubscriptionTab"));
@@ -61,6 +63,7 @@ export function ClientPortal() {
               <TabsTrigger value="contracts" className="gap-2"><ScrollText className="h-4 w-4" />Contratos</TabsTrigger>
               <TabsTrigger value="trainings" className="gap-2"><GraduationCap className="h-4 w-4" />Entrenamientos</TabsTrigger>
               <TabsTrigger value="downloads" className="gap-2"><Download className="h-4 w-4" />Descargas</TabsTrigger>
+              <TabsTrigger value="ayuda" className="gap-2"><FileText className="h-4 w-4" />Ayuda</TabsTrigger>
             </TabsList>
 
             <TabsContent value="dashboard"><Suspense fallback={<Loader />}><ClientDashboardTab onRequestSupport={() => setActiveTab("tickets")} /></Suspense></TabsContent>
@@ -71,6 +74,7 @@ export function ClientPortal() {
             <TabsContent value="contracts"><Suspense fallback={<Loader />}><ClientContractsTab /></Suspense></TabsContent>
             <TabsContent value="trainings"><Suspense fallback={<Loader />}><ClientTrainingsTab /></Suspense></TabsContent>
             <TabsContent value="downloads"><Suspense fallback={<Loader />}><ClientDownloadsTab /></Suspense></TabsContent>
+            <TabsContent value="ayuda"><Suspense fallback={<Loader />}><SupportArticlesHub /></Suspense></TabsContent>
           </Tabs>
         </div>
       </div>

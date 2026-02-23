@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useTrainingVideos, useTrainingVideosMutations, type TrainingVideoRow } from "@/hooks/useTrainingVideos";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -43,7 +44,7 @@ const emptyForm = {
   title: "", category: "Básicos", video_url: "", video_type: "youtube",
   duration: null as string | null, is_main: false, is_active: true, sort_order: 0,
   visible_to_customer: true, visible_to_reseller: true, approval_status: "approved",
-  tags: [] as string[],
+  tags: [] as string[], description: "",
 };
 
 function TagInput({ tags, onChange }: { tags: string[]; onChange: (t: string[]) => void }) {
@@ -120,6 +121,7 @@ export default function TrainingVideosView() {
       visible_to_reseller: (v as any).visible_to_reseller ?? true,
       approval_status: (v as any).approval_status ?? "approved",
       tags: (v as any).tags || [],
+      description: (v as any).description || "",
     });
     setDialogOpen(true);
   };
@@ -458,6 +460,16 @@ export default function TrainingVideosView() {
             <div className="space-y-2">
               <Label className="flex items-center gap-1.5"><Tag className="h-3.5 w-3.5" />Tags</Label>
               <TagInput tags={form.tags} onChange={(tags) => setForm({ ...form, tags })} />
+            </div>
+            <div className="space-y-2">
+              <Label>Descripción / Detalle (Markdown)</Label>
+              <Textarea
+                value={form.description}
+                onChange={(e) => setForm({ ...form, description: e.target.value })}
+                rows={4}
+                className="font-mono text-sm"
+                placeholder="Descripción del video con soporte Markdown: **negrita**, *cursiva*, listas, enlaces..."
+              />
             </div>
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
