@@ -19,17 +19,23 @@ import {
   Form, FormControl, FormField, FormItem, FormLabel, FormMessage,
 } from "@/components/ui/form";
 import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
+} from "@/components/ui/dialog";
+import {
   DAILY_SALES_OPTIONS, EMPLOYEE_COUNT_OPTIONS, URGENCY_OPTIONS,
 } from "@/data/demoFormOptions";
 
 const activationSchema = z.object({
   uses_software: z.boolean(),
+  software_change_reason: z.string().trim().max(300, "Máximo 300 caracteres").optional(),
   knows_inventory: z.boolean(),
   main_pain: z.string().trim().min(5, "Describe brevemente tu necesidad").max(500),
   ideal_pos_features: z.string().trim().min(5, "¿Qué debería tener?").max(500),
   daily_sales: z.string().min(1, "Selecciona una opción"),
   employee_count: z.string().min(1, "Selecciona una opción"),
   urgency: z.string().min(1, "Selecciona una opción"),
+  business_age_value: z.string().min(1, "Selecciona el tiempo"),
+  business_age_period: z.string().min(1, "Selecciona el periodo"),
 });
 
 type ActivationFormValues = z.infer<typeof activationSchema>;
@@ -54,19 +60,26 @@ export default function ActivarDemoPage() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [alreadyCompleted, setAlreadyCompleted] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pendingValues, setPendingValues] = useState<ActivationFormValues | null>(null);
 
   const form = useForm<ActivationFormValues>({
     resolver: zodResolver(activationSchema),
     defaultValues: {
       uses_software: false,
+      software_change_reason: "",
       knows_inventory: false,
       main_pain: "",
       ideal_pos_features: "",
       daily_sales: "",
       employee_count: "",
       urgency: "",
+      business_age_value: "",
+      business_age_period: "",
     },
   });
+
+  const usesSoftware = form.watch("uses_software");
 
   useEffect(() => {
     if (!token) return;
@@ -92,20 +105,30 @@ export default function ActivarDemoPage() {
     fetchLead();
   }, [token]);
 
-  async function onSubmit(values: ActivationFormValues) {
-    if (!lead) return;
+  function handleFormSubmit(values: ActivationFormValues) {
+    setPendingValues(values);
+    setConfirmOpen(true);
+  }
+
+  async function doSubmit() {
+    if (!lead || !pendingValues) return;
+    setConfirmOpen(false);
     setSubmitting(true);
+    const values = pendingValues;
     try {
       const { error } = await supabase
         .from("leads_trials")
         .update({
           uses_software: values.uses_software,
+          software_change_reason: values.uses_software ? values.software_change_reason || null : null,
           knows_inventory: values.knows_inventory,
           main_pain: values.main_pain,
           ideal_pos_features: values.ideal_pos_features,
           daily_sales: values.daily_sales,
           employee_count: values.employee_count,
           urgency: values.urgency,
+          business_age_value: parseInt(values.business_age_value) || null,
+          business_age_period: values.business_age_period || null,
           activation_completed_at: new Date().toISOString(),
           status: "activation_completed",
         })
@@ -118,7 +141,6 @@ export default function ActivarDemoPage() {
         description: "Pronto recibirás tus credenciales de acceso.",
       });
 
-      // Notify admin about activation completion (different from initial welcome)
       supabase.functions.invoke("notify-new-lead", {
         body: {
           type: "activation_completed",
@@ -129,12 +151,15 @@ export default function ActivarDemoPage() {
           city: lead.city || "",
           qualificationData: {
             uses_software: values.uses_software,
+            software_change_reason: values.uses_software ? values.software_change_reason : undefined,
             knows_inventory: values.knows_inventory,
             main_pain: values.main_pain,
             ideal_pos_features: values.ideal_pos_features,
             daily_sales: values.daily_sales,
             employee_count: values.employee_count,
             urgency: values.urgency,
+            business_age_value: values.business_age_value,
+            business_age_period: values.business_age_period,
           },
         },
       }).catch(console.error);
@@ -183,6 +208,8 @@ export default function ActivarDemoPage() {
       </div>
     );
   }
+
+  const BUSINESS_AGE_VALUES = Array.from({ length: 10 }, (_, i) => String(i + 1)).concat("11");
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-secondary via-background to-background">
@@ -273,7 +300,43 @@ export default function ActivarDemoPage() {
           </div>
 
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+            <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-5">
+              {/* Business age */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">¿Hace cuánto tiempo tiene el negocio? *</Label>
+                <div className="grid grid-cols-2 gap-3">
+                  <FormField control={form.control} name="business_age_value" render={({ field }) => (
+                    <FormItem>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger><SelectValue placeholder="Tiempo" /></SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {BUSINESS_AGE_VALUES.map(v => (
+                            <SelectItem key={v} value={v}>{v === "11" ? "Más de 10" : v}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={form.control} name="business_age_period" render={({ field }) => (
+                    <FormItem>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger><SelectValue placeholder="Periodo" /></SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="meses">Meses</SelectItem>
+                          <SelectItem value="años">Años</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                </div>
+              </div>
+
               {/* a) Uses software */}
               <div className="flex items-center justify-between rounded-lg border p-4">
                 <Label className="text-sm font-medium flex-1">
@@ -281,14 +344,33 @@ export default function ActivarDemoPage() {
                 </Label>
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-muted-foreground">
-                    {form.watch("uses_software") ? "Sí" : "No"}
+                    {usesSoftware ? "Sí" : "No"}
                   </span>
                   <Switch
-                    checked={form.watch("uses_software")}
+                    checked={usesSoftware}
                     onCheckedChange={(v) => form.setValue("uses_software", v)}
                   />
                 </div>
               </div>
+
+              {/* Conditional: reason for change */}
+              {usesSoftware && (
+                <FormField control={form.control} name="software_change_reason" render={({ field }) => (
+                  <FormItem className="animate-in fade-in slide-in-from-top-2">
+                    <FormLabel>¿Por qué desea cambiarlo? (sea lo más detallado posible) *</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Ej: Es muy lento, no genera facturación electrónica, no tiene control de inventario..."
+                        rows={3}
+                        maxLength={300}
+                        {...field}
+                      />
+                    </FormControl>
+                    <p className="text-xs text-muted-foreground text-right">{(field.value || "").length}/300</p>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+              )}
 
               {/* b) Knows inventory */}
               <div className="flex items-center justify-between rounded-lg border p-4">
@@ -399,6 +481,36 @@ export default function ActivarDemoPage() {
           </Form>
         </div>
       </main>
+
+      {/* Confirmation Dialog */}
+      <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>¿Confirmas que los datos son correctos?</DialogTitle>
+            <DialogDescription>
+              Revisa que toda la información sea correcta antes de enviar.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2 text-sm max-h-60 overflow-y-auto">
+            <p><strong>Negocio:</strong> {lead.business_name}</p>
+            <p><strong>Antigüedad:</strong> {pendingValues?.business_age_value === "11" ? "Más de 10" : pendingValues?.business_age_value} {pendingValues?.business_age_period}</p>
+            <p><strong>¿Usa software?</strong> {pendingValues?.uses_software ? "Sí" : "No"}</p>
+            {pendingValues?.uses_software && pendingValues?.software_change_reason && (
+              <p><strong>Razón de cambio:</strong> {pendingValues.software_change_reason}</p>
+            )}
+            <p><strong>Ventas/día:</strong> {pendingValues?.daily_sales}</p>
+            <p><strong>Empleados:</strong> {pendingValues?.employee_count}</p>
+            <p><strong>Urgencia:</strong> {pendingValues?.urgency}</p>
+          </div>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setConfirmOpen(false)}>Corregir</Button>
+            <Button onClick={doSubmit} disabled={submitting} className="bg-cta hover:bg-cta/90 text-cta-foreground">
+              {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+              Sí, confirmar y enviar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

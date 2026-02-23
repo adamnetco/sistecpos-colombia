@@ -69,6 +69,7 @@ const navGroups: NavGroup[] = [
       { name: "Contratos", href: "/admin/contratos", icon: FileCheck },
       { name: "Descargas", href: "/admin/descargas-clientes", icon: Download },
       { name: "Capacitación", href: "/admin/capacitacion", icon: GraduationCap },
+      { name: "Artículos Soporte", href: "/admin/articulos-soporte", icon: FileSignature },
     ],
   },
   {
