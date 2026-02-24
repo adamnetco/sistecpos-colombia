@@ -38,6 +38,7 @@ const navGroups: NavGroup[] = [
     items: [
       { name: "Licencias", href: "/admin/licencias", icon: KeyRound },
       { name: "Precios Licencias", href: "/admin/precios-licencias", icon: Tag },
+      { name: "Suscripciones", href: "/admin/suscripciones", icon: CreditCard },
       { name: "Certificados", href: "/admin/certificados", icon: FileCheck },
       { name: "Pagos", href: "/admin/pagos", icon: CreditCard },
     ],
@@ -65,11 +66,11 @@ const navGroups: NavGroup[] = [
       { name: "Demos Activas", href: "/admin/demos-activas", icon: KeyRound },
       { name: "Usuarios POS", href: "/admin/usuarios-pos", icon: UserCog },
       { name: "Tickets", href: "/admin/tickets-clientes", icon: TicketCheck },
-      { name: "Suscripciones", href: "/admin/suscripciones", icon: CreditCard },
       { name: "Contratos", href: "/admin/contratos", icon: FileCheck },
       { name: "Descargas", href: "/admin/descargas-clientes", icon: Download },
       { name: "Capacitación", href: "/admin/capacitacion", icon: GraduationCap },
       { name: "Artículos Soporte", href: "/admin/articulos-soporte", icon: FileSignature },
+      { name: "Recursos", href: "/admin/recursos", icon: FolderOpen },
     ],
   },
   {

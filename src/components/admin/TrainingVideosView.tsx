@@ -43,7 +43,8 @@ const APPROVAL_FILTERS = [
 const emptyForm = {
   title: "", category: "Básicos", video_url: "", video_type: "youtube",
   duration: null as string | null, is_main: false, is_active: true, sort_order: 0,
-  visible_to_customer: true, visible_to_reseller: true, approval_status: "approved",
+  visible_to_customer: true, visible_to_reseller: true, visible_to_public: false,
+  approval_status: "approved",
   tags: [] as string[], description: "",
 };
 
@@ -119,6 +120,7 @@ export default function TrainingVideosView() {
       duration: v.duration, is_main: v.is_main, is_active: v.is_active, sort_order: v.sort_order,
       visible_to_customer: (v as any).visible_to_customer ?? true,
       visible_to_reseller: (v as any).visible_to_reseller ?? true,
+      visible_to_public: (v as any).visible_to_public ?? false,
       approval_status: (v as any).approval_status ?? "approved",
       tags: (v as any).tags || [],
       description: (v as any).description || "",
@@ -503,8 +505,8 @@ export default function TrainingVideosView() {
               </div>
             </div>
             <div className="rounded-lg border p-3 space-y-2">
-              <Label className="text-sm font-semibold">Visibilidad por Rol</Label>
-              <div className="flex gap-6">
+              <Label className="text-sm font-semibold">Visibilidad por Perfil</Label>
+              <div className="flex flex-wrap gap-6">
                 <div className="flex items-center gap-2">
                   <Checkbox checked={form.visible_to_customer} onCheckedChange={(v) => setForm({ ...form, visible_to_customer: !!v })} />
                   <Label className="text-sm">👤 Clientes</Label>
@@ -512,6 +514,10 @@ export default function TrainingVideosView() {
                 <div className="flex items-center gap-2">
                   <Checkbox checked={form.visible_to_reseller} onCheckedChange={(v) => setForm({ ...form, visible_to_reseller: !!v })} />
                   <Label className="text-sm">🤝 Socios</Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Checkbox checked={(form as any).visible_to_public ?? false} onCheckedChange={(v) => setForm({ ...form, visible_to_public: !!v } as any)} />
+                  <Label className="text-sm">🌐 Público (sin registro)</Label>
                 </div>
               </div>
             </div>

@@ -2567,6 +2567,9 @@ export type Database = {
           updated_at: string
           video_url: string | null
           view_count: number
+          visible_to_customer: boolean
+          visible_to_public: boolean
+          visible_to_reseller: boolean
         }
         Insert: {
           author_name?: string | null
@@ -2585,6 +2588,9 @@ export type Database = {
           updated_at?: string
           video_url?: string | null
           view_count?: number
+          visible_to_customer?: boolean
+          visible_to_public?: boolean
+          visible_to_reseller?: boolean
         }
         Update: {
           author_name?: string | null
@@ -2603,6 +2609,9 @@ export type Database = {
           updated_at?: string
           video_url?: string | null
           view_count?: number
+          visible_to_customer?: boolean
+          visible_to_public?: boolean
+          visible_to_reseller?: boolean
         }
         Relationships: []
       }
@@ -2781,6 +2790,7 @@ export type Database = {
           video_url: string
           view_count: number
           visible_to_customer: boolean
+          visible_to_public: boolean
           visible_to_reseller: boolean
         }
         Insert: {
@@ -2800,6 +2810,7 @@ export type Database = {
           video_url: string
           view_count?: number
           visible_to_customer?: boolean
+          visible_to_public?: boolean
           visible_to_reseller?: boolean
         }
         Update: {
@@ -2819,6 +2830,7 @@ export type Database = {
           video_url?: string
           view_count?: number
           visible_to_customer?: boolean
+          visible_to_public?: boolean
           visible_to_reseller?: boolean
         }
         Relationships: []
