@@ -46,6 +46,31 @@ interface PricingRow {
   max_usuarios: number | null;
 }
 
+function TrmBadge() {
+  const { data: trm } = useQuery({
+    queryKey: ["trm-today"],
+    queryFn: async () => {
+      try {
+        const res = await fetch("https://www.datos.gov.co/resource/32sa-8pi3.json?$limit=1&$order=vigenciadesde%20DESC");
+        const json = await res.json();
+        if (json?.[0]?.valor) return { value: Number(json[0].valor), date: json[0].vigenciadesde?.split("T")[0] };
+      } catch {}
+      return null;
+    },
+    staleTime: 60 * 60 * 1000,
+  });
+
+  if (!trm) return null;
+  return (
+    <div className="flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-xs">
+      <DollarSign className="h-4 w-4 text-primary" />
+      <span className="font-semibold text-primary">TRM Hoy: ${trm.value.toLocaleString("es-CO", { minimumFractionDigits: 2 })}</span>
+      {trm.date && <span className="text-muted-foreground">({trm.date})</span>}
+      <span className="text-muted-foreground ml-1">· Se usa para convertir precios USD → COP de FacilPOS</span>
+    </div>
+  );
+}
+
 export default function LicensePricingView() {
   const queryClient = useQueryClient();
   const [editing, setEditing] = useState<Record<string, Partial<PricingRow>>>({});
@@ -224,14 +249,20 @@ export default function LicensePricingView() {
         </div>
       </div>
 
-      {/* Last sync info */}
+      {/* Last sync info + TRM */}
       {plans[0]?.last_synced_at && (
-        <div className="flex items-center gap-2 text-xs text-muted-foreground rounded-lg bg-muted/50 border px-3 py-2">
-          <Clock className="h-3.5 w-3.5" />
-          Última sincronización: {new Date(plans[0].last_synced_at).toLocaleString("es-CO")}
-          <span className="text-muted-foreground/60 ml-1">· Los precios oficiales (USD→COP) se actualizan con la TRM del día</span>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 text-xs text-muted-foreground rounded-lg bg-muted/50 border px-3 py-2">
+          <div className="flex items-center gap-2">
+            <Clock className="h-3.5 w-3.5" />
+            Última sincronización: {new Date(plans[0].last_synced_at).toLocaleString("es-CO")}
+          </div>
+          <span className="hidden sm:inline">·</span>
+          <span className="text-muted-foreground/80">
+            Los <strong>precios oficiales</strong> son los precios de licencias de <strong>FacilPOS</strong> (casa de desarrollo), convertidos automáticamente de USD a COP con la TRM del día.
+          </span>
         </div>
       )}
+      <TrmBadge />
 
       {/* Plan Cards */}
       <div className="grid gap-6 lg:grid-cols-3">

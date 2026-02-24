@@ -34,6 +34,7 @@ const AdminSubscriptionsView = lazy(() => import("@/components/admin/AdminSubscr
 const AdminContractsView = lazy(() => import("@/components/admin/AdminContractsView"));
 const TagsView = lazy(() => import("@/components/admin/catalog/TagsView"));
 const SupportArticlesView = lazy(() => import("@/components/admin/SupportArticlesView"));
+const ResourceManagerView = lazy(() => import("@/components/admin/ResourceManagerView"));
 
 function Loader() {
   return (
@@ -78,6 +79,7 @@ export default function AdminPage() {
             <Route path="suscripciones" element={<AdminSubscriptionsView />} />
             <Route path="contratos" element={<AdminContractsView />} />
             <Route path="articulos-soporte" element={<SupportArticlesView />} />
+            <Route path="recursos" element={<ResourceManagerView />} />
             <Route path="configuracion" element={<SettingsView />} />
           </Routes>
         </Suspense>
