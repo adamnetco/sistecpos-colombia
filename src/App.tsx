@@ -61,6 +61,8 @@ const LicenciasPage = lazy(() => import("./pages/LicenciasPage"));
 const PlanesPage = lazy(() => import("./pages/PlanesPage"));
 const PacksPage = lazy(() => import("./pages/PacksPage"));
 const ModulosPage = lazy(() => import("./pages/ModulosPage"));
+const VentasListPage = lazy(() => import("./pages/VentasListPage"));
+const VentaDetallePage = lazy(() => import("./pages/VentaDetallePage"));
 
 const queryClient = new QueryClient();
 
@@ -100,6 +102,8 @@ const App = () => (
                 <Route path="/planes" element={<PlanesPage />} />
                 <Route path="/packs" element={<PacksPage />} />
                 <Route path="/modulos" element={<ModulosPage />} />
+                <Route path="/ventas" element={<VentasListPage />} />
+                <Route path="/venta/:slug" element={<VentaDetallePage />} />
                 <Route path="/productos" element={<ProductosPage />} />
                 {/* Module route MUST be before /productos/:slug to avoid param capture */}
                 <Route path="/modulos/:slug" element={<ModuloDetallePage />} />

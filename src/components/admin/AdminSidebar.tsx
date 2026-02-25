@@ -41,6 +41,7 @@ const navGroups: NavGroup[] = [
       { name: "Suscripciones", href: "/admin/suscripciones", icon: CreditCard },
       { name: "Certificados", href: "/admin/certificados", icon: FileCheck },
       { name: "Pagos", href: "/admin/pagos", icon: CreditCard },
+      { name: "Landing Ventas", href: "/admin/landing-ventas", icon: FileText },
     ],
   },
   {
