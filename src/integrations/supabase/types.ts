@@ -2381,6 +2381,146 @@ export type Database = {
         }
         Relationships: []
       }
+      sales_page_items: {
+        Row: {
+          created_at: string
+          custom_label: string | null
+          custom_price_cop: number | null
+          id: string
+          item_type: string
+          license_pricing_id: string | null
+          pack_id: string | null
+          product_id: string | null
+          sales_page_id: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          custom_label?: string | null
+          custom_price_cop?: number | null
+          id?: string
+          item_type?: string
+          license_pricing_id?: string | null
+          pack_id?: string | null
+          product_id?: string | null
+          sales_page_id: string
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          custom_label?: string | null
+          custom_price_cop?: number | null
+          id?: string
+          item_type?: string
+          license_pricing_id?: string | null
+          pack_id?: string | null
+          product_id?: string | null
+          sales_page_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_page_items_license_pricing_id_fkey"
+            columns: ["license_pricing_id"]
+            isOneToOne: false
+            referencedRelation: "license_pricing"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_page_items_pack_id_fkey"
+            columns: ["pack_id"]
+            isOneToOne: false
+            referencedRelation: "commercial_packs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_page_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "catalog_products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_page_items_sales_page_id_fkey"
+            columns: ["sales_page_id"]
+            isOneToOne: false
+            referencedRelation: "sales_pages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sales_pages: {
+        Row: {
+          badge: string | null
+          coupon_code: string | null
+          created_at: string
+          cta_whatsapp_message: string | null
+          description: string | null
+          gallery_urls: string[] | null
+          id: string
+          is_active: boolean
+          is_featured: boolean
+          long_description: string | null
+          meta_description: string | null
+          meta_title: string | null
+          original_price_cop: number | null
+          pdf_url: string | null
+          price_cop: number
+          slug: string
+          sort_order: number
+          subtitle: string | null
+          title: string
+          updated_at: string
+          video_url: string | null
+        }
+        Insert: {
+          badge?: string | null
+          coupon_code?: string | null
+          created_at?: string
+          cta_whatsapp_message?: string | null
+          description?: string | null
+          gallery_urls?: string[] | null
+          id?: string
+          is_active?: boolean
+          is_featured?: boolean
+          long_description?: string | null
+          meta_description?: string | null
+          meta_title?: string | null
+          original_price_cop?: number | null
+          pdf_url?: string | null
+          price_cop?: number
+          slug: string
+          sort_order?: number
+          subtitle?: string | null
+          title: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Update: {
+          badge?: string | null
+          coupon_code?: string | null
+          created_at?: string
+          cta_whatsapp_message?: string | null
+          description?: string | null
+          gallery_urls?: string[] | null
+          id?: string
+          is_active?: boolean
+          is_featured?: boolean
+          long_description?: string | null
+          meta_description?: string | null
+          meta_title?: string | null
+          original_price_cop?: number | null
+          pdf_url?: string | null
+          price_cop?: number
+          slug?: string
+          sort_order?: number
+          subtitle?: string | null
+          title?: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Relationships: []
+      }
       site_settings: {
         Row: {
           created_at: string

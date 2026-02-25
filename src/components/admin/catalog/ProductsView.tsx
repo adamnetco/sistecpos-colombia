@@ -202,6 +202,7 @@ export default function ProductsView() {
             <SelectItem value="hardware">Hardware</SelectItem>
             <SelectItem value="software">Software</SelectItem>
             <SelectItem value="servicio">Servicio</SelectItem>
+            <SelectItem value="consumible">Consumible</SelectItem>
             <SelectItem value="certificado">Certificado</SelectItem>
           </SelectContent>
         </Select>

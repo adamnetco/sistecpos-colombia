@@ -55,7 +55,7 @@ const ServiciosPage = () => {
         .from("catalog_products")
         .select("id, slug, name, description, long_description, price_cop, features, is_featured, sort_order")
         .eq("is_active", true)
-        .eq("product_type", "service")
+        .eq("product_type", "servicio")
         .order("sort_order");
       if (error) throw error;
       return data as ServiceProduct[];
