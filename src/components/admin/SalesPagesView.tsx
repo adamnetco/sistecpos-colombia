@@ -430,7 +430,7 @@ function SalesPageFormDialog({ open, onOpenChange, editing, onSaved }: {
           <div className="grid sm:grid-cols-3 gap-4">
             <div>
               <Label>Precio COP</Label>
-              <Input type="number" value={form.price_cop || 0} onChange={e => setForm(f => ({ ...f, price_cop: +e.target.value }))} />
+              <Input type="number" value={form.price_cop ?? ""} onChange={e => setForm(f => ({ ...f, price_cop: e.target.value === "" ? 0 : Number(e.target.value) }))} />
             </div>
             <div>
               <Label>Precio original COP</Label>

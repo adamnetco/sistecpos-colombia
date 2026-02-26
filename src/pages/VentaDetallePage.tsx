@@ -12,11 +12,14 @@ import { motion } from "framer-motion";
 import {
   MessageCircle, ShoppingCart, CheckCircle2, TrendingDown, Video,
   FileDown, ChevronLeft, Package, Shield, Star, ArrowRight,
+  Clock, Headphones, Copy, Share2,
 } from "lucide-react";
 import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
 import { WompiCheckoutButton } from "@/components/payments/WompiCheckoutButton";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 
 const formatCOP = (v: number) =>
   new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0 }).format(v);
@@ -28,7 +31,6 @@ export default function VentaDetallePage() {
   const [couponInput, setCouponInput] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
 
-  // Read coupon from URL params
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const c = params.get("cupon");
@@ -77,9 +79,11 @@ export default function VentaDetallePage() {
     if (data) {
       setAppliedCoupon(data);
       setCouponApplied(true);
+      toast.success("¡Cupón aplicado exitosamente!");
     } else {
       setAppliedCoupon(null);
       setCouponApplied(false);
+      toast.error("Cupón inválido o expirado");
     }
   };
 
@@ -90,6 +94,12 @@ export default function VentaDetallePage() {
   const savingsPct = page?.original_price_cop && page.original_price_cop > page.price_cop
     ? Math.round(((page.original_price_cop - page.price_cop) / page.original_price_cop) * 100)
     : 0;
+
+  const shareUrl = `${window.location.origin}/venta/${slug}`;
+  const copyLink = () => {
+    navigator.clipboard.writeText(shareUrl);
+    toast.success("Enlace copiado");
+  };
 
   if (isLoading) {
     return (
@@ -105,7 +115,8 @@ export default function VentaDetallePage() {
     return (
       <Layout>
         <div className="container px-4 py-20 text-center">
-          <h1 className="text-2xl font-bold mb-4">Página no encontrada</h1>
+          <Package className="h-16 w-16 mx-auto text-muted-foreground/30 mb-4" />
+          <h1 className="text-2xl font-bold mb-4">Oferta no encontrada</h1>
           <Button asChild><Link to="/ventas"><ChevronLeft className="h-4 w-4 mr-1" />Ver todas las ofertas</Link></Button>
         </div>
       </Layout>
@@ -122,17 +133,21 @@ export default function VentaDetallePage() {
       <Breadcrumbs items={[{ label: "Ventas", href: "/ventas" }, { label: page.title }]} />
 
       {/* Hero */}
-      <section className="py-16 md:py-24 gradient-bg text-primary-foreground">
-        <div className="container px-4">
+      <section className="py-16 md:py-24 gradient-bg text-primary-foreground relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,rgba(255,255,255,0.06),transparent_60%)]" />
+        <div className="container px-4 relative z-10">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center max-w-4xl mx-auto">
             {page.badge && (
-              <Badge className="mb-4 bg-white/20 text-white border-white/30">
+              <Badge className="mb-4 bg-white/20 text-white border-white/30 backdrop-blur">
                 <Star className="h-3 w-3 mr-1" />{page.badge}
               </Badge>
             )}
-            <h1 className="text-3xl md:text-5xl font-bold mb-4">{page.title}</h1>
-            {page.subtitle && <p className="text-lg md:text-xl text-primary-foreground/80 mb-6">{page.subtitle}</p>}
+            <h1 className="text-3xl md:text-5xl font-black mb-4 tracking-tight">{page.title}</h1>
+            {page.subtitle && <p className="text-lg md:text-xl text-primary-foreground/80 mb-4">{page.subtitle}</p>}
             {page.description && <p className="text-primary-foreground/70 max-w-2xl mx-auto">{page.description}</p>}
+            <Button variant="ghost" size="sm" className="mt-4 text-primary-foreground/60 gap-1" onClick={copyLink}>
+              <Share2 className="h-3.5 w-3.5" />Compartir
+            </Button>
           </motion.div>
         </div>
       </section>
@@ -148,7 +163,7 @@ export default function VentaDetallePage() {
 
             {/* Video */}
             {page.video_url && (
-              <Card className="border-0 shadow-card overflow-hidden">
+              <Card className="border-0 shadow-lg overflow-hidden rounded-2xl">
                 <CardContent className="p-0">
                   <div className="aspect-video">
                     <iframe
@@ -162,11 +177,21 @@ export default function VentaDetallePage() {
               </Card>
             )}
 
-            {/* Markdown Description */}
+            {/* Markdown Content */}
             {page.long_description && (
-              <Card className="border-0 shadow-card">
-                <CardContent className="p-6 prose prose-sm max-w-none dark:prose-invert">
-                  <ReactMarkdown>{page.long_description}</ReactMarkdown>
+              <Card className="border-0 shadow-lg rounded-2xl">
+                <CardContent className="p-6 md:p-8 prose prose-sm md:prose-base max-w-none dark:prose-invert
+                  prose-headings:font-bold
+                  prose-h2:text-xl prose-h2:mt-8 prose-h2:mb-3 prose-h2:border-b prose-h2:pb-2
+                  prose-a:text-primary
+                  prose-img:rounded-xl
+                  prose-table:border prose-th:bg-muted prose-th:p-2 prose-td:p-2
+                  prose-pre:bg-muted prose-pre:rounded-xl
+                  prose-code:text-primary prose-code:bg-primary/10 prose-code:px-1 prose-code:rounded
+                  prose-blockquote:border-l-primary prose-blockquote:bg-primary/5 prose-blockquote:rounded-r-lg
+                  prose-li:marker:text-primary"
+                >
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{page.long_description}</ReactMarkdown>
                 </CardContent>
               </Card>
             )}
@@ -176,9 +201,9 @@ export default function VentaDetallePage() {
               <div>
                 <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
                   <Package className="h-5 w-5 text-primary" />
-                  ¿Qué incluye?
+                  ¿Qué incluye este paquete?
                 </h2>
-                <div className="grid sm:grid-cols-2 gap-4">
+                <div className="grid sm:grid-cols-2 gap-3">
                   {items.map((item, i) => {
                     const product = item.catalog_products;
                     const license = item.license_pricing;
@@ -189,20 +214,20 @@ export default function VentaDetallePage() {
 
                     return (
                       <motion.div key={item.id} initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }}>
-                        <Card className="border hover:shadow-md transition-all">
+                        <Card className="border hover:shadow-md transition-all hover:border-primary/30">
                           <CardContent className="p-4 flex items-center gap-3">
                             {img ? (
                               <img src={img} alt={name} className="h-12 w-12 rounded-lg object-cover bg-muted shrink-0" />
                             ) : (
                               <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                                {item.item_type === "license" ? <Shield className="h-5 w-5 text-primary" /> : <Package className="h-5 w-5 text-primary" />}
+                                <CheckCircle2 className="h-5 w-5 text-primary" />
                               </div>
                             )}
                             <div className="flex-1 min-w-0">
                               <p className="font-medium text-sm truncate">{name}</p>
-                              <Badge variant="outline" className="text-xs capitalize">{item.item_type}</Badge>
+                              <Badge variant="outline" className="text-[10px] capitalize mt-0.5">{item.item_type}</Badge>
                             </div>
-                            {price && <p className="text-sm font-bold text-primary">{formatCOP(price)}</p>}
+                            {price > 0 && <p className="text-sm font-bold text-primary whitespace-nowrap">{formatCOP(price)}</p>}
                           </CardContent>
                         </Card>
                       </motion.div>
@@ -215,8 +240,11 @@ export default function VentaDetallePage() {
 
           {/* Sidebar */}
           <div className="space-y-4">
-            <Card className="border-0 shadow-card sticky top-24">
-              <CardContent className="p-6 space-y-4">
+            <Card className="border-0 shadow-xl sticky top-24 rounded-2xl overflow-hidden">
+              <div className="bg-primary/5 p-1 text-center">
+                <span className="text-xs font-medium text-primary">💰 Precio especial</span>
+              </div>
+              <CardContent className="p-6 space-y-5">
                 {/* Price */}
                 <div className="text-center">
                   {page.original_price_cop && page.original_price_cop > page.price_cop && (
@@ -270,6 +298,13 @@ export default function VentaDetallePage() {
                   </Button>
                 </div>
 
+                {/* Trust */}
+                <div className="space-y-2 pt-2 border-t text-xs text-muted-foreground">
+                  <div className="flex items-center gap-2"><Shield className="h-3.5 w-3.5 text-primary" />Pago seguro con Wompi</div>
+                  <div className="flex items-center gap-2"><Headphones className="h-3.5 w-3.5 text-primary" />Soporte incluido</div>
+                  <div className="flex items-center gap-2"><Clock className="h-3.5 w-3.5 text-primary" />Activación inmediata</div>
+                </div>
+
                 {/* PDF */}
                 {page.pdf_url && (
                   <Button variant="outline" className="w-full gap-2" asChild>
@@ -293,7 +328,7 @@ function GallerySlider({ images }: { images: string[] }) {
 
   return (
     <div className="space-y-3">
-      <Card className="border-0 shadow-card overflow-hidden">
+      <Card className="border-0 shadow-lg overflow-hidden rounded-2xl">
         <div className="aspect-video bg-muted">
           <img src={images[active]} alt={`Imagen ${active + 1}`} className="w-full h-full object-contain" />
         </div>
@@ -304,7 +339,7 @@ function GallerySlider({ images }: { images: string[] }) {
             <button
               key={i}
               onClick={() => setActive(i)}
-              className={`h-16 w-16 rounded-lg overflow-hidden border-2 shrink-0 transition-all ${i === active ? "border-primary" : "border-transparent opacity-60 hover:opacity-100"}`}
+              className={`h-16 w-16 rounded-lg overflow-hidden border-2 shrink-0 transition-all ${i === active ? "border-primary ring-2 ring-primary/20" : "border-transparent opacity-60 hover:opacity-100"}`}
             >
               <img src={img} alt="" className="h-full w-full object-cover" />
             </button>
