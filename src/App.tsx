@@ -56,6 +56,7 @@ const PagoResultadoPage = lazy(() => import("./pages/PagoResultadoPage"));
 const ServiciosPage = lazy(() => import("./pages/ServiciosPage"));
 const ClientesPage = lazy(() => import("./pages/ClientesPage"));
 const AyudaPage = lazy(() => import("./pages/AyudaPage"));
+const AyudaArticlePage = lazy(() => import("./pages/AyudaArticlePage"));
 const ActivarDemoPage = lazy(() => import("./pages/ActivarDemoPage"));
 const LicenciasPage = lazy(() => import("./pages/LicenciasPage"));
 const PlanesPage = lazy(() => import("./pages/PlanesPage"));
@@ -122,6 +123,7 @@ const App = () => (
                 <Route path="/pago/resultado" element={<PagoResultadoPage />} />
                 <Route path="/clientes" element={<ClientesPage />} />
                 <Route path="/ayuda" element={<AyudaPage />} />
+                <Route path="/ayuda/:slug" element={<AyudaArticlePage />} />
                 <Route path="/contacto" element={<ContactoPage />} />
                 <Route path="/gracias" element={<GraciasPage />} />
                 <Route path="/politica-privacidad" element={<PoliticaPrivacidadPage />} />
