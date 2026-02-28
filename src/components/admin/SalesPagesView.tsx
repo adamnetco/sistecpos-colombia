@@ -23,6 +23,7 @@ import {
   Plus, Pencil, Trash2, FileText, Eye, EyeOff, Link2,
   Copy, ExternalLink, Video, FileDown, Images, Package,
 } from "lucide-react";
+import SalesItemsManager from "@/components/admin/sales/SalesItemsManager";
 
 /* ─── Types ─── */
 interface SalesPage {
@@ -285,7 +286,7 @@ export default function SalesPagesView() {
           <DialogHeader>
             <DialogTitle>Productos de "{selectedPage?.title}"</DialogTitle>
           </DialogHeader>
-          <ItemsManager
+          <SalesItemsManager
             pageId={selectedPage?.id || ""}
             items={items}
             products={products}
@@ -480,105 +481,4 @@ function SalesPageFormDialog({ open, onOpenChange, editing, onSaved }: {
   );
 }
 
-/* ─── Items Manager ─── */
-function ItemsManager({ pageId, items, products, licenses, packs, onAdd, onRemove }: {
-  pageId: string;
-  items: SalesPageItem[];
-  products: any[];
-  licenses: any[];
-  packs: any[];
-  onAdd: (item: any) => void;
-  onRemove: (id: string) => void;
-}) {
-  const [itemType, setItemType] = useState("product");
-  const [selectedId, setSelectedId] = useState("");
-
-  const getOptions = () => {
-    switch (itemType) {
-      case "product": return products.map(p => ({ id: p.id, label: `${p.name} (${p.product_type})` }));
-      case "license": return licenses.map(l => ({ id: l.id, label: l.plan_label }));
-      case "pack": return packs.map(p => ({ id: p.id, label: p.name }));
-      default: return [];
-    }
-  };
-
-  const handleAdd = () => {
-    if (!selectedId) return;
-    const payload: any = {
-      sales_page_id: pageId,
-      item_type: itemType,
-      sort_order: items.length,
-    };
-    if (itemType === "product") payload.product_id = selectedId;
-    if (itemType === "license") payload.license_pricing_id = selectedId;
-    if (itemType === "pack") payload.pack_id = selectedId;
-    onAdd(payload);
-    setSelectedId("");
-  };
-
-  const getItemLabel = (item: SalesPageItem) => {
-    if (item.product_id) {
-      const p = products.find(x => x.id === item.product_id);
-      return p ? `${p.name} (${p.product_type})` : "Producto eliminado";
-    }
-    if (item.license_pricing_id) {
-      const l = licenses.find(x => x.id === item.license_pricing_id);
-      return l ? `Licencia: ${l.plan_label}` : "Licencia eliminada";
-    }
-    if (item.pack_id) {
-      const p = packs.find(x => x.id === item.pack_id);
-      return p ? `Pack: ${p.name}` : "Pack eliminado";
-    }
-    return item.custom_label || "Sin nombre";
-  };
-
-  return (
-    <div className="space-y-4">
-      {/* Add Item */}
-      <div className="flex gap-2">
-        <Select value={itemType} onValueChange={setItemType}>
-          <SelectTrigger className="w-36">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="product">Producto</SelectItem>
-            <SelectItem value="license">Licencia</SelectItem>
-            <SelectItem value="pack">Pack</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select value={selectedId} onValueChange={setSelectedId}>
-          <SelectTrigger className="flex-1">
-            <SelectValue placeholder="Seleccionar..." />
-          </SelectTrigger>
-          <SelectContent>
-            {getOptions().map(o => (
-              <SelectItem key={o.id} value={o.id}>{o.label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Button onClick={handleAdd} disabled={!selectedId} size="sm">
-          <Plus className="h-4 w-4" />
-        </Button>
-      </div>
-
-      {/* Items List */}
-      {items.length === 0 ? (
-        <p className="text-sm text-muted-foreground text-center py-4">No hay productos asociados.</p>
-      ) : (
-        <div className="space-y-2">
-          {items.map(item => (
-            <div key={item.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-              <div className="flex items-center gap-2">
-                <Badge variant="outline" className="text-xs capitalize">{item.item_type}</Badge>
-                <span className="text-sm">{getItemLabel(item)}</span>
-              </div>
-              <Button variant="ghost" size="icon" className="text-destructive h-8 w-8" onClick={() => onRemove(item.id)}>
-                <Trash2 className="h-3 w-3" />
-              </Button>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
+/* ItemsManager moved to src/components/admin/sales/SalesItemsManager.tsx */
