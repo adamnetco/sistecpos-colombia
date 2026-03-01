@@ -25,6 +25,7 @@ const ClientDownloadsView = lazy(() => import("@/components/admin/ClientDownload
 const ClientTicketsView = lazy(() => import("@/components/admin/ClientTicketsView"));
 const TrainingVideosView = lazy(() => import("@/components/admin/TrainingVideosView"));
 const LicensePricingView = lazy(() => import("@/components/admin/LicensePricingView"));
+const PacksManagerView = lazy(() => import("@/components/admin/PacksManagerView"));
 const RolesManagerView = lazy(() => import("@/components/admin/RolesManagerView"));
 const POSUsersView = lazy(() => import("@/components/admin/POSUsersView"));
 const ActiveDemosView = lazy(() => import("@/components/admin/ActiveDemosView"));
@@ -59,6 +60,7 @@ export default function AdminPage() {
             <Route path="etiquetas" element={<TagsView />} />
             <Route path="licencias" element={<LicensesView />} />
             <Route path="precios-licencias" element={<LicensePricingView />} />
+            <Route path="packs" element={<PacksManagerView />} />
             <Route path="leads" element={<Navigate to="/admin/contactos" replace />} />
             <Route path="certificados" element={<CertificatesView />} />
             <Route path="pagos" element={<PaymentsView />} />
