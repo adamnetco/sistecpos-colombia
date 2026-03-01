@@ -38,6 +38,7 @@ const navGroups: NavGroup[] = [
     items: [
       { name: "Licencias", href: "/admin/licencias", icon: KeyRound },
       { name: "Precios Licencias", href: "/admin/precios-licencias", icon: Tag },
+      { name: "Packs", href: "/admin/packs", icon: Package },
       { name: "Suscripciones", href: "/admin/suscripciones", icon: CreditCard },
       { name: "Certificados", href: "/admin/certificados", icon: FileCheck },
       { name: "Pagos", href: "/admin/pagos", icon: CreditCard },
