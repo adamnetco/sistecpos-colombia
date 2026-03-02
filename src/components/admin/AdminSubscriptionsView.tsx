@@ -206,6 +206,7 @@ export default function AdminSubscriptionsView() {
                 <TableHead>Audiencia</TableHead>
                 <TableHead>Estado</TableHead>
                 <TableHead>Precio</TableHead>
+                <TableHead>Visible</TableHead>
                 <TableHead>Periodo</TableHead>
                 <TableHead className="text-right">Acción</TableHead>
               </TableRow>
@@ -221,6 +222,20 @@ export default function AdminSubscriptionsView() {
                     <TableCell><span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${aud.color}`}>{aud.label}</span></TableCell>
                     <TableCell><Badge className={statusColors[s.status] || "bg-muted"}>{s.status}</Badge></TableCell>
                     <TableCell className="text-sm font-medium">${s.price_cop.toLocaleString("es-CO")}</TableCell>
+                    <TableCell>
+                      <input
+                        type="checkbox"
+                        className="h-4 w-4 accent-primary cursor-pointer"
+                        checked={(s as any).show_in_landing ?? true}
+                        onClick={e => e.stopPropagation()}
+                        onChange={async (e) => {
+                          const val = e.target.checked;
+                          await supabase.from("support_subscriptions").update({ show_in_landing: val } as any).eq("id", s.id);
+                          load();
+                          toast({ title: val ? "Visible en landing ✅" : "Oculto del landing" });
+                        }}
+                      />
+                    </TableCell>
                     <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
                       {s.current_period_start && new Date(s.current_period_start).toLocaleDateString("es-CO")} — {s.current_period_end && new Date(s.current_period_end).toLocaleDateString("es-CO")}
                     </TableCell>

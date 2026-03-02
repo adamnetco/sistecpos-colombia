@@ -24,6 +24,7 @@ export function useLicensePricing() {
       const { data, error } = await supabase
         .from("license_pricing")
         .select("*")
+        .eq("is_active", true)
         .order("sort_order");
       if (error) throw error;
       return (data || []) as LicensePricing[];
