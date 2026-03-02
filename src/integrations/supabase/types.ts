@@ -1556,6 +1556,7 @@ export type Database = {
           id: string
           image_url: string | null
           implementation_price_cop: number
+          is_active: boolean
           is_annual: boolean
           last_synced_at: string | null
           max_cajas: number | null
@@ -1575,6 +1576,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           implementation_price_cop?: number
+          is_active?: boolean
           is_annual?: boolean
           last_synced_at?: string | null
           max_cajas?: number | null
@@ -1594,6 +1596,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           implementation_price_cop?: number
+          is_active?: boolean
           is_annual?: boolean
           last_synced_at?: string | null
           max_cajas?: number | null

@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
@@ -86,7 +87,19 @@ export default function LicensePricingView() {
         .select("*")
         .order("sort_order");
       if (error) throw error;
-      return data as PricingRow[];
+      return data as (PricingRow & { is_active?: boolean })[];
+    },
+  });
+
+  const toggleActive = useMutation({
+    mutationFn: async ({ id, is_active }: { id: string; is_active: boolean }) => {
+      const { error } = await supabase.from("license_pricing").update({ is_active } as any).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin_license_pricing"] });
+      queryClient.invalidateQueries({ queryKey: ["license_pricing"] });
+      toast.success("Visibilidad actualizada");
     },
   });
 
@@ -277,21 +290,30 @@ export default function LicensePricingView() {
           const totalAnual = selling + implementation;
 
           return (
-            <Card key={plan.id} className={`transition-all ${isOverPriced ? "border-destructive" : ""} ${hasChanges ? "ring-2 ring-primary/30" : ""}`}>
+            <Card key={plan.id} className={`transition-all ${!(plan as any).is_active ? "opacity-60" : ""} ${isOverPriced ? "border-destructive" : ""} ${hasChanges ? "ring-2 ring-primary/30" : ""}`}>
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg">{plan.plan_label}</CardTitle>
-                  {isOverPriced ? (
-                    <Badge variant="destructive" className="gap-1 text-xs">
-                      <AlertTriangle className="h-3 w-3" />
-                      Excede oficial
-                    </Badge>
-                  ) : discount > 0 ? (
-                    <Badge className="gap-1 bg-primary/10 text-primary border-primary/20 text-xs">
-                      <TrendingDown className="h-3 w-3" />
-                      {discount}% desc.
-                    </Badge>
-                  ) : null}
+                  <div className="flex items-center gap-3">
+                    <CardTitle className="text-lg">{plan.plan_label}</CardTitle>
+                    {isOverPriced ? (
+                      <Badge variant="destructive" className="gap-1 text-xs">
+                        <AlertTriangle className="h-3 w-3" />
+                        Excede oficial
+                      </Badge>
+                    ) : discount > 0 ? (
+                      <Badge className="gap-1 bg-primary/10 text-primary border-primary/20 text-xs">
+                        <TrendingDown className="h-3 w-3" />
+                        {discount}% desc.
+                      </Badge>
+                    ) : null}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Label className="text-xs text-muted-foreground">Visible</Label>
+                    <Switch
+                      checked={(plan as any).is_active !== false}
+                      onCheckedChange={v => toggleActive.mutate({ id: plan.id, is_active: v })}
+                    />
+                  </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
