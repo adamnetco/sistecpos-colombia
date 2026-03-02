@@ -31,13 +31,13 @@ const fallbackLinks = [
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [solutionsOpen, setSolutionsOpen] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { user, isAdmin, isReseller, isCustomer, signOut, loading: authLoading } = useAuth();
-  const { topItems: mainItems } = useNavItems("main");
-  const { topItems: mobileItems } = useNavItems("mobile");
+  const { topItems: mainItems, getChildren: getMainChildren } = useNavItems("main");
+  const { topItems: mobileItems, getChildren: getMobileChildren } = useNavItems("mobile");
 
   const desktopLinks = mainItems.length > 0 ? mainItems : fallbackLinks.map((f, i) => ({ ...f, id: `fb-${i}`, position: "main", is_active: true, is_external: false, sort_order: i, parent_id: null }));
   const mobileLinks = mobileItems.length > 0 ? mobileItems : fallbackLinks.map((f, i) => ({ ...f, id: `fb-m-${i}`, position: "mobile", is_active: true, is_external: false, sort_order: i, parent_id: null }));
@@ -66,16 +66,16 @@ export function Navbar() {
         {/* Desktop Navigation */}
         <div className="hidden lg:flex lg:items-center lg:gap-1">
           {desktopLinks.map((link) => {
-            // Special handling for "Soluciones" - show dropdown
+            // Special handling for "Soluciones" - show mega dropdown
             if (link.href === "/soluciones") {
               return (
-                <div key={link.id} className="relative" onMouseEnter={() => setSolutionsOpen(true)} onMouseLeave={() => setSolutionsOpen(false)}>
-                  <Link to="/soluciones" className={cn("flex items-center gap-1 px-4 py-2 text-sm font-medium transition-colors rounded-md hover:bg-muted", isActive("/soluciones") && "text-primary", solutionsOpen && "bg-muted")}>
+                <div key={link.id} className="relative" onMouseEnter={() => setActiveDropdown(link.id)} onMouseLeave={() => setActiveDropdown(null)}>
+                  <Link to="/soluciones" className={cn("flex items-center gap-1 px-4 py-2 text-sm font-medium transition-colors rounded-md hover:bg-muted", isActive("/soluciones") && "text-primary", activeDropdown === link.id && "bg-muted")}>
                     {link.label}
-                    <ChevronDown className={cn("h-4 w-4 transition-transform", solutionsOpen && "rotate-180")} />
+                    <ChevronDown className={cn("h-4 w-4 transition-transform", activeDropdown === link.id && "rotate-180")} />
                   </Link>
                   <AnimatePresence>
-                    {solutionsOpen && <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} transition={{ duration: 0.2 }} className="absolute left-0 top-full pt-2">
+                    {activeDropdown === link.id && <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} transition={{ duration: 0.2 }} className="absolute left-0 top-full pt-2">
                       <div className="grid w-[480px] grid-cols-2 gap-2 rounded-xl border bg-card p-4 shadow-card">
                         {solutions.map(solution => <Link key={solution.name} to={solution.href} className="flex items-start gap-3 rounded-lg p-3 transition-colors hover:bg-muted">
                           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
@@ -93,7 +93,33 @@ export function Navbar() {
               );
             }
 
-            // Regular link or anchor
+            // Generic dropdown for items with DB children (e.g. Productos)
+            const children = getMainChildren(link.id);
+            if (children.length > 0) {
+              return (
+                <div key={link.id} className="relative" onMouseEnter={() => setActiveDropdown(link.id)} onMouseLeave={() => setActiveDropdown(null)}>
+                  <Link to={link.href} className={cn("flex items-center gap-1 px-4 py-2 text-sm font-medium transition-colors rounded-md hover:bg-muted", isActive(link.href) && "text-primary", activeDropdown === link.id && "bg-muted")}>
+                    {link.label}
+                    <ChevronDown className={cn("h-4 w-4 transition-transform", activeDropdown === link.id && "rotate-180")} />
+                  </Link>
+                  <AnimatePresence>
+                    {activeDropdown === link.id && (
+                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} transition={{ duration: 0.2 }} className="absolute left-0 top-full pt-2">
+                        <div className="w-56 rounded-xl border bg-card p-2 shadow-card space-y-0.5">
+                          {children.map(child => (
+                            <Link key={child.id} to={child.href} className="block rounded-lg px-3 py-2 text-sm font-medium hover:bg-muted transition-colors" onClick={() => setActiveDropdown(null)}>
+                              {child.label}
+                            </Link>
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              );
+            }
+
+            // External link
             if (link.is_external || link.href.startsWith("http")) {
               return (
                 <a key={link.id} href={link.href} target="_blank" rel="noopener noreferrer" className="px-4 py-2 text-sm font-medium transition-colors rounded-md hover:bg-muted">
@@ -190,6 +216,25 @@ export function Navbar() {
                   );
                 }
 
+                // Generic: items with DB children
+                const children = getMobileChildren(link.id);
+                if (children.length > 0) {
+                  return (
+                    <div key={link.id} className="space-y-2">
+                      <Link to={link.href} className="block text-xs font-semibold text-primary uppercase tracking-wider hover:underline" onClick={() => setMobileMenuOpen(false)}>
+                        {link.label}
+                      </Link>
+                      <div className="grid grid-cols-2 gap-2">
+                        {children.map(child => (
+                          <Link key={child.id} to={child.href} className="block p-2 rounded-lg text-sm hover:bg-muted" onClick={() => setMobileMenuOpen(false)}>
+                            {child.label}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                }
+
                 if (link.is_external || link.href.startsWith("http")) {
                   return (
                     <a key={link.id} href={link.href} target="_blank" rel="noopener noreferrer" className="block py-2 text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>
@@ -220,7 +265,7 @@ export function Navbar() {
                 </>
               ) : (
                 <Button asChild variant="outline" className="w-full gap-2">
-                  <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
+                  <Link to="/clientes" onClick={() => setMobileMenuOpen(false)}>
                     <LogIn className="h-4 w-4" />
                     Iniciar Sesión
                   </Link>
