@@ -5,7 +5,7 @@ import {
   LayoutDashboard, KeyRound, Users, FileCheck, CreditCard,
   Handshake, LogOut, ChevronLeft, Contact2, Bot, Code2,
   Package, Menu, ShoppingBag, Tag, FolderOpen, BarChart3, Settings2,
-  FileText, ChevronDown, Download, TicketCheck, GraduationCap, ShieldCheck, UserCog, Activity, MessageCircle, FileSignature, Hash, BookOpen,
+  FileText, ChevronDown, Download, TicketCheck, GraduationCap, ShieldCheck, UserCog, Activity, MessageCircle, FileSignature, Hash, BookOpen, LayoutGrid,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -81,6 +81,7 @@ const navGroups: NavGroup[] = [
       { name: "Actividad", href: "/admin/actividad", icon: Activity },
       { name: "Roles", href: "/admin/roles", icon: ShieldCheck },
       { name: "Notif. WhatsApp", href: "/admin/notificaciones-wa", icon: MessageCircle },
+      { name: "CMS Contenido", href: "/admin/contenido", icon: LayoutGrid },
       { name: "Configuración", href: "/admin/configuracion", icon: Settings2 },
       { name: "Documentación", href: "/admin/documentacion", icon: BookOpen },
     ],

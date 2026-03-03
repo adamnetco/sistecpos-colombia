@@ -1819,6 +1819,54 @@ export type Database = {
         }
         Relationships: []
       }
+      page_content: {
+        Row: {
+          content_type: string
+          created_at: string
+          id: string
+          image_alt: string | null
+          image_url: string | null
+          is_active: boolean
+          json_value: Json | null
+          page_path: string
+          section_key: string
+          sort_order: number
+          text_value: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          content_type?: string
+          created_at?: string
+          id?: string
+          image_alt?: string | null
+          image_url?: string | null
+          is_active?: boolean
+          json_value?: Json | null
+          page_path: string
+          section_key: string
+          sort_order?: number
+          text_value?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          content_type?: string
+          created_at?: string
+          id?: string
+          image_alt?: string | null
+          image_url?: string | null
+          is_active?: boolean
+          json_value?: Json | null
+          page_path?: string
+          section_key?: string
+          sort_order?: number
+          text_value?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       page_seo_settings: {
         Row: {
           canonical_url: string | null
