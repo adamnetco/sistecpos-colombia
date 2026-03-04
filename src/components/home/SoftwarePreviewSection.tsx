@@ -1,17 +1,10 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { 
-  Smartphone, 
-  Monitor, 
-  Tablet, 
-  Cloud, 
-  WifiOff, 
-  ArrowRight,
-  Play
-} from "lucide-react";
+import { Smartphone, Monitor, Tablet, Cloud, WifiOff, ArrowRight, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import softwareDashboard from "@/assets/software-dashboard.png";
+import { usePageContent, getContent, getImageContent } from "@/hooks/usePageContent";
 
 const features = [
   { icon: Monitor, label: "PC y Laptop" },
@@ -22,6 +15,15 @@ const features = [
 ];
 
 export function SoftwarePreviewSection() {
+  const { data: blocks } = usePageContent("/");
+
+  const badge = getContent(blocks, "software_badge", "Software POS en la Nube");
+  const title = getContent(blocks, "software_title", 'Administra tu negocio desde <span class="gradient-text">cualquier lugar</span>');
+  const subtitle = getContent(blocks, "software_subtitle", "Controla ventas, inventario y reportes desde tu celular, tablet o PC. Funciona con o sin internet gracias a nuestro exclusivo modo offline de hasta 8 días.");
+  const ctaPrimary = getContent(blocks, "software_cta_primary", "Solicitar Demo Gratis");
+  const videoUrl = getContent(blocks, "software_video_url", "https://youtu.be/ANvJED741nc");
+  const dashboardImg = getImageContent(blocks, "software_dashboard_image", softwareDashboard);
+
   return (
     <section id="software" className="py-16 md:py-24 overflow-hidden">
       <div className="container px-4">
@@ -33,24 +35,17 @@ export function SoftwarePreviewSection() {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <Badge variant="secondary" className="mb-4">
-              Software POS en la Nube
-            </Badge>
-            <h2 className="text-3xl font-bold tracking-tight md:text-4xl mb-6">
-              Administra tu negocio desde <span className="gradient-text">cualquier lugar</span>
-            </h2>
-            <p className="text-lg text-muted-foreground mb-8">
-              Controla ventas, inventario y reportes desde tu celular, tablet o PC. 
-              Funciona con o sin internet gracias a nuestro exclusivo modo offline de hasta 8 días.
-            </p>
+            <Badge variant="secondary" className="mb-4">{badge}</Badge>
+            <h2
+              className="text-3xl font-bold tracking-tight md:text-4xl mb-6"
+              dangerouslySetInnerHTML={{ __html: title }}
+            />
+            <p className="text-lg text-muted-foreground mb-8">{subtitle}</p>
 
             {/* Device Icons */}
             <div className="flex flex-wrap gap-4 mb-8">
               {features.map((feature) => (
-                <div 
-                  key={feature.label} 
-                  className="flex items-center gap-2 bg-muted/50 rounded-full px-4 py-2"
-                >
+                <div key={feature.label} className="flex items-center gap-2 bg-muted/50 rounded-full px-4 py-2">
                   <feature.icon className="h-4 w-4 text-primary" />
                   <span className="text-sm font-medium">{feature.label}</span>
                 </div>
@@ -60,16 +55,12 @@ export function SoftwarePreviewSection() {
             <div className="flex flex-col sm:flex-row gap-4">
               <Button size="lg" asChild>
                 <Link to="/lp/demo">
-                  Solicitar Demo Gratis
+                  {ctaPrimary}
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
               <Button variant="outline" size="lg" asChild>
-                <a 
-                  href="https://youtu.be/ANvJED741nc"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
+                <a href={videoUrl} target="_blank" rel="noopener noreferrer">
                   <Play className="mr-2 h-4 w-4" />
                   Ver Video
                 </a>
@@ -86,19 +77,16 @@ export function SoftwarePreviewSection() {
             className="relative"
           >
             <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-border/50">
-              <img 
-                src={softwareDashboard} 
-                alt="Vista del Software POS SistecPOS" 
+              <img
+                src={dashboardImg.url}
+                alt={dashboardImg.alt || "Vista del Software POS SistecPOS"}
                 className="w-full h-auto"
                 loading="lazy"
                 decoding="async"
               />
-              
-              {/* Overlay gradient */}
               <div className="absolute inset-0 bg-gradient-to-t from-background/20 to-transparent pointer-events-none" />
             </div>
-            
-            {/* Floating badge */}
+
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -117,7 +105,6 @@ export function SoftwarePreviewSection() {
               </div>
             </motion.div>
 
-            {/* Floating badge 2 */}
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               whileInView={{ opacity: 1, y: 0 }}

@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { Monitor, Loader2, XCircle, Info } from "lucide-react";
 import { motion } from "framer-motion";
+import { usePageContent, getContent } from "@/hooks/usePageContent";
 
 const GooglePlayIcon = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" className={className} fill="currentColor">
@@ -14,6 +15,11 @@ export function ConnectPOSSection() {
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const [playstoreUrl, setPlaystoreUrl] = useState("https://play.google.com/store/apps/details?id=online.softwarepospro");
+
+  const { data: blocks } = usePageContent("/");
+  const badge = getContent(blocks, "connectpos_badge", "Prueba Gratis");
+  const title = getContent(blocks, "connectpos_title", "Prueba el Software POS en Vivo");
+  const subtitle = getContent(blocks, "connectpos_subtitle", "Explora todas las funcionalidades de SistecPOS con nuestra demo interactiva. Sin registro, sin compromisos — accede al instante.");
 
   useEffect(() => {
     supabase
@@ -45,20 +51,12 @@ export function ConnectPOSSection() {
   const handleOpenDemo = () => {
     setStatus("loading");
     setErrorMsg("");
-
     try {
-      // Build a hidden form to POST demo credentials directly
       const form = document.createElement("form");
       form.method = "POST";
       form.action = "https://softwarepos.online/index.php/login/index/1";
       form.target = "_blank";
-
-      const fields = {
-        username: demoCreds.user,
-        password: demoCreds.pass,
-        store: demoCreds.store,
-        remember_user: "1",
-      };
+      const fields = { username: demoCreds.user, password: demoCreds.pass, store: demoCreds.store, remember_user: "1" };
       for (const [key, value] of Object.entries(fields)) {
         const input = document.createElement("input");
         input.type = "hidden";
@@ -66,7 +64,6 @@ export function ConnectPOSSection() {
         input.value = value;
         form.appendChild(input);
       }
-
       document.body.appendChild(form);
       form.submit();
       document.body.removeChild(form);
@@ -88,42 +85,18 @@ export function ConnectPOSSection() {
           className="mx-auto max-w-2xl text-center space-y-6"
         >
           <span className="inline-block rounded-full bg-primary/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-primary">
-            Prueba Gratis
+            {badge}
           </span>
-          <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
-            Prueba el Software POS en Vivo
-          </h2>
-          <p className="text-muted-foreground text-lg">
-            Explora todas las funcionalidades de SistecPOS con nuestra demo interactiva.
-            Sin registro, sin compromisos — accede al instante.
-          </p>
+          <h2 className="text-3xl font-bold tracking-tight md:text-4xl">{title}</h2>
+          <p className="text-muted-foreground text-lg">{subtitle}</p>
 
           <div className="flex flex-col items-center gap-4">
             <div className="flex flex-col sm:flex-row items-center gap-3">
-              <Button
-                size="lg"
-                onClick={handleOpenDemo}
-                disabled={status === "loading"}
-                className="gap-2 text-base px-8"
-              >
-                {status === "loading" ? (
-                  <><Loader2 className="h-5 w-5 animate-spin" /> Abriendo demo…</>
-                ) : (
-                  <><Monitor className="h-5 w-5" /> Probar Demo en Vivo</>
-                )}
+              <Button size="lg" onClick={handleOpenDemo} disabled={status === "loading"} className="gap-2 text-base px-8">
+                {status === "loading" ? (<><Loader2 className="h-5 w-5 animate-spin" /> Abriendo demo…</>) : (<><Monitor className="h-5 w-5" /> Probar Demo en Vivo</>)}
               </Button>
-
-              <Button
-                size="lg"
-                variant="outline"
-                className="gap-2 text-base px-8"
-                asChild
-              >
-                <a
-                  href={playstoreUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
+              <Button size="lg" variant="outline" className="gap-2 text-base px-8" asChild>
+                <a href={playstoreUrl} target="_blank" rel="noopener noreferrer">
                   <GooglePlayIcon className="h-5 w-5" />
                   Descargar en Play Store
                 </a>
@@ -142,11 +115,7 @@ export function ConnectPOSSection() {
             </motion.div>
 
             {status === "error" && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="flex items-center gap-2 text-sm text-destructive"
-              >
+              <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="flex items-center gap-2 text-sm text-destructive">
                 <XCircle className="h-4 w-4" />
                 <span>{errorMsg}</span>
               </motion.div>
