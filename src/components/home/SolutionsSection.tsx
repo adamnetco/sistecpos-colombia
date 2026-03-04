@@ -5,15 +5,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { businessTypes } from "@/data/businessTypes";
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.3 },
-  },
-};
+import { usePageContent, getContent } from "@/hooks/usePageContent";
 
 function SolutionCard({ solution }: { solution: typeof businessTypes[0] }) {
   return (
@@ -25,12 +17,8 @@ function SolutionCard({ solution }: { solution: typeof businessTypes[0] }) {
               <solution.icon className="h-5 w-5" />
             </div>
             <div className="min-w-0">
-              <h3 className="text-sm font-semibold group-hover:text-primary transition-colors truncate">
-                {solution.titleShort}
-              </h3>
-              <p className="text-xs text-muted-foreground line-clamp-1">
-                {solution.description}
-              </p>
+              <h3 className="text-sm font-semibold group-hover:text-primary transition-colors truncate">{solution.titleShort}</h3>
+              <p className="text-xs text-muted-foreground line-clamp-1">{solution.description}</p>
             </div>
           </div>
         </CardContent>
@@ -41,6 +29,11 @@ function SolutionCard({ solution }: { solution: typeof businessTypes[0] }) {
 
 export function SolutionsSection() {
   const [showAll, setShowAll] = useState(false);
+  const { data: blocks } = usePageContent("/");
+
+  const title = getContent(blocks, "solutions_title", 'Soluciones para <span class="gradient-text">todos los Tipos de Negocio</span>');
+  const subtitle = getContent(blocks, "solutions_subtitle", "Software adaptado a las necesidades específicas de tu industria con módulos especializados.");
+
   const initialItems = businessTypes.slice(0, 12);
   const extraItems = businessTypes.slice(12);
 
@@ -54,12 +47,8 @@ export function SolutionsSection() {
           transition={{ duration: 0.5 }}
           className="text-center mb-12"
         >
-          <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
-            Soluciones para <span className="gradient-text">{businessTypes.length} Tipos de Negocio</span>
-          </h2>
-          <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
-            Software adaptado a las necesidades específicas de tu industria con módulos especializados.
-          </p>
+          <h2 className="text-3xl font-bold tracking-tight md:text-4xl" dangerouslySetInnerHTML={{ __html: title }} />
+          <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">{subtitle}</p>
         </motion.div>
 
         <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 max-w-7xl mx-auto">
@@ -74,7 +63,6 @@ export function SolutionsSection() {
               <SolutionCard solution={solution} />
             </motion.div>
           ))}
-
           <AnimatePresence>
             {showAll && extraItems.map((solution, index) => (
               <motion.div
@@ -92,22 +80,8 @@ export function SolutionsSection() {
 
         {extraItems.length > 0 && (
           <div className="text-center mt-8">
-            <Button
-              variant="outline"
-              onClick={() => setShowAll(!showAll)}
-              className="gap-2"
-            >
-              {showAll ? (
-                <>
-                  Ver menos
-                  <ChevronUp className="h-4 w-4" />
-                </>
-              ) : (
-                <>
-                  Ver los {businessTypes.length} tipos de negocio
-                  <ChevronDown className="h-4 w-4" />
-                </>
-              )}
+            <Button variant="outline" onClick={() => setShowAll(!showAll)} className="gap-2">
+              {showAll ? (<>Ver menos<ChevronUp className="h-4 w-4" /></>) : (<>Ver los {businessTypes.length} tipos de negocio<ChevronDown className="h-4 w-4" /></>)}
             </Button>
           </div>
         )}
