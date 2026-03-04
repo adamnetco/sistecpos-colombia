@@ -3,9 +3,19 @@ import { ArrowRight, Shield, Clock, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
+import { usePageContent, getContent } from "@/hooks/usePageContent";
 
 export function CTASection() {
   const wa = useWhatsAppConfig();
+  const { data: blocks } = usePageContent("/");
+
+  const urgencyBadge = getContent(blocks, "cta_urgency_badge", "Te respondemos en menos de 5 minutos — Sin compromiso");
+  const title = getContent(blocks, "cta_title", "¿Listo para vender más y preocuparte menos?");
+  const subtitle = getContent(blocks, "cta_subtitle", "Nuestro sistema es muy amigable, fácil y en pocas horas podrás llevar el control de tu negocio desde internet. Agenda una visita sin compromiso.");
+  const testimonialText = getContent(blocks, "cta_testimonial_text", "Desde que instalamos SistecPOS, el inventario cuadra y facturamos en segundos. El soporte es real, no un bot.");
+  const testimonialAuthor = getContent(blocks, "cta_testimonial_author", "— Carlos M., Mini Market, Bucaramanga");
+  const btnPrimary = getContent(blocks, "cta_button_primary", "Solicitar Prueba Gratis 30 Días");
+  const btnSecondary = getContent(blocks, "cta_button_secondary", "Llámanos Ahora");
 
   return (
     <section id="contacto" className="py-16 md:py-24 bg-gradient-to-br from-primary via-primary to-primary-hover relative overflow-hidden">
@@ -26,16 +36,15 @@ export function CTASection() {
           {/* Urgency badge */}
           <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-1.5 text-sm font-semibold backdrop-blur-sm">
             <Clock className="h-4 w-4" />
-            Te respondemos en menos de 5 minutos — Sin compromiso
+            {urgencyBadge}
           </div>
 
           <h2 className="font-display text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl">
-            ¿Listo para vender más y preocuparte menos?
+            {title}
           </h2>
           
           <p className="mt-6 text-lg text-primary-foreground/80 md:text-xl">
-            Nuestro sistema es muy amigable, fácil y en pocas horas podrás llevar 
-            el control de tu negocio desde internet. Agenda una visita sin compromiso.
+            {subtitle}
           </p>
 
           {/* Testimonial snippet */}
@@ -52,11 +61,10 @@ export function CTASection() {
               ))}
             </div>
             <p className="text-sm italic text-primary-foreground/90">
-              "Desde que instalamos SistecPOS, el inventario cuadra y facturamos en segundos. 
-              El soporte es real, no un bot."
+              "{testimonialText}"
             </p>
             <p className="mt-2 text-xs font-medium text-primary-foreground/70">
-              — Carlos M., Mini Market, Bucaramanga
+              {testimonialAuthor}
             </p>
           </motion.div>
 
@@ -68,7 +76,7 @@ export function CTASection() {
             >
               <Link to="/lp/demo">
                 <ArrowRight className="mr-2 h-5 w-5" />
-                Solicitar Prueba Gratis 30 Días
+                {btnPrimary}
               </Link>
             </Button>
 
@@ -79,7 +87,7 @@ export function CTASection() {
               className="border-primary-foreground/30 text-primary-foreground bg-transparent hover:bg-primary-foreground/10 text-base h-14 px-10"
             >
               <a href={wa.telHref}>
-                Llámanos Ahora
+                {btnSecondary}
                 <ArrowRight className="ml-2 h-5 w-5" />
               </a>
             </Button>
