@@ -2,8 +2,17 @@ import { motion } from "framer-motion";
 import { ArrowRight, Cloud, Smartphone, Monitor, Laptop, Shield, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { usePageContent, getContent } from "@/hooks/usePageContent";
 
 export function HeroSection() {
+  const { data: blocks } = usePageContent("/");
+
+  const badge = getContent(blocks, "hero_badge", "Prueba gratis 30 días — Sin tarjeta de crédito");
+  const title = getContent(blocks, "hero_title", 'El Software POS que <span class="gradient-text">vende más</span> y factura con la DIAN');
+  const subtitle = getContent(blocks, "hero_subtitle", "Controla ventas, inventario y reportes desde tu celular, tablet o PC. Funciona con o sin internet. Con instalación y capacitación presencial en Santander.");
+  const ctaPrimary = getContent(blocks, "hero_cta_primary", "Quiero Mi Prueba Gratis");
+  const ctaSecondary = getContent(blocks, "hero_cta_secondary", "Ver Cómo Funciona");
+
   return (
     <section id="inicio" className="relative overflow-hidden bg-gradient-to-b from-secondary to-background py-20 md:py-28 lg:py-32">
       {/* Background decoration */}
@@ -22,7 +31,7 @@ export function HeroSection() {
             className="mb-6 inline-flex items-center gap-2 rounded-full border border-cta/30 bg-cta/10 px-4 py-1.5 text-sm font-semibold text-cta"
           >
             <Clock className="h-4 w-4" />
-            Prueba gratis 30 días — Sin tarjeta de crédito
+            {badge}
           </motion.div>
 
           {/* Main Heading */}
@@ -32,11 +41,8 @@ export function HeroSection() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="font-display text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl"
             id="titulo"
-          >
-            El Software POS que{" "}
-            <span className="gradient-text">vende más</span>{" "}
-            y factura con la DIAN
-          </motion.h1>
+            dangerouslySetInnerHTML={{ __html: title }}
+          />
 
           {/* Subtitle */}
           <motion.p
@@ -45,8 +51,7 @@ export function HeroSection() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground md:text-xl"
           >
-            Controla ventas, inventario y reportes desde tu celular, tablet o PC. 
-            Funciona con o sin internet. Con instalación y capacitación presencial en Santander.
+            {subtitle}
           </motion.p>
 
           {/* Device icons */}
@@ -88,13 +93,13 @@ export function HeroSection() {
             >
               <Link to="/lp/demo">
                 <ArrowRight className="mr-2 h-5 w-5" />
-                Quiero Mi Prueba Gratis
+                {ctaPrimary}
               </Link>
             </Button>
 
             <Button asChild variant="outline" size="lg" className="text-base h-14 px-10">
               <a href="#como-funciona">
-                Ver Cómo Funciona
+                {ctaSecondary}
                 <ArrowRight className="ml-2 h-5 w-5" />
               </a>
             </Button>
