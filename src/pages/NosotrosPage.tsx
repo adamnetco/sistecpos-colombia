@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { Target, Eye, Heart, Users, Award, Clock, MapPin, Phone } from "lucide-react";
 import eduardoTobacia from "@/assets/eduardo-tobacia.png";
 import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
+import { usePageContent, getContent } from "@/hooks/usePageContent";
 
 const valores = [
   {
@@ -51,6 +52,7 @@ const timeline = [
 
 export default function NosotrosPage() {
   const { buildUrl } = useWhatsAppConfig();
+  const { data: blocks } = usePageContent("/nosotros");
   return (
     <Layout>
       <DynamicMeta
@@ -73,13 +75,11 @@ export default function NosotrosPage() {
             <span className="inline-block px-4 py-1.5 mb-6 text-sm font-medium rounded-full bg-primary/10 text-primary">
               Nuestra Historia
             </span>
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">
-              Tecnología con{" "}
-              <span className="gradient-text">Rostro Humano</span>
-            </h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-6"
+                dangerouslySetInnerHTML={{ __html: getContent(blocks, "hero_title", 'Tecnología con <span class="gradient-text">Rostro Humano</span>') }}
+            />
             <p className="text-lg text-muted-foreground">
-              Somos más que un proveedor de software. Somos tu vecino, tu aliado tecnológico, 
-              el experto que va a tu negocio cuando lo necesitas.
+              {getContent(blocks, "hero_subtitle", "Somos más que un proveedor de software. Somos tu vecino, tu aliado tecnológico, el experto que va a tu negocio cuando lo necesitas.")}
             </p>
           </motion.div>
         </div>

@@ -17,6 +17,7 @@ import {
   Sparkles, Shield, Filter,
 } from "lucide-react";
 import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
+import { usePageContent, getContent } from "@/hooks/usePageContent";
 import * as LucideIcons from "lucide-react";
 
 function DynamicIcon({ name, className }: { name: string; className?: string }) {
@@ -26,6 +27,7 @@ function DynamicIcon({ name, className }: { name: string; className?: string }) 
 
 export default function ModulosPage() {
   const { buildUrl } = useWhatsAppConfig();
+  const { data: blocks } = usePageContent("/modulos");
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"all" | "free" | "addon">("all");
 
@@ -75,11 +77,10 @@ export default function ModulosPage() {
               <Puzzle className="h-3 w-3 mr-1" /> {modules.length} Módulos Disponibles
             </Badge>
             <h1 className="text-3xl md:text-5xl font-bold mb-6">
-              Potencia tu POS con Módulos Especializados
+              {getContent(blocks, "hero_title", "Potencia tu POS con Módulos Especializados")}
             </h1>
             <p className="text-lg md:text-xl text-primary-foreground/80 max-w-2xl mx-auto mb-6">
-              Agrega funcionalidades avanzadas según las necesidades de tu negocio.
-              Algunos ya están incluidos en tu plan, otros son add-ons opcionales.
+              {getContent(blocks, "hero_subtitle", "Agrega funcionalidades avanzadas según las necesidades de tu negocio. Algunos ya están incluidos en tu plan, otros son add-ons opcionales.")}
             </p>
             <div className="flex justify-center gap-4">
               <div className="bg-white/10 backdrop-blur rounded-xl px-4 py-2 text-center">

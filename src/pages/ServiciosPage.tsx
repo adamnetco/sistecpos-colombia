@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
+import { usePageContent, getContent } from "@/hooks/usePageContent";
 import { useCart } from "@/hooks/useCart";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
@@ -46,6 +47,7 @@ const serviceIcons: Record<string, typeof Wrench> = {
 
 const ServiciosPage = () => {
   const { buildUrl } = useWhatsAppConfig();
+  const { data: blocks } = usePageContent("/servicios");
   const { addItem } = useCart();
 
   const { data: services = [], isLoading } = useQuery({
@@ -85,13 +87,11 @@ const ServiciosPage = () => {
               <Badge className="mb-4 bg-primary/10 text-primary border-0 px-4 py-1.5">
                 <Sparkles className="h-3.5 w-3.5 mr-1.5" />Respaldo Total para tu Negocio
               </Badge>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
-                Tu Negocio Operando al{" "}
-                <span className="gradient-text">100% desde el Día Uno</span>
-              </h1>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6"
+                  dangerouslySetInnerHTML={{ __html: getContent(blocks, "hero_title", 'Tu Negocio Operando al <span class="gradient-text">100% desde el Día Uno</span>') }}
+              />
               <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-                Imagina tener un equipo dedicado que llega a tu local, configura todo por ti y te
-                acompaña hasta que domines cada función. Eso es exactamente lo que hacemos.
+                {getContent(blocks, "hero_subtitle", "Imagina tener un equipo dedicado que llega a tu local, configura todo por ti y te acompaña hasta que domines cada función. Eso es exactamente lo que hacemos.")}
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button size="lg" className="btn-whatsapp gap-2" asChild>

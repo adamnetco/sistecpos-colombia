@@ -17,6 +17,7 @@ import {
   ShoppingCart, Sparkles, Target, HelpCircle,
 } from "lucide-react";
 import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
+import { usePageContent, getContent } from "@/hooks/usePageContent";
 import { DynamicPricingSection } from "@/components/pricing/DynamicPricingSection";
 
 type Step = "choose" | "licencias" | "packs" | "soporte" | "servicios";
@@ -64,6 +65,7 @@ const needs = [
 export default function PlanesPage() {
   const [step, setStep] = useState<Step>("choose");
   const { buildUrl } = useWhatsAppConfig();
+  const { data: blocks } = usePageContent("/planes");
   const { data: plans = [], isLoading: loadingPlans } = useSupportPlans();
   const { data: packs = [], isLoading: loadingPacks } = useCommercialPacks();
   const { data: licenses = [] } = useLicensePricing();
@@ -92,12 +94,14 @@ export default function PlanesPage() {
               <Zap className="h-3 w-3 mr-1" /> Planes 2026
             </Badge>
             <h1 className="text-3xl md:text-5xl font-bold mb-6">
-              {step === "choose" ? "¿Qué necesita tu negocio?" : "Planes y Precios"}
+              {step === "choose"
+                ? getContent(blocks, "hero_title", "¿Qué necesita tu negocio?")
+                : getContent(blocks, "hero_title_alt", "Planes y Precios")}
             </h1>
             <p className="text-lg md:text-xl text-primary-foreground/80 max-w-2xl mx-auto">
               {step === "choose"
-                ? "Responde una sola pregunta y te mostramos la mejor opción para ti."
-                : "Precios transparentes. Sin letra pequeña. Soporte 100% en español."}
+                ? getContent(blocks, "hero_subtitle", "Responde una sola pregunta y te mostramos la mejor opción para ti.")
+                : getContent(blocks, "hero_subtitle_alt", "Precios transparentes. Sin letra pequeña. Soporte 100% en español.")}
             </p>
           </motion.div>
         </div>

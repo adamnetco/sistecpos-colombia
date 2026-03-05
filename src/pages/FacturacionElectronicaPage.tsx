@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
+import { usePageContent, getContent } from "@/hooks/usePageContent";
 import { Badge } from "@/components/ui/badge";
 import {
   Accordion,
@@ -66,6 +67,7 @@ const documents = [
 
 export default function FacturacionElectronicaPage() {
   const { buildUrl } = useWhatsAppConfig();
+  const { data: blocks } = usePageContent("/facturacion-electronica");
   return (
     <Layout>
       <DynamicMeta
@@ -90,10 +92,10 @@ export default function FacturacionElectronicaPage() {
                 Obligatorio DIAN 2024
               </Badge>
               <h1 className="text-3xl md:text-5xl font-bold mb-6" id="titulo">
-                Facturación Electrónica DIAN con Software POS Integrado
+                {getContent(blocks, "hero_title", "Facturación Electrónica DIAN con Software POS Integrado")}
               </h1>
               <p className="text-lg md:text-xl text-primary-foreground/80 mb-4 max-w-3xl mx-auto">
-                Emite facturas electrónicas, notas crédito y documentos soporte directamente desde tu punto de venta. Sin intermediarios costosos. Actualizaciones automáticas a la normativa vigente.
+                {getContent(blocks, "hero_subtitle", "Emite facturas electrónicas, notas crédito y documentos soporte directamente desde tu punto de venta. Sin intermediarios costosos. Actualizaciones automáticas a la normativa vigente.")}
               </p>
               <div className="inline-flex items-center gap-3 rounded-full bg-white/10 border border-white/20 px-5 py-2 mb-8">
                 <span className="text-sm font-medium">Habilitado por la DIAN</span>

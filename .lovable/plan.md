@@ -1,4 +1,3 @@
-
 # Audit y Plan: Mejora del Portal de Socios (/socio)
 
 ## Auditoria Comparativa: Portal Clientes vs Portal Socios
@@ -122,3 +121,191 @@ Agregar rutas para los nuevos componentes.
 3. Crear los 3 nuevos componentes (Perfil, Contratos, Suscripcion)
 4. Mejorar Dashboard existente
 5. Actualizar Layout, rutas y admin
+
+---
+
+# Sistema CMS Híbrido — Documentación Completa
+
+## Arquitectura
+
+El CMS utiliza la tabla `page_content` para almacenar bloques de contenido editables sin tocar código. Cada bloque se identifica por `page_path` + `section_key` (índice único).
+
+### Tabla: `page_content`
+| Columna | Tipo | Descripción |
+|---|---|---|
+| `page_path` | text | Ruta de la página (ej: `/`, `/licencias`) |
+| `section_key` | text | Identificador del bloque (ej: `hero_title`) |
+| `content_type` | text | `text`, `markdown`, `image`, `html`, `json` |
+| `text_value` | text | Contenido textual o HTML |
+| `image_url` | text | URL de imagen (bucket `shared-resources`) |
+| `image_alt` | text | Texto alt para SEO |
+| `json_value` | jsonb | Datos estructurados (listas, tablas, configs) |
+| `sort_order` | int | Orden de aparición |
+| `is_active` | bool | Visible en el sitio público |
+
+### RLS
+- **Público**: solo lectura de bloques activos (`is_active = true`)
+- **Admin**: CRUD completo via `has_role(auth.uid(), 'admin')`
+
+## Hook: `usePageContent`
+
+```tsx
+import { usePageContent, getContent, getImageContent, getJsonContent } from "@/hooks/usePageContent";
+
+// En el componente:
+const { data: blocks } = usePageContent("/licencias");
+const title = getContent(blocks, "hero_title", "Fallback por defecto");
+const image = getImageContent(blocks, "hero_image", "/fallback.png");
+const items = getJsonContent<string[]>(blocks, "benefits", ["item1", "item2"]);
+```
+
+## Interfaz Admin
+
+Acceso: `/admin/contenido` → Gestor de Contenido (CMS)
+
+Funcionalidades:
+- Selector lateral de páginas agrupadas por categoría
+- CRUD de bloques con editor por tipo (texto, Markdown, HTML, JSON, imagen)
+- Subida de imágenes con optimización automática (WebP via edge function `optimize-image`)
+- Preview de imágenes en línea
+- Control de visibilidad y orden
+
+## Páginas Integradas con CMS
+
+### Home (`/`)
+| section_key | Tipo | Componente | Descripción |
+|---|---|---|---|
+| `hero_badge` | text | HeroSection | Badge superior del hero |
+| `hero_title` | html | HeroSection | Título H1 principal (soporta HTML) |
+| `hero_subtitle` | text | HeroSection | Subtítulo descriptivo |
+| `hero_cta_primary` | text | HeroSection | Texto del botón CTA primario |
+| `hero_cta_secondary` | text | HeroSection | Texto del botón CTA secundario |
+| `social_proof_*` | text | SocialProofBar | Estadísticas de confianza |
+| `software_preview_*` | text/image | SoftwarePreviewSection | Preview del dashboard |
+| `comparison_data` | json | ComparisonSection | Tabla comparativa (JSON) |
+| `whyus_*` | text/json | WhyUsSection | Sección "Por qué elegirnos" |
+| `features_*` | text | FeaturesSection | Características principales |
+| `local_trust_*` | text | LocalTrustSection | Confianza local |
+| `solutions_*` | text | SolutionsSection | Soluciones por industria |
+| `connectpos_*` | text | ConnectPOSSection | Sección de conexión POS |
+| `coverage_*` | text | CoverageSection | Cobertura nacional |
+| `cta_*` | text | CTASection | Call-to-action final |
+
+### Licencias (`/licencias`)
+| section_key | Tipo | Descripción |
+|---|---|---|
+| `hero_title` | text | Título del hero |
+| `hero_subtitle` | html | Subtítulo con HTML |
+| `hero_badge` | text | Badge del hero |
+| `benefits` | json | Lista de beneficios (string[]) |
+| `ideal_for` | json | Mapa plan→descripción (Record<string,string>) |
+| `crosssell_title` | text | Título cross-sell packs |
+| `crosssell_subtitle` | text | Subtítulo cross-sell |
+| `cta_title` | text | Título CTA final |
+| `cta_subtitle` | text | Subtítulo CTA final |
+
+### Planes (`/planes`)
+| section_key | Tipo | Descripción |
+|---|---|---|
+| `hero_title` | text | Título principal (paso "choose") |
+| `hero_subtitle` | text | Subtítulo (paso "choose") |
+| `hero_title_alt` | text | Título alternativo (paso seleccionado) |
+| `hero_subtitle_alt` | text | Subtítulo alternativo |
+
+### Packs (`/packs`)
+| section_key | Tipo | Descripción |
+|---|---|---|
+| `hero_badge` | text | Badge del hero |
+| `hero_title` | html | Título H1 (soporta HTML/br) |
+| `hero_subtitle` | html | Subtítulo con HTML |
+
+### Módulos (`/modulos`)
+| section_key | Tipo | Descripción |
+|---|---|---|
+| `hero_title` | text | Título H1 |
+| `hero_subtitle` | text | Subtítulo descriptivo |
+
+### Servicios (`/servicios`)
+| section_key | Tipo | Descripción |
+|---|---|---|
+| `hero_title` | html | Título con gradient-text (HTML) |
+| `hero_subtitle` | text | Subtítulo descriptivo |
+
+### Soluciones (`/soluciones`)
+| section_key | Tipo | Descripción |
+|---|---|---|
+| `hero_title` | text | Título H1 |
+| `hero_subtitle` | text | Subtítulo descriptivo |
+
+### Facturación Electrónica (`/facturacion-electronica`)
+| section_key | Tipo | Descripción |
+|---|---|---|
+| `hero_title` | text | Título H1 |
+| `hero_subtitle` | text | Subtítulo descriptivo |
+
+### Nosotros (`/nosotros`)
+| section_key | Tipo | Descripción |
+|---|---|---|
+| `hero_title` | html | Título con gradient-text (HTML) |
+| `hero_subtitle` | text | Subtítulo descriptivo |
+
+### Contacto (`/contacto`)
+| section_key | Tipo | Descripción |
+|---|---|---|
+| `hero_title` | text | Título H1 |
+| `hero_subtitle` | text | Subtítulo descriptivo |
+
+### Comparar (`/comparar`)
+| section_key | Tipo | Descripción |
+|---|---|---|
+| `hero_title` | text | Título H1 |
+| `hero_subtitle` | text | Subtítulo descriptivo |
+
+### Software POS Colombia (`/software-pos-colombia`)
+| section_key | Tipo | Descripción |
+|---|---|---|
+| `hero_title` | text | Título H1 |
+| `hero_subtitle` | text | Subtítulo descriptivo |
+
+## Edge Function: `optimize-image`
+
+- **Endpoint**: `POST /functions/v1/optimize-image`
+- **Auth**: Bearer token de admin
+- **Body**: FormData con `file`, `bucket`, `folder`
+- **Respuesta**: `{ url: string }` — URL pública optimizada
+- **Formato**: Conversión automática a WebP
+- **Caché**: 1 año (`Cache-Control: public, max-age=31536000`)
+- **Límite**: 5MB por imagen
+
+## Convenciones de Nombrado
+
+- **section_key**: `snake_case`, prefijado por sección (ej: `hero_title`, `cta_subtitle`, `features_card_1`)
+- **page_path**: ruta exacta del router (ej: `/`, `/licencias`, `/packs`)
+- **content_type**: usar `html` cuando se necesiten tags HTML en el contenido; `text` para strings planos
+
+## Patrón de Implementación
+
+```tsx
+// 1. Importar hook y helpers
+import { usePageContent, getContent } from "@/hooks/usePageContent";
+
+// 2. En el componente, cargar bloques de la página
+const { data: blocks } = usePageContent("/mi-pagina");
+
+// 3. Usar getContent con fallback hardcodeado (el valor actual)
+const titulo = getContent(blocks, "hero_title", "Valor actual hardcodeado");
+
+// 4. Para HTML: usar dangerouslySetInnerHTML
+<h1 dangerouslySetInnerHTML={{ __html: titulo }} />
+
+// 5. Para JSON (listas, objetos):
+const items = getJsonContent<string[]>(blocks, "features_list", ["item1", "item2"]);
+```
+
+## Registro de Páginas en Admin
+
+El archivo `PageContentView.tsx` contiene `PAGE_REGISTRY` con todas las páginas registradas. Para agregar una nueva página al CMS:
+
+1. Agregar entrada en `PAGE_REGISTRY` con `path`, `label` y `group`
+2. Integrar `usePageContent(path)` en el componente de la página
+3. Usar `getContent()` con fallbacks para cada sección editable
