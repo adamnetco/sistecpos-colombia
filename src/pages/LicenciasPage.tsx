@@ -17,6 +17,7 @@ import {
   Package, Users, Monitor, Puzzle, Sparkles, HelpCircle,
 } from "lucide-react";
 import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
+import { usePageContent, getContent, getJsonContent } from "@/hooks/usePageContent";
 
 import boxEmprendedor from "@/assets/license-box-emprendedor.png";
 import boxNegocio from "@/assets/license-box-negocio.png";
@@ -30,7 +31,7 @@ const fallbackImages: Record<string, string> = {
   vitalicia: boxVitalicia,
 };
 
-const benefits = [
+const defaultBenefits = [
   "Sin cláusula de permanencia",
   "Soporte en español 100%",
   "Modo offline hasta 8 días",
@@ -39,7 +40,7 @@ const benefits = [
   "16+ módulos especializados",
 ];
 
-const idealFor: Record<string, string> = {
+const defaultIdealFor: Record<string, string> = {
   emprendedor: "Tiendas pequeñas, negocios nuevos, 1 punto de venta",
   negocio: "Negocios en crecimiento, 1-2 cajas, equipo pequeño",
   empresarial: "Cadenas, múltiples sedes, equipos grandes",
@@ -49,6 +50,7 @@ const idealFor: Record<string, string> = {
 export default function LicenciasPage() {
   const { buildUrl } = useWhatsAppConfig();
   const { data: plans = [], isLoading } = useLicensePricing();
+  const { data: blocks } = usePageContent("/licencias");
   const { data: modules = [] } = useQuery({
     queryKey: ["plan_modules_public"],
     queryFn: async () => {
@@ -58,6 +60,12 @@ export default function LicenciasPage() {
   });
 
   const [activeTab, setActiveTab] = useState("comparar");
+
+  const heroTitle = getContent(blocks, "hero_title", "Compara y elige la licencia ideal para tu negocio");
+  const heroSubtitle = getContent(blocks, "hero_subtitle", "Todas nuestras licencias incluyen facturación electrónica DIAN, actualizaciones y acceso en la nube. La diferencia está en lo que necesita tu negocio.");
+  const heroBadge = getContent(blocks, "hero_badge", "Precios 2026");
+  const benefits = getJsonContent<string[]>(blocks, "benefits", defaultBenefits);
+  const idealFor = getJsonContent<Record<string, string>>(blocks, "ideal_for", defaultIdealFor);
 
   return (
     <Layout>
@@ -79,15 +87,14 @@ export default function LicenciasPage() {
             className="text-center max-w-4xl mx-auto"
           >
             <Badge className="mb-4 bg-white/20 text-white border-white/30">
-              <Shield className="h-3 w-3 mr-1" /> Precios 2026
+              <Shield className="h-3 w-3 mr-1" /> {heroBadge}
             </Badge>
             <h1 className="text-3xl md:text-5xl font-bold mb-6">
-              Compara y elige la licencia ideal para tu negocio
+              {heroTitle}
             </h1>
-            <p className="text-lg md:text-xl text-primary-foreground/80 mb-8 max-w-2xl mx-auto">
-              Todas nuestras licencias incluyen facturación electrónica DIAN, actualizaciones y acceso en la nube.
-              La diferencia está en lo que necesita <strong>tu</strong> negocio.
-            </p>
+            <p className="text-lg md:text-xl text-primary-foreground/80 mb-8 max-w-2xl mx-auto"
+               dangerouslySetInnerHTML={{ __html: heroSubtitle }}
+            />
             <div className="flex flex-wrap justify-center gap-3">
               {benefits.map(b => (
                 <div key={b} className="flex items-center gap-1.5 text-sm text-primary-foreground/90">
@@ -333,7 +340,7 @@ export default function LicenciasPage() {
                                 target="_blank"
                                 rel="noopener noreferrer"
                               >
-                                <MessageCircle className="h-4 w-4" /> Cotizar {plan.plan_label.replace("Plan ", "")}
+                                <MessageCircle className="h-4 w-4" /> Cotizar Licencia
                               </a>
                             </Button>
                           </CardContent>
@@ -348,24 +355,26 @@ export default function LicenciasPage() {
         </div>
       </section>
 
-      {/* Cross-sell to Packs */}
+      {/* Cross-sell Packs */}
       <section className="py-12 bg-muted/30">
         <div className="container px-4">
           <div className="max-w-3xl mx-auto text-center">
-            <Sparkles className="h-8 w-8 text-primary mx-auto mb-3" />
-            <h2 className="text-2xl font-bold mb-2">¿Quieres todo incluido?</h2>
+            <Package className="h-8 w-8 text-primary mx-auto mb-3" />
+            <h2 className="text-2xl font-bold mb-2">
+              {getContent(blocks, "crosssell_title", "¿Quieres todo incluido? Mira los Packs")}
+            </h2>
             <p className="text-muted-foreground mb-6">
-              Con nuestros Packs obtienes licencia + implementación presencial + soporte con hasta un 30% de ahorro.
+              {getContent(blocks, "crosssell_subtitle", "Licencia + Implementación + Soporte + Módulos desde un solo pago con descuento.")}
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Button size="lg" className="gap-2" asChild>
                 <Link to="/packs">
-                  <Package className="h-5 w-5" /> Ver Packs Todo Incluido
+                  <Sparkles className="h-5 w-5" /> Ver Packs Todo Incluido
                 </Link>
               </Button>
               <Button size="lg" variant="outline" className="gap-2" asChild>
-                <Link to="/planes">
-                  <HelpCircle className="h-5 w-5" /> No sé cuál elegir
+                <Link to="/modulos">
+                  <Puzzle className="h-5 w-5" /> Ver Módulos Adicionales
                 </Link>
               </Button>
             </div>
@@ -376,15 +385,24 @@ export default function LicenciasPage() {
       {/* CTA */}
       <section className="py-16 gradient-bg text-primary-foreground">
         <div className="container px-4 text-center">
-          <h2 className="text-2xl md:text-3xl font-bold mb-4">¿Necesitas asesoría personalizada?</h2>
+          <h2 className="text-2xl md:text-3xl font-bold mb-4">
+            {getContent(blocks, "cta_title", "¿Necesitas ayuda para elegir?")}
+          </h2>
           <p className="text-primary-foreground/80 mb-6 max-w-lg mx-auto">
-            Te ayudamos a elegir la licencia perfecta según tu tipo de negocio, volumen de ventas y presupuesto.
+            {getContent(blocks, "cta_subtitle", "Te asesoramos sin compromiso para encontrar la licencia perfecta para tu tipo de negocio.")}
           </p>
-          <Button size="lg" variant="secondary" className="gap-2" asChild>
-            <a href={buildUrl("Hola, necesito asesoría para elegir mi licencia POS")} target="_blank" rel="noopener noreferrer">
-              <MessageCircle className="h-5 w-5" /> Asesoría Gratuita
-            </a>
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Button size="lg" variant="secondary" className="gap-2" asChild>
+              <a href={buildUrl("Hola, necesito asesoría para elegir mi licencia POS")} target="_blank" rel="noopener noreferrer">
+                <MessageCircle className="h-5 w-5" /> Asesoría Gratuita
+              </a>
+            </Button>
+            <Button size="lg" variant="outline" className="gap-2 border-white/30 text-white hover:bg-white/10" asChild>
+              <Link to="/comparativa-licencias">
+                <ArrowRight className="h-5 w-5" /> Comparar con Otros POS
+              </Link>
+            </Button>
+          </div>
         </div>
       </section>
     </Layout>

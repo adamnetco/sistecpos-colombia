@@ -15,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
+import { usePageContent, getContent } from "@/hooks/usePageContent";
 import { Badge } from "@/components/ui/badge";
 import {
   Accordion,
@@ -80,6 +81,7 @@ const featuredCitySlugs = ["bogota", "medellin", "cali", "barranquilla", "bucara
 
 export default function SoftwarePosColombiaPage() {
   const { buildUrl, displayPhone, telHref } = useWhatsAppConfig();
+  const { data: blocks } = usePageContent("/software-pos-colombia");
   const featuredCities = localLandings.filter((l) => featuredCitySlugs.includes(l.slug));
   const otherCities = localLandings.filter((l) => !featuredCitySlugs.includes(l.slug));
 
@@ -107,10 +109,10 @@ export default function SoftwarePosColombiaPage() {
                 #1 en Colombia · 23+ Ciudades
               </Badge>
               <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-6">
-                Software POS en Colombia: El Sistema Punto de Venta #1 para Tu Negocio
+                {getContent(blocks, "hero_title", "Software POS en Colombia: El Sistema Punto de Venta #1 para Tu Negocio")}
               </h1>
               <p className="text-lg md:text-xl text-primary-foreground/80 mb-8 max-w-3xl mx-auto">
-                Software punto de venta con facturación electrónica DIAN, modo offline hasta 8 días, 16+ módulos especializados y soporte en todo el país. Desde $12 USD/mes.
+                {getContent(blocks, "hero_subtitle", "Software punto de venta con facturación electrónica DIAN, modo offline hasta 8 días, 16+ módulos especializados y soporte en todo el país. Desde $12 USD/mes.")}
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button size="lg" className="btn-whatsapp gap-2" asChild>

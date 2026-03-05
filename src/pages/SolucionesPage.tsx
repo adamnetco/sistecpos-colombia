@@ -10,9 +10,11 @@ import { MessageCircle, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { businessTypes } from "@/data/businessTypes";
 import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
+import { usePageContent, getContent } from "@/hooks/usePageContent";
 
 export default function SolucionesPage() {
   const { buildUrl } = useWhatsAppConfig();
+  const { data: blocks } = usePageContent("/soluciones");
   return (
     <Layout>
       <SEO
@@ -38,10 +40,10 @@ export default function SolucionesPage() {
               {businessTypes.length} Industrias
             </Badge>
             <h1 id="soluciones-titulo" className="text-3xl md:text-5xl font-bold mb-6">
-              Soluciones POS para Cada Tipo de Negocio
+              {getContent(blocks, "hero_title", "Soluciones POS para Cada Tipo de Negocio")}
             </h1>
             <p className="text-lg md:text-xl text-primary-foreground/80 max-w-3xl mx-auto">
-              Software punto de venta adaptado a las necesidades específicas de tu industria, con módulos especializados e instalación presencial.
+              {getContent(blocks, "hero_subtitle", "Software punto de venta adaptado a las necesidades específicas de tu industria, con módulos especializados e instalación presencial.")}
             </p>
           </motion.div>
         </div>

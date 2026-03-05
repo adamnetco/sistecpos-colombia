@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
+import { usePageContent, getContent } from "@/hooks/usePageContent";
 import { Card, CardContent } from "@/components/ui/card";
 
 // X (Twitter) icon
@@ -99,6 +100,7 @@ const contactInfo = [
 
 export default function ContactoPage() {
   const { buildUrl, displayPhone, telHref, number } = useWhatsAppConfig();
+  const { data: blocks } = usePageContent("/contacto");
 
   // Replace placeholders in static data with dynamic values
   const dynamicSocialLinks = socialLinks.map(link =>
@@ -127,9 +129,11 @@ export default function ContactoPage() {
             transition={{ duration: 0.6 }}
             className="text-center max-w-3xl mx-auto"
           >
-            <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-6" id="titulo">Contáctanos</h1>
+            <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-6" id="titulo">
+              {getContent(blocks, "hero_title", "Contáctanos")}
+            </h1>
             <p className="text-xl text-muted-foreground">
-              Estamos listos para ayudarte a transformar tu negocio con la mejor solución POS en Santander
+              {getContent(blocks, "hero_subtitle", "Estamos listos para ayudarte a transformar tu negocio con la mejor solución POS en Santander")}
             </p>
           </motion.div>
         </div>

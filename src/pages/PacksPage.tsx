@@ -21,10 +21,13 @@ const urgencyReasons = [
   { icon: Users, text: "Capacitamos a todo tu equipo sin costo adicional" },
 ];
 
+import { usePageContent, getContent } from "@/hooks/usePageContent";
+
 export default function PacksPage() {
   const { buildUrl } = useWhatsAppConfig();
   const { data: packs = [], isLoading } = useCommercialPacks();
   const { data: licenses = [] } = useLicensePricing();
+  const { data: blocks } = usePageContent("/packs");
 
   const getLicense = (id: string | null) => licenses.find(l => l.id === id);
 
@@ -48,15 +51,14 @@ export default function PacksPage() {
             className="text-center max-w-4xl mx-auto"
           >
             <Badge className="mb-4 bg-white/20 text-white border-white/30">
-              <Package className="h-3 w-3 mr-1" /> La opción más inteligente
+              <Package className="h-3 w-3 mr-1" /> {getContent(blocks, "hero_badge", "La opción más inteligente")}
             </Badge>
-            <h1 className="text-3xl md:text-5xl font-bold mb-6">
-              Packs Todo Incluido:<br className="hidden md:block" /> Arranca sin complicaciones
-            </h1>
-            <p className="text-lg md:text-xl text-primary-foreground/80 mb-8 max-w-2xl mx-auto">
-              Licencia + Módulos + Implementación presencial + Soporte técnico.
-              <strong> Un solo pago, cero sorpresas.</strong>
-            </p>
+            <h1 className="text-3xl md:text-5xl font-bold mb-6"
+                dangerouslySetInnerHTML={{ __html: getContent(blocks, "hero_title", "Packs Todo Incluido:<br class='hidden md:block' /> Arranca sin complicaciones") }}
+            />
+            <p className="text-lg md:text-xl text-primary-foreground/80 mb-8 max-w-2xl mx-auto"
+               dangerouslySetInnerHTML={{ __html: getContent(blocks, "hero_subtitle", "Licencia + Módulos + Implementación presencial + Soporte técnico. <strong>Un solo pago, cero sorpresas.</strong>") }}
+            />
             {/* Social proof */}
             <div className="flex flex-wrap justify-center gap-6">
               {urgencyReasons.map((r, i) => (

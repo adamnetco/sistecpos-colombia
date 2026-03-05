@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
+import { usePageContent, getContent } from "@/hooks/usePageContent";
 
 const keyAdvantages = [
   { icon: WifiOff, title: "Modo Offline 8 Días", desc: "Único en Colombia. Funciona sin internet con sincronización automática." },
@@ -23,6 +24,7 @@ const gobiernoCompetitors = competitors.filter((c) => c.type === "gobierno");
 
 export default function CompararPage() {
   const { buildUrl } = useWhatsAppConfig();
+  const { data: blocks } = usePageContent("/comparar");
   return (
     <Layout>
       <DynamicMeta
@@ -47,10 +49,10 @@ export default function CompararPage() {
           >
             <Badge className="mb-4 bg-white/20 text-white border-white/30">Comparativas 2025</Badge>
             <h1 className="text-3xl md:text-5xl font-bold mb-6">
-              SistecPOS vs Competencia
+              {getContent(blocks, "hero_title", "SistecPOS vs Competencia")}
             </h1>
             <p className="text-lg md:text-xl text-primary-foreground/80 mb-8 max-w-3xl mx-auto">
-              Comparativas detalladas con los principales software POS, ERP y plataformas de facturación de Colombia y el mundo. Elige con información real.
+              {getContent(blocks, "hero_subtitle", "Comparativas detalladas con los principales software POS, ERP y plataformas de facturación de Colombia y el mundo. Elige con información real.")}
             </p>
             <Button size="lg" className="btn-whatsapp gap-2" asChild>
               <a href={buildUrl("Hola, quiero asesoría para elegir el mejor POS")} target="_blank" rel="noopener noreferrer">
