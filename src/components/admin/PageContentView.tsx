@@ -660,8 +660,8 @@ function ContentBlockDialog({
             </div>
           )}
 
-          {/* Active toggle + sort order */}
-          <div className="flex items-center gap-6 pt-2 border-t">
+          {/* Visibility controls */}
+          <div className="flex flex-wrap items-center gap-6 pt-2 border-t">
             <label className="flex items-center gap-2 text-sm cursor-pointer">
               <Switch checked={form.is_active ?? true} onCheckedChange={(v) => setForm((f) => ({ ...f, is_active: v }))} />
               {form.is_active ? (
@@ -670,6 +670,20 @@ function ContentBlockDialog({
                 <span className="flex items-center gap-1 text-muted-foreground"><EyeOff className="h-3.5 w-3.5" /> Oculto</span>
               )}
             </label>
+            <div className="w-40">
+              <Label className="text-xs">Visibilidad por dispositivo</Label>
+              <Select value={form.visible_on || "all"} onValueChange={(v) => setForm((f) => ({ ...f, visible_on: v }))}>
+                <SelectTrigger className="h-8 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">📱💻 Todos</SelectItem>
+                  <SelectItem value="desktop">💻 Solo escritorio</SelectItem>
+                  <SelectItem value="mobile">📱 Solo móvil</SelectItem>
+                  <SelectItem value="hidden">🚫 Oculto en todos</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             {!isRegistered && (
               <div className="w-24">
                 <Label className="text-xs">Orden</Label>
