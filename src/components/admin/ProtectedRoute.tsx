@@ -49,7 +49,7 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
 
   if (loading) return <AdminLoadingSkeleton />;
 
-  if (!user) return <Navigate to="/auth" replace />;
+  if (!user) return <Navigate to="/auth?registro=admin" replace />;
 
   if (!isAdmin) {
     return (

@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Search, Plus, Trash2, ShieldCheck, Crown } from "lucide-react";
+import { Search, Plus, Trash2, ShieldCheck, Crown, Globe, Copy, Check } from "lucide-react";
+import { useToast as useToastSonner } from "@/hooks/use-toast";
 
 type AppRole = "admin" | "customer" | "reseller";
 
@@ -29,6 +30,33 @@ const ROLE_COLORS: Record<AppRole, string> = {
 };
 
 const MASTER_EMAIL = "eduardotp77@gmail.com";
+
+function ShareableLinkCard({ label, path }: { label: string; path: string }) {
+  const [copied, setCopied] = useState(false);
+  const fullUrl = `${window.location.origin}${path}`;
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(fullUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="flex items-center gap-2 rounded-lg border bg-muted/30 px-3 py-2">
+      <div className="flex-1 min-w-0">
+        <p className="text-xs font-medium">{label}</p>
+        <p className="text-[10px] text-muted-foreground truncate">{path}</p>
+      </div>
+      <button
+        onClick={handleCopy}
+        className="shrink-0 rounded-md p-1.5 hover:bg-muted transition-colors"
+        title="Copiar enlace"
+      >
+        {copied ? <Check className="h-3.5 w-3.5 text-green-500" /> : <Copy className="h-3.5 w-3.5 text-muted-foreground" />}
+      </button>
+    </div>
+  );
+}
 
 export default function RolesManagerView() {
   const [users, setUsers] = useState<UserWithRoles[]>([]);
@@ -163,7 +191,10 @@ export default function RolesManagerView() {
                     <td className="px-4 py-3">
                       <div className="flex flex-wrap gap-1.5">
                         {u.roles.length === 0 ? (
-                          <span className="text-xs text-muted-foreground italic">Sin roles</span>
+                          <Badge variant="outline" className="text-xs text-muted-foreground gap-1">
+                            <Globe className="h-3 w-3" />
+                            Público
+                          </Badge>
                         ) : (
                           u.roles.map((r) => (
                             <Badge
@@ -222,10 +253,28 @@ export default function RolesManagerView() {
         </table>
       </div>
 
+      {/* Shareable registration links */}
+      <div className="mt-6 rounded-lg border bg-card p-4 space-y-3">
+        <h3 className="text-sm font-semibold flex items-center gap-2">
+          <Globe className="h-4 w-4 text-primary" />
+          Enlaces de registro por rol
+        </h3>
+        <p className="text-xs text-muted-foreground">Comparte estos enlaces para que nuevos usuarios se registren. Luego asígnales el rol desde aquí.</p>
+        <div className="grid gap-2 sm:grid-cols-3">
+          {([
+            { role: "cliente", label: "Clientes", path: "/auth?registro=cliente" },
+            { role: "socio", label: "Socios", path: "/auth?registro=socio" },
+            { role: "admin", label: "Administradores", path: "/auth?registro=admin" },
+          ]).map(({ role, label, path }) => (
+            <ShareableLinkCard key={role} label={label} path={path} />
+          ))}
+        </div>
+      </div>
+
       <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 dark:border-amber-900/50 dark:bg-amber-950/20 p-4">
         <p className="text-sm text-amber-800 dark:text-amber-200">
           <strong>Nota:</strong> Los cambios de rol son inmediatos. Un usuario con rol <strong>Administrador</strong> tiene acceso total al panel /admin.
-          El rol <strong>Socio</strong> da acceso a /socio y <strong>Cliente</strong> a /clientes.
+          El rol <strong>Socio</strong> da acceso a /socio y <strong>Cliente</strong> a /clientes. Los usuarios <strong>sin roles</strong> aparecen como "Público".
         </p>
       </div>
     </div>
