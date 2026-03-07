@@ -33,9 +33,17 @@ export default function AuthPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
+  const registroRole = searchParams.get("registro"); // cliente | socio | admin
 
   // Track if user arrived from OAuth callback to skip cleanup
   const [isOAuthReturn, setIsOAuthReturn] = useState(false);
+
+  // Auto-switch to signup view if ?registro= param is present
+  useEffect(() => {
+    if (registroRole && view === "login") {
+      setView("signup");
+    }
+  }, [registroRole]);
 
   // Clean up stale session on /auth load (prevents access blocking)
   useEffect(() => {
@@ -408,7 +416,15 @@ export default function AuthPage() {
               {view === "signup" && (
                 <>
                   <CardTitle className="text-2xl font-display">Crear Cuenta</CardTitle>
-                  <CardDescription>Regístrate para comenzar</CardDescription>
+                  <CardDescription>
+                    {registroRole === "cliente"
+                      ? "Regístrate para acceder al portal de clientes"
+                      : registroRole === "socio"
+                      ? "Regístrate para aplicar como socio distribuidor"
+                      : registroRole === "admin"
+                      ? "Regístrate para solicitar acceso administrativo"
+                      : "Regístrate para comenzar"}
+                  </CardDescription>
                 </>
               )}
               {view === "forgot" && (
@@ -669,6 +685,17 @@ export default function AuthPage() {
 
                 <p className="text-xs text-center text-muted-foreground">
                   Al registrarte, recibirás un correo de verificación para activar tu cuenta.
+                  {registroRole && (
+                    <span className="block mt-1 text-primary/80">
+                      {registroRole === "cliente"
+                        ? "Una vez verificado, un administrador te asignará acceso de cliente."
+                        : registroRole === "socio"
+                        ? "Una vez verificado, un administrador revisará tu perfil de socio."
+                        : registroRole === "admin"
+                        ? "Una vez verificado, un administrador te asignará permisos."
+                        : ""}
+                    </span>
+                  )}
                 </p>
 
                 <div className="text-center text-sm">

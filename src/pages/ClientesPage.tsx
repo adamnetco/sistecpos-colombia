@@ -8,7 +8,7 @@ import { ClientPortal } from "@/components/clientes/ClientPortal";
 import { SEO } from "@/components/seo/SEO";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { ShieldX, LogIn, Home, MessageCircle } from "lucide-react";
+import { ShieldX, LogIn, Home, MessageCircle, UserPlus } from "lucide-react";
 import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -136,6 +136,17 @@ export default function ClientesPage() {
           description="Ingresa a tu sistema POS SistecPOS. Accede a soporte, descargas y entrenamientos."
         />
         <ClientPOSLogin />
+        <div className="container px-4 pb-12">
+          <div className="max-w-md mx-auto text-center space-y-3">
+            <p className="text-sm text-muted-foreground">¿Aún no tienes cuenta?</p>
+            <Button asChild variant="outline" size="lg" className="w-full">
+              <Link to="/auth?registro=cliente">
+                <UserPlus className="mr-2 h-4 w-4" />
+                Crear cuenta de cliente
+              </Link>
+            </Button>
+          </div>
+        </div>
       </Layout>
     );
   }

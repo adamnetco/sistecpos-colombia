@@ -6,7 +6,7 @@ import { useActivityTracker } from "@/hooks/useActivityTracker";
 import { ResellerLayout } from "@/components/reseller/ResellerLayout";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
-import { Home, ShieldX, Clock, MessageCircle, ArrowLeft, LogIn, Chrome, KeyRound, CheckCircle2, Sparkles } from "lucide-react";
+import { Home, ShieldX, Clock, MessageCircle, ArrowLeft, LogIn, Chrome, KeyRound, CheckCircle2, Sparkles, UserPlus } from "lucide-react";
 import { motion } from "framer-motion";
 import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
 
@@ -126,6 +126,12 @@ function RestrictedPage({ variant }: { variant: "no-access" | "pending" | "not-l
                   <Link to="/auth" className="gap-2">
                     <LogIn className="h-4 w-4" />
                     Ir a Iniciar Sesión
+                  </Link>
+                </Button>
+                <Button size="lg" variant="outline" className="w-full" asChild>
+                  <Link to="/auth?registro=socio" className="gap-2">
+                    <UserPlus className="h-4 w-4" />
+                    Crear cuenta nueva
                   </Link>
                 </Button>
               </motion.div>
