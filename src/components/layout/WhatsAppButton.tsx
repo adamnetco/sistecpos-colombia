@@ -14,7 +14,7 @@ export const WhatsAppButton = forwardRef<HTMLAnchorElement>((_props, ref) => {
       href={buildUrl()}
       target="_blank"
       rel="noopener noreferrer"
-      className="fixed bottom-6 right-6 z-50 flex items-center justify-center"
+      className="fixed bottom-6 right-6 z-50 flex items-center justify-center no-print print:hidden"
       initial={{ scale: 0 }}
       animate={{ scale: 1 }}
       transition={{ delay: 1, type: "spring", stiffness: 260, damping: 20 }}

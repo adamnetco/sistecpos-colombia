@@ -156,3 +156,12 @@
     @apply bg-whatsapp hover:bg-whatsapp/90 text-white shadow-lg shadow-whatsapp/25 transition-all hover:scale-105;
   }
 }
+
+/* Hide floating action buttons when printing */
+@media print {
+  .no-print,
+  .fixed.bottom-6,
+  .fixed.bottom-0 {
+    display: none !important;
+  }
+}
