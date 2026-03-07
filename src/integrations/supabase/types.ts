@@ -1566,6 +1566,7 @@ export type Database = {
           plan_key: string
           plan_label: string
           selling_price_cop: number
+          show_in_products: boolean
           sort_order: number
           support_monthly_cop: number
           updated_at: string
@@ -1586,6 +1587,7 @@ export type Database = {
           plan_key: string
           plan_label: string
           selling_price_cop?: number
+          show_in_products?: boolean
           sort_order?: number
           support_monthly_cop?: number
           updated_at?: string
@@ -1606,6 +1608,7 @@ export type Database = {
           plan_key?: string
           plan_label?: string
           selling_price_cop?: number
+          show_in_products?: boolean
           sort_order?: number
           support_monthly_cop?: number
           updated_at?: string
@@ -1834,6 +1837,7 @@ export type Database = {
           text_value: string | null
           updated_at: string
           updated_by: string | null
+          visible_on: string
         }
         Insert: {
           content_type?: string
@@ -1849,6 +1853,7 @@ export type Database = {
           text_value?: string | null
           updated_at?: string
           updated_by?: string | null
+          visible_on?: string
         }
         Update: {
           content_type?: string
@@ -1864,6 +1869,7 @@ export type Database = {
           text_value?: string | null
           updated_at?: string
           updated_by?: string | null
+          visible_on?: string
         }
         Relationships: []
       }
