@@ -352,6 +352,11 @@ function SectionRow({
         <div className="flex items-center gap-2">
           <span className="font-medium text-sm">{def.label}</span>
           {!isActive && block && <Badge variant="secondary" className="text-[9px]">Oculto</Badge>}
+          {block && (block as any).visible_on && (block as any).visible_on !== "all" && (
+            <Badge variant="outline" className="text-[9px]">
+              {(block as any).visible_on === "desktop" ? "💻" : (block as any).visible_on === "mobile" ? "📱" : "🚫"}
+            </Badge>
+          )}
           {hasValue && <Check className="h-3 w-3 text-green-500" />}
         </div>
         <p className="text-xs text-muted-foreground truncate">
@@ -529,6 +534,7 @@ function ContentBlockDialog({
       json_value: form.json_value || null,
       sort_order: form.sort_order || 0,
       is_active: form.is_active ?? true,
+      visible_on: form.visible_on || "all",
     });
   };
 
