@@ -313,6 +313,17 @@ export default function LicensePricingView() {
                       checked={(plan as any).is_active !== false}
                       onCheckedChange={v => toggleActive.mutate({ id: plan.id, is_active: v })}
                     />
+                    <Label className="text-xs text-muted-foreground ml-2">En Productos</Label>
+                    <Switch
+                      checked={(plan as any).show_in_products !== false}
+                      onCheckedChange={v => {
+                        supabase.from("license_pricing").update({ show_in_products: v } as any).eq("id", plan.id).then(() => {
+                          queryClient.invalidateQueries({ queryKey: ["admin_license_pricing"] });
+                          queryClient.invalidateQueries({ queryKey: ["license_pricing"] });
+                          toast.success(v ? "Visible en productos" : "Oculto en productos");
+                        });
+                      }}
+                    />
                   </div>
                 </div>
               </CardHeader>

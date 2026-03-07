@@ -92,7 +92,7 @@ export function ChatbotWidget() {
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setOpen(true)}
-            className="fixed bottom-6 right-[5.5rem] z-50 flex h-14 w-14 items-center justify-center rounded-full gradient-bg text-primary-foreground shadow-lg hover:shadow-xl transition-shadow"
+            className="fixed bottom-6 right-[5.5rem] z-50 flex h-14 w-14 items-center justify-center rounded-full gradient-bg text-primary-foreground shadow-lg hover:shadow-xl transition-shadow no-print print:hidden"
             aria-label="Abrir chat"
           >
             <Bot className="h-7 w-7" />
@@ -108,7 +108,7 @@ export function ChatbotWidget() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="fixed bottom-0 right-0 z-[60] flex w-full flex-col border bg-card shadow-2xl overflow-hidden sm:bottom-6 sm:right-6 sm:w-[370px] sm:max-w-[calc(100vw-2rem)] sm:rounded-2xl rounded-t-2xl"
+            className="fixed bottom-0 right-0 z-[60] flex w-full flex-col border bg-card shadow-2xl overflow-hidden sm:bottom-6 sm:right-6 sm:w-[370px] sm:max-w-[calc(100vw-2rem)] sm:rounded-2xl rounded-t-2xl no-print print:hidden"
             style={{ height: "min(480px, calc(100dvh - 3.5rem))" }}
           >
             {/* Header */}

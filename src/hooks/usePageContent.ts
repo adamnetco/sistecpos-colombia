@@ -12,6 +12,7 @@ export interface PageContentBlock {
   json_value: any;
   sort_order: number;
   is_active: boolean;
+  visible_on: "all" | "desktop" | "mobile" | "hidden";
   updated_by: string | null;
   created_at: string;
   updated_at: string;
