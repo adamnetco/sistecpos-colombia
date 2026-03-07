@@ -90,7 +90,7 @@ export function CartDrawer() {
         <Button
           variant="outline"
           size="icon"
-          className="fixed bottom-24 right-6 z-40 h-14 w-14 rounded-full shadow-lg border-2 bg-card hover:bg-primary hover:text-primary-foreground transition-all"
+          className="fixed bottom-24 right-6 z-40 h-14 w-14 rounded-full shadow-lg border-2 bg-card hover:bg-primary hover:text-primary-foreground transition-all no-print print:hidden"
         >
           <ShoppingCart className="h-6 w-6" />
           {itemCount > 0 && (
