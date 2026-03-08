@@ -114,6 +114,11 @@ export default function RolesManagerView() {
   const [newUser, setNewUser] = useState({ email: "", full_name: "", password: "", phone: "" });
   const [creating, setCreating] = useState(false);
 
+  /* ── Edit User Dialog State ── */
+  const [editOpen, setEditOpen] = useState(false);
+  const [editUser, setEditUser] = useState<{ user_id: string; full_name: string; phone: string; email: string } | null>(null);
+  const [saving, setSaving] = useState(false);
+
   /* ── Create Business Dialog State ── */
   const [bizOpen, setBizOpen] = useState(false);
   const [newBiz, setNewBiz] = useState({ business_name: "", nit: "", phone: "", email: "", city: "", address: "", owner_user_id: "" });
@@ -241,7 +246,32 @@ export default function RolesManagerView() {
     }
   };
 
-  /* ── Filtering ── */
+  /* ── Edit user ── */
+  const handleEditUser = async () => {
+    if (!editUser) return;
+    setSaving(true);
+    const { error } = await supabase.from("profiles").update({
+      full_name: editUser.full_name || null,
+      phone: editUser.phone || null,
+      email: editUser.email || null,
+    }).eq("user_id", editUser.user_id);
+    if (error) {
+      toast({ title: "Error al actualizar", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Usuario actualizado" });
+      setEditOpen(false);
+      setEditUser(null);
+      load();
+    }
+    setSaving(false);
+  };
+
+  const openEdit = (u: UserWithRoles) => {
+    setEditUser({ user_id: u.user_id, full_name: u.full_name || "", phone: u.phone || "", email: u.email });
+    setEditOpen(true);
+  };
+
+
   const filtered = useMemo(() => {
     return users.filter((u) => {
       const q = search.toLowerCase();
@@ -463,24 +493,31 @@ export default function RolesManagerView() {
                           </div>
                         </td>
                         <td className="px-4 py-3">
-                          {isMaster ? (
-                            <span className="text-xs text-amber-600 dark:text-amber-400 font-medium">Protegido</span>
-                          ) : availableRoles.length === 0 ? (
-                            <span className="text-xs text-muted-foreground">Todos asignados</span>
-                          ) : (
-                            <Select onValueChange={(role) => addRole(u.user_id, role as AppRole)} disabled={!!addingRole && addingRole.userId === u.user_id}>
-                              <SelectTrigger className="w-36 h-8 text-xs">
-                                <SelectValue placeholder="Asignar rol" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {availableRoles.map((r) => (
-                                  <SelectItem key={r} value={r}>
-                                    <div className="flex items-center gap-2"><Plus className="h-3 w-3" />{ROLE_LABELS[r]}</div>
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          )}
+                          <div className="flex items-center gap-1">
+                            {!isMaster && (
+                              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(u)} title="Editar usuario">
+                                <Pencil className="h-3.5 w-3.5" />
+                              </Button>
+                            )}
+                            {isMaster ? (
+                              <span className="text-xs text-amber-600 dark:text-amber-400 font-medium">Protegido</span>
+                            ) : availableRoles.length === 0 ? (
+                              <span className="text-xs text-muted-foreground">Todos asignados</span>
+                            ) : (
+                              <Select onValueChange={(role) => addRole(u.user_id, role as AppRole)} disabled={!!addingRole && addingRole.userId === u.user_id}>
+                                <SelectTrigger className="w-36 h-8 text-xs">
+                                  <SelectValue placeholder="Asignar rol" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {availableRoles.map((r) => (
+                                    <SelectItem key={r} value={r}>
+                                      <div className="flex items-center gap-2"><Plus className="h-3 w-3" />{ROLE_LABELS[r]}</div>
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     );
@@ -639,6 +676,36 @@ export default function RolesManagerView() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* ═══ EDIT USER DIALOG ═══ */}
+      <Dialog open={editOpen} onOpenChange={(open) => { setEditOpen(open); if (!open) setEditUser(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Editar Usuario</DialogTitle>
+            <DialogDescription>Modifica los datos del perfil del usuario.</DialogDescription>
+          </DialogHeader>
+          {editUser && (
+            <div className="space-y-4 py-2">
+              <div className="space-y-2">
+                <Label>Email</Label>
+                <Input value={editUser.email} onChange={e => setEditUser(p => p ? { ...p, email: e.target.value } : p)} placeholder="usuario@email.com" />
+              </div>
+              <div className="space-y-2">
+                <Label>Nombre completo</Label>
+                <Input value={editUser.full_name} onChange={e => setEditUser(p => p ? { ...p, full_name: e.target.value } : p)} placeholder="Juan Pérez" />
+              </div>
+              <div className="space-y-2">
+                <Label>Teléfono</Label>
+                <Input value={editUser.phone} onChange={e => setEditUser(p => p ? { ...p, phone: e.target.value } : p)} placeholder="+57 300 123 4567" />
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditOpen(false)}>Cancelar</Button>
+            <Button onClick={handleEditUser} disabled={saving}>{saving ? "Guardando..." : "Guardar"}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
