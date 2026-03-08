@@ -124,6 +124,11 @@ export default function RolesManagerView() {
   const [newBiz, setNewBiz] = useState({ business_name: "", nit: "", phone: "", email: "", city: "", address: "", owner_user_id: "" });
   const [creatingBiz, setCreatingBiz] = useState(false);
 
+  /* ── Edit Business Dialog State ── */
+  const [editBizOpen, setEditBizOpen] = useState(false);
+  const [editBiz, setEditBiz] = useState<{ id: string; business_name: string; nit: string; phone: string; email: string; city: string; address: string; owner_user_id: string } | null>(null);
+  const [savingBiz, setSavingBiz] = useState(false);
+
   /* ── Associate User-Business Dialog ── */
   const [assocOpen, setAssocOpen] = useState(false);
   const [assocData, setAssocData] = useState({ user_id: "", business_id: "" });
