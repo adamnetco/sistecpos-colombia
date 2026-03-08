@@ -1,4 +1,5 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -75,7 +76,7 @@ export function LicenseDetailsDialog({ license, onClose, onUpdated }: Props) {
   };
 
   // Reset when license changes
-  useState(() => { initProviderData(); });
+  useEffect(() => { initProviderData(); }, [license?.id]);
 
   const updateProviderField = (key: string, value: string) => {
     setProviderData(prev => ({ ...prev, [key]: value }));
