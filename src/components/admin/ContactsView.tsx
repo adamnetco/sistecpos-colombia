@@ -33,6 +33,7 @@ interface Contact {
   license_id: string | null;
   reseller_id: string | null;
   pipeline_stage: string;
+  lead_score: number;
   created_at: string;
   // Enriched fields
   ai_conversation_count?: number;
