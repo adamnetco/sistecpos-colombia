@@ -3,7 +3,13 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
-  ({ className, type, ...props }, ref) => {
+  ({ className, type, onFocus, ...props }, ref) => {
+    const handleFocus: React.FocusEventHandler<HTMLInputElement> = (event) => {
+      onFocus?.(event);
+      if (type !== "number") return;
+      requestAnimationFrame(() => event.currentTarget.select());
+    };
+
     return (
       <input
         type={type}
@@ -12,6 +18,7 @@ const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
           className,
         )}
         ref={ref}
+        onFocus={handleFocus}
         {...props}
       />
     );
