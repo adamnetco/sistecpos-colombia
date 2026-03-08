@@ -47,7 +47,7 @@ export function LeadConversionDialog({ lead, onClose, onConverted }: Props) {
   const [saving, setSaving] = useState(false);
   const [step, setStep] = useState<"payment" | "confirm">("payment");
   const [selectedPlan, setSelectedPlan] = useState(LICENSE_PLANS[0].value);
-  const [price, setPrice] = useState(LICENSE_PLANS[0].defaultPriceCOP);
+  const [price, setPrice] = useState(String(LICENSE_PLANS[0].defaultPriceCOP));
   const [nit, setNit] = useState("");
   const [notes, setNotes] = useState("");
   const [providerNotes, setProviderNotes] = useState("");
@@ -58,6 +58,8 @@ export function LeadConversionDialog({ lead, onClose, onConverted }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [selectedSupplierId, setSelectedSupplierId] = useState<string>("");
+
+  const priceValue = Number(price || "0");
 
   useEffect(() => {
     if (!lead) return;
@@ -75,7 +77,7 @@ export function LeadConversionDialog({ lead, onClose, onConverted }: Props) {
   const handlePlanChange = (value: string) => {
     setSelectedPlan(value);
     const plan = LICENSE_PLANS.find((p) => p.value === value);
-    if (plan) setPrice(plan.defaultPriceCOP);
+    if (plan) setPrice(String(plan.defaultPriceCOP));
   };
 
   const formatCOP = (v: number) =>
@@ -101,6 +103,10 @@ export function LeadConversionDialog({ lead, onClose, onConverted }: Props) {
   };
 
   const handleConvert = async () => {
+    if (!Number.isFinite(priceValue) || priceValue <= 0) {
+      toast({ title: "Ingresa un valor de pago válido", variant: "destructive" });
+      return;
+    }
     if (!paymentRef && !paymentFile) {
       toast({ title: "Adjunta comprobante o referencia de pago", variant: "destructive" });
       return;
@@ -120,7 +126,7 @@ export function LeadConversionDialog({ lead, onClose, onConverted }: Props) {
         contact_email: lead.email,
         contact_phone: lead.phone,
         plan_type: selectedPlan,
-        price_paid: price,
+        price_paid: priceValue,
         expires_at: expiresAt,
         lead_id: lead.id,
         created_by_reseller_id: lead.requested_by_reseller_id || null,
@@ -143,7 +149,7 @@ export function LeadConversionDialog({ lead, onClose, onConverted }: Props) {
       // 3. Register payment record
       await supabase.from("payments").insert({
         license_id: newLicense.id,
-        amount: price,
+        amount: priceValue,
         status: "confirmed",
         payment_method: paymentMethod,
         reference: paymentRef || null,
@@ -167,7 +173,7 @@ export function LeadConversionDialog({ lead, onClose, onConverted }: Props) {
             provider_notes: providerNotes,
             license_key: newLicense.license_key,
             payment_proof_url: proofUrl,
-            price_paid: formatCOP(price),
+            price_paid: formatCOP(priceValue),
             provider_email: selectedSupplier?.email || undefined,
             provider_name: selectedSupplier?.name || undefined,
           },
@@ -237,7 +243,7 @@ export function LeadConversionDialog({ lead, onClose, onConverted }: Props) {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label className="text-xs">Precio cobrado (COP)</Label>
-                <Input type="number" value={price} onChange={(e) => setPrice(Number(e.target.value))} />
+                <Input type="number" min={0} inputMode="numeric" value={price} onChange={(e) => setPrice(e.target.value)} />
                 <p className="mt-1 text-xs text-muted-foreground">
                   Sugerido: {formatCOP(LICENSE_PLANS.find((p) => p.value === selectedPlan)?.defaultPriceCOP || 0)}
                 </p>
@@ -327,7 +333,7 @@ export function LeadConversionDialog({ lead, onClose, onConverted }: Props) {
               </p>
               <div className="grid grid-cols-2 gap-1 text-xs text-green-700 dark:text-green-400">
                 <span>Plan: <strong>{LICENSE_PLANS.find(p => p.value === selectedPlan)?.label}</strong></span>
-                <span>Monto: <strong>{formatCOP(price)}</strong></span>
+                <span>Monto: <strong>{formatCOP(priceValue)}</strong></span>
                 <span>Método: <strong>{paymentMethod}</strong></span>
                 <span>Ref: <strong>{paymentRef || "—"}</strong></span>
                 {paymentFile && <span>Comprobante: <strong>✅ Adjunto</strong></span>}
