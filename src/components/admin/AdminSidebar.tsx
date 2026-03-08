@@ -6,7 +6,7 @@ import {
   Handshake, LogOut, ChevronLeft, Contact2, Bot, Code2,
   Package, Menu, ShoppingBag, Tag, FolderOpen, BarChart3, Settings2,
   FileText, ChevronDown, Download, TicketCheck, GraduationCap, ShieldCheck, UserCog, Activity, MessageCircle, FileSignature, Hash, BookOpen, LayoutGrid,
-  ArrowUpDown, Globe, Mail, Workflow, Database,
+  ArrowUpDown, Globe, Mail, Workflow, Database, Kanban, ClipboardList,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
