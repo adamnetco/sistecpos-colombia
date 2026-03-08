@@ -16,6 +16,7 @@ import {
   Zap, Mail, MessageCircle, Clock, GitBranch,
   ArrowRight, MousePointer, Save, X, Copy,
   Check, AlertCircle, MoveHorizontal, Settings2,
+  RotateCcw, Maximize2, Minimize2,
 } from "lucide-react";
 
 /* ─── Types ─── */
@@ -75,7 +76,7 @@ const TRIGGER_EVENTS = [
 
 export default function FlowEditorView() {
   const qc = useQueryClient();
-  const [selectedFlow, setSelectedFlow] = useState<NotificationFlow | null>(null);
+  const [editingFlowId, setEditingFlowId] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
 
   const { data: flows = [], isLoading } = useQuery({
@@ -113,11 +114,29 @@ export default function FlowEditorView() {
     },
   });
 
-  if (selectedFlow) {
+  const duplicateMut = useMutation({
+    mutationFn: async (flow: NotificationFlow) => {
+      const { error } = await supabase.from("notification_flows").insert({
+        name: `${flow.name} (copia)`,
+        description: flow.description,
+        trigger_event: flow.trigger_event,
+        nodes: flow.nodes as any,
+        edges: flow.edges as any,
+        is_active: false,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["notification_flows"] });
+      toast.success("Flujo duplicado");
+    },
+  });
+
+  if (editingFlowId) {
     return (
-      <FlowCanvas
-        flow={selectedFlow}
-        onBack={() => setSelectedFlow(null)}
+      <FlowCanvasWrapper
+        flowId={editingFlowId}
+        onBack={() => { setEditingFlowId(null); qc.invalidateQueries({ queryKey: ["notification_flows"] }); }}
       />
     );
   }
@@ -131,7 +150,7 @@ export default function FlowEditorView() {
             Editor de Flujos
           </h1>
           <p className="text-sm text-muted-foreground">
-            Diseña flujos visuales de notificaciones — Email y WhatsApp como en n8n
+            Diseña flujos visuales de notificaciones — Email y WhatsApp
           </p>
         </div>
         <Button size="sm" onClick={() => setCreating(true)}>
@@ -163,7 +182,7 @@ export default function FlowEditorView() {
               <Card
                 key={flow.id}
                 className="border shadow-sm hover:shadow-md transition-all cursor-pointer group"
-                onClick={() => setSelectedFlow(flow)}
+                onClick={() => setEditingFlowId(flow.id)}
               >
                 <CardHeader className="pb-2">
                   <div className="flex items-start justify-between">
@@ -190,6 +209,9 @@ export default function FlowEditorView() {
                     <Badge variant="secondary" className="text-[10px]">
                       {flow.nodes.length} nodos
                     </Badge>
+                    <Badge variant="secondary" className="text-[10px]">
+                      {flow.edges.length} conexiones
+                    </Badge>
                   </div>
 
                   {/* Mini flow preview */}
@@ -214,10 +236,13 @@ export default function FlowEditorView() {
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
                     <span>{flow.run_count} ejecuciones</span>
                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
-                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setSelectedFlow(flow)}>
+                      <Button variant="ghost" size="icon" className="h-6 w-6" title="Editar" onClick={() => setEditingFlowId(flow.id)}>
                         <Pencil className="h-3 w-3" />
                       </Button>
-                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => {
+                      <Button variant="ghost" size="icon" className="h-6 w-6" title="Duplicar" onClick={() => duplicateMut.mutate(flow)}>
+                        <Copy className="h-3 w-3" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="h-6 w-6" title="Eliminar" onClick={() => {
                         if (confirm(`¿Eliminar "${flow.name}"?`)) deleteMut.mutate(flow.id);
                       }}>
                         <Trash2 className="h-3 w-3 text-destructive" />
@@ -232,9 +257,9 @@ export default function FlowEditorView() {
       )}
 
       {creating && (
-        <FlowCreateDialog open onClose={() => setCreating(false)} onCreated={(flow) => {
+        <FlowCreateDialog open onClose={() => setCreating(false)} onCreated={(flowId) => {
           setCreating(false);
-          setSelectedFlow(flow);
+          setEditingFlowId(flowId);
         }} />
       )}
     </div>
@@ -242,7 +267,7 @@ export default function FlowEditorView() {
 }
 
 /* ═══ FLOW CREATE DIALOG ═══ */
-function FlowCreateDialog({ open, onClose, onCreated }: { open: boolean; onClose: () => void; onCreated: (f: NotificationFlow) => void }) {
+function FlowCreateDialog({ open, onClose, onCreated }: { open: boolean; onClose: () => void; onCreated: (id: string) => void }) {
   const qc = useQueryClient();
   const [form, setForm] = useState({ name: "", description: "", trigger_event: "new_lead" });
 
@@ -260,11 +285,11 @@ function FlowCreateDialog({ open, onClose, onCreated }: { open: boolean; onClose
       ...form,
       nodes: [triggerNode] as any,
       edges: [] as any,
-    }).select().single();
+    }).select("id").single();
     if (error) { toast.error(error.message); return; }
     qc.invalidateQueries({ queryKey: ["notification_flows"] });
     toast.success("Flujo creado");
-    onCreated({ ...data, nodes: [triggerNode], edges: [] } as NotificationFlow);
+    onCreated(data.id);
   };
 
   return (
@@ -301,6 +326,50 @@ function FlowCreateDialog({ open, onClose, onCreated }: { open: boolean; onClose
   );
 }
 
+/* ═══ FLOW CANVAS WRAPPER — fetches fresh data ═══ */
+function FlowCanvasWrapper({ flowId, onBack }: { flowId: string; onBack: () => void }) {
+  const { data: flow, isLoading, error } = useQuery({
+    queryKey: ["notification_flow_detail", flowId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("notification_flows")
+        .select("*")
+        .eq("id", flowId)
+        .single();
+      if (error) throw error;
+      return {
+        ...data,
+        nodes: (data.nodes || []) as FlowNode[],
+        edges: (data.edges || []) as FlowEdge[],
+      } as NotificationFlow;
+    },
+    staleTime: 0, // Always fetch fresh
+  });
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="text-center space-y-2">
+          <Workflow className="h-8 w-8 animate-spin mx-auto text-primary" />
+          <p className="text-sm text-muted-foreground">Cargando flujo completo...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !flow) {
+    return (
+      <div className="text-center py-20">
+        <AlertCircle className="h-8 w-8 mx-auto text-destructive mb-2" />
+        <p className="text-destructive">Error al cargar el flujo</p>
+        <Button variant="outline" size="sm" className="mt-2" onClick={onBack}>Volver</Button>
+      </div>
+    );
+  }
+
+  return <FlowCanvas flow={flow} onBack={onBack} />;
+}
+
 /* ═══ FLOW CANVAS (Visual Editor) ═══ */
 function FlowCanvas({ flow, onBack }: { flow: NotificationFlow; onBack: () => void }) {
   const qc = useQueryClient();
@@ -314,6 +383,14 @@ function FlowCanvas({ flow, onBack }: { flow: NotificationFlow; onBack: () => vo
   const [hasChanges, setHasChanges] = useState(false);
   const [dragStartPos, setDragStartPos] = useState<{ x: number; y: number } | null>(null);
   const [hasDragged, setHasDragged] = useState(false);
+  const [editingMeta, setEditingMeta] = useState(false);
+  const [selectedEdge, setSelectedEdge] = useState<string | null>(null);
+
+  // Editable flow metadata
+  const [flowName, setFlowName] = useState(flow.name);
+  const [flowDescription, setFlowDescription] = useState(flow.description || "");
+  const [flowTrigger, setFlowTrigger] = useState(flow.trigger_event);
+  const [flowActive, setFlowActive] = useState(flow.is_active);
 
   const DRAG_THRESHOLD = 5;
 
@@ -330,6 +407,23 @@ function FlowCanvas({ flow, onBack }: { flow: NotificationFlow; onBack: () => vo
     setNodes((prev) => [...prev, newNode]);
     setHasChanges(true);
     setSelectedNode(newNode.id);
+    setSelectedEdge(null);
+  };
+
+  const duplicateNode = (id: string) => {
+    const original = nodes.find(n => n.id === id);
+    if (!original) return;
+    const dup: FlowNode = {
+      ...original,
+      id: `${original.type}-${Date.now()}`,
+      x: original.x + 30,
+      y: original.y + 40,
+      label: `${original.label} (copia)`,
+      config: { ...original.config },
+    };
+    setNodes(prev => [...prev, dup]);
+    setHasChanges(true);
+    setSelectedNode(dup.id);
   };
 
   const deleteNode = (id: string) => {
@@ -341,8 +435,8 @@ function FlowCanvas({ flow, onBack }: { flow: NotificationFlow; onBack: () => vo
 
   const handleNodeMouseDown = (nodeId: string, e: React.MouseEvent) => {
     e.stopPropagation();
+    setSelectedEdge(null);
 
-    // If in connecting mode, handle connection
     if (connecting) {
       if (connecting !== nodeId) {
         const newEdge: FlowEdge = {
@@ -357,7 +451,6 @@ function FlowCanvas({ flow, onBack }: { flow: NotificationFlow; onBack: () => vo
       return;
     }
 
-    // Start potential drag
     const node = nodes.find((n) => n.id === nodeId);
     if (!node) return;
     setSelectedNode(nodeId);
@@ -374,13 +467,11 @@ function FlowCanvas({ flow, onBack }: { flow: NotificationFlow; onBack: () => vo
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     if (!dragStartPos || !canvasRef.current) return;
 
-    // Check threshold before starting actual drag
     if (!hasDragged) {
       const dx = Math.abs(e.clientX - dragStartPos.x);
       const dy = Math.abs(e.clientY - dragStartPos.y);
       if (dx < DRAG_THRESHOLD && dy < DRAG_THRESHOLD) return;
       setHasDragged(true);
-      // Find which node we started on
       const nodeId = selectedNode;
       if (nodeId) setDragging(nodeId);
     }
@@ -404,18 +495,24 @@ function FlowCanvas({ flow, onBack }: { flow: NotificationFlow; onBack: () => vo
 
   const saveFlow = async () => {
     const { error } = await supabase.from("notification_flows").update({
+      name: flowName,
+      description: flowDescription || null,
+      trigger_event: flowTrigger,
+      is_active: flowActive,
       nodes: nodes as any,
       edges: edges as any,
       updated_at: new Date().toISOString(),
     }).eq("id", flow.id);
     if (error) { toast.error(error.message); return; }
     qc.invalidateQueries({ queryKey: ["notification_flows"] });
+    qc.invalidateQueries({ queryKey: ["notification_flow_detail", flow.id] });
     toast.success("Flujo guardado");
     setHasChanges(false);
   };
 
   const deleteEdge = (id: string) => {
     setEdges((prev) => prev.filter((e) => e.id !== id));
+    setSelectedEdge(null);
     setHasChanges(true);
   };
 
@@ -424,7 +521,22 @@ function FlowCanvas({ flow, onBack }: { flow: NotificationFlow; onBack: () => vo
     toast.info("Haz clic en el nodo destino para conectar", { duration: 3000 });
   };
 
+  const autoLayout = () => {
+    const sorted = [...nodes];
+    const triggerNodes = sorted.filter(n => n.type === "trigger");
+    const otherNodes = sorted.filter(n => n.type !== "trigger");
+    const all = [...triggerNodes, ...otherNodes];
+    const updated = all.map((n, i) => ({
+      ...n,
+      x: 80 + (i % 3) * 220,
+      y: 60 + Math.floor(i / 3) * 120,
+    }));
+    setNodes(updated);
+    setHasChanges(true);
+  };
+
   const selectedNodeData = nodes.find((n) => n.id === selectedNode);
+  const selectedEdgeData = edges.find((e) => e.id === selectedEdge);
 
   return (
     <div className="space-y-4">
@@ -434,8 +546,23 @@ function FlowCanvas({ flow, onBack }: { flow: NotificationFlow; onBack: () => vo
           <Button variant="ghost" size="sm" onClick={onBack}>
             <X className="h-4 w-4 mr-1" />Volver
           </Button>
-          <h2 className="font-bold text-lg">{flow.name}</h2>
-          {flow.is_active && <Badge className="bg-green-500/10 text-green-700 dark:text-green-400 border-green-300 dark:border-green-700">Activo</Badge>}
+          {editingMeta ? (
+            <Input
+              value={flowName}
+              onChange={(e) => { setFlowName(e.target.value); setHasChanges(true); }}
+              className="h-8 text-sm font-bold w-48"
+              autoFocus
+              onBlur={() => setEditingMeta(false)}
+              onKeyDown={(e) => e.key === "Enter" && setEditingMeta(false)}
+            />
+          ) : (
+            <button onClick={() => setEditingMeta(true)} className="flex items-center gap-1.5 hover:text-primary transition-colors">
+              <h2 className="font-bold text-lg">{flowName}</h2>
+              <Pencil className="h-3 w-3 text-muted-foreground" />
+            </button>
+          )}
+          <Switch checked={flowActive} onCheckedChange={(v) => { setFlowActive(v); setHasChanges(true); }} />
+          {flowActive && <Badge className="bg-green-500/10 text-green-700 dark:text-green-400 border-green-300 dark:border-green-700">Activo</Badge>}
         </div>
         <div className="flex items-center gap-2">
           {connecting && (
@@ -445,11 +572,41 @@ function FlowCanvas({ flow, onBack }: { flow: NotificationFlow; onBack: () => vo
             </Badge>
           )}
           {hasChanges && <Badge variant="outline" className="text-amber-600">Sin guardar</Badge>}
+          <Button size="sm" variant="outline" onClick={autoLayout} title="Auto-organizar">
+            <RotateCcw className="h-4 w-4" />
+          </Button>
           <Button size="sm" onClick={saveFlow} disabled={!hasChanges}>
             <Save className="h-4 w-4 mr-1" />Guardar
           </Button>
         </div>
       </div>
+
+      {/* Flow metadata editor */}
+      {editingMeta && (
+        <Card className="border-primary/30 bg-primary/5 p-4">
+          <div className="grid grid-cols-3 gap-3">
+            <div>
+              <Label className="text-xs">Nombre</Label>
+              <Input value={flowName} onChange={(e) => { setFlowName(e.target.value); setHasChanges(true); }} className="h-8 text-sm" />
+            </div>
+            <div>
+              <Label className="text-xs">Descripción</Label>
+              <Input value={flowDescription} onChange={(e) => { setFlowDescription(e.target.value); setHasChanges(true); }} className="h-8 text-sm" />
+            </div>
+            <div>
+              <Label className="text-xs">Evento disparador</Label>
+              <Select value={flowTrigger} onValueChange={(v) => { setFlowTrigger(v); setHasChanges(true); }}>
+                <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {TRIGGER_EVENTS.map((e) => (
+                    <SelectItem key={e.value} value={e.value}>{e.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </Card>
+      )}
 
       {/* Node palette */}
       <div className="flex gap-2 flex-wrap">
@@ -491,9 +648,9 @@ function FlowCanvas({ flow, onBack }: { flow: NotificationFlow; onBack: () => vo
             onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseUp}
             onClick={(e) => {
-              // Only deselect if clicking on empty canvas (not on a node)
               if (e.target === canvasRef.current && !dragging) {
                 setSelectedNode(null);
+                setSelectedEdge(null);
                 if (connecting) setConnecting(null);
               }
             }}
@@ -509,18 +666,19 @@ function FlowCanvas({ flow, onBack }: { flow: NotificationFlow; onBack: () => vo
                 const tx = tgt.x;
                 const ty = tgt.y + 25;
                 const mx = (sx + tx) / 2;
+                const isSelected = selectedEdge === edge.id;
                 return (
                   <g key={edge.id}>
                     <path
                       d={`M${sx},${sy} C${mx},${sy} ${mx},${ty} ${tx},${ty}`}
                       fill="none"
-                      stroke="hsl(var(--primary))"
-                      strokeWidth="2"
+                      stroke={isSelected ? "hsl(var(--primary))" : "hsl(var(--primary))"}
+                      strokeWidth={isSelected ? "3" : "2"}
                       strokeDasharray={edge.condition ? "6 3" : "none"}
-                      opacity={0.5}
+                      opacity={isSelected ? 0.9 : 0.5}
                     />
                     <circle cx={tx} cy={ty} r="4" fill="hsl(var(--primary))" opacity={0.7} />
-                    {/* Clickable delete area */}
+                    {/* Clickable area */}
                     <path
                       d={`M${sx},${sy} C${mx},${sy} ${mx},${ty} ${tx},${ty}`}
                       fill="none"
@@ -529,7 +687,8 @@ function FlowCanvas({ flow, onBack }: { flow: NotificationFlow; onBack: () => vo
                       className="cursor-pointer pointer-events-auto hover:stroke-destructive/20"
                       onClick={(e) => {
                         e.stopPropagation();
-                        if (confirm("¿Eliminar esta conexión?")) deleteEdge(edge.id);
+                        setSelectedEdge(edge.id);
+                        setSelectedNode(null);
                       }}
                     />
                     {edge.label && (
@@ -566,6 +725,14 @@ function FlowCanvas({ flow, onBack }: { flow: NotificationFlow; onBack: () => vo
                     <p className="text-xs font-semibold truncate">{node.label}</p>
                     <p className="text-[10px] text-muted-foreground">{nt.label}</p>
                   </div>
+                  {/* Connection point */}
+                  <div
+                    className="absolute -right-2 top-1/2 -translate-y-1/2 h-4 w-4 rounded-full bg-primary/20 border-2 border-primary/50 hover:bg-primary/50 cursor-crosshair transition-colors"
+                    onMouseDown={(e) => {
+                      e.stopPropagation();
+                      startConnectFromNode(node.id);
+                    }}
+                  />
                   {isConnectSource && (
                     <div className="absolute -right-2 top-1/2 -translate-y-1/2 h-4 w-4 rounded-full bg-primary animate-pulse" />
                   )}
@@ -593,184 +760,33 @@ function FlowCanvas({ flow, onBack }: { flow: NotificationFlow; onBack: () => vo
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {selectedNodeData ? (
-              <>
-                <div>
-                  <Label className="text-xs">Etiqueta</Label>
-                  <Input
-                    value={selectedNodeData.label}
-                    onChange={(e) => {
-                      setNodes((prev) => prev.map((n) => n.id === selectedNode ? { ...n, label: e.target.value } : n));
-                      setHasChanges(true);
-                    }}
-                    className="h-8 text-sm"
-                  />
-                </div>
-                <div>
-                  <Label className="text-xs">Tipo</Label>
-                  <Badge variant="outline" className="mt-1">{NODE_TYPES[selectedNodeData.type]?.label}</Badge>
-                </div>
-
-                {selectedNodeData.type === "trigger" && (
-                  <div>
-                    <Label className="text-xs">Evento disparador</Label>
-                    <Select
-                      value={selectedNodeData.config.event || ""}
-                      onValueChange={(v) => {
-                        setNodes((prev) => prev.map((n) =>
-                          n.id === selectedNode ? { ...n, config: { ...n.config, event: v }, label: TRIGGER_EVENTS.find(e => e.value === v)?.label || v } : n
-                        ));
-                        setHasChanges(true);
-                      }}
-                    >
-                      <SelectTrigger className="h-8 text-sm">
-                        <SelectValue placeholder="Seleccionar evento" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {TRIGGER_EVENTS.map((e) => (
-                          <SelectItem key={e.value} value={e.value}>{e.label}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                )}
-
-                {selectedNodeData.type === "email" && (
-                  <>
-                    <div>
-                      <Label className="text-xs">Plantilla de email</Label>
-                      <Input
-                        value={selectedNodeData.config.template_key || ""}
-                        onChange={(e) => {
-                          setNodes((prev) => prev.map((n) =>
-                            n.id === selectedNode ? { ...n, config: { ...n.config, template_key: e.target.value } } : n
-                          ));
-                          setHasChanges(true);
-                        }}
-                        placeholder="welcome_user"
-                        className="h-8 text-sm font-mono"
-                      />
-                    </div>
-                    <div>
-                      <Label className="text-xs">Asunto</Label>
-                      <Input
-                        value={selectedNodeData.config.subject || ""}
-                        onChange={(e) => {
-                          setNodes((prev) => prev.map((n) =>
-                            n.id === selectedNode ? { ...n, config: { ...n.config, subject: e.target.value } } : n
-                          ));
-                          setHasChanges(true);
-                        }}
-                        placeholder="Asunto del correo"
-                        className="h-8 text-sm"
-                      />
-                    </div>
-                  </>
-                )}
-
-                {selectedNodeData.type === "whatsapp" && (
-                  <>
-                    <div>
-                      <Label className="text-xs">Evento WhatsApp</Label>
-                      <Input
-                        value={selectedNodeData.config.event_type || ""}
-                        onChange={(e) => {
-                          setNodes((prev) => prev.map((n) =>
-                            n.id === selectedNode ? { ...n, config: { ...n.config, event_type: e.target.value } } : n
-                          ));
-                          setHasChanges(true);
-                        }}
-                        placeholder="new_demo"
-                        className="h-8 text-sm font-mono"
-                      />
-                    </div>
-                    <div>
-                      <Label className="text-xs">Mensaje</Label>
-                      <Textarea
-                        value={selectedNodeData.config.message || ""}
-                        onChange={(e) => {
-                          setNodes((prev) => prev.map((n) =>
-                            n.id === selectedNode ? { ...n, config: { ...n.config, message: e.target.value } } : n
-                          ));
-                          setHasChanges(true);
-                        }}
-                        rows={2}
-                        className="text-xs"
-                        placeholder="Hola {{nombre}}, ..."
-                      />
-                    </div>
-                  </>
-                )}
-
-                {selectedNodeData.type === "delay" && (
-                  <div>
-                    <Label className="text-xs">Minutos de espera</Label>
-                    <Input
-                      type="number"
-                      value={selectedNodeData.config.delay_minutes || 0}
-                      onChange={(e) => {
-                        setNodes((prev) => prev.map((n) =>
-                          n.id === selectedNode ? { ...n, config: { ...n.config, delay_minutes: parseInt(e.target.value) } } : n
-                        ));
-                        setHasChanges(true);
-                      }}
-                      className="h-8 text-sm"
-                    />
-                    <p className="text-[10px] text-muted-foreground mt-1">
-                      = {((selectedNodeData.config.delay_minutes || 0) / 60).toFixed(1)}h / {((selectedNodeData.config.delay_minutes || 0) / 1440).toFixed(1)}d
-                    </p>
-                  </div>
-                )}
-
-                {selectedNodeData.type === "condition" && (
-                  <div>
-                    <Label className="text-xs">Expresión</Label>
-                    <Textarea
-                      value={selectedNodeData.config.expression || ""}
-                      onChange={(e) => {
-                        setNodes((prev) => prev.map((n) =>
-                          n.id === selectedNode ? { ...n, config: { ...n.config, expression: e.target.value } } : n
-                        ));
-                        setHasChanges(true);
-                      }}
-                      rows={3}
-                      className="text-xs font-mono"
-                      placeholder="data.status === 'approved'"
-                    />
-                  </div>
-                )}
-
-                {selectedNodeData.type === "action" && (
-                  <div>
-                    <Label className="text-xs">Acción personalizada</Label>
-                    <Input
-                      value={selectedNodeData.config.action_name || ""}
-                      onChange={(e) => {
-                        setNodes((prev) => prev.map((n) =>
-                          n.id === selectedNode ? { ...n, config: { ...n.config, action_name: e.target.value } } : n
-                        ));
-                        setHasChanges(true);
-                      }}
-                      placeholder="update_status"
-                      className="h-8 text-sm font-mono"
-                    />
-                  </div>
-                )}
-
-                <div className="pt-2 flex gap-2">
-                  <Button variant="outline" size="sm" className="flex-1 text-xs gap-1" onClick={() => startConnectFromNode(selectedNodeData.id)}>
-                    <MoveHorizontal className="h-3 w-3" />Conectar desde aquí
-                  </Button>
-                  <Button variant="outline" size="sm" className="text-xs text-destructive hover:bg-destructive/10" onClick={() => deleteNode(selectedNodeData.id)}>
-                    <Trash2 className="h-3 w-3" />
-                  </Button>
-                </div>
-              </>
+            {selectedEdgeData ? (
+              <EdgeProperties
+                edge={selectedEdgeData}
+                nodes={nodes}
+                onUpdate={(updated) => {
+                  setEdges(prev => prev.map(e => e.id === updated.id ? updated : e));
+                  setHasChanges(true);
+                }}
+                onDelete={() => deleteEdge(selectedEdgeData.id)}
+              />
+            ) : selectedNodeData ? (
+              <NodeProperties
+                node={selectedNodeData}
+                onUpdate={(updated) => {
+                  setNodes(prev => prev.map(n => n.id === updated.id ? updated : n));
+                  setHasChanges(true);
+                }}
+                onConnect={() => startConnectFromNode(selectedNodeData.id)}
+                onDuplicate={() => duplicateNode(selectedNodeData.id)}
+                onDelete={() => deleteNode(selectedNodeData.id)}
+              />
             ) : (
               <div className="py-6 text-center text-xs text-muted-foreground">
                 <MousePointer className="h-6 w-6 mx-auto mb-2 opacity-30" />
-                <p>Selecciona un nodo para editar</p>
+                <p>Selecciona un nodo o conexión</p>
                 <p className="mt-1 text-[10px]">Arrastra nodos para moverlos</p>
+                <p className="text-[10px]">Usa el punto derecho para conectar</p>
               </div>
             )}
 
@@ -778,7 +794,7 @@ function FlowCanvas({ flow, onBack }: { flow: NotificationFlow; onBack: () => vo
               <p className="text-[10px] text-muted-foreground font-semibold uppercase mb-2">Resumen del flujo</p>
               <div className="space-y-1 text-xs text-muted-foreground">
                 <p>{nodes.length} nodos · {edges.length} conexiones</p>
-                <p>Disparador: {TRIGGER_EVENTS.find((e) => e.value === flow.trigger_event)?.label}</p>
+                <p>Disparador: {TRIGGER_EVENTS.find((e) => e.value === flowTrigger)?.label}</p>
                 <p>{flow.run_count} ejecuciones totales</p>
               </div>
             </div>
@@ -786,5 +802,189 @@ function FlowCanvas({ flow, onBack }: { flow: NotificationFlow; onBack: () => vo
         </Card>
       </div>
     </div>
+  );
+}
+
+/* ─── Node Properties Panel ─── */
+function NodeProperties({ node, onUpdate, onConnect, onDuplicate, onDelete }: {
+  node: FlowNode;
+  onUpdate: (n: FlowNode) => void;
+  onConnect: () => void;
+  onDuplicate: () => void;
+  onDelete: () => void;
+}) {
+  const updateConfig = (key: string, value: any) => {
+    onUpdate({ ...node, config: { ...node.config, [key]: value } });
+  };
+
+  return (
+    <>
+      <div>
+        <Label className="text-xs">Etiqueta</Label>
+        <Input
+          value={node.label}
+          onChange={(e) => onUpdate({ ...node, label: e.target.value })}
+          className="h-8 text-sm"
+        />
+      </div>
+      <div>
+        <Label className="text-xs">Tipo</Label>
+        <Badge variant="outline" className="mt-1">{NODE_TYPES[node.type]?.label}</Badge>
+      </div>
+
+      {node.type === "trigger" && (
+        <div>
+          <Label className="text-xs">Evento disparador</Label>
+          <Select
+            value={node.config.event || ""}
+            onValueChange={(v) => {
+              onUpdate({
+                ...node,
+                config: { ...node.config, event: v },
+                label: TRIGGER_EVENTS.find(e => e.value === v)?.label || v,
+              });
+            }}
+          >
+            <SelectTrigger className="h-8 text-sm"><SelectValue placeholder="Seleccionar evento" /></SelectTrigger>
+            <SelectContent>
+              {TRIGGER_EVENTS.map((e) => (
+                <SelectItem key={e.value} value={e.value}>{e.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
+      {node.type === "email" && (
+        <>
+          <div>
+            <Label className="text-xs">Plantilla de email</Label>
+            <Input value={node.config.template_key || ""} onChange={(e) => updateConfig("template_key", e.target.value)} placeholder="welcome_user" className="h-8 text-sm font-mono" />
+          </div>
+          <div>
+            <Label className="text-xs">Asunto</Label>
+            <Input value={node.config.subject || ""} onChange={(e) => updateConfig("subject", e.target.value)} placeholder="Asunto del correo" className="h-8 text-sm" />
+          </div>
+          <div>
+            <Label className="text-xs">Destinatario</Label>
+            <Input value={node.config.recipient || ""} onChange={(e) => updateConfig("recipient", e.target.value)} placeholder="{{email}} o correo fijo" className="h-8 text-sm font-mono" />
+          </div>
+        </>
+      )}
+
+      {node.type === "whatsapp" && (
+        <>
+          <div>
+            <Label className="text-xs">Evento WhatsApp</Label>
+            <Input value={node.config.event_type || ""} onChange={(e) => updateConfig("event_type", e.target.value)} placeholder="new_demo" className="h-8 text-sm font-mono" />
+          </div>
+          <div>
+            <Label className="text-xs">Teléfono destino</Label>
+            <Input value={node.config.phone || ""} onChange={(e) => updateConfig("phone", e.target.value)} placeholder="{{phone}} o número fijo" className="h-8 text-sm font-mono" />
+          </div>
+          <div>
+            <Label className="text-xs">Mensaje</Label>
+            <Textarea value={node.config.message || ""} onChange={(e) => updateConfig("message", e.target.value)} rows={3} className="text-xs" placeholder="Hola {{nombre}}, ..." />
+          </div>
+        </>
+      )}
+
+      {node.type === "delay" && (
+        <div>
+          <Label className="text-xs">Minutos de espera</Label>
+          <Input type="number" value={node.config.delay_minutes || 0} onChange={(e) => updateConfig("delay_minutes", parseInt(e.target.value))} className="h-8 text-sm" />
+          <p className="text-[10px] text-muted-foreground mt-1">
+            = {((node.config.delay_minutes || 0) / 60).toFixed(1)}h / {((node.config.delay_minutes || 0) / 1440).toFixed(1)}d
+          </p>
+        </div>
+      )}
+
+      {node.type === "condition" && (
+        <>
+          <div>
+            <Label className="text-xs">Expresión</Label>
+            <Textarea value={node.config.expression || ""} onChange={(e) => updateConfig("expression", e.target.value)} rows={3} className="text-xs font-mono" placeholder="data.status === 'approved'" />
+          </div>
+          <div>
+            <Label className="text-xs">Rama verdadera</Label>
+            <Input value={node.config.true_label || ""} onChange={(e) => updateConfig("true_label", e.target.value)} placeholder="Sí" className="h-8 text-sm" />
+          </div>
+          <div>
+            <Label className="text-xs">Rama falsa</Label>
+            <Input value={node.config.false_label || ""} onChange={(e) => updateConfig("false_label", e.target.value)} placeholder="No" className="h-8 text-sm" />
+          </div>
+        </>
+      )}
+
+      {node.type === "action" && (
+        <>
+          <div>
+            <Label className="text-xs">Acción</Label>
+            <Input value={node.config.action_name || ""} onChange={(e) => updateConfig("action_name", e.target.value)} placeholder="update_status" className="h-8 text-sm font-mono" />
+          </div>
+          <div>
+            <Label className="text-xs">Payload (JSON)</Label>
+            <Textarea value={node.config.payload || ""} onChange={(e) => updateConfig("payload", e.target.value)} rows={3} className="text-xs font-mono" placeholder='{"key": "value"}' />
+          </div>
+        </>
+      )}
+
+      <div className="pt-2 flex gap-2">
+        <Button variant="outline" size="sm" className="flex-1 text-xs gap-1" onClick={onConnect}>
+          <MoveHorizontal className="h-3 w-3" />Conectar
+        </Button>
+        <Button variant="outline" size="sm" className="text-xs gap-1" onClick={onDuplicate}>
+          <Copy className="h-3 w-3" />
+        </Button>
+        <Button variant="outline" size="sm" className="text-xs text-destructive hover:bg-destructive/10" onClick={onDelete}>
+          <Trash2 className="h-3 w-3" />
+        </Button>
+      </div>
+    </>
+  );
+}
+
+/* ─── Edge Properties Panel ─── */
+function EdgeProperties({ edge, nodes, onUpdate, onDelete }: {
+  edge: FlowEdge;
+  nodes: FlowNode[];
+  onUpdate: (e: FlowEdge) => void;
+  onDelete: () => void;
+}) {
+  const srcNode = nodes.find(n => n.id === edge.source);
+  const tgtNode = nodes.find(n => n.id === edge.target);
+
+  return (
+    <>
+      <div className="rounded-lg bg-muted/50 p-2 text-xs space-y-1">
+        <p className="font-semibold">Conexión seleccionada</p>
+        <p>De: <span className="font-medium">{srcNode?.label || edge.source}</span></p>
+        <p>A: <span className="font-medium">{tgtNode?.label || edge.target}</span></p>
+      </div>
+      <div>
+        <Label className="text-xs">Etiqueta de conexión</Label>
+        <Input
+          value={edge.label || ""}
+          onChange={(e) => onUpdate({ ...edge, label: e.target.value || undefined })}
+          placeholder="Ej: Sí, No, Éxito..."
+          className="h-8 text-sm"
+        />
+      </div>
+      <div>
+        <Label className="text-xs">Condición (opcional)</Label>
+        <Input
+          value={edge.condition || ""}
+          onChange={(e) => onUpdate({ ...edge, condition: e.target.value || undefined })}
+          placeholder="status === 'approved'"
+          className="h-8 text-sm font-mono"
+        />
+        <p className="text-[10px] text-muted-foreground mt-1">
+          Si tiene condición, la línea se muestra punteada
+        </p>
+      </div>
+      <Button variant="outline" size="sm" className="w-full text-xs text-destructive hover:bg-destructive/10 gap-1" onClick={onDelete}>
+        <Trash2 className="h-3 w-3" /> Eliminar conexión
+      </Button>
+    </>
   );
 }
