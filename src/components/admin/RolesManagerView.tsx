@@ -251,7 +251,36 @@ export default function RolesManagerView() {
     }
   };
 
-  /* ── Edit user ── */
+  /* ── Edit business ── */
+  const handleEditBiz = async () => {
+    if (!editBiz) return;
+    setSavingBiz(true);
+    const { error } = await supabase.from("businesses").update({
+      business_name: editBiz.business_name,
+      nit: editBiz.nit || null,
+      phone: editBiz.phone || null,
+      email: editBiz.email || null,
+      city: editBiz.city || null,
+      address: editBiz.address || null,
+      owner_user_id: editBiz.owner_user_id,
+    }).eq("id", editBiz.id);
+    if (error) {
+      toast({ title: "Error al actualizar empresa", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Empresa actualizada" });
+      setEditBizOpen(false);
+      setEditBiz(null);
+      load();
+    }
+    setSavingBiz(false);
+  };
+
+  const openEditBiz = (b: Business) => {
+    setEditBiz({ id: b.id, business_name: b.business_name, nit: b.nit || "", phone: b.phone || "", email: b.email || "", city: b.city || "", address: b.address || "", owner_user_id: b.owner_user_id });
+    setEditBizOpen(true);
+  };
+
+
   const handleEditUser = async () => {
     if (!editUser) return;
     setSaving(true);
