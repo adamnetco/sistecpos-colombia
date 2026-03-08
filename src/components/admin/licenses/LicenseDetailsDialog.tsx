@@ -409,3 +409,60 @@ function Field({ label, value, className }: { label: string; value: string; clas
     </div>
   );
 }
+
+function WhatsAppParserSection({ onParsed }: { onParsed: (data: Record<string, string>) => void }) {
+  const [raw, setRaw] = useState("");
+  const [parsed, setParsed] = useState<Record<string, string> | null>(null);
+
+  const handleParse = () => {
+    const result = parseWhatsAppMessage(raw);
+    setParsed(result as Record<string, string>);
+  };
+
+  const handleApply = () => {
+    if (parsed) {
+      onParsed(parsed);
+      setRaw("");
+      setParsed(null);
+    }
+  };
+
+  return (
+    <div className="rounded-lg border border-dashed border-primary/40 bg-primary/5 p-3 space-y-2">
+      <Label className="text-xs font-semibold flex items-center gap-1.5">
+        <MessageSquare className="h-3.5 w-3.5" /> Pegar mensaje de WhatsApp del proveedor
+      </Label>
+      <Textarea
+        value={raw}
+        onChange={(e) => setRaw(e.target.value)}
+        rows={4}
+        placeholder={`Pega aquí el mensaje tal como lo recibiste, ej:\n\nUbicación: PROVENZA  Tipo: Basic\nc358a12338902bec32c079148da0164a\n+ 0 facturas  2027-03-22 23:53:39`}
+        className="text-xs font-mono"
+      />
+      <div className="flex gap-2">
+        <Button size="sm" variant="outline" onClick={handleParse} disabled={!raw.trim()}>
+          🔍 Analizar mensaje
+        </Button>
+        {parsed && Object.keys(parsed).length > 0 && (
+          <Button size="sm" onClick={handleApply}>
+            ✅ Aplicar datos ({Object.keys(parsed).length} campos)
+          </Button>
+        )}
+      </div>
+      {parsed && (
+        <div className="rounded border bg-background p-2 text-xs space-y-1">
+          {Object.keys(parsed).length === 0 ? (
+            <p className="text-muted-foreground">No se pudieron extraer datos del mensaje. Verifica el formato.</p>
+          ) : (
+            Object.entries(parsed).map(([k, v]) => (
+              <div key={k} className="flex justify-between">
+                <span className="text-muted-foreground">{k.replace("pos_", "").replace(/_/g, " ")}:</span>
+                <span className="font-medium">{v}</span>
+              </div>
+            ))
+          )}
+        </div>
+      )}
+    </div>
+  );
+}

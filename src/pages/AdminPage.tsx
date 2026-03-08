@@ -43,6 +43,7 @@ const RedirectsManagerView = lazy(() => import("@/components/admin/RedirectsMana
 const PagesOverviewView = lazy(() => import("@/components/admin/PagesOverviewView"));
 const EmailTemplatesView = lazy(() => import("@/components/admin/EmailTemplatesView"));
 const FlowEditorView = lazy(() => import("@/components/admin/FlowEditorView"));
+const DatabasePurgerView = lazy(() => import("@/components/admin/DatabasePurgerView"));
 
 function Loader() {
   return (
