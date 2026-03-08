@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -53,6 +53,17 @@ export default function MiscListsTab() {
       return data as MiscList[];
     },
   });
+
+  // Realtime: auto-refresh when misc_lists changes
+  useEffect(() => {
+    const channel = supabase
+      .channel("misc_lists_changes")
+      .on("postgres_changes", { event: "*", schema: "public", table: "misc_lists" }, () => {
+        qc.invalidateQueries({ queryKey: ["misc_lists"] });
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [qc]);
 
   const saveMutation = useMutation({
     mutationFn: async () => {
