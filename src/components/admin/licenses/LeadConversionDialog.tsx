@@ -51,7 +51,7 @@ export function LeadConversionDialog({ lead, onClose, onConverted }: Props) {
   const [nit, setNit] = useState("");
   const [notes, setNotes] = useState("");
   const [providerNotes, setProviderNotes] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState("transferencia");
+  const [paymentMethod, setPaymentMethod] = useState("transfer");
   const [paymentRef, setPaymentRef] = useState("");
   const [paymentFile, setPaymentFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -111,14 +111,13 @@ export function LeadConversionDialog({ lead, onClose, onConverted }: Props) {
       toast({ title: "Adjunta comprobante o referencia de pago", variant: "destructive" });
       return;
     }
+
     setSaving(true);
     try {
-      // Upload payment proof
       const proofUrl = await uploadPaymentProof();
       const expiresAt = planExpirationDate(selectedPlan);
 
-      // 1. Create license linked to lead
-      const selectedSupplier = suppliers.find(s => s.id === selectedSupplierId);
+      const selectedSupplier = suppliers.find((s) => s.id === selectedSupplierId);
       const { data: newLicense, error: licErr } = await supabase.from("licenses").insert({
         business_name: lead.business_name,
         business_nit: nit || null,
@@ -140,14 +139,14 @@ export function LeadConversionDialog({ lead, onClose, onConverted }: Props) {
 
       if (licErr) throw licErr;
 
-      // 2. Update lead status to converted
-      await supabase.from("leads_trials").update({
+      const { error: leadUpdateError } = await supabase.from("leads_trials").update({
         status: "converted",
         converted_at: new Date().toISOString(),
       }).eq("id", lead.id);
 
-      // 3. Register payment record
-      await supabase.from("payments").insert({
+      if (leadUpdateError) throw leadUpdateError;
+
+      const { error: paymentError } = await supabase.from("payments").insert({
         license_id: newLicense.id,
         amount: priceValue,
         status: "confirmed",
@@ -157,9 +156,10 @@ export function LeadConversionDialog({ lead, onClose, onConverted }: Props) {
         notes: `Pago por licencia ${selectedPlan} — Lead convertido`,
       });
 
-      // 4. Send activation request email to provider
+      if (paymentError) throw paymentError;
+
       try {
-        await supabase.functions.invoke("notify-ticket-status", {
+        const { error: notifyError } = await supabase.functions.invoke("notify-ticket-status", {
           body: {
             type: "license_activation_request",
             business_name: lead.business_name,
@@ -167,7 +167,7 @@ export function LeadConversionDialog({ lead, onClose, onConverted }: Props) {
             contact_email: lead.email,
             contact_phone: lead.phone,
             nit: nit || "No proporcionado",
-            plan_label: LICENSE_PLANS.find(p => p.value === selectedPlan)?.label || selectedPlan,
+            plan_label: LICENSE_PLANS.find((p) => p.value === selectedPlan)?.label || selectedPlan,
             pos_username: lead.pos_username || "",
             pos_company: lead.pos_company || lead.business_name,
             provider_notes: providerNotes,
@@ -178,11 +178,16 @@ export function LeadConversionDialog({ lead, onClose, onConverted }: Props) {
             provider_name: selectedSupplier?.name || undefined,
           },
         });
+
+        if (notifyError) {
+          console.error("Provider email invoke failed:", notifyError);
+          toast({ title: "Licencia creada, pero falló notificación", description: "Revisa configuración de correo/notificaciones.", variant: "destructive" });
+        }
       } catch (emailErr) {
         console.error("Provider email failed:", emailErr);
       }
 
-      toast({ title: "🏆 Lead convertido exitosamente", description: `Licencia creada. Solicitud de activación enviada al proveedor.` });
+      toast({ title: "🏆 Lead convertido exitosamente", description: "Licencia creada y pago registrado." });
       onConverted();
       onClose();
     } catch (err: any) {
@@ -263,12 +268,12 @@ export function LeadConversionDialog({ lead, onClose, onConverted }: Props) {
                   value={paymentMethod}
                   onChange={(e) => setPaymentMethod(e.target.value)}
                 >
-                  <option value="transferencia">Transferencia bancaria</option>
-                  <option value="efectivo">Efectivo</option>
+                  <option value="transfer">Transferencia bancaria</option>
+                  <option value="cash">Efectivo</option>
                   <option value="nequi">Nequi</option>
                   <option value="daviplata">Daviplata</option>
-                  <option value="wompi">Wompi (en línea)</option>
-                  <option value="otro">Otro</option>
+                  <option value="card">Wompi (en línea)</option>
+                  <option value="other">Otro</option>
                 </select>
               </div>
               <div>
