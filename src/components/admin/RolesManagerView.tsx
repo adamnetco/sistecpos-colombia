@@ -635,7 +635,12 @@ export default function RolesManagerView() {
                         <h3 className="font-semibold text-sm">{biz.business_name}</h3>
                         {biz.nit && <p className="text-xs text-muted-foreground">NIT: {biz.nit}</p>}
                       </div>
-                      <ShortUUID uuid={biz.id} />
+                      <div className="flex items-center gap-1">
+                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEditBiz(biz)} title="Editar empresa">
+                          <Pencil className="h-3.5 w-3.5" />
+                        </Button>
+                        <ShortUUID uuid={biz.id} />
+                      </div>
                     </div>
                     <div className="space-y-1 text-xs text-muted-foreground">
                       {biz.email && <div className="flex items-center gap-1.5"><Mail className="h-3 w-3" />{biz.email}</div>}
