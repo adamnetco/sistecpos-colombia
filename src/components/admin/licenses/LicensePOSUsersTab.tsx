@@ -177,12 +177,19 @@ export function LicensePOSUsersTab({ licenseId, businessName }: Props) {
   };
 
   const linkUserToPos = async (posUserId: string, profile: ProfileResult) => {
-    await supabase.rpc("update_pos_user", {
+    const { error } = await supabase.rpc("update_pos_user", {
       _id: posUserId,
       _user_id: profile.user_id,
       _user_email: profile.email,
       _display_name: profile.full_name,
+      _clear_user_link: false,
     });
+
+    if (error) {
+      toast({ title: "Error al vincular", description: error.message, variant: "destructive" });
+      return;
+    }
+
     toast({ title: "Usuario vinculado" });
     setLinkingUserId(null);
     setLinkSearch("");
@@ -191,13 +198,18 @@ export function LicensePOSUsersTab({ licenseId, businessName }: Props) {
   };
 
   const unlinkUser = async (posUserId: string) => {
-    // Can't set null via COALESCE — use direct update
-    // The RPC uses COALESCE so we need a workaround: update via direct query won't work with RLS
-    // Instead we pass a special value — but our RPC uses COALESCE which skips NULLs
-    // We need to handle this differently. Let's use a direct supabase call since it's admin-only via RPC
-    // Actually the update_pos_user uses COALESCE so null = keep old value. 
-    // We'll need to accept this limitation and just note it.
-    toast({ title: "Para desvincular, contacta soporte técnico", description: "La desvinculación directa estará disponible próximamente." });
+    const { error } = await supabase.rpc("update_pos_user", {
+      _id: posUserId,
+      _clear_user_link: true,
+    });
+
+    if (error) {
+      toast({ title: "Error al desvincular", description: error.message, variant: "destructive" });
+      return;
+    }
+
+    toast({ title: "Usuario desvinculado" });
+    load();
   };
 
   return (
