@@ -164,16 +164,18 @@ export function LicenseDetailsDialog({ license, onClose, onUpdated }: Props) {
           </DialogTitle>
         </DialogHeader>
 
-        <Tabs defaultValue="info" className="mt-2">
-          <TabsList>
-            <TabsTrigger value="info">Información</TabsTrigger>
+        <Tabs defaultValue="info" className="mt-2" onValueChange={(v) => { if (v === "provider") initProviderData(); }}>
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="info">Info</TabsTrigger>
+            <TabsTrigger value="provider" className="gap-1">
+              <MapPin className="h-3 w-3" /> Proveedor
+            </TabsTrigger>
             <TabsTrigger value="timeline">Trazabilidad</TabsTrigger>
             <TabsTrigger value="pos-users">Usuarios POS</TabsTrigger>
           </TabsList>
 
           <TabsContent value="info">
             <div className="space-y-4 text-sm">
-              {/* Expiry warning */}
               {daysLeft !== null && daysLeft > 0 && daysLeft <= 30 && (
                 <div className="rounded-lg border border-orange-300 bg-orange-50 dark:bg-orange-950/30 p-3 flex items-center gap-2">
                   <AlertTriangle className="h-4 w-4 text-orange-600 shrink-0" />
@@ -210,16 +212,26 @@ export function LicenseDetailsDialog({ license, onClose, onUpdated }: Props) {
                 )}
               </div>
 
-              {/* Payment proof */}
+              {/* Provider quick summary if data exists */}
+              {(license.pos_location || license.pos_plan_type || license.pos_license_hash) && (
+                <div className="rounded-lg border border-blue-200 bg-blue-50 dark:bg-blue-950/20 dark:border-blue-800 p-3">
+                  <p className="text-xs font-medium text-blue-800 dark:text-blue-300 mb-2 flex items-center gap-1">
+                    <MapPin className="h-3 w-3" /> Datos del proveedor
+                  </p>
+                  <div className="grid grid-cols-2 gap-1 text-xs text-blue-700 dark:text-blue-400">
+                    {license.pos_location && <span>📍 {license.pos_location}</span>}
+                    {license.pos_plan_type && <span>📋 {license.pos_plan_type}</span>}
+                    {license.pos_license_hash && <span className="col-span-2 font-mono">🔑 {license.pos_license_hash}</span>}
+                    {license.pos_invoice_count != null && <span>🧾 {license.pos_invoice_count} facturas</span>}
+                    {license.pos_expires_at && <span>📅 Vence: {new Date(license.pos_expires_at).toLocaleDateString("es-CO")}</span>}
+                  </div>
+                </div>
+              )}
+
               {license.payment_proof_url && (
                 <div>
                   <p className="mb-1 text-xs font-medium text-muted-foreground">Comprobante de pago</p>
-                  <a
-                    href={license.payment_proof_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
-                  >
+                  <a href={license.payment_proof_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-primary hover:underline">
                     <ExternalLink className="h-3 w-3" /> Ver comprobante
                   </a>
                 </div>
@@ -238,6 +250,60 @@ export function LicenseDetailsDialog({ license, onClose, onUpdated }: Props) {
                   <p className="text-sm">{license.notes}</p>
                 </div>
               )}
+            </div>
+          </TabsContent>
+
+          {/* Provider data tab — editable */}
+          <TabsContent value="provider">
+            <div className="space-y-4 py-2">
+              <p className="text-xs text-muted-foreground">
+                Datos reportados por la casa de software (vía WhatsApp u otro canal). Puedes editarlos aquí.
+              </p>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-xs flex items-center gap-1"><MapPin className="h-3 w-3" /> Ubicación POS</Label>
+                  <Input value={providerData.pos_location} onChange={(e) => updateProviderField("pos_location", e.target.value)} placeholder="Ej: PROVENZA" />
+                </div>
+                <div>
+                  <Label className="text-xs flex items-center gap-1"><FileText className="h-3 w-3" /> Tipo de plan (proveedor)</Label>
+                  <Input value={providerData.pos_plan_type} onChange={(e) => updateProviderField("pos_plan_type", e.target.value)} placeholder="Ej: Basic" />
+                </div>
+              </div>
+
+              <div>
+                <Label className="text-xs flex items-center gap-1"><Hash className="h-3 w-3" /> Hash de licencia (proveedor)</Label>
+                <Input value={providerData.pos_license_hash} onChange={(e) => updateProviderField("pos_license_hash", e.target.value)} placeholder="Ej: c358a12338902bec32c079148da0164a" className="font-mono text-xs" />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-xs flex items-center gap-1">🧾 Facturas emitidas</Label>
+                  <Input type="number" min={0} value={providerData.pos_invoice_count} onChange={(e) => updateProviderField("pos_invoice_count", e.target.value)} placeholder="0" />
+                </div>
+                <div>
+                  <Label className="text-xs flex items-center gap-1"><Calendar className="h-3 w-3" /> Fecha creación (proveedor)</Label>
+                  <Input type="datetime-local" value={providerData.pos_created_at} onChange={(e) => updateProviderField("pos_created_at", e.target.value)} />
+                </div>
+              </div>
+
+              <div>
+                <Label className="text-xs flex items-center gap-1"><Calendar className="h-3 w-3" /> Fecha vencimiento (proveedor)</Label>
+                <Input type="datetime-local" value={providerData.pos_expires_at} onChange={(e) => updateProviderField("pos_expires_at", e.target.value)} />
+                {providerData.pos_expires_at && (() => {
+                  const d = Math.ceil((new Date(providerData.pos_expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+                  return d > 0 ? (
+                    <p className="mt-1 text-xs text-muted-foreground">⏳ Faltan {d} días</p>
+                  ) : (
+                    <p className="mt-1 text-xs text-destructive">⚠️ Vencida hace {Math.abs(d)} días</p>
+                  );
+                })()}
+              </div>
+
+              <Button onClick={saveProviderData} disabled={!providerDirty || savingProvider} className="w-full">
+                {savingProvider ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+                {savingProvider ? "Guardando..." : "Guardar datos del proveedor"}
+              </Button>
             </div>
           </TabsContent>
 
