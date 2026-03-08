@@ -416,9 +416,8 @@ export default function ContactsView() {
       {/* Detail panel */}
       {selectedContact && (
         <ContactDetailPanel
-          contact={selectedContact}
-          onClose={() => setSelectedContact(null)}
-          onUpdated={() => { setSelectedContact(null); load(); }}
+          contact={selectedContact as any}
+          onUpdate={() => { setSelectedContact(null); load(); }}
         />
       )}
     </div>
