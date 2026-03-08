@@ -493,10 +493,32 @@ export default function RolesManagerView() {
                           </div>
                         </td>
                         <td className="px-4 py-3">
-                          {isMaster ? (
-                            <span className="text-xs text-amber-600 dark:text-amber-400 font-medium">Protegido</span>
-                          ) : availableRoles.length === 0 ? (
-                            <span className="text-xs text-muted-foreground">Todos asignados</span>
+                          <div className="flex items-center gap-1">
+                            {!isMaster && (
+                              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(u)} title="Editar usuario">
+                                <Pencil className="h-3.5 w-3.5" />
+                              </Button>
+                            )}
+                            {isMaster ? (
+                              <span className="text-xs text-amber-600 dark:text-amber-400 font-medium">Protegido</span>
+                            ) : availableRoles.length === 0 ? (
+                              <span className="text-xs text-muted-foreground">Todos asignados</span>
+                            ) : (
+                              <Select onValueChange={(role) => addRole(u.user_id, role as AppRole)} disabled={!!addingRole && addingRole.userId === u.user_id}>
+                                <SelectTrigger className="w-36 h-8 text-xs">
+                                  <SelectValue placeholder="Asignar rol" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {availableRoles.map((r) => (
+                                    <SelectItem key={r} value={r}>
+                                      <div className="flex items-center gap-2"><Plus className="h-3 w-3" />{ROLE_LABELS[r]}</div>
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            )}
+                          </div>
+                        </td>
                           ) : (
                             <Select onValueChange={(role) => addRole(u.user_id, role as AppRole)} disabled={!!addingRole && addingRole.userId === u.user_id}>
                               <SelectTrigger className="w-36 h-8 text-xs">
