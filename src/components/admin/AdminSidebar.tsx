@@ -26,18 +26,20 @@ const navGroups: NavGroup[] = [
     ],
   },
   {
-    label: "Catálogo",
+    label: "Contactos",
     items: [
-      { name: "Productos", href: "/admin/productos", icon: ShoppingBag },
-      { name: "Marcas", href: "/admin/marcas", icon: Tag },
-      { name: "Categorías", href: "/admin/categorias", icon: FolderOpen },
-      { name: "Etiquetas", href: "/admin/etiquetas", icon: Hash },
+      { name: "Libreta", href: "/admin/contactos", icon: Contact2 },
+      { name: "Pipeline", href: "/admin/pipeline", icon: Kanban },
+      { name: "Socios", href: "/admin/socios", icon: Handshake },
+      { name: "Proveedores", href: "/admin/proveedores", icon: Package },
     ],
   },
   {
     label: "Ventas",
     items: [
       { name: "Licencias", href: "/admin/licencias", icon: KeyRound },
+      { name: "Demos Activas", href: "/admin/demos-activas", icon: ClipboardList },
+      { name: "Usuarios POS", href: "/admin/usuarios-pos", icon: UserCog },
       { name: "Precios Licencias", href: "/admin/precios-licencias", icon: Tag },
       { name: "Packs", href: "/admin/packs", icon: Package },
       { name: "Suscripciones", href: "/admin/suscripciones", icon: CreditCard },
@@ -47,11 +49,12 @@ const navGroups: NavGroup[] = [
     ],
   },
   {
-    label: "CRM",
+    label: "Catálogo",
     items: [
-      { name: "Contactos", href: "/admin/contactos", icon: Contact2 },
-      { name: "Socios", href: "/admin/socios", icon: Handshake },
-      { name: "Proveedores", href: "/admin/proveedores", icon: Package },
+      { name: "Productos", href: "/admin/productos", icon: ShoppingBag },
+      { name: "Marcas", href: "/admin/marcas", icon: Tag },
+      { name: "Categorías", href: "/admin/categorias", icon: FolderOpen },
+      { name: "Etiquetas", href: "/admin/etiquetas", icon: Hash },
     ],
   },
   {
@@ -66,8 +69,6 @@ const navGroups: NavGroup[] = [
   {
     label: "Soporte",
     items: [
-      { name: "Demos Activas", href: "/admin/demos-activas", icon: KeyRound },
-      { name: "Usuarios POS", href: "/admin/usuarios-pos", icon: UserCog },
       { name: "Tickets", href: "/admin/tickets-clientes", icon: TicketCheck },
       { name: "Contratos", href: "/admin/contratos", icon: FileCheck },
       { name: "Descargas", href: "/admin/descargas-clientes", icon: Download },
