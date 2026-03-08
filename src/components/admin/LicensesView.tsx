@@ -241,6 +241,16 @@ export default function LicensesView() {
                       <span className="text-[10px] text-amber-600 dark:text-amber-400 font-medium">Creada por socio</span>
                     )}
                   </td>
+                  <td className="px-4 py-3 hidden md:table-cell">
+                    {l.pos_location ? (
+                      <span className="text-xs">{l.pos_location}</span>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">—</span>
+                    )}
+                    {l.pos_plan_type && (
+                      <div className="text-[10px] text-muted-foreground">{l.pos_plan_type}</div>
+                    )}
+                  </td>
                   <td className="px-4 py-3">{planLabel(l.plan_type)}</td>
                   <td className="px-4 py-3">{statusBadge(l)}</td>
                   <td className="px-4 py-3">{l.expires_at || "—"}</td>
