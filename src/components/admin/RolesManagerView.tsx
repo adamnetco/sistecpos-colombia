@@ -429,7 +429,7 @@ export default function RolesManagerView() {
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-1.5">
                             <span className="font-medium">{u.full_name || "Sin nombre"}</span>
-                            {isMaster && <Crown className="h-4 w-4 text-amber-500" title="Usuario Maestro" />}
+                            {isMaster && <span title="Usuario Maestro"><Crown className="h-4 w-4 text-amber-500" /></span>}
                           </div>
                           <div className="text-xs text-muted-foreground">{u.email}</div>
                           <ShortUUID uuid={u.user_id} />
