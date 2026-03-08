@@ -268,12 +268,12 @@ export function LeadConversionDialog({ lead, onClose, onConverted }: Props) {
                   value={paymentMethod}
                   onChange={(e) => setPaymentMethod(e.target.value)}
                 >
-                  <option value="transferencia">Transferencia bancaria</option>
-                  <option value="efectivo">Efectivo</option>
+                  <option value="transfer">Transferencia bancaria</option>
+                  <option value="cash">Efectivo</option>
                   <option value="nequi">Nequi</option>
                   <option value="daviplata">Daviplata</option>
-                  <option value="wompi">Wompi (en línea)</option>
-                  <option value="otro">Otro</option>
+                  <option value="card">Wompi (en línea)</option>
+                  <option value="other">Otro</option>
                 </select>
               </div>
               <div>
