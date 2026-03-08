@@ -15,6 +15,7 @@ function NicheRedirect() {
 }
 
 import { ScrollToTop } from "./components/ScrollToTop";
+import { RedirectResolver } from "./components/RedirectResolver";
 
 // Eager load: critical above-the-fold page
 import Index from "./pages/Index";
@@ -86,6 +87,7 @@ const App = () => (
             <CartProvider>
             <ChatbotProvider>
             <ScrollToTop />
+            <RedirectResolver />
             <ChatbotWidget />
             <Suspense fallback={<PageLoader />}>
               <Routes>

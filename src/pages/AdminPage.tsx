@@ -39,6 +39,7 @@ const ResourceManagerView = lazy(() => import("@/components/admin/ResourceManage
 const SalesPagesView = lazy(() => import("@/components/admin/SalesPagesView"));
 const AdminDocsView = lazy(() => import("@/components/admin/AdminDocsView"));
 const PageContentView = lazy(() => import("@/components/admin/PageContentView"));
+const RedirectsManagerView = lazy(() => import("@/components/admin/RedirectsManagerView"));
 
 function Loader() {
   return (
@@ -88,6 +89,7 @@ export default function AdminPage() {
             <Route path="landing-ventas" element={<SalesPagesView />} />
             <Route path="configuracion" element={<SettingsView />} />
             <Route path="contenido" element={<PageContentView />} />
+            <Route path="redirecciones" element={<RedirectsManagerView />} />
             <Route path="documentacion" element={<AdminDocsView />} />
           </Routes>
         </Suspense>

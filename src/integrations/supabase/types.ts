@@ -2131,6 +2131,51 @@ export type Database = {
           },
         ]
       }
+      redirects: {
+        Row: {
+          created_at: string
+          hit_count: number
+          id: string
+          is_active: boolean
+          is_regex: boolean
+          last_hit_at: string | null
+          notes: string | null
+          priority: number
+          redirect_type: number
+          source_path: string
+          target_path: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          hit_count?: number
+          id?: string
+          is_active?: boolean
+          is_regex?: boolean
+          last_hit_at?: string | null
+          notes?: string | null
+          priority?: number
+          redirect_type?: number
+          source_path: string
+          target_path: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          hit_count?: number
+          id?: string
+          is_active?: boolean
+          is_regex?: boolean
+          last_hit_at?: string | null
+          notes?: string | null
+          priority?: number
+          redirect_type?: number
+          source_path?: string
+          target_path?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       reseller_applications: {
         Row: {
           city: string
