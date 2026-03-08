@@ -1283,6 +1283,51 @@ export type Database = {
         }
         Relationships: []
       }
+      email_templates: {
+        Row: {
+          body_html: string
+          category: string
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          notes: string | null
+          sort_order: number | null
+          subject: string
+          template_key: string
+          template_label: string
+          updated_at: string | null
+          variables: string[] | null
+        }
+        Insert: {
+          body_html?: string
+          category?: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          notes?: string | null
+          sort_order?: number | null
+          subject?: string
+          template_key: string
+          template_label: string
+          updated_at?: string | null
+          variables?: string[] | null
+        }
+        Update: {
+          body_html?: string
+          category?: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          notes?: string | null
+          sort_order?: number | null
+          subject?: string
+          template_key?: string
+          template_label?: string
+          updated_at?: string | null
+          variables?: string[] | null
+        }
+        Relationships: []
+      }
       google_calendar_configs: {
         Row: {
           calendar_id: string
@@ -1791,6 +1836,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      notification_flows: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          edges: Json
+          id: string
+          is_active: boolean | null
+          last_run_at: string | null
+          name: string
+          nodes: Json
+          run_count: number | null
+          trigger_event: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          edges?: Json
+          id?: string
+          is_active?: boolean | null
+          last_run_at?: string | null
+          name: string
+          nodes?: Json
+          run_count?: number | null
+          trigger_event: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          edges?: Json
+          id?: string
+          is_active?: boolean | null
+          last_run_at?: string | null
+          name?: string
+          nodes?: Json
+          run_count?: number | null
+          trigger_event?: string
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       otp_codes: {
         Row: {
@@ -2620,6 +2707,57 @@ export type Database = {
           title?: string
           updated_at?: string
           video_url?: string | null
+        }
+        Relationships: []
+      }
+      site_pages: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          has_content_blocks: boolean | null
+          has_seo: boolean | null
+          id: string
+          last_edited_at: string | null
+          last_edited_by: string | null
+          notes: string | null
+          page_type: string
+          path: string
+          sort_order: number | null
+          status: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          has_content_blocks?: boolean | null
+          has_seo?: boolean | null
+          id?: string
+          last_edited_at?: string | null
+          last_edited_by?: string | null
+          notes?: string | null
+          page_type?: string
+          path: string
+          sort_order?: number | null
+          status?: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          has_content_blocks?: boolean | null
+          has_seo?: boolean | null
+          id?: string
+          last_edited_at?: string | null
+          last_edited_by?: string | null
+          notes?: string | null
+          page_type?: string
+          path?: string
+          sort_order?: number | null
+          status?: string
+          title?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
