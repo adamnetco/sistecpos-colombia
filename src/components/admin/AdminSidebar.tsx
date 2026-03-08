@@ -6,7 +6,7 @@ import {
   Handshake, LogOut, ChevronLeft, Contact2, Bot, Code2,
   Package, Menu, ShoppingBag, Tag, FolderOpen, BarChart3, Settings2,
   FileText, ChevronDown, Download, TicketCheck, GraduationCap, ShieldCheck, UserCog, Activity, MessageCircle, FileSignature, Hash, BookOpen, LayoutGrid,
-  ArrowUpDown, Globe, Mail, Workflow,
+  ArrowUpDown, Globe, Mail, Workflow, Database,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -89,6 +89,7 @@ const navGroups: NavGroup[] = [
       { name: "Redirecciones", href: "/admin/redirecciones", icon: ArrowUpDown },
       { name: "Configuración", href: "/admin/configuracion", icon: Settings2 },
       { name: "Documentación", href: "/admin/documentacion", icon: BookOpen },
+      { name: "Depurador BD", href: "/admin/depurador", icon: Database },
     ],
   },
 ];

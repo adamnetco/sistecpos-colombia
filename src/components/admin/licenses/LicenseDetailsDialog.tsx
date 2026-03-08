@@ -4,12 +4,67 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Copy, Check, ExternalLink, Clock, CheckCircle2, AlertTriangle, MapPin, Hash, FileText, Calendar, Save, Loader2 } from "lucide-react";
+import { Copy, Check, ExternalLink, Clock, CheckCircle2, AlertTriangle, MapPin, Hash, FileText, Calendar, Save, Loader2, MessageSquare } from "lucide-react";
 import { planLabel } from "@/data/licensePlans";
 import { LicensePOSUsersTab } from "./LicensePOSUsersTab";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+
+/**
+ * Parse a WhatsApp message from the software provider to extract license data.
+ * Expected format (flexible):
+ *   Ubicación: PROVENZA  Tipo: Basic
+ *   c358a12338902bec32c079148da0164a
+ *   + 0 facturas  2027-03-22 23:53:39
+ *   380 días
+ *   Fecha de creacion
+ */
+function parseWhatsAppMessage(raw: string): Partial<{
+  pos_location: string;
+  pos_plan_type: string;
+  pos_license_hash: string;
+  pos_invoice_count: string;
+  pos_expires_at: string;
+  pos_created_at: string;
+}> {
+  const result: Record<string, string> = {};
+
+  // Ubicación
+  const locMatch = raw.match(/ubicaci[oó]n[:\s]+([^\n\t]+?)(?:\s{2,}|Tipo|$)/i);
+  if (locMatch) result.pos_location = locMatch[1].trim();
+
+  // Tipo
+  const typeMatch = raw.match(/tipo[:\s]+([^\n]+)/i);
+  if (typeMatch) result.pos_plan_type = typeMatch[1].trim();
+
+  // Hash (32-char hex)
+  const hashMatch = raw.match(/\b([a-f0-9]{32})\b/i);
+  if (hashMatch) result.pos_license_hash = hashMatch[1];
+
+  // Invoice count  "0 facturas" or "+ 0 facturas"
+  const invMatch = raw.match(/\+?\s*(\d+)\s*facturas/i);
+  if (invMatch) result.pos_invoice_count = invMatch[1];
+
+  // Date patterns  YYYY-MM-DD HH:MM:SS
+  const dates = [...raw.matchAll(/(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})/g)].map(m => m[1]);
+  if (dates.length >= 1) result.pos_expires_at = dates[0].replace(" ", "T").slice(0, 16);
+  if (dates.length >= 2) result.pos_created_at = dates[1].replace(" ", "T").slice(0, 16);
+
+  // If "Fecha de creacion" appears near a date, swap if needed
+  const creacionIdx = raw.toLowerCase().indexOf("creaci");
+  if (creacionIdx > -1 && dates.length === 1) {
+    // single date near "creacion" is the creation date
+    const dateIdx = raw.indexOf(dates[0]);
+    if (Math.abs(creacionIdx - dateIdx) < 60) {
+      result.pos_created_at = result.pos_expires_at;
+      delete result.pos_expires_at;
+    }
+  }
+
+  return result;
+}
 
 interface License {
   id: string;
@@ -256,9 +311,11 @@ export function LicenseDetailsDialog({ license, onClose, onUpdated }: Props) {
           {/* Provider data tab — editable */}
           <TabsContent value="provider">
             <div className="space-y-4 py-2">
-              <p className="text-xs text-muted-foreground">
-                Datos reportados por la casa de software (vía WhatsApp u otro canal). Puedes editarlos aquí.
-              </p>
+              {/* WhatsApp parser */}
+              <WhatsAppParserSection onParsed={(parsed) => {
+                setProviderData(prev => ({ ...prev, ...parsed }));
+                setProviderDirty(true);
+              }} />
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -349,6 +406,63 @@ function Field({ label, value, className }: { label: string; value: string; clas
     <div>
       <p className="text-xs font-medium text-muted-foreground">{label}</p>
       <p className={className}>{value}</p>
+    </div>
+  );
+}
+
+function WhatsAppParserSection({ onParsed }: { onParsed: (data: Record<string, string>) => void }) {
+  const [raw, setRaw] = useState("");
+  const [parsed, setParsed] = useState<Record<string, string> | null>(null);
+
+  const handleParse = () => {
+    const result = parseWhatsAppMessage(raw);
+    setParsed(result as Record<string, string>);
+  };
+
+  const handleApply = () => {
+    if (parsed) {
+      onParsed(parsed);
+      setRaw("");
+      setParsed(null);
+    }
+  };
+
+  return (
+    <div className="rounded-lg border border-dashed border-primary/40 bg-primary/5 p-3 space-y-2">
+      <Label className="text-xs font-semibold flex items-center gap-1.5">
+        <MessageSquare className="h-3.5 w-3.5" /> Pegar mensaje de WhatsApp del proveedor
+      </Label>
+      <Textarea
+        value={raw}
+        onChange={(e) => setRaw(e.target.value)}
+        rows={4}
+        placeholder={`Pega aquí el mensaje tal como lo recibiste, ej:\n\nUbicación: PROVENZA  Tipo: Basic\nc358a12338902bec32c079148da0164a\n+ 0 facturas  2027-03-22 23:53:39`}
+        className="text-xs font-mono"
+      />
+      <div className="flex gap-2">
+        <Button size="sm" variant="outline" onClick={handleParse} disabled={!raw.trim()}>
+          🔍 Analizar mensaje
+        </Button>
+        {parsed && Object.keys(parsed).length > 0 && (
+          <Button size="sm" onClick={handleApply}>
+            ✅ Aplicar datos ({Object.keys(parsed).length} campos)
+          </Button>
+        )}
+      </div>
+      {parsed && (
+        <div className="rounded border bg-background p-2 text-xs space-y-1">
+          {Object.keys(parsed).length === 0 ? (
+            <p className="text-muted-foreground">No se pudieron extraer datos del mensaje. Verifica el formato.</p>
+          ) : (
+            Object.entries(parsed).map(([k, v]) => (
+              <div key={k} className="flex justify-between">
+                <span className="text-muted-foreground">{k.replace("pos_", "").replace(/_/g, " ")}:</span>
+                <span className="font-medium">{v}</span>
+              </div>
+            ))
+          )}
+        </div>
+      )}
     </div>
   );
 }
