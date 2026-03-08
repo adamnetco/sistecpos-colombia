@@ -9,16 +9,17 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Lock, Chrome, ArrowLeft, ShieldCheck, Eye, EyeOff, Home, LayoutDashboard, Handshake, User as UserIcon } from "lucide-react";
+import { Mail, Lock, Chrome, ArrowLeft, ShieldCheck, Eye, EyeOff, Home, LayoutDashboard, Handshake, User as UserIcon, CheckCircle2, UserPlus } from "lucide-react";
 import { SEO } from "@/components/seo/SEO";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import type { User, Session } from "@supabase/supabase-js";
 
-type AuthView = "login" | "signup" | "forgot" | "reset" | "otp" | "role_picker";
+type AuthView = "login" | "signup" | "forgot" | "reset" | "otp" | "role_picker" | "signup_success";
 
 export default function AuthPage() {
   const [view, setView] = useState<AuthView>("login");
   const [email, setEmail] = useState("");
+  const [fullName, setFullName] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [otpCode, setOtpCode] = useState("");
@@ -30,6 +31,7 @@ export default function AuthPage() {
   const [availableRoles, setAvailableRoles] = useState<string[]>([]);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [signupEmail, setSignupEmail] = useState(""); // stored after successful signup
   const navigate = useNavigate();
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
