@@ -6,20 +6,33 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Copy, Check, ExternalLink, Clock, CheckCircle2, AlertTriangle, MapPin, Hash, FileText, Calendar, Save, Loader2, MessageSquare } from "lucide-react";
-import { planLabel } from "@/data/licensePlans";
+import { Copy, Check, ExternalLink, Clock, CheckCircle2, AlertTriangle, MapPin, Hash, FileText, Calendar, Save, Loader2, MessageSquare, Pencil, X } from "lucide-react";
+import { planLabel, LICENSE_PLANS } from "@/data/licensePlans";
 import { LicensePOSUsersTab } from "./LicensePOSUsersTab";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
+// --- Utility: locale-aware number formatting ---
+function formatCOPInput(value: number): string {
+  return new Intl.NumberFormat("es-CO", { maximumFractionDigits: 0 }).format(value);
+}
+
+function parseCOPInput(value: string): number {
+  // Remove currency symbols, spaces, dots (thousand sep in es-CO)
+  let str = value.replace(/[¤$\s]/g, "").trim();
+  const lastComma = str.lastIndexOf(",");
+  const lastDot = str.lastIndexOf(".");
+  if (lastComma > lastDot) {
+    str = str.replace(/\./g, "").replace(",", ".");
+  } else {
+    str = str.replace(/,/g, "");
+  }
+  const n = parseFloat(str);
+  return isNaN(n) ? 0 : Math.round(n);
+}
+
 /**
  * Parse a WhatsApp message from the software provider to extract license data.
- * Expected format (flexible):
- *   Ubicación: PROVENZA  Tipo: Basic
- *   c358a12338902bec32c079148da0164a
- *   + 0 facturas  2027-03-22 23:53:39
- *   380 días
- *   Fecha de creacion
  */
 function parseWhatsAppMessage(raw: string): Partial<{
   pos_location: string;
@@ -30,39 +43,25 @@ function parseWhatsAppMessage(raw: string): Partial<{
   pos_created_at: string;
 }> {
   const result: Record<string, string> = {};
-
-  // Ubicación
   const locMatch = raw.match(/ubicaci[oó]n[:\s]+([^\n\t]+?)(?:\s{2,}|Tipo|$)/i);
   if (locMatch) result.pos_location = locMatch[1].trim();
-
-  // Tipo
   const typeMatch = raw.match(/tipo[:\s]+([^\n]+)/i);
   if (typeMatch) result.pos_plan_type = typeMatch[1].trim();
-
-  // Hash (32-char hex)
   const hashMatch = raw.match(/\b([a-f0-9]{32})\b/i);
   if (hashMatch) result.pos_license_hash = hashMatch[1];
-
-  // Invoice count  "0 facturas" or "+ 0 facturas"
   const invMatch = raw.match(/\+?\s*(\d+)\s*facturas/i);
   if (invMatch) result.pos_invoice_count = invMatch[1];
-
-  // Date patterns  YYYY-MM-DD HH:MM:SS
   const dates = [...raw.matchAll(/(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})/g)].map(m => m[1]);
   if (dates.length >= 1) result.pos_expires_at = dates[0].replace(" ", "T").slice(0, 16);
   if (dates.length >= 2) result.pos_created_at = dates[1].replace(" ", "T").slice(0, 16);
-
-  // If "Fecha de creacion" appears near a date, swap if needed
   const creacionIdx = raw.toLowerCase().indexOf("creaci");
   if (creacionIdx > -1 && dates.length === 1) {
-    // single date near "creacion" is the creation date
     const dateIdx = raw.indexOf(dates[0]);
     if (Math.abs(creacionIdx - dateIdx) < 60) {
       result.pos_created_at = result.pos_expires_at;
       delete result.pos_expires_at;
     }
   }
-
   return result;
 }
 
@@ -103,7 +102,75 @@ export function LicenseDetailsDialog({ license, onClose, onUpdated }: Props) {
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
 
-  // Provider fields state
+  // --- Editable info fields ---
+  const [editing, setEditing] = useState(false);
+  const [savingInfo, setSavingInfo] = useState(false);
+  const [infoForm, setInfoForm] = useState({
+    business_name: "",
+    business_nit: "",
+    contact_name: "",
+    contact_email: "",
+    contact_phone: "",
+    plan_type: "",
+    price_paid: "",
+    start_date: "",
+    expires_at: "",
+    notes: "",
+    provider_notes: "",
+  });
+
+  const initInfoForm = () => {
+    if (!license) return;
+    setInfoForm({
+      business_name: license.business_name || "",
+      business_nit: license.business_nit || "",
+      contact_name: license.contact_name || "",
+      contact_email: license.contact_email || "",
+      contact_phone: license.contact_phone || "",
+      plan_type: license.plan_type || "",
+      price_paid: formatCOPInput(license.price_paid),
+      start_date: license.start_date || "",
+      expires_at: license.expires_at || "",
+      notes: license.notes || "",
+      provider_notes: license.provider_notes || "",
+    });
+    setEditing(false);
+  };
+
+  useEffect(() => { initInfoForm(); }, [license?.id]);
+
+  const saveInfoData = async () => {
+    if (!license) return;
+    const price = parseCOPInput(infoForm.price_paid);
+    if (price <= 0) {
+      toast({ title: "Precio inválido", variant: "destructive" });
+      return;
+    }
+    setSavingInfo(true);
+    const { error } = await supabase.from("licenses").update({
+      business_name: infoForm.business_name,
+      business_nit: infoForm.business_nit || null,
+      contact_name: infoForm.contact_name,
+      contact_email: infoForm.contact_email || null,
+      contact_phone: infoForm.contact_phone || null,
+      plan_type: infoForm.plan_type,
+      price_paid: price,
+      start_date: infoForm.start_date || null,
+      expires_at: infoForm.expires_at || null,
+      notes: infoForm.notes || null,
+      provider_notes: infoForm.provider_notes || null,
+    }).eq("id", license.id);
+    setSavingInfo(false);
+    if (error) {
+      toast({ title: "Error al guardar", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Licencia actualizada" });
+      setEditing(false);
+      onUpdated?.();
+    }
+  };
+
+  // --- Provider fields state ---
   const [providerData, setProviderData] = useState({
     pos_location: "",
     pos_plan_type: "",
@@ -115,7 +182,6 @@ export function LicenseDetailsDialog({ license, onClose, onUpdated }: Props) {
   const [savingProvider, setSavingProvider] = useState(false);
   const [providerDirty, setProviderDirty] = useState(false);
 
-  // Sync provider data when license changes
   const initProviderData = () => {
     if (!license) return;
     setProviderData({
@@ -129,7 +195,6 @@ export function LicenseDetailsDialog({ license, onClose, onUpdated }: Props) {
     setProviderDirty(false);
   };
 
-  // Reset when license changes
   useEffect(() => { initProviderData(); }, [license?.id]);
 
   const updateProviderField = (key: string, value: string) => {
@@ -172,6 +237,9 @@ export function LicenseDetailsDialog({ license, onClose, onUpdated }: Props) {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const formatCOP = (v: number) =>
+    new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(v);
+
   const statusLabel = () => {
     if (license.status === "pending_activation") return <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 gap-1"><Clock className="h-3 w-3" />Pendiente Activación</Badge>;
     if (license.status === "pending_approval") return <Badge className="bg-amber-100 text-amber-800 gap-1"><Clock className="h-3 w-3" />Pendiente Aprobación</Badge>;
@@ -181,33 +249,11 @@ export function LicenseDetailsDialog({ license, onClose, onUpdated }: Props) {
     return <Badge className="bg-whatsapp text-white">Activa</Badge>;
   };
 
-  const formatCOP = (v: number) =>
-    new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(v);
-
-  // Activation timeline steps
   const timelineSteps = [
-    {
-      label: "Lead convertido",
-      done: true,
-      detail: license.lead_id ? "Origen: Lead/Demo" : "Creación manual",
-    },
-    {
-      label: "Pago registrado",
-      done: license.price_paid > 0,
-      detail: license.price_paid > 0 ? formatCOP(license.price_paid) : "Pendiente",
-    },
-    {
-      label: "Solicitud al proveedor",
-      done: !!license.activation_requested_at,
-      detail: license.activation_requested_at
-        ? new Date(license.activation_requested_at).toLocaleDateString("es-CO", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })
-        : "No enviada",
-    },
-    {
-      label: "Licencia activa",
-      done: license.status === "active",
-      detail: license.status === "active" ? "✅ Confirmada por proveedor" : "Pendiente activación",
-    },
+    { label: "Lead convertido", done: true, detail: license.lead_id ? "Origen: Lead/Demo" : "Creación manual" },
+    { label: "Pago registrado", done: license.price_paid > 0, detail: license.price_paid > 0 ? formatCOP(license.price_paid) : "Pendiente" },
+    { label: "Solicitud al proveedor", done: !!license.activation_requested_at, detail: license.activation_requested_at ? new Date(license.activation_requested_at).toLocaleDateString("es-CO", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }) : "No enviada" },
+    { label: "Licencia activa", done: license.status === "active", detail: license.status === "active" ? "✅ Confirmada por proveedor" : "Pendiente activación" },
   ];
 
   return (
@@ -222,13 +268,12 @@ export function LicenseDetailsDialog({ license, onClose, onUpdated }: Props) {
         <Tabs defaultValue="info" className="mt-2" onValueChange={(v) => { if (v === "provider") initProviderData(); }}>
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="info">Info</TabsTrigger>
-            <TabsTrigger value="provider" className="gap-1">
-              <MapPin className="h-3 w-3" /> Proveedor
-            </TabsTrigger>
+            <TabsTrigger value="provider" className="gap-1"><MapPin className="h-3 w-3" /> Proveedor</TabsTrigger>
             <TabsTrigger value="timeline">Trazabilidad</TabsTrigger>
             <TabsTrigger value="pos-users">Usuarios POS</TabsTrigger>
           </TabsList>
 
+          {/* ====== INFO TAB — with inline editing ====== */}
           <TabsContent value="info">
             <div className="space-y-4 text-sm">
               {daysLeft !== null && daysLeft > 0 && daysLeft <= 30 && (
@@ -250,68 +295,153 @@ export function LicenseDetailsDialog({ license, onClose, onUpdated }: Props) {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <Field label="NIT" value={license.business_nit || "—"} />
-                <Field label="Plan" value={planLabel(license.plan_type)} />
-                <Field label="Contacto" value={license.contact_name} />
-                <Field label="Email" value={license.contact_email || "—"} />
-                <Field label="Teléfono" value={license.contact_phone || "—"} />
-                <Field label="Precio" value={formatCOP(license.price_paid)} />
-                <Field label="Inicio" value={license.start_date} />
-                <Field label="Vence" value={license.expires_at || "Sin vencimiento (Vitalicio)"} />
-                {license.lead_id && (
-                  <Field label="Origen" value="Convertido desde Lead/Demo" className="text-amber-600" />
-                )}
-                {license.created_by_reseller_id && (
-                  <Field label="Socio" value="Creada por socio" className="text-amber-600" />
+              {/* Edit toggle */}
+              <div className="flex justify-end">
+                {!editing ? (
+                  <Button size="sm" variant="outline" onClick={() => { initInfoForm(); setEditing(true); }}>
+                    <Pencil className="h-3 w-3 mr-1" /> Editar
+                  </Button>
+                ) : (
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="ghost" onClick={() => setEditing(false)}>
+                      <X className="h-3 w-3 mr-1" /> Cancelar
+                    </Button>
+                    <Button size="sm" onClick={saveInfoData} disabled={savingInfo}>
+                      {savingInfo ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <Save className="h-3 w-3 mr-1" />}
+                      Guardar
+                    </Button>
+                  </div>
                 )}
               </div>
 
-              {/* Provider quick summary if data exists */}
-              {(license.pos_location || license.pos_plan_type || license.pos_license_hash) && (
-                <div className="rounded-lg border border-blue-200 bg-blue-50 dark:bg-blue-950/20 dark:border-blue-800 p-3">
-                  <p className="text-xs font-medium text-blue-800 dark:text-blue-300 mb-2 flex items-center gap-1">
-                    <MapPin className="h-3 w-3" /> Datos del proveedor
-                  </p>
-                  <div className="grid grid-cols-2 gap-1 text-xs text-blue-700 dark:text-blue-400">
-                    {license.pos_location && <span>📍 {license.pos_location}</span>}
-                    {license.pos_plan_type && <span>📋 {license.pos_plan_type}</span>}
-                    {license.pos_license_hash && <span className="col-span-2 font-mono">🔑 {license.pos_license_hash}</span>}
-                    {license.pos_invoice_count != null && <span>🧾 {license.pos_invoice_count} facturas</span>}
-                    {license.pos_expires_at && <span>📅 Vence: {new Date(license.pos_expires_at).toLocaleDateString("es-CO")}</span>}
+              {editing ? (
+                <div className="space-y-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label className="text-xs">Negocio</Label>
+                      <Input value={infoForm.business_name} onChange={(e) => setInfoForm(p => ({ ...p, business_name: e.target.value }))} />
+                    </div>
+                    <div>
+                      <Label className="text-xs">NIT</Label>
+                      <Input value={infoForm.business_nit} onChange={(e) => setInfoForm(p => ({ ...p, business_nit: e.target.value }))} />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Contacto</Label>
+                      <Input value={infoForm.contact_name} onChange={(e) => setInfoForm(p => ({ ...p, contact_name: e.target.value }))} />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Email</Label>
+                      <Input value={infoForm.contact_email} onChange={(e) => setInfoForm(p => ({ ...p, contact_email: e.target.value }))} type="email" />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Teléfono</Label>
+                      <Input value={infoForm.contact_phone} onChange={(e) => setInfoForm(p => ({ ...p, contact_phone: e.target.value }))} />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Plan</Label>
+                      <select
+                        value={infoForm.plan_type}
+                        onChange={(e) => setInfoForm(p => ({ ...p, plan_type: e.target.value }))}
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                      >
+                        {LICENSE_PLANS.map((p) => <option key={p.value} value={p.value}>{p.label}</option>)}
+                        {/* legacy fallbacks */}
+                        {!LICENSE_PLANS.find(p => p.value === infoForm.plan_type) && (
+                          <option value={infoForm.plan_type}>{planLabel(infoForm.plan_type)}</option>
+                        )}
+                      </select>
+                    </div>
+                    <div>
+                      <Label className="text-xs">Precio pagado (COP)</Label>
+                      <Input
+                        value={infoForm.price_paid}
+                        onChange={(e) => setInfoForm(p => ({ ...p, price_paid: e.target.value }))}
+                        onBlur={() => {
+                          const n = parseCOPInput(infoForm.price_paid);
+                          if (n > 0) setInfoForm(p => ({ ...p, price_paid: formatCOPInput(n) }));
+                        }}
+                        placeholder="2.500.000"
+                        inputMode="numeric"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Fecha inicio</Label>
+                      <Input type="date" value={infoForm.start_date} onChange={(e) => setInfoForm(p => ({ ...p, start_date: e.target.value }))} />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Fecha vencimiento</Label>
+                      <Input type="date" value={infoForm.expires_at} onChange={(e) => setInfoForm(p => ({ ...p, expires_at: e.target.value }))} />
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-xs">Notas para proveedor</Label>
+                    <Textarea rows={2} value={infoForm.provider_notes} onChange={(e) => setInfoForm(p => ({ ...p, provider_notes: e.target.value }))} />
+                  </div>
+                  <div>
+                    <Label className="text-xs">Notas internas</Label>
+                    <Textarea rows={2} value={infoForm.notes} onChange={(e) => setInfoForm(p => ({ ...p, notes: e.target.value }))} />
                   </div>
                 </div>
-              )}
+              ) : (
+                <>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Field label="NIT" value={license.business_nit || "—"} />
+                    <Field label="Plan" value={planLabel(license.plan_type)} />
+                    <Field label="Contacto" value={license.contact_name} />
+                    <Field label="Email" value={license.contact_email || "—"} />
+                    <Field label="Teléfono" value={license.contact_phone || "—"} />
+                    <Field label="Precio" value={formatCOP(license.price_paid)} />
+                    <Field label="Inicio" value={license.start_date} />
+                    <Field label="Vence" value={license.expires_at || "Sin vencimiento (Vitalicio)"} />
+                    {license.lead_id && <Field label="Origen" value="Convertido desde Lead/Demo" className="text-amber-600" />}
+                    {license.created_by_reseller_id && <Field label="Socio" value="Creada por socio" className="text-amber-600" />}
+                  </div>
 
-              {license.payment_proof_url && (
-                <div>
-                  <p className="mb-1 text-xs font-medium text-muted-foreground">Comprobante de pago</p>
-                  <a href={license.payment_proof_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-primary hover:underline">
-                    <ExternalLink className="h-3 w-3" /> Ver comprobante
-                  </a>
-                </div>
-              )}
+                  {(license.pos_location || license.pos_plan_type || license.pos_license_hash) && (
+                    <div className="rounded-lg border border-blue-200 bg-blue-50 dark:bg-blue-950/20 dark:border-blue-800 p-3">
+                      <p className="text-xs font-medium text-blue-800 dark:text-blue-300 mb-2 flex items-center gap-1">
+                        <MapPin className="h-3 w-3" /> Datos del proveedor
+                      </p>
+                      <div className="grid grid-cols-2 gap-1 text-xs text-blue-700 dark:text-blue-400">
+                        {license.pos_location && <span>📍 {license.pos_location}</span>}
+                        {license.pos_plan_type && <span>📋 {license.pos_plan_type}</span>}
+                        {license.pos_license_hash && <span className="col-span-2 font-mono">🔑 {license.pos_license_hash}</span>}
+                        {license.pos_invoice_count != null && <span>🧾 {license.pos_invoice_count} facturas</span>}
+                        {license.pos_expires_at && <span>📅 Vence: {new Date(license.pos_expires_at).toLocaleDateString("es-CO")}</span>}
+                      </div>
+                    </div>
+                  )}
 
-              {license.provider_notes && (
-                <div>
-                  <p className="mb-1 text-xs font-medium text-muted-foreground">Notas para proveedor</p>
-                  <p className="text-sm bg-muted/50 rounded p-2">{license.provider_notes}</p>
-                </div>
-              )}
+                  {license.payment_proof_url && (
+                    <div>
+                      <p className="mb-1 text-xs font-medium text-muted-foreground">Comprobante de pago</p>
+                      <a href={license.payment_proof_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-primary hover:underline">
+                        <ExternalLink className="h-3 w-3" /> Ver comprobante
+                      </a>
+                    </div>
+                  )}
 
-              {license.notes && (
-                <div>
-                  <p className="mb-1 text-xs font-medium text-muted-foreground">Notas internas</p>
-                  <p className="text-sm">{license.notes}</p>
-                </div>
+                  {license.provider_notes && (
+                    <div>
+                      <p className="mb-1 text-xs font-medium text-muted-foreground">Notas para proveedor</p>
+                      <p className="text-sm bg-muted/50 rounded p-2">{license.provider_notes}</p>
+                    </div>
+                  )}
+
+                  {license.notes && (
+                    <div>
+                      <p className="mb-1 text-xs font-medium text-muted-foreground">Notas internas</p>
+                      <p className="text-sm">{license.notes}</p>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </TabsContent>
 
-          {/* Provider data tab — editable */}
+          {/* ====== PROVIDER TAB ====== */}
           <TabsContent value="provider">
             <div className="space-y-4 py-2">
-              {/* WhatsApp parser */}
               <WhatsAppParserSection onParsed={(parsed) => {
                 setProviderData(prev => ({ ...prev, ...parsed }));
                 setProviderDirty(true);
@@ -364,27 +494,20 @@ export function LicenseDetailsDialog({ license, onClose, onUpdated }: Props) {
             </div>
           </TabsContent>
 
+          {/* ====== TIMELINE TAB ====== */}
           <TabsContent value="timeline">
             <div className="space-y-1 py-2">
               <p className="text-xs text-muted-foreground mb-4">Flujo de activación de la licencia</p>
               {timelineSteps.map((step, i) => (
                 <div key={i} className="flex items-start gap-3">
                   <div className="flex flex-col items-center">
-                    <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
-                      step.done
-                        ? "bg-green-500 text-white"
-                        : "bg-muted text-muted-foreground border"
-                    }`}>
+                    <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${step.done ? "bg-green-500 text-white" : "bg-muted text-muted-foreground border"}`}>
                       {step.done ? <CheckCircle2 className="h-4 w-4" /> : i + 1}
                     </div>
-                    {i < timelineSteps.length - 1 && (
-                      <div className={`w-0.5 h-8 ${step.done ? "bg-green-300" : "bg-border"}`} />
-                    )}
+                    {i < timelineSteps.length - 1 && <div className={`w-0.5 h-8 ${step.done ? "bg-green-300" : "bg-border"}`} />}
                   </div>
                   <div className="pt-1">
-                    <p className={`text-sm font-medium ${step.done ? "text-foreground" : "text-muted-foreground"}`}>
-                      {step.label}
-                    </p>
+                    <p className={`text-sm font-medium ${step.done ? "text-foreground" : "text-muted-foreground"}`}>{step.label}</p>
                     <p className="text-xs text-muted-foreground">{step.detail}</p>
                   </div>
                 </div>
