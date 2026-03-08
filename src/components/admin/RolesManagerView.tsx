@@ -676,6 +676,36 @@ export default function RolesManagerView() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* ═══ EDIT USER DIALOG ═══ */}
+      <Dialog open={editOpen} onOpenChange={(open) => { setEditOpen(open); if (!open) setEditUser(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Editar Usuario</DialogTitle>
+            <DialogDescription>Modifica los datos del perfil del usuario.</DialogDescription>
+          </DialogHeader>
+          {editUser && (
+            <div className="space-y-4 py-2">
+              <div className="space-y-2">
+                <Label>Email</Label>
+                <Input value={editUser.email} onChange={e => setEditUser(p => p ? { ...p, email: e.target.value } : p)} placeholder="usuario@email.com" />
+              </div>
+              <div className="space-y-2">
+                <Label>Nombre completo</Label>
+                <Input value={editUser.full_name} onChange={e => setEditUser(p => p ? { ...p, full_name: e.target.value } : p)} placeholder="Juan Pérez" />
+              </div>
+              <div className="space-y-2">
+                <Label>Teléfono</Label>
+                <Input value={editUser.phone} onChange={e => setEditUser(p => p ? { ...p, phone: e.target.value } : p)} placeholder="+57 300 123 4567" />
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditOpen(false)}>Cancelar</Button>
+            <Button onClick={handleEditUser} disabled={saving}>{saving ? "Guardando..." : "Guardar"}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
