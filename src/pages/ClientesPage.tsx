@@ -117,14 +117,18 @@ function ClientRestricted() {
 }
 
 export default function ClientesPage() {
-  const { user, loading, isAdmin, isCustomer, isReseller } = useAuth();
+  const { user, loading, isAdmin, isCustomer, isReseller, roles } = useAuth();
   const { trackActivity } = useActivityTracker();
 
+  // "Public" users = authenticated but no roles assigned
+  const isPublicUser = !!user && roles.length === 0;
+  const hasAccess = isAdmin || isCustomer || isReseller || isPublicUser;
+
   useEffect(() => {
-    if (user && (isAdmin || isCustomer || isReseller)) {
+    if (user && hasAccess) {
       trackActivity("portal_access", "/clientes");
     }
-  }, [user, isAdmin, isCustomer, isReseller, trackActivity]);
+  }, [user, hasAccess, trackActivity]);
 
   if (loading) return <ClientLoadingSkeleton />;
 
@@ -151,7 +155,7 @@ export default function ClientesPage() {
     );
   }
 
-  if (isAdmin || isCustomer || isReseller) {
+  if (hasAccess) {
     return (
       <Layout>
         <SEO
@@ -161,7 +165,7 @@ export default function ClientesPage() {
         <div className="container px-4 pt-4">
           <RoleSwitcherBar />
         </div>
-        <ClientPortal />
+        {isPublicUser ? <PublicPortal /> : <ClientPortal />}
       </Layout>
     );
   }
