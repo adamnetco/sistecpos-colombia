@@ -692,6 +692,49 @@ export default function AuthPage() {
               </motion.div>
             )}
 
+            {/* Signup success view */}
+            {view === "signup_success" && (
+              <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="space-y-6">
+                <div className="flex justify-center">
+                  <div className="rounded-full bg-emerald-100 dark:bg-emerald-900/30 p-5">
+                    <CheckCircle2 className="h-14 w-14 text-emerald-600 dark:text-emerald-400" />
+                  </div>
+                </div>
+                <div className="text-center space-y-2">
+                  <p className="text-sm text-foreground font-medium">
+                    Hemos enviado un correo de verificación a:
+                  </p>
+                  <p className="text-primary font-semibold text-lg break-all">{signupEmail}</p>
+                  <div className="bg-muted/50 rounded-lg p-4 mt-4 text-left space-y-2">
+                    <p className="text-sm text-muted-foreground font-medium">📋 Pasos siguientes:</p>
+                    <ol className="text-sm text-muted-foreground list-decimal list-inside space-y-1">
+                      <li>Revisa tu bandeja de entrada (y spam)</li>
+                      <li>Haz clic en el enlace de verificación</li>
+                      <li>Inicia sesión con tus credenciales</li>
+                    </ol>
+                  </div>
+                  {registroRole && (
+                    <p className="text-xs text-primary/80 mt-2">
+                      {registroRole === "cliente"
+                        ? "Un administrador te asignará acceso de cliente tras la verificación."
+                        : registroRole === "socio"
+                        ? "Un administrador revisará tu perfil de socio."
+                        : registroRole === "admin"
+                        ? "Un administrador te asignará permisos administrativos."
+                        : ""}
+                    </p>
+                  )}
+                </div>
+                <Button
+                  className="w-full h-12 text-base gradient-bg text-primary-foreground"
+                  onClick={() => { setView("login"); }}
+                >
+                  Ir a Iniciar Sesión
+                </Button>
+                {renderBackToHome()}
+              </motion.div>
+            )}
+
             {/* Signup view */}
             {view === "signup" && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
@@ -714,7 +757,23 @@ export default function AuthPage() {
                   </div>
                 </div>
 
-                <form onSubmit={handleSignUp} className="space-y-4">
+                <form onSubmit={handleSignUp} className="space-y-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-name">Nombre completo</Label>
+                    <div className="relative">
+                      <UserPlus className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="signup-name"
+                        type="text"
+                        placeholder="Tu nombre"
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                        className="pl-10"
+                        required
+                        maxLength={100}
+                      />
+                    </div>
+                  </div>
                   <div className="space-y-2">
                     <Label htmlFor="signup-email">Email</Label>
                     <div className="relative">
@@ -733,25 +792,40 @@ export default function AuthPage() {
                   <div className="space-y-2">
                     <Label htmlFor="signup-password">Contraseña</Label>
                     {renderPasswordInput("signup-password", password, (e) => setPassword(e.target.value), "Mínimo 6 caracteres", showPassword, () => setShowPassword(!showPassword))}
+                    {password && (
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+                            <div
+                              className={`h-full rounded-full transition-all duration-300 ${getPasswordStrength(password).color}`}
+                              style={{ width: `${getPasswordStrength(password).percent}%` }}
+                            />
+                          </div>
+                          <span className="text-xs text-muted-foreground whitespace-nowrap">
+                            {getPasswordStrength(password).label}
+                          </span>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  <Button type="submit" className="w-full h-12 text-base gradient-bg text-primary-foreground" disabled={loading}>
-                    {loading ? "Cargando..." : "Registrarse"}
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-confirm-password">Confirmar contraseña</Label>
+                    {renderPasswordInput("signup-confirm-password", confirmPassword, (e) => setConfirmPassword(e.target.value), "Repite la contraseña", showConfirmPassword, () => setShowConfirmPassword(!showConfirmPassword))}
+                    {confirmPassword && confirmPassword !== password && (
+                      <p className="text-xs text-destructive">Las contraseñas no coinciden</p>
+                    )}
+                  </div>
+                  <Button
+                    type="submit"
+                    className="w-full h-12 text-base gradient-bg text-primary-foreground"
+                    disabled={loading || !fullName.trim() || !email || !password || password !== confirmPassword}
+                  >
+                    {loading ? "Registrando..." : "Crear mi cuenta"}
                   </Button>
                 </form>
 
                 <p className="text-xs text-center text-muted-foreground">
                   Al registrarte, recibirás un correo de verificación para activar tu cuenta.
-                  {registroRole && (
-                    <span className="block mt-1 text-primary/80">
-                      {registroRole === "cliente"
-                        ? "Una vez verificado, un administrador te asignará acceso de cliente."
-                        : registroRole === "socio"
-                        ? "Una vez verificado, un administrador revisará tu perfil de socio."
-                        : registroRole === "admin"
-                        ? "Una vez verificado, un administrador te asignará permisos."
-                        : ""}
-                    </span>
-                  )}
                 </p>
 
                 <div className="text-center text-sm">
