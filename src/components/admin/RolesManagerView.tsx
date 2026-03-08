@@ -519,21 +519,6 @@ export default function RolesManagerView() {
                             )}
                           </div>
                         </td>
-                          ) : (
-                            <Select onValueChange={(role) => addRole(u.user_id, role as AppRole)} disabled={!!addingRole && addingRole.userId === u.user_id}>
-                              <SelectTrigger className="w-36 h-8 text-xs">
-                                <SelectValue placeholder="Asignar rol" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {availableRoles.map((r) => (
-                                  <SelectItem key={r} value={r}>
-                                    <div className="flex items-center gap-2"><Plus className="h-3 w-3" />{ROLE_LABELS[r]}</div>
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          )}
-                        </td>
                       </tr>
                     );
                   })
