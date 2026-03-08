@@ -124,6 +124,11 @@ export default function RolesManagerView() {
   const [newBiz, setNewBiz] = useState({ business_name: "", nit: "", phone: "", email: "", city: "", address: "", owner_user_id: "" });
   const [creatingBiz, setCreatingBiz] = useState(false);
 
+  /* ── Edit Business Dialog State ── */
+  const [editBizOpen, setEditBizOpen] = useState(false);
+  const [editBiz, setEditBiz] = useState<{ id: string; business_name: string; nit: string; phone: string; email: string; city: string; address: string; owner_user_id: string } | null>(null);
+  const [savingBiz, setSavingBiz] = useState(false);
+
   /* ── Associate User-Business Dialog ── */
   const [assocOpen, setAssocOpen] = useState(false);
   const [assocData, setAssocData] = useState({ user_id: "", business_id: "" });
@@ -246,7 +251,36 @@ export default function RolesManagerView() {
     }
   };
 
-  /* ── Edit user ── */
+  /* ── Edit business ── */
+  const handleEditBiz = async () => {
+    if (!editBiz) return;
+    setSavingBiz(true);
+    const { error } = await supabase.from("businesses").update({
+      business_name: editBiz.business_name,
+      nit: editBiz.nit || null,
+      phone: editBiz.phone || null,
+      email: editBiz.email || null,
+      city: editBiz.city || null,
+      address: editBiz.address || null,
+      owner_user_id: editBiz.owner_user_id,
+    }).eq("id", editBiz.id);
+    if (error) {
+      toast({ title: "Error al actualizar empresa", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Empresa actualizada" });
+      setEditBizOpen(false);
+      setEditBiz(null);
+      load();
+    }
+    setSavingBiz(false);
+  };
+
+  const openEditBiz = (b: Business) => {
+    setEditBiz({ id: b.id, business_name: b.business_name, nit: b.nit || "", phone: b.phone || "", email: b.email || "", city: b.city || "", address: b.address || "", owner_user_id: b.owner_user_id });
+    setEditBizOpen(true);
+  };
+
+
   const handleEditUser = async () => {
     if (!editUser) return;
     setSaving(true);
@@ -601,7 +635,12 @@ export default function RolesManagerView() {
                         <h3 className="font-semibold text-sm">{biz.business_name}</h3>
                         {biz.nit && <p className="text-xs text-muted-foreground">NIT: {biz.nit}</p>}
                       </div>
-                      <ShortUUID uuid={biz.id} />
+                      <div className="flex items-center gap-1">
+                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEditBiz(biz)} title="Editar empresa">
+                          <Pencil className="h-3.5 w-3.5" />
+                        </Button>
+                        <ShortUUID uuid={biz.id} />
+                      </div>
                     </div>
                     <div className="space-y-1 text-xs text-muted-foreground">
                       {biz.email && <div className="flex items-center gap-1.5"><Mail className="h-3 w-3" />{biz.email}</div>}
@@ -703,6 +742,61 @@ export default function RolesManagerView() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditOpen(false)}>Cancelar</Button>
             <Button onClick={handleEditUser} disabled={saving}>{saving ? "Guardando..." : "Guardar"}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ═══ EDIT BUSINESS DIALOG ═══ */}
+      <Dialog open={editBizOpen} onOpenChange={(open) => { setEditBizOpen(open); if (!open) setEditBiz(null); }}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Editar Empresa</DialogTitle>
+            <DialogDescription>Modifica los datos de la empresa.</DialogDescription>
+          </DialogHeader>
+          {editBiz && (
+            <div className="grid gap-4 py-2 sm:grid-cols-2">
+              <div className="space-y-2 sm:col-span-2">
+                <Label>Razón Social *</Label>
+                <Input value={editBiz.business_name} onChange={e => setEditBiz(p => p ? { ...p, business_name: e.target.value } : p)} />
+              </div>
+              <div className="space-y-2">
+                <Label>NIT</Label>
+                <Input value={editBiz.nit} onChange={e => setEditBiz(p => p ? { ...p, nit: e.target.value } : p)} placeholder="900.123.456-7" />
+              </div>
+              <div className="space-y-2">
+                <Label>Teléfono</Label>
+                <Input value={editBiz.phone} onChange={e => setEditBiz(p => p ? { ...p, phone: e.target.value } : p)} placeholder="+57 300 123 4567" />
+              </div>
+              <div className="space-y-2">
+                <Label>Email</Label>
+                <Input type="email" value={editBiz.email} onChange={e => setEditBiz(p => p ? { ...p, email: e.target.value } : p)} />
+              </div>
+              <div className="space-y-2">
+                <Label>Ciudad</Label>
+                <Input value={editBiz.city} onChange={e => setEditBiz(p => p ? { ...p, city: e.target.value } : p)} />
+              </div>
+              <div className="space-y-2 sm:col-span-2">
+                <Label>Dirección</Label>
+                <Input value={editBiz.address} onChange={e => setEditBiz(p => p ? { ...p, address: e.target.value } : p)} />
+              </div>
+              <div className="space-y-2 sm:col-span-2">
+                <Label>Propietario</Label>
+                <Select value={editBiz.owner_user_id} onValueChange={v => setEditBiz(p => p ? { ...p, owner_user_id: v } : p)}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {users.map(u => (
+                      <SelectItem key={u.user_id} value={u.user_id}>
+                        {u.full_name || u.email} <span className="text-muted-foreground text-xs">({u.user_id.slice(0, 8)})</span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditBizOpen(false)}>Cancelar</Button>
+            <Button onClick={handleEditBiz} disabled={savingBiz}>{savingBiz ? "Guardando..." : "Guardar"}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
