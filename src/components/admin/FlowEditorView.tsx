@@ -311,9 +311,11 @@ function FlowCanvas({ flow, onBack }: { flow: NotificationFlow; onBack: () => vo
   const [dragging, setDragging] = useState<string | null>(null);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [connecting, setConnecting] = useState<string | null>(null);
-  const [nodeDialog, setNodeDialog] = useState(false);
-  const [editingNode, setEditingNode] = useState<FlowNode | null>(null);
   const [hasChanges, setHasChanges] = useState(false);
+  const [dragStartPos, setDragStartPos] = useState<{ x: number; y: number } | null>(null);
+  const [hasDragged, setHasDragged] = useState(false);
+
+  const DRAG_THRESHOLD = 5;
 
   const addNode = (type: FlowNode["type"]) => {
     const nt = NODE_TYPES[type];
@@ -337,10 +339,11 @@ function FlowCanvas({ flow, onBack }: { flow: NotificationFlow; onBack: () => vo
     setHasChanges(true);
   };
 
-  const handleMouseDown = (nodeId: string, e: React.MouseEvent) => {
+  const handleNodeMouseDown = (nodeId: string, e: React.MouseEvent) => {
     e.stopPropagation();
+
+    // If in connecting mode, handle connection
     if (connecting) {
-      // Complete connection
       if (connecting !== nodeId) {
         const newEdge: FlowEdge = {
           id: `edge-${Date.now()}`,
@@ -353,10 +356,14 @@ function FlowCanvas({ flow, onBack }: { flow: NotificationFlow; onBack: () => vo
       setConnecting(null);
       return;
     }
+
+    // Start potential drag
     const node = nodes.find((n) => n.id === nodeId);
     if (!node) return;
-    setDragging(nodeId);
     setSelectedNode(nodeId);
+    setDragStartPos({ x: e.clientX, y: e.clientY });
+    setHasDragged(false);
+
     const rect = canvasRef.current?.getBoundingClientRect();
     setDragOffset({
       x: e.clientX - (rect?.left || 0) - node.x,
@@ -365,15 +372,35 @@ function FlowCanvas({ flow, onBack }: { flow: NotificationFlow; onBack: () => vo
   };
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!dragging || !canvasRef.current) return;
-    const rect = canvasRef.current.getBoundingClientRect();
-    const x = Math.max(0, e.clientX - rect.left - dragOffset.x);
-    const y = Math.max(0, e.clientY - rect.top - dragOffset.y);
-    setNodes((prev) => prev.map((n) => n.id === dragging ? { ...n, x, y } : n));
-    setHasChanges(true);
-  }, [dragging, dragOffset]);
+    if (!dragStartPos || !canvasRef.current) return;
 
-  const handleMouseUp = () => setDragging(null);
+    // Check threshold before starting actual drag
+    if (!hasDragged) {
+      const dx = Math.abs(e.clientX - dragStartPos.x);
+      const dy = Math.abs(e.clientY - dragStartPos.y);
+      if (dx < DRAG_THRESHOLD && dy < DRAG_THRESHOLD) return;
+      setHasDragged(true);
+      // Find which node we started on
+      const nodeId = selectedNode;
+      if (nodeId) setDragging(nodeId);
+    }
+
+    if (!dragging && !hasDragged) return;
+    const activeId = dragging || selectedNode;
+    if (!activeId) return;
+
+    const rect = canvasRef.current.getBoundingClientRect();
+    const x = Math.max(0, Math.min(e.clientX - rect.left - dragOffset.x, rect.width - 170));
+    const y = Math.max(0, Math.min(e.clientY - rect.top - dragOffset.y, rect.height - 50));
+    setNodes((prev) => prev.map((n) => n.id === activeId ? { ...n, x, y } : n));
+    setHasChanges(true);
+  }, [dragStartPos, hasDragged, dragging, selectedNode, dragOffset]);
+
+  const handleMouseUp = () => {
+    setDragging(null);
+    setDragStartPos(null);
+    setHasDragged(false);
+  };
 
   const saveFlow = async () => {
     const { error } = await supabase.from("notification_flows").update({
@@ -392,6 +419,11 @@ function FlowCanvas({ flow, onBack }: { flow: NotificationFlow; onBack: () => vo
     setHasChanges(true);
   };
 
+  const startConnectFromNode = (nodeId: string) => {
+    setConnecting(nodeId);
+    toast.info("Haz clic en el nodo destino para conectar", { duration: 3000 });
+  };
+
   const selectedNodeData = nodes.find((n) => n.id === selectedNode);
 
   return (
@@ -403,9 +435,15 @@ function FlowCanvas({ flow, onBack }: { flow: NotificationFlow; onBack: () => vo
             <X className="h-4 w-4 mr-1" />Volver
           </Button>
           <h2 className="font-bold text-lg">{flow.name}</h2>
-          {flow.is_active && <Badge className="bg-green-500/10 text-green-700">Activo</Badge>}
+          {flow.is_active && <Badge className="bg-green-500/10 text-green-700 dark:text-green-400 border-green-300 dark:border-green-700">Activo</Badge>}
         </div>
         <div className="flex items-center gap-2">
+          {connecting && (
+            <Badge variant="outline" className="gap-1 text-primary animate-pulse">
+              <MoveHorizontal className="h-3 w-3" />
+              Selecciona nodo destino
+            </Badge>
+          )}
           {hasChanges && <Badge variant="outline" className="text-amber-600">Sin guardar</Badge>}
           <Button size="sm" onClick={saveFlow} disabled={!hasChanges}>
             <Save className="h-4 w-4 mr-1" />Guardar
@@ -430,16 +468,15 @@ function FlowCanvas({ flow, onBack }: { flow: NotificationFlow; onBack: () => vo
             </Button>
           );
         })}
-        <div className="mx-2 border-l" />
-        <Button
-          variant={connecting ? "default" : "outline"}
-          size="sm"
-          className="gap-1.5"
-          onClick={() => setConnecting(connecting ? null : "__start__")}
-        >
-          <MoveHorizontal className="h-3.5 w-3.5" />
-          {connecting ? "Cancelar Conexión" : "Conectar Nodos"}
-        </Button>
+        {connecting && (
+          <>
+            <div className="mx-2 border-l" />
+            <Button variant="destructive" size="sm" className="gap-1.5" onClick={() => setConnecting(null)}>
+              <X className="h-3.5 w-3.5" />
+              Cancelar Conexión
+            </Button>
+          </>
+        )}
       </div>
 
       <div className="grid lg:grid-cols-[1fr_300px] gap-4">
@@ -447,11 +484,19 @@ function FlowCanvas({ flow, onBack }: { flow: NotificationFlow; onBack: () => vo
         <Card className="border shadow-sm overflow-hidden">
           <div
             ref={canvasRef}
-            className="relative bg-[radial-gradient(circle,hsl(var(--border))_1px,transparent_1px)] bg-[size:20px_20px] min-h-[500px] cursor-crosshair"
+            className={`relative bg-[radial-gradient(circle,hsl(var(--border))_1px,transparent_1px)] bg-[size:20px_20px] min-h-[500px] ${
+              connecting ? "cursor-crosshair" : "cursor-default"
+            }`}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseUp}
-            onClick={() => { if (!dragging) setSelectedNode(null); }}
+            onClick={(e) => {
+              // Only deselect if clicking on empty canvas (not on a node)
+              if (e.target === canvasRef.current && !dragging) {
+                setSelectedNode(null);
+                if (connecting) setConnecting(null);
+              }
+            }}
           >
             {/* SVG edges */}
             <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 1 }}>
@@ -475,14 +520,15 @@ function FlowCanvas({ flow, onBack }: { flow: NotificationFlow; onBack: () => vo
                       opacity={0.5}
                     />
                     <circle cx={tx} cy={ty} r="4" fill="hsl(var(--primary))" opacity={0.7} />
-                    {/* Clickable hit area */}
+                    {/* Clickable delete area */}
                     <path
                       d={`M${sx},${sy} C${mx},${sy} ${mx},${ty} ${tx},${ty}`}
                       fill="none"
                       stroke="transparent"
-                      strokeWidth="12"
-                      className="cursor-pointer pointer-events-auto"
-                      onClick={() => {
+                      strokeWidth="14"
+                      className="cursor-pointer pointer-events-auto hover:stroke-destructive/20"
+                      onClick={(e) => {
+                        e.stopPropagation();
                         if (confirm("¿Eliminar esta conexión?")) deleteEdge(edge.id);
                       }}
                     />
@@ -501,39 +547,50 @@ function FlowCanvas({ flow, onBack }: { flow: NotificationFlow; onBack: () => vo
               const nt = NODE_TYPES[node.type] || NODE_TYPES.action;
               const Icon = nt.icon;
               const isSelected = selectedNode === node.id;
+              const isConnectSource = connecting === node.id;
               return (
                 <div
                   key={node.id}
-                  className={`absolute flex items-center gap-2 px-3 py-2 rounded-lg border-2 shadow-sm cursor-grab active:cursor-grabbing select-none transition-shadow ${nt.bg} ${
+                  className={`absolute flex items-center gap-2 px-3 py-2 rounded-lg border-2 shadow-sm select-none transition-all ${nt.bg} ${
                     isSelected ? "ring-2 ring-primary shadow-md" : ""
-                  } ${connecting ? "cursor-pointer hover:ring-2 hover:ring-primary" : ""}`}
+                  } ${isConnectSource ? "ring-2 ring-primary ring-offset-2 scale-105" : ""} ${
+                    connecting && !isConnectSource ? "hover:ring-2 hover:ring-primary cursor-crosshair" : "cursor-grab active:cursor-grabbing"
+                  }`}
                   style={{ left: node.x, top: node.y, zIndex: isSelected ? 10 : 2, minWidth: 160 }}
-                  onMouseDown={(e) => handleMouseDown(node.id, e)}
-                  onDoubleClick={() => { setEditingNode(node); setNodeDialog(true); }}
+                  onMouseDown={(e) => handleNodeMouseDown(node.id, e)}
                 >
                   <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-md ${nt.bg}`}>
                     <Icon className={`h-4 w-4 ${nt.color}`} />
                   </div>
-                  <div className="min-w-0">
+                  <div className="min-w-0 flex-1">
                     <p className="text-xs font-semibold truncate">{node.label}</p>
                     <p className="text-[10px] text-muted-foreground">{nt.label}</p>
                   </div>
+                  {isConnectSource && (
+                    <div className="absolute -right-2 top-1/2 -translate-y-1/2 h-4 w-4 rounded-full bg-primary animate-pulse" />
+                  )}
                 </div>
               );
             })}
 
             {nodes.length === 0 && (
               <div className="absolute inset-0 flex items-center justify-center">
-                <p className="text-muted-foreground">Agrega nodos desde la paleta superior</p>
+                <div className="text-center space-y-2">
+                  <Workflow className="h-10 w-10 mx-auto text-muted-foreground/30" />
+                  <p className="text-muted-foreground">Agrega nodos desde la paleta superior</p>
+                </div>
               </div>
             )}
           </div>
         </Card>
 
         {/* Properties panel */}
-        <Card className="border shadow-sm h-fit">
+        <Card className="border shadow-sm h-fit sticky top-4">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm">Propiedades</CardTitle>
+            <CardTitle className="text-sm flex items-center gap-2">
+              <Settings2 className="h-4 w-4" />
+              Propiedades
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {selectedNodeData ? (
@@ -554,38 +611,95 @@ function FlowCanvas({ flow, onBack }: { flow: NotificationFlow; onBack: () => vo
                   <Badge variant="outline" className="mt-1">{NODE_TYPES[selectedNodeData.type]?.label}</Badge>
                 </div>
 
-                {selectedNodeData.type === "email" && (
+                {selectedNodeData.type === "trigger" && (
                   <div>
-                    <Label className="text-xs">Plantilla de email</Label>
-                    <Input
-                      value={selectedNodeData.config.template_key || ""}
-                      onChange={(e) => {
+                    <Label className="text-xs">Evento disparador</Label>
+                    <Select
+                      value={selectedNodeData.config.event || ""}
+                      onValueChange={(v) => {
                         setNodes((prev) => prev.map((n) =>
-                          n.id === selectedNode ? { ...n, config: { ...n.config, template_key: e.target.value } } : n
+                          n.id === selectedNode ? { ...n, config: { ...n.config, event: v }, label: TRIGGER_EVENTS.find(e => e.value === v)?.label || v } : n
                         ));
                         setHasChanges(true);
                       }}
-                      placeholder="welcome_user"
-                      className="h-8 text-sm font-mono"
-                    />
+                    >
+                      <SelectTrigger className="h-8 text-sm">
+                        <SelectValue placeholder="Seleccionar evento" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {TRIGGER_EVENTS.map((e) => (
+                          <SelectItem key={e.value} value={e.value}>{e.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 )}
 
+                {selectedNodeData.type === "email" && (
+                  <>
+                    <div>
+                      <Label className="text-xs">Plantilla de email</Label>
+                      <Input
+                        value={selectedNodeData.config.template_key || ""}
+                        onChange={(e) => {
+                          setNodes((prev) => prev.map((n) =>
+                            n.id === selectedNode ? { ...n, config: { ...n.config, template_key: e.target.value } } : n
+                          ));
+                          setHasChanges(true);
+                        }}
+                        placeholder="welcome_user"
+                        className="h-8 text-sm font-mono"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Asunto</Label>
+                      <Input
+                        value={selectedNodeData.config.subject || ""}
+                        onChange={(e) => {
+                          setNodes((prev) => prev.map((n) =>
+                            n.id === selectedNode ? { ...n, config: { ...n.config, subject: e.target.value } } : n
+                          ));
+                          setHasChanges(true);
+                        }}
+                        placeholder="Asunto del correo"
+                        className="h-8 text-sm"
+                      />
+                    </div>
+                  </>
+                )}
+
                 {selectedNodeData.type === "whatsapp" && (
-                  <div>
-                    <Label className="text-xs">Evento WhatsApp</Label>
-                    <Input
-                      value={selectedNodeData.config.event_type || ""}
-                      onChange={(e) => {
-                        setNodes((prev) => prev.map((n) =>
-                          n.id === selectedNode ? { ...n, config: { ...n.config, event_type: e.target.value } } : n
-                        ));
-                        setHasChanges(true);
-                      }}
-                      placeholder="new_demo"
-                      className="h-8 text-sm font-mono"
-                    />
-                  </div>
+                  <>
+                    <div>
+                      <Label className="text-xs">Evento WhatsApp</Label>
+                      <Input
+                        value={selectedNodeData.config.event_type || ""}
+                        onChange={(e) => {
+                          setNodes((prev) => prev.map((n) =>
+                            n.id === selectedNode ? { ...n, config: { ...n.config, event_type: e.target.value } } : n
+                          ));
+                          setHasChanges(true);
+                        }}
+                        placeholder="new_demo"
+                        className="h-8 text-sm font-mono"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Mensaje</Label>
+                      <Textarea
+                        value={selectedNodeData.config.message || ""}
+                        onChange={(e) => {
+                          setNodes((prev) => prev.map((n) =>
+                            n.id === selectedNode ? { ...n, config: { ...n.config, message: e.target.value } } : n
+                          ));
+                          setHasChanges(true);
+                        }}
+                        rows={2}
+                        className="text-xs"
+                        placeholder="Hola {{nombre}}, ..."
+                      />
+                    </div>
+                  </>
                 )}
 
                 {selectedNodeData.type === "delay" && (
@@ -602,6 +716,9 @@ function FlowCanvas({ flow, onBack }: { flow: NotificationFlow; onBack: () => vo
                       }}
                       className="h-8 text-sm"
                     />
+                    <p className="text-[10px] text-muted-foreground mt-1">
+                      = {((selectedNodeData.config.delay_minutes || 0) / 60).toFixed(1)}h / {((selectedNodeData.config.delay_minutes || 0) / 1440).toFixed(1)}d
+                    </p>
                   </div>
                 )}
 
@@ -623,11 +740,28 @@ function FlowCanvas({ flow, onBack }: { flow: NotificationFlow; onBack: () => vo
                   </div>
                 )}
 
+                {selectedNodeData.type === "action" && (
+                  <div>
+                    <Label className="text-xs">Acción personalizada</Label>
+                    <Input
+                      value={selectedNodeData.config.action_name || ""}
+                      onChange={(e) => {
+                        setNodes((prev) => prev.map((n) =>
+                          n.id === selectedNode ? { ...n, config: { ...n.config, action_name: e.target.value } } : n
+                        ));
+                        setHasChanges(true);
+                      }}
+                      placeholder="update_status"
+                      className="h-8 text-sm font-mono"
+                    />
+                  </div>
+                )}
+
                 <div className="pt-2 flex gap-2">
-                  <Button variant="outline" size="sm" className="flex-1 text-xs" onClick={() => setConnecting(selectedNode)}>
-                    <MoveHorizontal className="h-3 w-3 mr-1" />Conectar
+                  <Button variant="outline" size="sm" className="flex-1 text-xs gap-1" onClick={() => startConnectFromNode(selectedNodeData.id)}>
+                    <MoveHorizontal className="h-3 w-3" />Conectar desde aquí
                   </Button>
-                  <Button variant="outline" size="sm" className="text-xs text-destructive" onClick={() => deleteNode(selectedNodeData.id)}>
+                  <Button variant="outline" size="sm" className="text-xs text-destructive hover:bg-destructive/10" onClick={() => deleteNode(selectedNodeData.id)}>
                     <Trash2 className="h-3 w-3" />
                   </Button>
                 </div>
@@ -635,7 +769,8 @@ function FlowCanvas({ flow, onBack }: { flow: NotificationFlow; onBack: () => vo
             ) : (
               <div className="py-6 text-center text-xs text-muted-foreground">
                 <MousePointer className="h-6 w-6 mx-auto mb-2 opacity-30" />
-                Selecciona un nodo para ver sus propiedades
+                <p>Selecciona un nodo para editar</p>
+                <p className="mt-1 text-[10px]">Arrastra nodos para moverlos</p>
               </div>
             )}
 
