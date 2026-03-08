@@ -232,14 +232,33 @@ export default function AuthPage() {
     }
   };
 
+  const getPasswordStrength = (pw: string): { label: string; color: string; percent: number } => {
+    if (!pw) return { label: "", color: "", percent: 0 };
+    let score = 0;
+    if (pw.length >= 6) score++;
+    if (pw.length >= 10) score++;
+    if (/[A-Z]/.test(pw)) score++;
+    if (/[0-9]/.test(pw)) score++;
+    if (/[^A-Za-z0-9]/.test(pw)) score++;
+    if (score <= 1) return { label: "Débil", color: "bg-destructive", percent: 20 };
+    if (score <= 2) return { label: "Regular", color: "bg-orange-500", percent: 40 };
+    if (score <= 3) return { label: "Buena", color: "bg-yellow-500", percent: 60 };
+    if (score <= 4) return { label: "Fuerte", color: "bg-emerald-500", percent: 80 };
+    return { label: "Muy fuerte", color: "bg-emerald-600", percent: 100 };
+  };
+
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) {
+    if (!email || !password || !fullName.trim()) {
       toast({ title: "Completa todos los campos", variant: "destructive" });
       return;
     }
     if (password.length < 6) {
       toast({ title: "La contraseña debe tener al menos 6 caracteres", variant: "destructive" });
+      return;
+    }
+    if (password !== confirmPassword) {
+      toast({ title: "Las contraseñas no coinciden", variant: "destructive" });
       return;
     }
 
@@ -248,7 +267,10 @@ export default function AuthPage() {
       const { error } = await supabase.auth.signUp({
         email,
         password,
-        options: { emailRedirectTo: `${window.location.origin}/auth` },
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth`,
+          data: { full_name: fullName.trim() },
+        },
       });
       if (error) {
         if (error.message.includes("already registered")) {
@@ -256,10 +278,36 @@ export default function AuthPage() {
         } else {
           toast({ title: "Error al registrarse", description: error.message, variant: "destructive" });
         }
-      } else {
-        toast({ title: "¡Registro exitoso! 📧", description: "Te enviamos un correo de verificación. Confírmalo para acceder." });
-        setView("login");
+        return;
       }
+
+      // Send WhatsApp admin notification (fire-and-forget)
+      const rolLabel = registroRole === "cliente" ? "Cliente"
+        : registroRole === "socio" ? "Socio distribuidor"
+        : registroRole === "admin" ? "Administrador"
+        : "Público (sin rol)";
+
+      supabase.functions.invoke("send-whatsapp", {
+        body: {
+          event_type: "new_user_signup",
+          variables: {
+            full_name: fullName.trim(),
+            email,
+            requested_role: rolLabel,
+            date: new Date().toLocaleString("es-CO", { timeZone: "America/Bogota" }),
+          },
+        },
+      }).catch(() => {}); // silent
+
+      // Store email for success view, then clear form
+      setSignupEmail(email);
+      setEmail("");
+      setPassword("");
+      setConfirmPassword("");
+      setFullName("");
+      setShowPassword(false);
+      setShowConfirmPassword(false);
+      setView("signup_success");
     } finally {
       setLoading(false);
     }
