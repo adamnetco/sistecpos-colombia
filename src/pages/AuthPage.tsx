@@ -503,6 +503,12 @@ export default function AuthPage() {
                   <CardDescription>Tienes acceso a múltiples paneles</CardDescription>
                 </>
               )}
+              {view === "signup_success" && (
+                <>
+                  <CardTitle className="text-2xl font-display">¡Registro Exitoso! 🎉</CardTitle>
+                  <CardDescription>Solo falta un paso para activar tu cuenta</CardDescription>
+                </>
+              )}
             </motion.div>
           </CardHeader>
 
