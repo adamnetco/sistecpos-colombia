@@ -18,12 +18,12 @@ interface Props {
 export function LicenseCreateDialog({ open, onOpenChange, onCreated }: Props) {
   const { toast } = useToast();
   const [selectedPlan, setSelectedPlan] = useState(LICENSE_PLANS[0].value);
-  const [price, setPrice] = useState(LICENSE_PLANS[0].defaultPriceCOP);
+  const [price, setPrice] = useState(String(LICENSE_PLANS[0].defaultPriceCOP));
 
   const handlePlanChange = (value: string) => {
     setSelectedPlan(value);
     const plan = LICENSE_PLANS.find((p) => p.value === value);
-    if (plan) setPrice(plan.defaultPriceCOP);
+    if (plan) setPrice(String(plan.defaultPriceCOP));
   };
 
   const handleAdd = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -36,7 +36,11 @@ export function LicenseCreateDialog({ open, onOpenChange, onCreated }: Props) {
     const contactName = fd.get("contact_name") as string;
     const contactEmail = (fd.get("contact_email") as string) || null;
     const contactPhone = (fd.get("contact_phone") as string) || null;
-    const pricePaid = Number(fd.get("price_paid"));
+    const pricePaid = Number(fd.get("price_paid") || 0);
+    if (!Number.isFinite(pricePaid) || pricePaid <= 0) {
+      toast({ title: "Ingresa un precio válido", variant: "destructive" });
+      return;
+    }
     const notes = (fd.get("notes") as string) || null;
 
     const { error } = await supabase.from("licenses").insert({
@@ -121,9 +125,11 @@ export function LicenseCreateDialog({ open, onOpenChange, onCreated }: Props) {
               <Input
                 name="price_paid"
                 type="number"
+                min={0}
+                inputMode="numeric"
                 required
                 value={price}
-                onChange={(e) => setPrice(Number(e.target.value))}
+                onChange={(e) => setPrice(e.target.value)}
               />
               <p className="mt-1 text-xs text-muted-foreground">
                 Sugerido: ${LICENSE_PLANS.find((p) => p.value === selectedPlan)?.defaultPriceCOP.toLocaleString("es-CO")} COP
