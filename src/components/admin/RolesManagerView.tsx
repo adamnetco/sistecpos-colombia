@@ -246,7 +246,32 @@ export default function RolesManagerView() {
     }
   };
 
-  /* ── Filtering ── */
+  /* ── Edit user ── */
+  const handleEditUser = async () => {
+    if (!editUser) return;
+    setSaving(true);
+    const { error } = await supabase.from("profiles").update({
+      full_name: editUser.full_name || null,
+      phone: editUser.phone || null,
+      email: editUser.email || null,
+    }).eq("user_id", editUser.user_id);
+    if (error) {
+      toast({ title: "Error al actualizar", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Usuario actualizado" });
+      setEditOpen(false);
+      setEditUser(null);
+      load();
+    }
+    setSaving(false);
+  };
+
+  const openEdit = (u: UserWithRoles) => {
+    setEditUser({ user_id: u.user_id, full_name: u.full_name || "", phone: u.phone || "", email: u.email });
+    setEditOpen(true);
+  };
+
+
   const filtered = useMemo(() => {
     return users.filter((u) => {
       const q = search.toLowerCase();
