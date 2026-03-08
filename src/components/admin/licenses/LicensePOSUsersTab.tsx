@@ -332,9 +332,18 @@ export function LicensePOSUsersTab({ licenseId, businessName }: Props) {
                     </Badge>
                     {!u.is_active && <Badge variant="secondary" className="text-[10px]">Inactivo</Badge>}
                     {u.user_id ? (
-                      <Badge variant="outline" className="text-[10px] gap-1 border-green-300 text-green-700 dark:border-green-700 dark:text-green-400">
-                        <Link2 className="h-2.5 w-2.5" /> Vinculado
-                      </Badge>
+                      <div className="flex items-center gap-1">
+                        <Badge variant="outline" className="text-[10px] gap-1 border-green-300 text-green-700 dark:border-green-700 dark:text-green-400">
+                          <Link2 className="h-2.5 w-2.5" /> Vinculado
+                        </Badge>
+                        <button
+                          onClick={() => unlinkUser(u.id)}
+                          className="text-[10px] text-muted-foreground hover:text-foreground"
+                          title="Desvincular usuario"
+                        >
+                          <Unlink className="h-3 w-3" />
+                        </button>
+                      </div>
                     ) : (
                       <button
                         onClick={() => setLinkingUserId(linkingUserId === u.id ? null : u.id)}
