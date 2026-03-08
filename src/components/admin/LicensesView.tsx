@@ -214,6 +214,7 @@ export default function LicensesView() {
           <thead>
             <tr className="border-b bg-muted/50">
               <th className="px-4 py-3 text-left font-medium">Negocio</th>
+              <th className="px-4 py-3 text-left font-medium hidden md:table-cell">Ubicación</th>
               <th className="px-4 py-3 text-left font-medium">Plan</th>
               <th className="px-4 py-3 text-left font-medium">Estado</th>
               <th className="px-4 py-3 text-left font-medium">Vence</th>
@@ -223,10 +224,10 @@ export default function LicensesView() {
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={6} className="py-8 text-center text-muted-foreground">Cargando...</td></tr>
-            ) : filtered.length === 0 ? (
-              <tr><td colSpan={6} className="py-8 text-center text-muted-foreground">No hay licencias</td></tr>
-            ) : (
+               <tr><td colSpan={7} className="py-8 text-center text-muted-foreground">Cargando...</td></tr>
+             ) : filtered.length === 0 ? (
+               <tr><td colSpan={7} className="py-8 text-center text-muted-foreground">No hay licencias</td></tr>
+             ) : (
               filtered.map((l) => (
                 <tr
                   key={l.id}
