@@ -59,3 +59,9 @@ verify_jwt = false
 
 [functions.sync-google-calendar]
 verify_jwt = false
+
+[functions.send-whatsapp]
+verify_jwt = false
+
+[functions.create-user-admin]
+verify_jwt = false
