@@ -105,7 +105,7 @@ export default function AuthPage() {
   const { isAdmin } = useAuth();
 
   useEffect(() => {
-    if (user && !pending2FA && view !== "reset" && view !== "otp" && view !== "role_picker") {
+    if (user && !pending2FA && view !== "reset" && view !== "otp" && view !== "role_picker" && view !== "signup_success") {
       const checkRedirect = async () => {
         const userEmail = user.email?.toLowerCase();
 
