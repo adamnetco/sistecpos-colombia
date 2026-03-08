@@ -143,9 +143,7 @@ const App = () => (
                 <Route path="/socio/*" element={<ResellerPage />} />
                 {/* Redirect /analytics -> /admin/analytics */}
                 <Route path="/analytics" element={<Navigate to="/admin/analytics" replace />} />
-                {/* Redirects para URLs antiguas indexadas */}
-                <Route path="/hello-world" element={<Navigate to="/software-pos-colombia" replace />} />
-                <Route path="/c/uncategorized" element={<Navigate to="/productos" replace />} />
+                {/* Legacy redirects now managed via DB redirects table */}
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
