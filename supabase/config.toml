@@ -1,67 +1,49 @@
 project_id = "yqvznnqcxvogxhramyua"
 
-[functions.notify-certificate-order]
-verify_jwt = false
-
-[functions.notify-new-lead]
-verify_jwt = false
-
-[functions.send-otp]
-verify_jwt = false
-
-[functions.chat-ai]
-verify_jwt = false
-
-[functions.validate-license]
-verify_jwt = false
-
-[functions.register-quote]
-verify_jwt = false
-
-[functions.cleanup-expired-docs]
-verify_jwt = false
-
-[functions.wompi-checkout]
-verify_jwt = false
-
-[functions.wompi-webhook]
-verify_jwt = false
-
-[functions.connect-pos]
-verify_jwt = false
-
-[functions.notify-reseller-license]
-verify_jwt = false
-
-[functions.validate-pos-login]
-verify_jwt = false
-
-[functions.send-reseller-email]
-verify_jwt = false
-
-[functions.sync-facilpos-prices]
-verify_jwt = false
-
-[functions.notify-ticket-status]
-verify_jwt = false
-
-[functions.scrape-site]
-verify_jwt = false
-
-[functions.google-oauth-start]
-verify_jwt = false
-
-[functions.google-oauth-callback]
-verify_jwt = false
-
-[functions.sync-google-contacts]
-verify_jwt = false
-
-[functions.sync-google-calendar]
-verify_jwt = false
-
-[functions.send-whatsapp]
-verify_jwt = false
-
-[functions.create-user-admin]
-verify_jwt = false
+[functions]
+  [functions.auth-email-hook]
+    verify_jwt = false
+  [functions.chat-ai]
+    verify_jwt = false
+  [functions.cleanup-expired-docs]
+    verify_jwt = false
+  [functions.connect-pos]
+    verify_jwt = false
+  [functions.create-user-admin]
+    verify_jwt = false
+  [functions.google-oauth-callback]
+    verify_jwt = false
+  [functions.google-oauth-start]
+    verify_jwt = false
+  [functions.notify-certificate-order]
+    verify_jwt = false
+  [functions.notify-new-lead]
+    verify_jwt = false
+  [functions.notify-reseller-license]
+    verify_jwt = false
+  [functions.notify-ticket-status]
+    verify_jwt = false
+  [functions.register-quote]
+    verify_jwt = false
+  [functions.scrape-site]
+    verify_jwt = false
+  [functions.send-otp]
+    verify_jwt = false
+  [functions.send-reseller-email]
+    verify_jwt = false
+  [functions.send-whatsapp]
+    verify_jwt = false
+  [functions.sync-facilpos-prices]
+    verify_jwt = false
+  [functions.sync-google-calendar]
+    verify_jwt = false
+  [functions.sync-google-contacts]
+    verify_jwt = false
+  [functions.validate-license]
+    verify_jwt = false
+  [functions.validate-pos-login]
+    verify_jwt = false
+  [functions.wompi-checkout]
+    verify_jwt = false
+  [functions.wompi-webhook]
+    verify_jwt = false
