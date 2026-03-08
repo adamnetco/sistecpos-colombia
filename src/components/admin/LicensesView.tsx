@@ -30,6 +30,12 @@ interface License {
   payment_proof_url: string | null;
   activation_requested_at: string | null;
   provider_notes: string | null;
+  pos_location: string | null;
+  pos_plan_type: string | null;
+  pos_license_hash: string | null;
+  pos_invoice_count: number | null;
+  pos_expires_at: string | null;
+  pos_created_at: string | null;
 }
 
 export default function LicensesView() {
@@ -98,7 +104,9 @@ export default function LicensesView() {
       l.business_name.toLowerCase().includes(search.toLowerCase()) ||
       l.contact_name.toLowerCase().includes(search.toLowerCase()) ||
       l.license_key.toLowerCase().includes(search.toLowerCase()) ||
-      (l.business_nit || "").toLowerCase().includes(search.toLowerCase());
+      (l.business_nit || "").toLowerCase().includes(search.toLowerCase()) ||
+      (l.pos_location || "").toLowerCase().includes(search.toLowerCase()) ||
+      (l.pos_license_hash || "").toLowerCase().includes(search.toLowerCase());
 
     if (filter === "pending_approval") return matchSearch && l.status === "pending_approval";
     if (filter === "active") return matchSearch && !isExpired(l) && l.status === "active";
@@ -208,6 +216,7 @@ export default function LicensesView() {
           <thead>
             <tr className="border-b bg-muted/50">
               <th className="px-4 py-3 text-left font-medium">Negocio</th>
+              <th className="px-4 py-3 text-left font-medium hidden md:table-cell">Ubicación</th>
               <th className="px-4 py-3 text-left font-medium">Plan</th>
               <th className="px-4 py-3 text-left font-medium">Estado</th>
               <th className="px-4 py-3 text-left font-medium">Vence</th>
@@ -217,10 +226,10 @@ export default function LicensesView() {
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={6} className="py-8 text-center text-muted-foreground">Cargando...</td></tr>
-            ) : filtered.length === 0 ? (
-              <tr><td colSpan={6} className="py-8 text-center text-muted-foreground">No hay licencias</td></tr>
-            ) : (
+               <tr><td colSpan={7} className="py-8 text-center text-muted-foreground">Cargando...</td></tr>
+             ) : filtered.length === 0 ? (
+               <tr><td colSpan={7} className="py-8 text-center text-muted-foreground">No hay licencias</td></tr>
+             ) : (
               filtered.map((l) => (
                 <tr
                   key={l.id}
@@ -232,6 +241,16 @@ export default function LicensesView() {
                     <div className="text-xs text-muted-foreground">{l.contact_name}</div>
                     {l.created_by_reseller_id && (
                       <span className="text-[10px] text-amber-600 dark:text-amber-400 font-medium">Creada por socio</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 hidden md:table-cell">
+                    {l.pos_location ? (
+                      <span className="text-xs">{l.pos_location}</span>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">—</span>
+                    )}
+                    {l.pos_plan_type && (
+                      <div className="text-[10px] text-muted-foreground">{l.pos_plan_type}</div>
                     )}
                   </td>
                   <td className="px-4 py-3">{planLabel(l.plan_type)}</td>
@@ -283,7 +302,7 @@ export default function LicensesView() {
         onClose={() => setRenewTarget(null)}
         onRenewed={load}
       />
-      <LicenseDetailsDialog license={detailTarget} onClose={() => setDetailTarget(null)} />
+      <LicenseDetailsDialog license={detailTarget} onClose={() => setDetailTarget(null)} onUpdated={load} />
     </div>
   );
 }

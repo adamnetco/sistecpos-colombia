@@ -1677,6 +1677,12 @@ export type Database = {
           notes: string | null
           payment_proof_url: string | null
           plan_type: string
+          pos_created_at: string | null
+          pos_expires_at: string | null
+          pos_invoice_count: number | null
+          pos_license_hash: string | null
+          pos_location: string | null
+          pos_plan_type: string | null
           price_paid: number
           provider_notes: string | null
           rut_url: string | null
@@ -1701,6 +1707,12 @@ export type Database = {
           notes?: string | null
           payment_proof_url?: string | null
           plan_type: string
+          pos_created_at?: string | null
+          pos_expires_at?: string | null
+          pos_invoice_count?: number | null
+          pos_license_hash?: string | null
+          pos_location?: string | null
+          pos_plan_type?: string | null
           price_paid?: number
           provider_notes?: string | null
           rut_url?: string | null
@@ -1725,6 +1737,12 @@ export type Database = {
           notes?: string | null
           payment_proof_url?: string | null
           plan_type?: string
+          pos_created_at?: string | null
+          pos_expires_at?: string | null
+          pos_invoice_count?: number | null
+          pos_license_hash?: string | null
+          pos_location?: string | null
+          pos_plan_type?: string | null
           price_paid?: number
           provider_notes?: string | null
           rut_url?: string | null
