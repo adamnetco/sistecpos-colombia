@@ -311,9 +311,11 @@ export function LicenseDetailsDialog({ license, onClose, onUpdated }: Props) {
           {/* Provider data tab — editable */}
           <TabsContent value="provider">
             <div className="space-y-4 py-2">
-              <p className="text-xs text-muted-foreground">
-                Datos reportados por la casa de software (vía WhatsApp u otro canal). Puedes editarlos aquí.
-              </p>
+              {/* WhatsApp parser */}
+              <WhatsAppParserSection onParsed={(parsed) => {
+                setProviderData(prev => ({ ...prev, ...parsed }));
+                setProviderDirty(true);
+              }} />
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
