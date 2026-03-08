@@ -47,7 +47,7 @@ export function LeadConversionDialog({ lead, onClose, onConverted }: Props) {
   const [saving, setSaving] = useState(false);
   const [step, setStep] = useState<"payment" | "confirm">("payment");
   const [selectedPlan, setSelectedPlan] = useState(LICENSE_PLANS[0].value);
-  const [price, setPrice] = useState(LICENSE_PLANS[0].defaultPriceCOP);
+  const [price, setPrice] = useState(String(LICENSE_PLANS[0].defaultPriceCOP));
   const [nit, setNit] = useState("");
   const [notes, setNotes] = useState("");
   const [providerNotes, setProviderNotes] = useState("");
@@ -58,6 +58,8 @@ export function LeadConversionDialog({ lead, onClose, onConverted }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [selectedSupplierId, setSelectedSupplierId] = useState<string>("");
+
+  const priceValue = Number(price || "0");
 
   useEffect(() => {
     if (!lead) return;
@@ -75,7 +77,7 @@ export function LeadConversionDialog({ lead, onClose, onConverted }: Props) {
   const handlePlanChange = (value: string) => {
     setSelectedPlan(value);
     const plan = LICENSE_PLANS.find((p) => p.value === value);
-    if (plan) setPrice(plan.defaultPriceCOP);
+    if (plan) setPrice(String(plan.defaultPriceCOP));
   };
 
   const formatCOP = (v: number) =>
