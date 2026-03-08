@@ -104,7 +104,9 @@ export default function LicensesView() {
       l.business_name.toLowerCase().includes(search.toLowerCase()) ||
       l.contact_name.toLowerCase().includes(search.toLowerCase()) ||
       l.license_key.toLowerCase().includes(search.toLowerCase()) ||
-      (l.business_nit || "").toLowerCase().includes(search.toLowerCase());
+      (l.business_nit || "").toLowerCase().includes(search.toLowerCase()) ||
+      (l.pos_location || "").toLowerCase().includes(search.toLowerCase()) ||
+      (l.pos_license_hash || "").toLowerCase().includes(search.toLowerCase());
 
     if (filter === "pending_approval") return matchSearch && l.status === "pending_approval";
     if (filter === "active") return matchSearch && !isExpired(l) && l.status === "active";
