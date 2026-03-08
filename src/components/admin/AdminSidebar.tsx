@@ -6,7 +6,7 @@ import {
   Handshake, LogOut, ChevronLeft, Contact2, Bot, Code2,
   Package, Menu, ShoppingBag, Tag, FolderOpen, BarChart3, Settings2,
   FileText, ChevronDown, Download, TicketCheck, GraduationCap, ShieldCheck, UserCog, Activity, MessageCircle, FileSignature, Hash, BookOpen, LayoutGrid,
-  ArrowUpDown,
+  ArrowUpDown, Globe, Mail, Workflow,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -81,9 +81,12 @@ const navGroups: NavGroup[] = [
     items: [
       { name: "Actividad", href: "/admin/actividad", icon: Activity },
       { name: "Usuarios y Roles", href: "/admin/roles", icon: ShieldCheck },
+      { name: "Páginas", href: "/admin/paginas", icon: Globe },
+      { name: "CMS Contenido", href: "/admin/contenido", icon: LayoutGrid },
+      { name: "Plantillas Email", href: "/admin/plantillas-email", icon: Mail },
+      { name: "Editor Flujos", href: "/admin/editor-flujos", icon: Workflow },
       { name: "Notif. WhatsApp", href: "/admin/notificaciones-wa", icon: MessageCircle },
       { name: "Redirecciones", href: "/admin/redirecciones", icon: ArrowUpDown },
-      { name: "CMS Contenido", href: "/admin/contenido", icon: LayoutGrid },
       { name: "Configuración", href: "/admin/configuracion", icon: Settings2 },
       { name: "Documentación", href: "/admin/documentacion", icon: BookOpen },
     ],

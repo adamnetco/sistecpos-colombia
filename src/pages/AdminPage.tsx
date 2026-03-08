@@ -40,6 +40,9 @@ const SalesPagesView = lazy(() => import("@/components/admin/SalesPagesView"));
 const AdminDocsView = lazy(() => import("@/components/admin/AdminDocsView"));
 const PageContentView = lazy(() => import("@/components/admin/PageContentView"));
 const RedirectsManagerView = lazy(() => import("@/components/admin/RedirectsManagerView"));
+const PagesOverviewView = lazy(() => import("@/components/admin/PagesOverviewView"));
+const EmailTemplatesView = lazy(() => import("@/components/admin/EmailTemplatesView"));
+const FlowEditorView = lazy(() => import("@/components/admin/FlowEditorView"));
 
 function Loader() {
   return (
@@ -90,6 +93,9 @@ export default function AdminPage() {
             <Route path="configuracion" element={<SettingsView />} />
             <Route path="contenido" element={<PageContentView />} />
             <Route path="redirecciones" element={<RedirectsManagerView />} />
+            <Route path="paginas" element={<PagesOverviewView />} />
+            <Route path="plantillas-email" element={<EmailTemplatesView />} />
+            <Route path="editor-flujos" element={<FlowEditorView />} />
             <Route path="documentacion" element={<AdminDocsView />} />
           </Routes>
         </Suspense>
