@@ -177,12 +177,19 @@ export function LicensePOSUsersTab({ licenseId, businessName }: Props) {
   };
 
   const linkUserToPos = async (posUserId: string, profile: ProfileResult) => {
-    await supabase.rpc("update_pos_user", {
+    const { error } = await supabase.rpc("update_pos_user", {
       _id: posUserId,
       _user_id: profile.user_id,
       _user_email: profile.email,
       _display_name: profile.full_name,
+      _clear_user_link: false,
     });
+
+    if (error) {
+      toast({ title: "Error al vincular", description: error.message, variant: "destructive" });
+      return;
+    }
+
     toast({ title: "Usuario vinculado" });
     setLinkingUserId(null);
     setLinkSearch("");
@@ -191,13 +198,18 @@ export function LicensePOSUsersTab({ licenseId, businessName }: Props) {
   };
 
   const unlinkUser = async (posUserId: string) => {
-    // Can't set null via COALESCE — use direct update
-    // The RPC uses COALESCE so we need a workaround: update via direct query won't work with RLS
-    // Instead we pass a special value — but our RPC uses COALESCE which skips NULLs
-    // We need to handle this differently. Let's use a direct supabase call since it's admin-only via RPC
-    // Actually the update_pos_user uses COALESCE so null = keep old value. 
-    // We'll need to accept this limitation and just note it.
-    toast({ title: "Para desvincular, contacta soporte técnico", description: "La desvinculación directa estará disponible próximamente." });
+    const { error } = await supabase.rpc("update_pos_user", {
+      _id: posUserId,
+      _clear_user_link: true,
+    });
+
+    if (error) {
+      toast({ title: "Error al desvincular", description: error.message, variant: "destructive" });
+      return;
+    }
+
+    toast({ title: "Usuario desvinculado" });
+    load();
   };
 
   return (
@@ -320,9 +332,18 @@ export function LicensePOSUsersTab({ licenseId, businessName }: Props) {
                     </Badge>
                     {!u.is_active && <Badge variant="secondary" className="text-[10px]">Inactivo</Badge>}
                     {u.user_id ? (
-                      <Badge variant="outline" className="text-[10px] gap-1 border-green-300 text-green-700 dark:border-green-700 dark:text-green-400">
-                        <Link2 className="h-2.5 w-2.5" /> Vinculado
-                      </Badge>
+                      <div className="flex items-center gap-1">
+                        <Badge variant="outline" className="text-[10px] gap-1 border-green-300 text-green-700 dark:border-green-700 dark:text-green-400">
+                          <Link2 className="h-2.5 w-2.5" /> Vinculado
+                        </Badge>
+                        <button
+                          onClick={() => unlinkUser(u.id)}
+                          className="text-[10px] text-muted-foreground hover:text-foreground"
+                          title="Desvincular usuario"
+                        >
+                          <Unlink className="h-3 w-3" />
+                        </button>
+                      </div>
                     ) : (
                       <button
                         onClick={() => setLinkingUserId(linkingUserId === u.id ? null : u.id)}
