@@ -44,6 +44,7 @@ export function LicensePOSUsersTab({ licenseId, businessName }: Props) {
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
   const [visiblePasswords, setVisiblePasswords] = useState<Set<string>>(new Set());
+  const [showFormPassword, setShowFormPassword] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
 
