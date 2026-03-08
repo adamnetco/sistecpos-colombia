@@ -1,17 +1,70 @@
-import { useEffect } from "react";
+import { useEffect, Suspense, lazy, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useActivityTracker } from "@/hooks/useActivityTracker";
 import { Layout } from "@/components/layout/Layout";
 import { RoleSwitcherBar } from "@/components/shared/RoleSwitcherBar";
 import { ClientPOSLogin } from "@/components/clientes/ClientPOSLogin";
 import { ClientPortal } from "@/components/clientes/ClientPortal";
+import { ClientPOSAccess } from "@/components/clientes/ClientPOSAccess";
 import { SEO } from "@/components/seo/SEO";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
-import { ShieldX, LogIn, Home, MessageCircle, UserPlus } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
+import { ShieldX, LogIn, Home, MessageCircle, UserPlus, Monitor, GraduationCap, LogOut } from "lucide-react";
 import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+const ClientTrainingsTab = lazy(() => import("@/components/clientes/ClientTrainingsTab"));
+
+function PublicPortalLoader() {
+  return <div className="flex h-32 items-center justify-center"><div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>;
+}
+
+/**
+ * Limited portal for authenticated users without assigned roles ("Público").
+ * Grants access only to Mi POS and Entrenamientos.
+ */
+function PublicPortal() {
+  const { user, signOut } = useAuth();
+  const location = useLocation();
+  const initialTab = location.hash.startsWith("#video-") ? "trainings" : "pos";
+  const [activeTab, setActiveTab] = useState(initialTab);
+
+  return (
+    <section className="py-10 md:py-16">
+      <div className="container px-4">
+        <div className="mx-auto max-w-5xl">
+          <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h1 className="text-2xl font-bold md:text-3xl">Portal de Acceso</h1>
+              <p className="text-sm text-muted-foreground">
+                Bienvenido, {user?.user_metadata?.full_name || user?.email}
+              </p>
+              <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
+                Tu cuenta está pendiente de aprobación. Mientras tanto puedes acceder a Mi POS y Entrenamientos.
+              </p>
+            </div>
+            <Button variant="ghost" size="sm" onClick={signOut} className="gap-2 self-start">
+              <LogOut className="h-4 w-4" />
+              Cerrar Sesión
+            </Button>
+          </div>
+
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+            <TabsList className="h-auto gap-1">
+              <TabsTrigger value="pos" className="gap-2"><Monitor className="h-4 w-4" />Mi POS</TabsTrigger>
+              <TabsTrigger value="trainings" className="gap-2"><GraduationCap className="h-4 w-4" />Entrenamientos</TabsTrigger>
+            </TabsList>
+            <TabsContent value="pos"><ClientPOSAccess /></TabsContent>
+            <TabsContent value="trainings"><Suspense fallback={<PublicPortalLoader />}><ClientTrainingsTab /></Suspense></TabsContent>
+          </Tabs>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 
 function ClientLoadingSkeleton() {
   return (
@@ -117,14 +170,18 @@ function ClientRestricted() {
 }
 
 export default function ClientesPage() {
-  const { user, loading, isAdmin, isCustomer, isReseller } = useAuth();
+  const { user, loading, isAdmin, isCustomer, isReseller, roles } = useAuth();
   const { trackActivity } = useActivityTracker();
 
+  // "Public" users = authenticated but no roles assigned
+  const isPublicUser = !!user && roles.length === 0;
+  const hasAccess = isAdmin || isCustomer || isReseller || isPublicUser;
+
   useEffect(() => {
-    if (user && (isAdmin || isCustomer || isReseller)) {
+    if (user && hasAccess) {
       trackActivity("portal_access", "/clientes");
     }
-  }, [user, isAdmin, isCustomer, isReseller, trackActivity]);
+  }, [user, hasAccess, trackActivity]);
 
   if (loading) return <ClientLoadingSkeleton />;
 
@@ -151,7 +208,7 @@ export default function ClientesPage() {
     );
   }
 
-  if (isAdmin || isCustomer || isReseller) {
+  if (hasAccess) {
     return (
       <Layout>
         <SEO
@@ -161,7 +218,7 @@ export default function ClientesPage() {
         <div className="container px-4 pt-4">
           <RoleSwitcherBar />
         </div>
-        <ClientPortal />
+        {isPublicUser ? <PublicPortal /> : <ClientPortal />}
       </Layout>
     );
   }

@@ -284,14 +284,22 @@ const docs: DocSection[] = [
     tips: ["La actividad se registra automáticamente para usuarios autenticados."],
   },
   {
-    icon: ShieldCheck, title: "Roles", path: "/admin/roles", category: "Sistema",
-    description: "Gestiona los roles de usuario: admin, reseller, customer. Define quién puede acceder a cada sección.",
+    icon: ShieldCheck, title: "Usuarios y Roles", path: "/admin/roles", category: "Sistema",
+    description: "Centro integral de gestión: crea usuarios, asigna roles (Admin, Socio, Cliente, Público), administra empresas y asocia usuarios a negocios. Incluye UUIDs legibles con copia rápida.",
     howTo: [
-      "Busca un usuario por email.",
-      "Asigna o elimina roles.",
-      "Los roles determinan qué secciones y portales puede ver cada usuario.",
+      "Pestaña Usuarios: busca usuarios por nombre, email o ID. Filtra por rol. Usa 'Crear Usuario' para registrar cuentas manualmente.",
+      "Para asignar un rol: en la columna 'Acciones' selecciona el rol deseado. Para quitarlo haz clic en la X del badge.",
+      "Pestaña Empresas: crea empresas con razón social, NIT y propietario. Visualiza miembros asociados.",
+      "Usa el botón 'Asociar' para vincular un usuario existente a una empresa.",
+      "Pestaña Enlaces: copia URLs de registro por rol para compartir con prospectos.",
+      "Los usuarios sin rol asignado son 'Públicos' — tienen acceso limitado a Mi POS y Entrenamientos hasta que se les apruebe.",
     ],
-    tips: ["Un usuario puede tener múltiples roles simultáneamente (ej: admin + reseller)."],
+    tips: [
+      "Los UUIDs se muestran abreviados (8 caracteres). Haz clic para copiar el UUID completo.",
+      "Un usuario puede tener múltiples roles simultáneamente (ej: admin + reseller).",
+      "El usuario maestro (eduardotp77@gmail.com) tiene roles protegidos que no se pueden modificar.",
+      "Los usuarios 'Públicos' pueden acceder a entrenamientos marcados como público o cliente.",
+    ],
   },
   {
     icon: MessageCircle, title: "Notif. WhatsApp", path: "/admin/notificaciones-wa", category: "Sistema",
