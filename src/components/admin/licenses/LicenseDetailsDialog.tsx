@@ -4,12 +4,67 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Copy, Check, ExternalLink, Clock, CheckCircle2, AlertTriangle, MapPin, Hash, FileText, Calendar, Save, Loader2 } from "lucide-react";
+import { Copy, Check, ExternalLink, Clock, CheckCircle2, AlertTriangle, MapPin, Hash, FileText, Calendar, Save, Loader2, MessageSquare } from "lucide-react";
 import { planLabel } from "@/data/licensePlans";
 import { LicensePOSUsersTab } from "./LicensePOSUsersTab";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+
+/**
+ * Parse a WhatsApp message from the software provider to extract license data.
+ * Expected format (flexible):
+ *   Ubicación: PROVENZA  Tipo: Basic
+ *   c358a12338902bec32c079148da0164a
+ *   + 0 facturas  2027-03-22 23:53:39
+ *   380 días
+ *   Fecha de creacion
+ */
+function parseWhatsAppMessage(raw: string): Partial<{
+  pos_location: string;
+  pos_plan_type: string;
+  pos_license_hash: string;
+  pos_invoice_count: string;
+  pos_expires_at: string;
+  pos_created_at: string;
+}> {
+  const result: Record<string, string> = {};
+
+  // Ubicación
+  const locMatch = raw.match(/ubicaci[oó]n[:\s]+([^\n\t]+?)(?:\s{2,}|Tipo|$)/i);
+  if (locMatch) result.pos_location = locMatch[1].trim();
+
+  // Tipo
+  const typeMatch = raw.match(/tipo[:\s]+([^\n]+)/i);
+  if (typeMatch) result.pos_plan_type = typeMatch[1].trim();
+
+  // Hash (32-char hex)
+  const hashMatch = raw.match(/\b([a-f0-9]{32})\b/i);
+  if (hashMatch) result.pos_license_hash = hashMatch[1];
+
+  // Invoice count  "0 facturas" or "+ 0 facturas"
+  const invMatch = raw.match(/\+?\s*(\d+)\s*facturas/i);
+  if (invMatch) result.pos_invoice_count = invMatch[1];
+
+  // Date patterns  YYYY-MM-DD HH:MM:SS
+  const dates = [...raw.matchAll(/(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})/g)].map(m => m[1]);
+  if (dates.length >= 1) result.pos_expires_at = dates[0].replace(" ", "T").slice(0, 16);
+  if (dates.length >= 2) result.pos_created_at = dates[1].replace(" ", "T").slice(0, 16);
+
+  // If "Fecha de creacion" appears near a date, swap if needed
+  const creacionIdx = raw.toLowerCase().indexOf("creaci");
+  if (creacionIdx > -1 && dates.length === 1) {
+    // single date near "creacion" is the creation date
+    const dateIdx = raw.indexOf(dates[0]);
+    if (Math.abs(creacionIdx - dateIdx) < 60) {
+      result.pos_created_at = result.pos_expires_at;
+      delete result.pos_expires_at;
+    }
+  }
+
+  return result;
+}
 
 interface License {
   id: string;
