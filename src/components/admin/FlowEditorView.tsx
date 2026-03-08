@@ -339,8 +339,8 @@ function FlowCanvasWrapper({ flowId, onBack }: { flowId: string; onBack: () => v
       if (error) throw error;
       return {
         ...data,
-        nodes: (data.nodes || []) as FlowNode[],
-        edges: (data.edges || []) as FlowEdge[],
+        nodes: (data.nodes || []) as unknown as FlowNode[],
+        edges: (data.edges || []) as unknown as FlowEdge[],
       } as NotificationFlow;
     },
     staleTime: 0, // Always fetch fresh
