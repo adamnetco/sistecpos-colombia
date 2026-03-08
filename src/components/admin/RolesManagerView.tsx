@@ -114,6 +114,11 @@ export default function RolesManagerView() {
   const [newUser, setNewUser] = useState({ email: "", full_name: "", password: "", phone: "" });
   const [creating, setCreating] = useState(false);
 
+  /* ── Edit User Dialog State ── */
+  const [editOpen, setEditOpen] = useState(false);
+  const [editUser, setEditUser] = useState<{ user_id: string; full_name: string; phone: string; email: string } | null>(null);
+  const [saving, setSaving] = useState(false);
+
   /* ── Create Business Dialog State ── */
   const [bizOpen, setBizOpen] = useState(false);
   const [newBiz, setNewBiz] = useState({ business_name: "", nit: "", phone: "", email: "", city: "", address: "", owner_user_id: "" });
