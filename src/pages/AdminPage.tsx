@@ -11,6 +11,7 @@ const CertificatesView = lazy(() => import("@/components/admin/CertificatesView"
 const PaymentsView = lazy(() => import("@/components/admin/PaymentsView"));
 const ResellersView = lazy(() => import("@/components/admin/ResellersView"));
 const ContactsView = lazy(() => import("@/components/admin/ContactsView"));
+const ContactPipelineView = lazy(() => import("@/components/admin/ContactPipelineView"));
 const CentralIAView = lazy(() => import("@/components/admin/CentralIAView"));
 const TrackingView = lazy(() => import("@/components/admin/TrackingView"));
 const DianArticlesView = lazy(() => import("@/components/admin/DianArticlesView"));
@@ -72,6 +73,7 @@ export default function AdminPage() {
             <Route path="pagos" element={<PaymentsView />} />
             <Route path="socios" element={<ResellersView />} />
             <Route path="contactos" element={<ContactsView />} />
+            <Route path="pipeline" element={<ContactPipelineView />} />
             <Route path="central-ia" element={<CentralIAView />} />
             <Route path="tracking" element={<TrackingView />} />
             <Route path="articulos-dian" element={<DianArticlesView />} />
