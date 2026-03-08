@@ -300,7 +300,7 @@ export default function LicensesView() {
         onClose={() => setRenewTarget(null)}
         onRenewed={load}
       />
-      <LicenseDetailsDialog license={detailTarget} onClose={() => setDetailTarget(null)} />
+      <LicenseDetailsDialog license={detailTarget} onClose={() => setDetailTarget(null)} onUpdated={load} />
     </div>
   );
 }
