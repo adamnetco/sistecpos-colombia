@@ -745,6 +745,61 @@ export default function RolesManagerView() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* ═══ EDIT BUSINESS DIALOG ═══ */}
+      <Dialog open={editBizOpen} onOpenChange={(open) => { setEditBizOpen(open); if (!open) setEditBiz(null); }}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Editar Empresa</DialogTitle>
+            <DialogDescription>Modifica los datos de la empresa.</DialogDescription>
+          </DialogHeader>
+          {editBiz && (
+            <div className="grid gap-4 py-2 sm:grid-cols-2">
+              <div className="space-y-2 sm:col-span-2">
+                <Label>Razón Social *</Label>
+                <Input value={editBiz.business_name} onChange={e => setEditBiz(p => p ? { ...p, business_name: e.target.value } : p)} />
+              </div>
+              <div className="space-y-2">
+                <Label>NIT</Label>
+                <Input value={editBiz.nit} onChange={e => setEditBiz(p => p ? { ...p, nit: e.target.value } : p)} placeholder="900.123.456-7" />
+              </div>
+              <div className="space-y-2">
+                <Label>Teléfono</Label>
+                <Input value={editBiz.phone} onChange={e => setEditBiz(p => p ? { ...p, phone: e.target.value } : p)} placeholder="+57 300 123 4567" />
+              </div>
+              <div className="space-y-2">
+                <Label>Email</Label>
+                <Input type="email" value={editBiz.email} onChange={e => setEditBiz(p => p ? { ...p, email: e.target.value } : p)} />
+              </div>
+              <div className="space-y-2">
+                <Label>Ciudad</Label>
+                <Input value={editBiz.city} onChange={e => setEditBiz(p => p ? { ...p, city: e.target.value } : p)} />
+              </div>
+              <div className="space-y-2 sm:col-span-2">
+                <Label>Dirección</Label>
+                <Input value={editBiz.address} onChange={e => setEditBiz(p => p ? { ...p, address: e.target.value } : p)} />
+              </div>
+              <div className="space-y-2 sm:col-span-2">
+                <Label>Propietario</Label>
+                <Select value={editBiz.owner_user_id} onValueChange={v => setEditBiz(p => p ? { ...p, owner_user_id: v } : p)}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {users.map(u => (
+                      <SelectItem key={u.user_id} value={u.user_id}>
+                        {u.full_name || u.email} <span className="text-muted-foreground text-xs">({u.user_id.slice(0, 8)})</span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditBizOpen(false)}>Cancelar</Button>
+            <Button onClick={handleEditBiz} disabled={savingBiz}>{savingBiz ? "Guardando..." : "Guardar"}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
