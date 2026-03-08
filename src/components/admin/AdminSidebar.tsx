@@ -79,7 +79,7 @@ const navGroups: NavGroup[] = [
     label: "Sistema",
     items: [
       { name: "Actividad", href: "/admin/actividad", icon: Activity },
-      { name: "Roles", href: "/admin/roles", icon: ShieldCheck },
+      { name: "Usuarios y Roles", href: "/admin/roles", icon: ShieldCheck },
       { name: "Notif. WhatsApp", href: "/admin/notificaciones-wa", icon: MessageCircle },
       { name: "CMS Contenido", href: "/admin/contenido", icon: LayoutGrid },
       { name: "Configuración", href: "/admin/configuracion", icon: Settings2 },
