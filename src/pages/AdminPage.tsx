@@ -98,6 +98,7 @@ export default function AdminPage() {
             <Route path="plantillas-email" element={<EmailTemplatesView />} />
             <Route path="editor-flujos" element={<FlowEditorView />} />
             <Route path="documentacion" element={<AdminDocsView />} />
+            <Route path="depurador" element={<DatabasePurgerView />} />
           </Routes>
         </Suspense>
       </AdminLayout>
