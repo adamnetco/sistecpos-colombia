@@ -44,6 +44,7 @@ export function LicensePOSUsersTab({ licenseId, businessName }: Props) {
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
   const [visiblePasswords, setVisiblePasswords] = useState<Set<string>>(new Set());
+  const [showFormPassword, setShowFormPassword] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -265,7 +266,12 @@ export function LicensePOSUsersTab({ licenseId, businessName }: Props) {
             </div>
             <div>
               <Label className="text-xs">Contraseña POS *</Label>
-              <Input value={form.pos_password} onChange={(e) => setForm({ ...form, pos_password: e.target.value })} type="password" placeholder="contraseña" />
+              <div className="relative">
+                <Input value={form.pos_password} onChange={(e) => setForm({ ...form, pos_password: e.target.value })} type={showFormPassword ? "text" : "password"} placeholder="contraseña" className="pr-9" />
+                <button type="button" onClick={() => setShowFormPassword(!showFormPassword)} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                  {showFormPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
             </div>
             <div>
               <Label className="text-xs">Rol POS</Label>

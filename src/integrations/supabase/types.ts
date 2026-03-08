@@ -3590,20 +3590,36 @@ export type Database = {
         Returns: undefined
       }
       increment_video_view: { Args: { video_id: string }; Returns: undefined }
-      insert_pos_user: {
-        Args: {
-          _display_name?: string
-          _license_id: string
-          _notes?: string
-          _pos_password: string
-          _pos_role?: string
-          _pos_store: string
-          _pos_username: string
-          _registered_by?: string
-          _user_email?: string
-        }
-        Returns: string
-      }
+      insert_pos_user:
+        | {
+            Args: {
+              _display_name?: string
+              _license_id: string
+              _notes?: string
+              _pos_password: string
+              _pos_role?: string
+              _pos_store: string
+              _pos_username: string
+              _registered_by?: string
+              _user_email?: string
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              _display_name?: string
+              _license_id: string
+              _notes?: string
+              _pos_password: string
+              _pos_role?: string
+              _pos_store: string
+              _pos_username: string
+              _registered_by?: string
+              _user_email?: string
+              _user_id?: string
+            }
+            Returns: string
+          }
       link_reseller_on_login: {
         Args: { _user_email: string; _user_id: string }
         Returns: Json
