@@ -26,6 +26,12 @@ interface License {
   payment_proof_url?: string | null;
   activation_requested_at?: string | null;
   provider_notes?: string | null;
+  pos_location?: string | null;
+  pos_plan_type?: string | null;
+  pos_license_hash?: string | null;
+  pos_invoice_count?: number | null;
+  pos_expires_at?: string | null;
+  pos_created_at?: string | null;
 }
 
 interface Props {
