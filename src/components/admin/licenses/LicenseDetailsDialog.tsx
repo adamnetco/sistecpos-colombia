@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Copy, Check, ExternalLink, Clock, CheckCircle2, Send, AlertTriangle, MapPin, Hash, FileText, Calendar, Save, Loader2 } from "lucide-react";
 import { useState } from "react";
+// useEffect imported at top
 import { planLabel } from "@/data/licensePlans";
 import { LicensePOSUsersTab } from "./LicensePOSUsersTab";
 import { supabase } from "@/integrations/supabase/client";
