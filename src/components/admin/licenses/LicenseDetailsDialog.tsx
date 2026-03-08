@@ -41,10 +41,67 @@ interface License {
 interface Props {
   license: License | null;
   onClose: () => void;
+  onUpdated?: () => void;
 }
 
-export function LicenseDetailsDialog({ license, onClose }: Props) {
+export function LicenseDetailsDialog({ license, onClose, onUpdated }: Props) {
   const [copied, setCopied] = useState(false);
+  const { toast } = useToast();
+
+  // Provider fields state
+  const [providerData, setProviderData] = useState({
+    pos_location: "",
+    pos_plan_type: "",
+    pos_license_hash: "",
+    pos_invoice_count: "",
+    pos_expires_at: "",
+    pos_created_at: "",
+  });
+  const [savingProvider, setSavingProvider] = useState(false);
+  const [providerDirty, setProviderDirty] = useState(false);
+
+  // Sync provider data when license changes
+  const initProviderData = () => {
+    if (!license) return;
+    setProviderData({
+      pos_location: license.pos_location || "",
+      pos_plan_type: license.pos_plan_type || "",
+      pos_license_hash: license.pos_license_hash || "",
+      pos_invoice_count: license.pos_invoice_count != null ? String(license.pos_invoice_count) : "",
+      pos_expires_at: license.pos_expires_at ? license.pos_expires_at.slice(0, 16) : "",
+      pos_created_at: license.pos_created_at ? license.pos_created_at.slice(0, 16) : "",
+    });
+    setProviderDirty(false);
+  };
+
+  // Reset when license changes
+  useState(() => { initProviderData(); });
+
+  const updateProviderField = (key: string, value: string) => {
+    setProviderData(prev => ({ ...prev, [key]: value }));
+    setProviderDirty(true);
+  };
+
+  const saveProviderData = async () => {
+    if (!license) return;
+    setSavingProvider(true);
+    const { error } = await supabase.from("licenses").update({
+      pos_location: providerData.pos_location || null,
+      pos_plan_type: providerData.pos_plan_type || null,
+      pos_license_hash: providerData.pos_license_hash || null,
+      pos_invoice_count: providerData.pos_invoice_count ? Number(providerData.pos_invoice_count) : null,
+      pos_expires_at: providerData.pos_expires_at ? new Date(providerData.pos_expires_at).toISOString() : null,
+      pos_created_at: providerData.pos_created_at ? new Date(providerData.pos_created_at).toISOString() : null,
+    } as any).eq("id", license.id);
+    setSavingProvider(false);
+    if (error) {
+      toast({ title: "Error al guardar", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Datos del proveedor actualizados" });
+      setProviderDirty(false);
+      onUpdated?.();
+    }
+  };
 
   if (!license) return null;
 
