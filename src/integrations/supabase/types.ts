@@ -3537,6 +3537,7 @@ export type Database = {
           pos_store: string
           pos_username: string
           user_email: string
+          user_id: string
         }[]
       }
       get_client_pos_sessions: {
@@ -3574,6 +3575,7 @@ export type Database = {
           pos_store: string
           pos_username: string
           user_email: string
+          user_id: string
         }[]
       }
       has_role: {
@@ -3605,6 +3607,15 @@ export type Database = {
       link_reseller_on_login: {
         Args: { _user_email: string; _user_id: string }
         Returns: Json
+      }
+      search_profiles: {
+        Args: { _limit?: number; _query: string }
+        Returns: {
+          email: string
+          full_name: string
+          phone: string
+          user_id: string
+        }[]
       }
       update_pos_user: {
         Args: {
