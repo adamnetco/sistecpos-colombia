@@ -544,6 +544,12 @@ export function LicensePOSUsersTab({ licenseId, businessName }: Props) {
                   <Button size="sm" variant="outline" className="h-7 text-[10px] gap-1" onClick={() => handlePosLogin(u)} title="Iniciar sesión en POS">
                     <LogIn className="h-3 w-3" /> POS
                   </Button>
+                  <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => handleCopyCredentials(u)} title="Copiar credenciales">
+                    <Copy className="h-3 w-3" />
+                  </Button>
+                  <Button size="icon" variant="ghost" className="h-7 w-7 text-green-600" onClick={() => handleWhatsAppCredentials(u)} title="Enviar por WhatsApp">
+                    <MessageCircle className="h-3 w-3" />
+                  </Button>
                   <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => togglePassword(u.id)}>
                     {visiblePasswords.has(u.id) ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
                   </Button>
