@@ -255,9 +255,14 @@ export function ChatbotProvider({ children }: { children: ReactNode }) {
     }
   }, [messages, userRole]);
 
+  const dismiss = useCallback(() => {
+    setDismissed(true);
+    setOpen(false);
+  }, []);
+
   const value = React.useMemo(
-    () => ({ messages, isLoading, error, send, reset, open, setOpen, userRole, submitFeedback, feedbackGiven }),
-    [messages, isLoading, error, send, reset, open, userRole, submitFeedback, feedbackGiven]
+    () => ({ messages, isLoading, error, send, reset, open, setOpen, userRole, submitFeedback, feedbackGiven, dismissed, dismiss }),
+    [messages, isLoading, error, send, reset, open, userRole, submitFeedback, feedbackGiven, dismissed, dismiss]
   );
 
   return React.createElement(ChatbotContext.Provider, { value }, children);
