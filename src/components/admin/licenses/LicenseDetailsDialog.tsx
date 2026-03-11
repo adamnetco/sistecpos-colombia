@@ -128,7 +128,8 @@ export function LicenseDetailsDialog({ license, onClose, onUpdated }: Props) {
       expires_at: infoForm.expires_at || null,
       notes: infoForm.notes || null,
       provider_notes: infoForm.provider_notes || null,
-    }).eq("id", license.id);
+      store_name: infoForm.store_name || null,
+    } as any).eq("id", license.id);
     setSavingInfo(false);
     if (error) {
       toast({ title: "Error al guardar", description: error.message, variant: "destructive" });
