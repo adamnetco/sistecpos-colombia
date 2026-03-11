@@ -43,25 +43,35 @@ function parseWhatsAppMessage(raw: string): Partial<{
   pos_created_at: string;
 }> {
   const result: Record<string, string> = {};
-  const locMatch = raw.match(/ubicaci[oó]n[:\s]+([^\n\t]+?)(?:\s{2,}|Tipo|$)/i);
+
+  // Match "Ubicación: VALUE" (requires colon to skip header rows)
+  const locMatch = raw.match(/ubicaci[oó]n\s*:\s*([^\n\t]+?)(?:\s{2,}|[\t]|$)/im);
   if (locMatch) result.pos_location = locMatch[1].trim();
-  const typeMatch = raw.match(/tipo[:\s]+([^\n]+)/i);
+
+  // Match "Tipo: VALUE" (requires colon to skip header rows like "Tipo\tFecha...")
+  const typeMatch = raw.match(/tipo\s*:\s*([^\n\t]+)/im);
   if (typeMatch) result.pos_plan_type = typeMatch[1].trim();
+
+  // 32-char hex hash
   const hashMatch = raw.match(/\b([a-f0-9]{32})\b/i);
   if (hashMatch) result.pos_license_hash = hashMatch[1];
+
+  // "+ N facturas" or "N facturas"
   const invMatch = raw.match(/\+?\s*(\d+)\s*facturas/i);
   if (invMatch) result.pos_invoice_count = invMatch[1];
+
+  // Dates in YYYY-MM-DD HH:MM:SS format
   const dates = [...raw.matchAll(/(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})/g)].map(m => m[1]);
-  if (dates.length >= 1) result.pos_expires_at = dates[0].replace(" ", "T").slice(0, 16);
-  if (dates.length >= 2) result.pos_created_at = dates[1].replace(" ", "T").slice(0, 16);
-  const creacionIdx = raw.toLowerCase().indexOf("creaci");
-  if (creacionIdx > -1 && dates.length === 1) {
-    const dateIdx = raw.indexOf(dates[0]);
-    if (Math.abs(creacionIdx - dateIdx) < 60) {
-      result.pos_created_at = result.pos_expires_at;
-      delete result.pos_expires_at;
-    }
+  if (dates.length >= 1) {
+    result.pos_expires_at = dates[0].replace(" ", "T").slice(0, 16);
   }
+  // Always set creation date to now if not explicitly found
+  if (dates.length >= 2) {
+    result.pos_created_at = dates[1].replace(" ", "T").slice(0, 16);
+  } else {
+    result.pos_created_at = new Date().toISOString().slice(0, 16);
+  }
+
   return result;
 }
 
