@@ -52,7 +52,13 @@ export default function LicensesView() {
   const load = async () => {
     setLoading(true);
     const { data } = await supabase.from("licenses").select("*").order("created_at", { ascending: false });
-    setLicenses((data as License[]) || []);
+    const list = (data as License[]) || [];
+    setLicenses(list);
+    // Refresh detailTarget if it's open
+    setDetailTarget(prev => {
+      if (!prev) return null;
+      return list.find(l => l.id === prev.id) || null;
+    });
     setLoading(false);
   };
 
