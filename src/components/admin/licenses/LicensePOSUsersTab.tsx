@@ -212,7 +212,7 @@ export function LicensePOSUsersTab({ licenseId, businessName, storeName }: Props
     const { error } = await supabase.rpc("insert_pos_user", {
       _license_id: licenseId,
       _pos_username: form.pos_username,
-      _pos_store: form.pos_store || businessName,
+      _pos_store: form.pos_store || storeName || businessName,
       _pos_password: form.pos_password,
       _pos_role: form.pos_role,
       _user_email: form.user_email || null,
