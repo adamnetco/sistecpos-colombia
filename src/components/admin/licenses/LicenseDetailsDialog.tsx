@@ -305,6 +305,7 @@ export function LicenseDetailsDialog({ license, onClose, onUpdated }: Props) {
               ) : (
                 <>
                   <div className="grid grid-cols-2 gap-3">
+                    <Field label="Tienda POS" value={license.store_name || "—"} />
                     <Field label="NIT" value={license.business_nit || "—"} />
                     <Field label="Plan" value={planLabel(license.plan_type)} />
                     <Field label="Contacto" value={license.contact_name} />
