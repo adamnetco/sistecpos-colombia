@@ -76,7 +76,7 @@ export function LicensePOSUsersTab({ licenseId, businessName, storeName }: Props
 
   const [form, setForm] = useState({
     pos_username: "",
-    pos_store: businessName || "",
+    pos_store: storeName || businessName || "",
     pos_password: "",
     pos_role: "admin",
     user_email: "",
@@ -212,7 +212,7 @@ export function LicensePOSUsersTab({ licenseId, businessName, storeName }: Props
     const { error } = await supabase.rpc("insert_pos_user", {
       _license_id: licenseId,
       _pos_username: form.pos_username,
-      _pos_store: form.pos_store || businessName,
+      _pos_store: form.pos_store || storeName || businessName,
       _pos_password: form.pos_password,
       _pos_role: form.pos_role,
       _user_email: form.user_email || null,
@@ -226,7 +226,7 @@ export function LicensePOSUsersTab({ licenseId, businessName, storeName }: Props
       toast({ title: "Error: " + error.message, variant: "destructive" });
     } else {
       toast({ title: "Usuario POS registrado" });
-      setForm({ pos_username: "", pos_store: businessName || "", pos_password: "", pos_role: "admin", user_email: "", display_name: "", notes: "", user_id: null, branch_id: "" });
+      setForm({ pos_username: "", pos_store: storeName || businessName || "", pos_password: "", pos_role: "admin", user_email: "", display_name: "", notes: "", user_id: null, branch_id: "" });
       setSelectedUser(null);
       setShowForm(false);
       load();
@@ -393,8 +393,9 @@ export function LicensePOSUsersTab({ licenseId, businessName, storeName }: Props
   const handlePosLogin = (u: POSUser) => {
     const f = loginFormRef.current;
     if (!f) return;
+    const tienda = storeName || u.pos_store;
     (f.querySelector('[name="username"]') as HTMLInputElement).value = u.pos_username;
-    (f.querySelector('[name="store"]') as HTMLInputElement).value = u.pos_store;
+    (f.querySelector('[name="store"]') as HTMLInputElement).value = tienda;
     (f.querySelector('[name="password"]') as HTMLInputElement).value = u.pos_password;
     (f.querySelector('[name="remember_user"]') as HTMLInputElement).value = "1";
     f.submit();
@@ -404,8 +405,9 @@ export function LicensePOSUsersTab({ licenseId, businessName, storeName }: Props
     setVerifyingId(u.id);
     setVerifyStatus(prev => ({ ...prev, [u.id]: null }));
     try {
+      const tienda = storeName || u.pos_store;
       const { data, error } = await supabase.functions.invoke("validate-pos-login", {
-        body: { username: u.pos_username, password: u.pos_password, store: u.pos_store, consent: false },
+        body: { username: u.pos_username, password: u.pos_password, store: tienda, consent: false },
       });
       if (error) {
         setVerifyStatus(prev => ({ ...prev, [u.id]: 'error' }));
@@ -563,7 +565,7 @@ export function LicensePOSUsersTab({ licenseId, businessName, storeName }: Props
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-medium">{u.pos_username}</span>
-                  <span className="text-xs text-muted-foreground">@{u.pos_store}</span>
+                  <span className="text-xs text-muted-foreground">@{storeName || u.pos_store}</span>
                   <Badge variant={u.is_active ? "default" : "secondary"} className="text-[10px]">
                     {u.pos_role === "superadmin" ? "SuperAdmin" : u.pos_role}
                   </Badge>
@@ -747,7 +749,7 @@ export function LicensePOSUsersTab({ licenseId, businessName, storeName }: Props
                           <Badge variant="outline" className="text-[9px] shrink-0">
                             {h.action === "created" ? "✨ Creado" : h.action === "updated" ? "✏️ Editado" : h.action === "deactivated" ? "🔴 Desactivado" : h.action === "reactivated" ? "🟢 Reactivado" : h.action === "migrated_from_demo" ? "🔄 Desde demo" : h.action}
                           </Badge>
-                          <span className="text-muted-foreground">{h.pos_username}@{h.pos_store}</span>
+                          <span className="text-muted-foreground">{h.pos_username}@{storeName || h.pos_store}</span>
                           {h.notes && <span className="text-muted-foreground italic">— {h.notes}</span>}
                           <span className="ml-auto text-muted-foreground shrink-0">{new Date(h.created_at).toLocaleDateString("es-CO")}</span>
                         </div>
