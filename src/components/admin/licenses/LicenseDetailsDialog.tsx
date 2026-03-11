@@ -84,6 +84,7 @@ export function LicenseDetailsDialog({ license, onClose, onUpdated }: Props) {
     expires_at: "",
     notes: "",
     provider_notes: "",
+    store_name: "",
   });
 
   const initInfoForm = () => {
