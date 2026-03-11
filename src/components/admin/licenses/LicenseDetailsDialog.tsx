@@ -441,6 +441,11 @@ export function LicenseDetailsDialog({ license, onClose, onUpdated }: Props) {
             </div>
           </TabsContent>
 
+          {/* ====== BRANCHES TAB ====== */}
+          <TabsContent value="branches">
+            <LicenseBranchesTab licenseId={license.id} businessName={license.business_name} />
+          </TabsContent>
+
           {/* ====== PROVIDER TAB ====== */}
           <TabsContent value="provider">
             <div className="space-y-4 py-2">

@@ -139,6 +139,16 @@ export function LeadConversionDialog({ lead, onClose, onConverted }: Props) {
 
       if (licErr) throw licErr;
 
+      // Create default branch for the license
+      try {
+        await supabase.from("license_branches").insert({
+          license_id: newLicense.id,
+          branch_name: "Sede Principal",
+          pos_location: lead.pos_company || lead.business_name,
+          sort_order: 0,
+        });
+      } catch (_) { /* non-critical */ }
+
       const { error: leadUpdateError } = await supabase.from("leads_trials").update({
         status: "converted",
         converted_at: new Date().toISOString(),
