@@ -749,7 +749,7 @@ export function LicensePOSUsersTab({ licenseId, businessName, storeName }: Props
                           <Badge variant="outline" className="text-[9px] shrink-0">
                             {h.action === "created" ? "✨ Creado" : h.action === "updated" ? "✏️ Editado" : h.action === "deactivated" ? "🔴 Desactivado" : h.action === "reactivated" ? "🟢 Reactivado" : h.action === "migrated_from_demo" ? "🔄 Desde demo" : h.action}
                           </Badge>
-                          <span className="text-muted-foreground">{h.pos_username}@{h.pos_store}</span>
+                          <span className="text-muted-foreground">{h.pos_username}@{storeName || h.pos_store}</span>
                           {h.notes && <span className="text-muted-foreground italic">— {h.notes}</span>}
                           <span className="ml-auto text-muted-foreground shrink-0">{new Date(h.created_at).toLocaleDateString("es-CO")}</span>
                         </div>
