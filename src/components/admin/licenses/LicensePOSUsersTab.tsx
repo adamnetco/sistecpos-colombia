@@ -63,7 +63,7 @@ interface Props {
 
 const POS_ROLES = ["superadmin", "admin", "cajero", "mesero", "bodeguero", "contador", "otro"];
 
-export function LicensePOSUsersTab({ licenseId, businessName }: Props) {
+export function LicensePOSUsersTab({ licenseId, businessName, storeName }: Props) {
   const [users, setUsers] = useState<POSUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
