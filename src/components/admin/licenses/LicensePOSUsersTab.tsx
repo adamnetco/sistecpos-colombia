@@ -491,8 +491,8 @@ export function LicensePOSUsersTab({ licenseId, businessName }: Props) {
                 </div>
                 <div className="flex items-center gap-1">
                   {/* Verify status indicator */}
-                  {verifyStatus[u.id] === 'success' && <CheckCircle2 className="h-4 w-4 text-emerald-500" title="Verificado" />}
-                  {verifyStatus[u.id] === 'error' && <XCircle className="h-4 w-4 text-destructive" title="No verificado" />}
+                  {verifyStatus[u.id] === 'success' && <CheckCircle2 className="h-4 w-4 text-emerald-500" />}
+                  {verifyStatus[u.id] === 'error' && <XCircle className="h-4 w-4 text-destructive" />}
                   <Button
                     size="sm" variant="ghost" className="h-7 text-[10px] gap-1"
                     onClick={() => handleVerifyUser(u)}
