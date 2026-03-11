@@ -111,7 +111,7 @@ export function LicenseDetailsDialog({ license, onClose, onUpdated }: Props) {
     setEditing(false);
   };
 
-  useEffect(() => { initInfoForm(); }, [license?.id]);
+  useEffect(() => { initInfoForm(); }, [license]);
 
   const saveInfoData = async () => {
     if (!license) return;
