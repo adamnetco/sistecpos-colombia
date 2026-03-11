@@ -239,6 +239,10 @@ export function LicenseDetailsDialog({ license, onClose, onUpdated }: Props) {
                       <Input value={infoForm.business_name} onChange={(e) => setInfoForm(p => ({ ...p, business_name: e.target.value }))} />
                     </div>
                     <div>
+                      <Label className="text-xs">Nombre de Tienda POS</Label>
+                      <Input value={infoForm.store_name} onChange={(e) => setInfoForm(p => ({ ...p, store_name: e.target.value }))} placeholder="Ej: dimanti" />
+                    </div>
+                    <div>
                       <Label className="text-xs">NIT</Label>
                       <Input value={infoForm.business_nit} onChange={(e) => setInfoForm(p => ({ ...p, business_nit: e.target.value }))} />
                     </div>
