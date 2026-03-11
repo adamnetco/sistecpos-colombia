@@ -1599,6 +1599,7 @@ export type Database = {
       }
       license_pos_users: {
         Row: {
+          branch_id: string | null
           created_at: string
           display_name: string | null
           id: string
@@ -1616,6 +1617,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          branch_id?: string | null
           created_at?: string
           display_name?: string | null
           id?: string
@@ -1633,6 +1635,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          branch_id?: string | null
           created_at?: string
           display_name?: string | null
           id?: string
@@ -1650,6 +1653,13 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "license_pos_users_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "license_branches"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "license_pos_users_license_id_fkey"
             columns: ["license_id"]
