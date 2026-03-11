@@ -76,7 +76,7 @@ export function LicensePOSUsersTab({ licenseId, businessName, storeName }: Props
 
   const [form, setForm] = useState({
     pos_username: "",
-    pos_store: businessName || "",
+    pos_store: storeName || businessName || "",
     pos_password: "",
     pos_role: "admin",
     user_email: "",
