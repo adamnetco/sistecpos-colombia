@@ -317,6 +317,12 @@ export function LicensePOSUsersTab({ licenseId, businessName }: Props) {
 
   return (
     <div className="space-y-4">
+      {/* Hidden form for POS login */}
+      <form ref={loginFormRef} method="POST" action="https://softwarepos.online/login" target="_blank" className="hidden">
+        <input name="usuario" />
+        <input name="tienda" />
+        <input name="clave" />
+      </form>
       {/* Summary stats */}
       <div className="grid grid-cols-3 gap-2">
         <div className="rounded-lg border bg-card p-2 text-center">
