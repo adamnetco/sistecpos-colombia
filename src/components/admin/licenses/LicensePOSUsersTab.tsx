@@ -315,6 +315,44 @@ export function LicensePOSUsersTab({ licenseId, businessName, storeName }: Props
   const [historyEntries, setHistoryEntries] = useState<any[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
 
+  // Edit state
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState({ pos_username: "", pos_password: "", pos_role: "", display_name: "", notes: "" });
+  const [savingEdit, setSavingEdit] = useState(false);
+
+  const startEdit = (u: POSUser) => {
+    setEditingId(u.id);
+    setEditForm({
+      pos_username: u.pos_username,
+      pos_password: u.pos_password,
+      pos_role: u.pos_role,
+      display_name: u.display_name || "",
+      notes: u.notes || "",
+    });
+  };
+
+  const cancelEdit = () => { setEditingId(null); };
+
+  const handleSaveEdit = async (u: POSUser) => {
+    setSavingEdit(true);
+    const { error } = await supabase.rpc("update_pos_user", {
+      _id: u.id,
+      _pos_username: editForm.pos_username || undefined,
+      _pos_password: editForm.pos_password || undefined,
+      _pos_role: editForm.pos_role || undefined,
+      _display_name: editForm.display_name || undefined,
+      _notes: editForm.notes || undefined,
+    } as any);
+    setSavingEdit(false);
+    if (error) {
+      toast({ title: "Error al actualizar", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Usuario POS actualizado" });
+      setEditingId(null);
+      load();
+    }
+  };
+
   const loadHistory = async (posUserId: string) => {
     if (historyUserId === posUserId) { setHistoryUserId(null); return; }
     setHistoryUserId(posUserId);
