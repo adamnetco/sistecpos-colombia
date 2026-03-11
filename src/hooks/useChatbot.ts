@@ -52,6 +52,7 @@ export function ChatbotProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [feedbackGiven, setFeedbackGiven] = useState<Set<number>>(new Set());
+  const [dismissed, setDismissed] = useState(false);
   const sessionIdRef = useRef(generateSessionId());
   const sourcePageRef = useRef(window.location.pathname);
   const chatTrackedRef = useRef(false);
