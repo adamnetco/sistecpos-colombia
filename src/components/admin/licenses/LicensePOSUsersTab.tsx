@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Trash2, Eye, EyeOff, UserPlus, Loader2, Link2, Unlink, Search, Building2, Monitor, Users, Store, LogIn } from "lucide-react";
+import { Plus, Trash2, Eye, EyeOff, UserPlus, Loader2, Link2, Unlink, Search, Building2, Monitor, Users, Store, LogIn, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
 interface POSUser {
@@ -304,24 +304,55 @@ export function LicensePOSUsersTab({ licenseId, businessName }: Props) {
   const linkedCount = users.filter(u => u.user_id).length;
   const activeSessionCount = Object.values(clientSessions).reduce((acc, s) => acc + s.length, 0);
 
+  // Verification state
+  const [verifyingId, setVerifyingId] = useState<string | null>(null);
+  const [verifyStatus, setVerifyStatus] = useState<Record<string, 'success' | 'error' | null>>({});
+
   const loginFormRef = useRef<HTMLFormElement>(null);
 
   const handlePosLogin = (u: POSUser) => {
-    const form = loginFormRef.current;
-    if (!form) return;
-    (form.querySelector('[name="usuario"]') as HTMLInputElement).value = u.pos_username;
-    (form.querySelector('[name="tienda"]') as HTMLInputElement).value = u.pos_store;
-    (form.querySelector('[name="clave"]') as HTMLInputElement).value = u.pos_password;
-    form.submit();
+    const f = loginFormRef.current;
+    if (!f) return;
+    (f.querySelector('[name="username"]') as HTMLInputElement).value = u.pos_username;
+    (f.querySelector('[name="store"]') as HTMLInputElement).value = u.pos_store;
+    (f.querySelector('[name="password"]') as HTMLInputElement).value = u.pos_password;
+    (f.querySelector('[name="remember_user"]') as HTMLInputElement).value = "1";
+    f.submit();
+  };
+
+  const handleVerifyUser = async (u: POSUser) => {
+    setVerifyingId(u.id);
+    setVerifyStatus(prev => ({ ...prev, [u.id]: null }));
+    try {
+      const { data, error } = await supabase.functions.invoke("validate-pos-login", {
+        body: { username: u.pos_username, password: u.pos_password, store: u.pos_store, consent: false },
+      });
+      if (error) {
+        setVerifyStatus(prev => ({ ...prev, [u.id]: 'error' }));
+        toast({ title: "Error al verificar", description: error.message, variant: "destructive" });
+      } else if (data?.success) {
+        setVerifyStatus(prev => ({ ...prev, [u.id]: 'success' }));
+        toast({ title: "✅ Credenciales verificadas", description: "El acceso al POS es válido." });
+      } else {
+        setVerifyStatus(prev => ({ ...prev, [u.id]: 'error' }));
+        toast({ title: "⚠️ No se pudo verificar", description: data?.message || "Las credenciales podrían ser incorrectas.", variant: "destructive" });
+      }
+    } catch {
+      setVerifyStatus(prev => ({ ...prev, [u.id]: 'error' }));
+      toast({ title: "Error de conexión", variant: "destructive" });
+    } finally {
+      setVerifyingId(null);
+    }
   };
 
   return (
     <div className="space-y-4">
       {/* Hidden form for POS login */}
-      <form ref={loginFormRef} method="POST" action="https://softwarepos.online/login" target="_blank" className="hidden">
-        <input name="usuario" />
-        <input name="tienda" />
-        <input name="clave" />
+      <form ref={loginFormRef} method="POST" action="https://softwarepos.online/index.php/login/index/1" target="_blank" className="hidden">
+        <input name="username" />
+        <input name="store" />
+        <input name="password" />
+        <input name="remember_user" />
       </form>
       {/* Summary stats */}
       <div className="grid grid-cols-3 gap-2">
@@ -459,6 +490,18 @@ export function LicensePOSUsersTab({ licenseId, businessName }: Props) {
                   {!u.is_active && <Badge variant="outline" className="text-[10px] text-destructive">Inactivo</Badge>}
                 </div>
                 <div className="flex items-center gap-1">
+                  {/* Verify status indicator */}
+                  {verifyStatus[u.id] === 'success' && <CheckCircle2 className="h-4 w-4 text-emerald-500" />}
+                  {verifyStatus[u.id] === 'error' && <XCircle className="h-4 w-4 text-destructive" />}
+                  <Button
+                    size="sm" variant="ghost" className="h-7 text-[10px] gap-1"
+                    onClick={() => handleVerifyUser(u)}
+                    disabled={verifyingId === u.id}
+                    title="Verificar credenciales"
+                  >
+                    {verifyingId === u.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <AlertCircle className="h-3 w-3" />}
+                    Verificar
+                  </Button>
                   <Button size="sm" variant="outline" className="h-7 text-[10px] gap-1" onClick={() => handlePosLogin(u)} title="Iniciar sesión en POS">
                     <LogIn className="h-3 w-3" /> POS
                   </Button>
