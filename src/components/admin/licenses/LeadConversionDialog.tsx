@@ -149,6 +149,47 @@ export function LeadConversionDialog({ lead, onClose, onConverted }: Props) {
         });
       } catch (_) { /* non-critical */ }
 
+      // Migrate POS credentials from demo to new license
+      if (lead.pos_username) {
+        try {
+          await supabase.rpc("insert_pos_user", {
+            _license_id: newLicense.id,
+            _pos_username: lead.pos_username,
+            _pos_store: lead.pos_company || lead.business_name,
+            _pos_password: lead.pos_username, // demo password = username by default
+            _pos_role: "admin",
+            _user_email: lead.email || null,
+            _display_name: lead.contact_name || null,
+            _notes: `Migrado desde demo. Lead ID: ${lead.id}`,
+            _registered_by: null,
+            _user_id: null,
+            _branch_id: null,
+          });
+          // Log migration in history
+          const { data: posUsers } = await supabase
+            .from("license_pos_users")
+            .select("id")
+            .eq("license_id", newLicense.id)
+            .eq("pos_username", lead.pos_username)
+            .limit(1);
+          if (posUsers && posUsers.length > 0) {
+            await supabase.from("pos_credential_history").insert({
+              pos_user_id: posUsers[0].id,
+              license_id: newLicense.id,
+              action: "migrated_from_demo",
+              pos_username: lead.pos_username,
+              pos_store: lead.pos_company || lead.business_name,
+              pos_role: "admin",
+              display_name: lead.contact_name,
+              notes: `Lead convertido: ${lead.business_name}`,
+              source: "conversion",
+            });
+          }
+        } catch (migErr) {
+          console.warn("POS user migration failed (non-critical):", migErr);
+        }
+      }
+
       const { error: leadUpdateError } = await supabase.from("leads_trials").update({
         status: "converted",
         converted_at: new Date().toISOString(),

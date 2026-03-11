@@ -643,6 +643,33 @@ export function LicensePOSUsersTab({ licenseId, businessName }: Props) {
               )}
 
               {u.notes && <p className="text-[10px] text-muted-foreground italic">{u.notes}</p>}
+
+              {/* Credential history */}
+              <div>
+                <Button size="sm" variant="ghost" className="h-6 text-[10px] gap-1" onClick={() => loadHistory(u.id)}>
+                  <History className="h-2.5 w-2.5" /> {historyUserId === u.id ? "Ocultar historial" : "Historial"}
+                </Button>
+                {historyUserId === u.id && (
+                  <div className="mt-1 space-y-1">
+                    {loadingHistory ? (
+                      <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
+                    ) : historyEntries.length === 0 ? (
+                      <p className="text-[10px] text-muted-foreground">Sin historial registrado.</p>
+                    ) : (
+                      historyEntries.map((h) => (
+                        <div key={h.id} className="text-[10px] bg-muted/40 rounded px-2 py-1 flex items-center gap-2">
+                          <Badge variant="outline" className="text-[9px] shrink-0">
+                            {h.action === "created" ? "✨ Creado" : h.action === "updated" ? "✏️ Editado" : h.action === "deactivated" ? "🔴 Desactivado" : h.action === "reactivated" ? "🟢 Reactivado" : h.action === "migrated_from_demo" ? "🔄 Desde demo" : h.action}
+                          </Badge>
+                          <span className="text-muted-foreground">{h.pos_username}@{h.pos_store}</span>
+                          {h.notes && <span className="text-muted-foreground italic">— {h.notes}</span>}
+                          <span className="ml-auto text-muted-foreground shrink-0">{new Date(h.created_at).toLocaleDateString("es-CO")}</span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           ))}
         </div>
