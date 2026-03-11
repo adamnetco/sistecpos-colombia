@@ -44,7 +44,7 @@ export function ChatbotWidget() {
   const location = useLocation();
   const navigate = useNavigate();
   const visible = useChatbotVisibility(location.pathname);
-  const { messages, isLoading, error, send, reset, open, setOpen, userRole, submitFeedback, feedbackGiven } = useChatbot();
+  const { messages, isLoading, error, send, reset, open, setOpen, userRole, submitFeedback, feedbackGiven, dismissed, dismiss } = useChatbot();
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
