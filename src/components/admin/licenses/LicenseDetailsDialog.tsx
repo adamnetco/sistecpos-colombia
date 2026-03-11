@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Copy, Check, ExternalLink, Clock, CheckCircle2, AlertTriangle, MapPin, Hash, FileText, Calendar, Save, Loader2, MessageSquare, Pencil, X } from "lucide-react";
 import { planLabel, LICENSE_PLANS } from "@/data/licensePlans";
 import { LicensePOSUsersTab } from "./LicensePOSUsersTab";
+import { LicenseBranchesTab } from "./LicenseBranchesTab";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
