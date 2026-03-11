@@ -374,10 +374,6 @@ export function LicensePOSUsersTab({ licenseId, businessName }: Props) {
               <Input value={form.pos_username} onChange={(e) => setForm({ ...form, pos_username: e.target.value })} placeholder="usuario" />
             </div>
             <div>
-              <Label className="text-xs">Empresa POS *</Label>
-              <Input value={form.pos_store} onChange={(e) => setForm({ ...form, pos_store: e.target.value })} placeholder="empresa" />
-            </div>
-            <div>
               <Label className="text-xs">Contraseña POS *</Label>
               <div className="relative">
                 <Input value={form.pos_password} onChange={(e) => setForm({ ...form, pos_password: e.target.value })} type={showFormPassword ? "text" : "password"} placeholder="contraseña" className="pr-9" />
@@ -389,7 +385,7 @@ export function LicensePOSUsersTab({ licenseId, businessName }: Props) {
             <div>
               <Label className="text-xs">Rol POS</Label>
               <select value={form.pos_role} onChange={(e) => setForm({ ...form, pos_role: e.target.value })} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
-                {POS_ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
+                {POS_ROLES.map((r) => <option key={r} value={r}>{r === "superadmin" ? "SuperAdmin" : r}</option>)}
               </select>
             </div>
             <div>
