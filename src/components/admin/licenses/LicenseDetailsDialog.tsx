@@ -377,7 +377,7 @@ export function LicenseDetailsDialog({ license, onClose, onUpdated }: Props) {
           </TabsContent>
 
           <TabsContent value="pos-users">
-            <LicensePOSUsersTab licenseId={license.id} businessName={license.business_name} />
+            <LicensePOSUsersTab licenseId={license.id} businessName={license.business_name} storeName={license.store_name || ""} />
           </TabsContent>
         </Tabs>
       </DialogContent>

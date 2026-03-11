@@ -58,11 +58,12 @@ interface BranchOption {
 interface Props {
   licenseId: string;
   businessName: string;
+  storeName: string;
 }
 
 const POS_ROLES = ["superadmin", "admin", "cajero", "mesero", "bodeguero", "contador", "otro"];
 
-export function LicensePOSUsersTab({ licenseId, businessName }: Props) {
+export function LicensePOSUsersTab({ licenseId, businessName, storeName }: Props) {
   const [users, setUsers] = useState<POSUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -329,11 +330,13 @@ export function LicensePOSUsersTab({ licenseId, businessName }: Props) {
   };
 
   const buildCredentialMessage = (u: POSUser) => {
-    return `*Acceso al POS SistecPOS*\n\nLink: https://sistecpos.com/clientes/#pos\n\nUsuario: ${u.pos_username}\nTienda: ${u.pos_store}\nClave: ${u.pos_password}`;
+    const tienda = storeName || u.pos_store;
+    return `*Acceso al POS SistecPOS*\n\nLink: https://sistecpos.com/clientes/#pos\n\nUsuario: ${u.pos_username}\nTienda: ${tienda}\nClave: ${u.pos_password}`;
   };
 
   const handleCopyCredentials = async (u: POSUser) => {
-    const text = `Acceso al POS SistecPOS\n\nLink: https://sistecpos.com/clientes/#pos\n\nUsuario: ${u.pos_username}\nTienda: ${u.pos_store}\nClave: ${u.pos_password}`;
+    const tienda = storeName || u.pos_store;
+    const text = `Acceso al POS SistecPOS\n\nLink: https://sistecpos.com/clientes/#pos\n\nUsuario: ${u.pos_username}\nTienda: ${tienda}\nClave: ${u.pos_password}`;
     try {
       await navigator.clipboard.writeText(text);
       toast({ title: "Credenciales copiadas al portapapeles" });
