@@ -44,7 +44,7 @@ export function ChatbotWidget() {
   const location = useLocation();
   const navigate = useNavigate();
   const visible = useChatbotVisibility(location.pathname);
-  const { messages, isLoading, error, send, reset, open, setOpen, userRole, submitFeedback, feedbackGiven } = useChatbot();
+  const { messages, isLoading, error, send, reset, open, setOpen, userRole, submitFeedback, feedbackGiven, dismissed, dismiss } = useChatbot();
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -53,7 +53,7 @@ export function ChatbotWidget() {
     }
   }, [messages, isLoading]);
 
-  if (!visible) return null;
+  if (!visible || dismissed) return null;
 
   const quickQuestions = userRole === "admin"
     ? ["¿Cuál es el MRR actual estimado?", "¿Cómo mejorar la conversión de leads?", "Ayúdame a redactar una propuesta"]
@@ -84,19 +84,30 @@ export function ChatbotWidget() {
       {/* Toggle button */}
       <AnimatePresence>
         {!open && (
-          <motion.button
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            exit={{ scale: 0 }}
-            transition={{ type: "spring", stiffness: 260, damping: 20 }}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setOpen(true)}
-            className="fixed bottom-6 right-[5.5rem] z-50 flex h-14 w-14 items-center justify-center rounded-full gradient-bg text-primary-foreground shadow-lg hover:shadow-xl transition-shadow no-print print:hidden"
-            aria-label="Abrir chat"
-          >
-            <Bot className="h-7 w-7" />
-          </motion.button>
+          <div className="fixed bottom-6 right-[5.5rem] z-50 no-print print:hidden">
+            <motion.button
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0 }}
+              transition={{ type: "spring", stiffness: 260, damping: 20 }}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setOpen(true)}
+              className="flex h-14 w-14 items-center justify-center rounded-full gradient-bg text-primary-foreground shadow-lg hover:shadow-xl transition-shadow"
+              aria-label="Abrir chat"
+            >
+              <Bot className="h-7 w-7" />
+            </motion.button>
+            {/* Dismiss button */}
+            <button
+              onClick={dismiss}
+              className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-muted border border-border text-muted-foreground hover:bg-destructive hover:text-destructive-foreground transition-colors shadow-sm"
+              aria-label="Ocultar chat"
+              title="Ocultar asistente"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          </div>
         )}
       </AnimatePresence>
 

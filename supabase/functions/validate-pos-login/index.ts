@@ -38,16 +38,33 @@ serve(async (req) => {
     })
 
     const status = posResponse.status
-    const setCookie = posResponse.headers.get('set-cookie')
     const location = posResponse.headers.get('location')
 
-    console.log(`POS login attempt: status=${status}, hasCookie=${!!setCookie}, location=${location}`)
+    // Read body to check for error messages (failed login shows error text in HTML)
+    let bodyText = ""
+    try {
+      bodyText = await posResponse.text()
+    } catch {
+      // ignore read errors
+    }
 
-    // Success indicators: redirect (302/301) to dashboard, or 200 with session cookie
-    // A failed login typically returns 200 with login form again (no redirect)
+    console.log(`POS login attempt: status=${status}, location=${location}, bodyLen=${bodyText.length}`)
+
+    // Success: redirect (302/301) to a non-login page
+    // Failure: 200 with login form containing error text, OR redirect back to login page
     const isRedirect = status >= 300 && status < 400
-    const hasSessionCookie = !!setCookie && (setCookie.includes('ci_session') || setCookie.includes('PHPSESSID') || setCookie.length > 50)
-    const isSuccess = isRedirect || hasSessionCookie
+    const redirectsToLogin = location?.includes('/login') ?? false
+    const bodyHasError = bodyText.toLowerCase().includes('inválido') || 
+                         bodyText.toLowerCase().includes('invalido') ||
+                         bodyText.toLowerCase().includes('error') ||
+                         bodyText.toLowerCase().includes('incorrect')
+    
+    // Only consider it a success if:
+    // 1. It's a redirect that does NOT go back to the login page, OR
+    // 2. The response body does NOT contain error indicators
+    const isSuccess = isRedirect && !redirectsToLogin && !bodyHasError
+
+    console.log(`POS validation: isRedirect=${isRedirect}, redirectsToLogin=${redirectsToLogin}, bodyHasError=${bodyHasError}, isSuccess=${isSuccess}`)
 
     // If login was successful and user consented, store credentials
     if (isSuccess && consent) {
@@ -72,7 +89,7 @@ serve(async (req) => {
       }
     }
 
-    // If consent given but validation uncertain, still store (trust user input)
+    // If consent given but validation failed, still store (trust user input)
     if (!isSuccess && consent) {
       const authHeader = req.headers.get('Authorization')
       if (authHeader) {
@@ -84,8 +101,6 @@ serve(async (req) => {
         const { data: { user } } = await supabase.auth.getUser(token)
 
         if (user) {
-          // Store anyway since the user explicitly consented - the POS server
-          // may behave differently when called from edge vs browser
           await supabase.rpc('upsert_client_pos_session', {
             _user_id: user.id,
             _pos_username: username,
@@ -109,7 +124,9 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({
         success: isSuccess,
-        message: isSuccess ? "Acceso verificado correctamente" : "No se pudo verificar, pero se abrirá el POS.",
+        message: isSuccess 
+          ? "Acceso verificado correctamente" 
+          : "Credenciales incorrectas. Verifica usuario, tienda y clave.",
         stored: isSuccess && consent,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }

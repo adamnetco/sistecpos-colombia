@@ -38,6 +38,8 @@ interface ChatbotContextType {
   userRole: string | null;
   submitFeedback: (msgIndex: number, isPositive: boolean, comment?: string) => Promise<void>;
   feedbackGiven: Set<number>;
+  dismissed: boolean;
+  dismiss: () => void;
 }
 
 const ChatbotContext = createContext<ChatbotContextType | null>(null);
@@ -50,6 +52,7 @@ export function ChatbotProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [feedbackGiven, setFeedbackGiven] = useState<Set<number>>(new Set());
+  const [dismissed, setDismissed] = useState(false);
   const sessionIdRef = useRef(generateSessionId());
   const sourcePageRef = useRef(window.location.pathname);
   const chatTrackedRef = useRef(false);
@@ -252,9 +255,14 @@ export function ChatbotProvider({ children }: { children: ReactNode }) {
     }
   }, [messages, userRole]);
 
+  const dismiss = useCallback(() => {
+    setDismissed(true);
+    setOpen(false);
+  }, []);
+
   const value = React.useMemo(
-    () => ({ messages, isLoading, error, send, reset, open, setOpen, userRole, submitFeedback, feedbackGiven }),
-    [messages, isLoading, error, send, reset, open, userRole, submitFeedback, feedbackGiven]
+    () => ({ messages, isLoading, error, send, reset, open, setOpen, userRole, submitFeedback, feedbackGiven, dismissed, dismiss }),
+    [messages, isLoading, error, send, reset, open, userRole, submitFeedback, feedbackGiven, dismissed, dismiss]
   );
 
   return React.createElement(ChatbotContext.Provider, { value }, children);
