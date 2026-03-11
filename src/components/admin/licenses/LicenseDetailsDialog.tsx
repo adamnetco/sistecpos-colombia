@@ -56,6 +56,7 @@ interface License {
   pos_invoice_count?: number | null;
   pos_expires_at?: string | null;
   pos_created_at?: string | null;
+  store_name?: string | null;
 }
 
 interface Props {
