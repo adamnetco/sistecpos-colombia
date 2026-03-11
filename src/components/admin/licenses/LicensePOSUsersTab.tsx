@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Trash2, Eye, EyeOff, UserPlus, Loader2, Link2, Unlink, Search, Building2, Monitor, Users, Store, LogIn, CheckCircle2, XCircle, AlertCircle, Copy, MessageCircle, History } from "lucide-react";
+import { Plus, Trash2, Eye, EyeOff, UserPlus, Loader2, Link2, Unlink, Search, Building2, Monitor, Users, Store, LogIn, CheckCircle2, XCircle, AlertCircle, Copy, MessageCircle, History, Pencil, Save, X } from "lucide-react";
 import { buildWhatsAppUrl, WHATSAPP_DEFAULT_NUMBER } from "@/hooks/useWhatsAppConfig";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -315,6 +315,44 @@ export function LicensePOSUsersTab({ licenseId, businessName, storeName }: Props
   const [historyEntries, setHistoryEntries] = useState<any[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
 
+  // Edit state
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState({ pos_username: "", pos_password: "", pos_role: "", display_name: "", notes: "" });
+  const [savingEdit, setSavingEdit] = useState(false);
+
+  const startEdit = (u: POSUser) => {
+    setEditingId(u.id);
+    setEditForm({
+      pos_username: u.pos_username,
+      pos_password: u.pos_password,
+      pos_role: u.pos_role,
+      display_name: u.display_name || "",
+      notes: u.notes || "",
+    });
+  };
+
+  const cancelEdit = () => { setEditingId(null); };
+
+  const handleSaveEdit = async (u: POSUser) => {
+    setSavingEdit(true);
+    const { error } = await supabase.rpc("update_pos_user", {
+      _id: u.id,
+      _pos_username: editForm.pos_username || undefined,
+      _pos_password: editForm.pos_password || undefined,
+      _pos_role: editForm.pos_role || undefined,
+      _display_name: editForm.display_name || undefined,
+      _notes: editForm.notes || undefined,
+    } as any);
+    setSavingEdit(false);
+    if (error) {
+      toast({ title: "Error al actualizar", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Usuario POS actualizado" });
+      setEditingId(null);
+      load();
+    }
+  };
+
   const loadHistory = async (posUserId: string) => {
     if (historyUserId === posUserId) { setHistoryUserId(null); return; }
     setHistoryUserId(posUserId);
@@ -556,6 +594,9 @@ export function LicensePOSUsersTab({ licenseId, businessName, storeName }: Props
                   <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => togglePassword(u.id)}>
                     {visiblePasswords.has(u.id) ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
                   </Button>
+                  <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => startEdit(u)} title="Editar usuario">
+                    <Pencil className="h-3 w-3" />
+                  </Button>
                   <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => toggleActive(u)}>
                     {u.is_active ? <span className="text-[10px]">🟢</span> : <span className="text-[10px]">🔴</span>}
                   </Button>
@@ -565,8 +606,50 @@ export function LicensePOSUsersTab({ licenseId, businessName, storeName }: Props
                 </div>
               </div>
 
-              {visiblePasswords.has(u.id) && (
+              {visiblePasswords.has(u.id) && editingId !== u.id && (
                 <div className="text-xs font-mono bg-muted/50 rounded px-2 py-1">{u.pos_password}</div>
+              )}
+
+              {/* Inline edit form */}
+              {editingId === u.id && (
+                <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-2">
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <Label className="text-[10px]">Usuario</Label>
+                      <Input value={editForm.pos_username} onChange={(e) => setEditForm(p => ({ ...p, pos_username: e.target.value }))} className="h-7 text-xs" />
+                    </div>
+                    <div>
+                      <Label className="text-[10px]">Clave</Label>
+                      <Input value={editForm.pos_password} onChange={(e) => setEditForm(p => ({ ...p, pos_password: e.target.value }))} className="h-7 text-xs" />
+                    </div>
+                    <div>
+                      <Label className="text-[10px]">Rol</Label>
+                      <select
+                        value={editForm.pos_role}
+                        onChange={(e) => setEditForm(p => ({ ...p, pos_role: e.target.value }))}
+                        className="h-7 w-full text-xs rounded border border-input bg-background px-2"
+                      >
+                        {POS_ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <Label className="text-[10px]">Nombre visible</Label>
+                      <Input value={editForm.display_name} onChange={(e) => setEditForm(p => ({ ...p, display_name: e.target.value }))} className="h-7 text-xs" />
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-[10px]">Notas</Label>
+                    <Input value={editForm.notes} onChange={(e) => setEditForm(p => ({ ...p, notes: e.target.value }))} className="h-7 text-xs" />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button size="sm" className="h-7 text-xs gap-1" onClick={() => handleSaveEdit(u)} disabled={savingEdit}>
+                      {savingEdit ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />} Guardar
+                    </Button>
+                    <Button size="sm" variant="ghost" className="h-7 text-xs gap-1" onClick={cancelEdit}>
+                      <X className="h-3 w-3" /> Cancelar
+                    </Button>
+                  </div>
+                </div>
               )}
 
               {/* Branch assignment */}
