@@ -565,7 +565,7 @@ export function LicensePOSUsersTab({ licenseId, businessName, storeName }: Props
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-medium">{u.pos_username}</span>
-                  <span className="text-xs text-muted-foreground">@{u.pos_store}</span>
+                  <span className="text-xs text-muted-foreground">@{storeName || u.pos_store}</span>
                   <Badge variant={u.is_active ? "default" : "secondary"} className="text-[10px]">
                     {u.pos_role === "superadmin" ? "SuperAdmin" : u.pos_role}
                   </Badge>
