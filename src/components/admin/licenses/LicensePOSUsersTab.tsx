@@ -202,8 +202,8 @@ export function LicensePOSUsersTab({ licenseId, businessName }: Props) {
   };
 
   const handleAdd = async () => {
-    if (!form.pos_username || !form.pos_store || !form.pos_password) {
-      toast({ title: "Usuario, empresa y contraseña son requeridos", variant: "destructive" });
+    if (!form.pos_username || !form.pos_password) {
+      toast({ title: "Usuario y contraseña son requeridos", variant: "destructive" });
       return;
     }
     setSaving(true);
