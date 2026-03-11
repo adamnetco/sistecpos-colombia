@@ -2239,6 +2239,59 @@ export type Database = {
           },
         ]
       }
+      pos_credential_history: {
+        Row: {
+          action: string
+          changed_by: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+          license_id: string
+          notes: string | null
+          pos_role: string | null
+          pos_store: string | null
+          pos_user_id: string
+          pos_username: string | null
+          source: string | null
+        }
+        Insert: {
+          action?: string
+          changed_by?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          license_id: string
+          notes?: string | null
+          pos_role?: string | null
+          pos_store?: string | null
+          pos_user_id: string
+          pos_username?: string | null
+          source?: string | null
+        }
+        Update: {
+          action?: string
+          changed_by?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          license_id?: string
+          notes?: string | null
+          pos_role?: string | null
+          pos_store?: string | null
+          pos_user_id?: string
+          pos_username?: string | null
+          source?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pos_credential_history_pos_user_id_fkey"
+            columns: ["pos_user_id"]
+            isOneToOne: false
+            referencedRelation: "license_pos_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_events: {
         Row: {
           created_at: string
