@@ -459,6 +459,9 @@ export function LicensePOSUsersTab({ licenseId, businessName }: Props) {
                   {!u.is_active && <Badge variant="outline" className="text-[10px] text-destructive">Inactivo</Badge>}
                 </div>
                 <div className="flex items-center gap-1">
+                  <Button size="sm" variant="outline" className="h-7 text-[10px] gap-1" onClick={() => handlePosLogin(u)} title="Iniciar sesión en POS">
+                    <LogIn className="h-3 w-3" /> POS
+                  </Button>
                   <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => togglePassword(u.id)}>
                     {visiblePasswords.has(u.id) ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
                   </Button>
