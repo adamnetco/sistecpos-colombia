@@ -309,6 +309,44 @@ export function LicensePOSUsersTab({ licenseId, businessName }: Props) {
   const [verifyingId, setVerifyingId] = useState<string | null>(null);
   const [verifyStatus, setVerifyStatus] = useState<Record<string, 'success' | 'error' | null>>({});
 
+  // Credential history
+  const [historyUserId, setHistoryUserId] = useState<string | null>(null);
+  const [historyEntries, setHistoryEntries] = useState<any[]>([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
+
+  const loadHistory = async (posUserId: string) => {
+    if (historyUserId === posUserId) { setHistoryUserId(null); return; }
+    setHistoryUserId(posUserId);
+    setLoadingHistory(true);
+    const { data } = await supabase
+      .from("pos_credential_history")
+      .select("*")
+      .eq("pos_user_id", posUserId)
+      .order("created_at", { ascending: false })
+      .limit(20);
+    setHistoryEntries(data || []);
+    setLoadingHistory(false);
+  };
+
+  const buildCredentialMessage = (u: POSUser) => {
+    return `📋 *Acceso al POS SistecPOS*\n\n🔗 Link: https://sistecpos.com/clientes/#pos\n\n👤 Usuario: ${u.pos_username}\n🏪 Tienda: ${u.pos_store}\n🔑 Clave: ${u.pos_password}`;
+  };
+
+  const handleCopyCredentials = async (u: POSUser) => {
+    const text = `Acceso al POS SistecPOS\n\nLink: https://sistecpos.com/clientes/#pos\n\nUsuario: ${u.pos_username}\nTienda: ${u.pos_store}\nClave: ${u.pos_password}`;
+    try {
+      await navigator.clipboard.writeText(text);
+      toast({ title: "📋 Credenciales copiadas al portapapeles" });
+    } catch {
+      toast({ title: "Error al copiar", variant: "destructive" });
+    }
+  };
+
+  const handleWhatsAppCredentials = (u: POSUser) => {
+    const msg = buildCredentialMessage(u);
+    window.open(buildWhatsAppUrl(WHATSAPP_DEFAULT_NUMBER, msg), "_blank");
+  };
+
   const loginFormRef = useRef<HTMLFormElement>(null);
 
   const handlePosLogin = (u: POSUser) => {
