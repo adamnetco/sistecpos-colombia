@@ -393,8 +393,9 @@ export function LicensePOSUsersTab({ licenseId, businessName, storeName }: Props
   const handlePosLogin = (u: POSUser) => {
     const f = loginFormRef.current;
     if (!f) return;
+    const tienda = storeName || u.pos_store;
     (f.querySelector('[name="username"]') as HTMLInputElement).value = u.pos_username;
-    (f.querySelector('[name="store"]') as HTMLInputElement).value = u.pos_store;
+    (f.querySelector('[name="store"]') as HTMLInputElement).value = tienda;
     (f.querySelector('[name="password"]') as HTMLInputElement).value = u.pos_password;
     (f.querySelector('[name="remember_user"]') as HTMLInputElement).value = "1";
     f.submit();
