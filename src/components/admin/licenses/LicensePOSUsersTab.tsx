@@ -437,7 +437,7 @@ export function LicensePOSUsersTab({ licenseId, businessName }: Props) {
                   <span className="text-sm font-medium">{u.pos_username}</span>
                   <span className="text-xs text-muted-foreground">@{u.pos_store}</span>
                   <Badge variant={u.is_active ? "default" : "secondary"} className="text-[10px]">
-                    {u.pos_role}
+                    {u.pos_role === "superadmin" ? "SuperAdmin" : u.pos_role}
                   </Badge>
                   {!u.is_active && <Badge variant="outline" className="text-[10px] text-destructive">Inactivo</Badge>}
                 </div>
