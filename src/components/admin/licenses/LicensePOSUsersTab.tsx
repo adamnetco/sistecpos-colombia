@@ -405,8 +405,9 @@ export function LicensePOSUsersTab({ licenseId, businessName, storeName }: Props
     setVerifyingId(u.id);
     setVerifyStatus(prev => ({ ...prev, [u.id]: null }));
     try {
+      const tienda = storeName || u.pos_store;
       const { data, error } = await supabase.functions.invoke("validate-pos-login", {
-        body: { username: u.pos_username, password: u.pos_password, store: u.pos_store, consent: false },
+        body: { username: u.pos_username, password: u.pos_password, store: tienda, consent: false },
       });
       if (error) {
         setVerifyStatus(prev => ({ ...prev, [u.id]: 'error' }));
