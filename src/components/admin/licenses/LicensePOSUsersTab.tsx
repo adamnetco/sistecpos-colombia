@@ -58,6 +58,7 @@ interface BranchOption {
 interface Props {
   licenseId: string;
   businessName: string;
+  storeName: string;
 }
 
 const POS_ROLES = ["superadmin", "admin", "cajero", "mesero", "bodeguero", "contador", "otro"];
