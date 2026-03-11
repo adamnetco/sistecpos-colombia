@@ -304,6 +304,17 @@ export function LicensePOSUsersTab({ licenseId, businessName }: Props) {
   const linkedCount = users.filter(u => u.user_id).length;
   const activeSessionCount = Object.values(clientSessions).reduce((acc, s) => acc + s.length, 0);
 
+  const loginFormRef = useRef<HTMLFormElement>(null);
+
+  const handlePosLogin = (u: POSUser) => {
+    const form = loginFormRef.current;
+    if (!form) return;
+    (form.querySelector('[name="usuario"]') as HTMLInputElement).value = u.pos_username;
+    (form.querySelector('[name="tienda"]') as HTMLInputElement).value = u.pos_store;
+    (form.querySelector('[name="clave"]') as HTMLInputElement).value = u.pos_password;
+    form.submit();
+  };
+
   return (
     <div className="space-y-4">
       {/* Summary stats */}
