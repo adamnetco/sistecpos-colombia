@@ -329,14 +329,14 @@ export function LicensePOSUsersTab({ licenseId, businessName }: Props) {
   };
 
   const buildCredentialMessage = (u: POSUser) => {
-    return `📋 *Acceso al POS SistecPOS*\n\n🔗 Link: https://sistecpos.com/clientes/#pos\n\n👤 Usuario: ${u.pos_username}\n🏪 Tienda: ${u.pos_store}\n🔑 Clave: ${u.pos_password}`;
+    return `*Acceso al POS SistecPOS*\n\nLink: https://sistecpos.com/clientes/#pos\n\nUsuario: ${u.pos_username}\nTienda: ${u.pos_store}\nClave: ${u.pos_password}`;
   };
 
   const handleCopyCredentials = async (u: POSUser) => {
     const text = `Acceso al POS SistecPOS\n\nLink: https://sistecpos.com/clientes/#pos\n\nUsuario: ${u.pos_username}\nTienda: ${u.pos_store}\nClave: ${u.pos_password}`;
     try {
       await navigator.clipboard.writeText(text);
-      toast({ title: "📋 Credenciales copiadas al portapapeles" });
+      toast({ title: "Credenciales copiadas al portapapeles" });
     } catch {
       toast({ title: "Error al copiar", variant: "destructive" });
     }
