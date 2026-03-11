@@ -20,9 +20,14 @@ function formatCOPInput(value: number): string {
 
 function parseCOPInput(value: string): number {
   let str = value.replace(/[¤$\s]/g, "").trim();
+  // Count dots - if more than one, they're thousands separators
+  const dotCount = (str.match(/\./g) || []).length;
   const lastComma = str.lastIndexOf(",");
   const lastDot = str.lastIndexOf(".");
-  if (lastComma > lastDot) {
+  if (dotCount > 1) {
+    // Multiple dots = thousands separator (e.g. 1.600.000)
+    str = str.replace(/\./g, "").replace(",", ".");
+  } else if (lastComma > lastDot) {
     str = str.replace(/\./g, "").replace(",", ".");
   } else {
     str = str.replace(/,/g, "");

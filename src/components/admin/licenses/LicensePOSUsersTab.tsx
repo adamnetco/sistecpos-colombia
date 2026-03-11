@@ -1,11 +1,11 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Trash2, Eye, EyeOff, UserPlus, Loader2, Link2, Unlink, Search, Building2, Monitor, Users, Store } from "lucide-react";
+import { Plus, Trash2, Eye, EyeOff, UserPlus, Loader2, Link2, Unlink, Search, Building2, Monitor, Users, Store, LogIn } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
 interface POSUser {
@@ -304,8 +304,25 @@ export function LicensePOSUsersTab({ licenseId, businessName }: Props) {
   const linkedCount = users.filter(u => u.user_id).length;
   const activeSessionCount = Object.values(clientSessions).reduce((acc, s) => acc + s.length, 0);
 
+  const loginFormRef = useRef<HTMLFormElement>(null);
+
+  const handlePosLogin = (u: POSUser) => {
+    const form = loginFormRef.current;
+    if (!form) return;
+    (form.querySelector('[name="usuario"]') as HTMLInputElement).value = u.pos_username;
+    (form.querySelector('[name="tienda"]') as HTMLInputElement).value = u.pos_store;
+    (form.querySelector('[name="clave"]') as HTMLInputElement).value = u.pos_password;
+    form.submit();
+  };
+
   return (
     <div className="space-y-4">
+      {/* Hidden form for POS login */}
+      <form ref={loginFormRef} method="POST" action="https://softwarepos.online/login" target="_blank" className="hidden">
+        <input name="usuario" />
+        <input name="tienda" />
+        <input name="clave" />
+      </form>
       {/* Summary stats */}
       <div className="grid grid-cols-3 gap-2">
         <div className="rounded-lg border bg-card p-2 text-center">
@@ -442,6 +459,9 @@ export function LicensePOSUsersTab({ licenseId, businessName }: Props) {
                   {!u.is_active && <Badge variant="outline" className="text-[10px] text-destructive">Inactivo</Badge>}
                 </div>
                 <div className="flex items-center gap-1">
+                  <Button size="sm" variant="outline" className="h-7 text-[10px] gap-1" onClick={() => handlePosLogin(u)} title="Iniciar sesión en POS">
+                    <LogIn className="h-3 w-3" /> POS
+                  </Button>
                   <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => togglePassword(u.id)}>
                     {visiblePasswords.has(u.id) ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
                   </Button>
