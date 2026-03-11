@@ -226,7 +226,7 @@ export function LicensePOSUsersTab({ licenseId, businessName, storeName }: Props
       toast({ title: "Error: " + error.message, variant: "destructive" });
     } else {
       toast({ title: "Usuario POS registrado" });
-      setForm({ pos_username: "", pos_store: businessName || "", pos_password: "", pos_role: "admin", user_email: "", display_name: "", notes: "", user_id: null, branch_id: "" });
+      setForm({ pos_username: "", pos_store: storeName || businessName || "", pos_password: "", pos_role: "admin", user_email: "", display_name: "", notes: "", user_id: null, branch_id: "" });
       setSelectedUser(null);
       setShowForm(false);
       load();
