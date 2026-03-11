@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Trash2, Eye, EyeOff, UserPlus, Loader2, Link2, Unlink, Search, Building2, Monitor, Users, Store, LogIn, CheckCircle2, XCircle, AlertCircle, Copy, MessageCircle, History } from "lucide-react";
+import { Plus, Trash2, Eye, EyeOff, UserPlus, Loader2, Link2, Unlink, Search, Building2, Monitor, Users, Store, LogIn, CheckCircle2, XCircle, AlertCircle, Copy, MessageCircle, History, Pencil, Save, X } from "lucide-react";
 import { buildWhatsAppUrl, WHATSAPP_DEFAULT_NUMBER } from "@/hooks/useWhatsAppConfig";
 import { useAuth } from "@/hooks/useAuth";
 
