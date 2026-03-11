@@ -1,11 +1,11 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Trash2, Eye, EyeOff, UserPlus, Loader2, Link2, Unlink, Search, Building2, Monitor, Users, Store } from "lucide-react";
+import { Plus, Trash2, Eye, EyeOff, UserPlus, Loader2, Link2, Unlink, Search, Building2, Monitor, Users, Store, LogIn } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
 interface POSUser {
