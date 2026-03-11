@@ -59,7 +59,7 @@ interface Props {
   businessName: string;
 }
 
-const POS_ROLES = ["admin", "cajero", "mesero", "bodeguero", "contador", "otro"];
+const POS_ROLES = ["superadmin", "admin", "cajero", "mesero", "bodeguero", "contador", "otro"];
 
 export function LicensePOSUsersTab({ licenseId, businessName }: Props) {
   const [users, setUsers] = useState<POSUser[]>([]);
@@ -202,15 +202,15 @@ export function LicensePOSUsersTab({ licenseId, businessName }: Props) {
   };
 
   const handleAdd = async () => {
-    if (!form.pos_username || !form.pos_store || !form.pos_password) {
-      toast({ title: "Usuario, empresa y contraseña son requeridos", variant: "destructive" });
+    if (!form.pos_username || !form.pos_password) {
+      toast({ title: "Usuario y contraseña son requeridos", variant: "destructive" });
       return;
     }
     setSaving(true);
     const { error } = await supabase.rpc("insert_pos_user", {
       _license_id: licenseId,
       _pos_username: form.pos_username,
-      _pos_store: form.pos_store,
+      _pos_store: form.pos_store || businessName,
       _pos_password: form.pos_password,
       _pos_role: form.pos_role,
       _user_email: form.user_email || null,
@@ -374,10 +374,6 @@ export function LicensePOSUsersTab({ licenseId, businessName }: Props) {
               <Input value={form.pos_username} onChange={(e) => setForm({ ...form, pos_username: e.target.value })} placeholder="usuario" />
             </div>
             <div>
-              <Label className="text-xs">Empresa POS *</Label>
-              <Input value={form.pos_store} onChange={(e) => setForm({ ...form, pos_store: e.target.value })} placeholder="empresa" />
-            </div>
-            <div>
               <Label className="text-xs">Contraseña POS *</Label>
               <div className="relative">
                 <Input value={form.pos_password} onChange={(e) => setForm({ ...form, pos_password: e.target.value })} type={showFormPassword ? "text" : "password"} placeholder="contraseña" className="pr-9" />
@@ -389,7 +385,7 @@ export function LicensePOSUsersTab({ licenseId, businessName }: Props) {
             <div>
               <Label className="text-xs">Rol POS</Label>
               <select value={form.pos_role} onChange={(e) => setForm({ ...form, pos_role: e.target.value })} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
-                {POS_ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
+                {POS_ROLES.map((r) => <option key={r} value={r}>{r === "superadmin" ? "SuperAdmin" : r}</option>)}
               </select>
             </div>
             <div>
@@ -441,7 +437,7 @@ export function LicensePOSUsersTab({ licenseId, businessName }: Props) {
                   <span className="text-sm font-medium">{u.pos_username}</span>
                   <span className="text-xs text-muted-foreground">@{u.pos_store}</span>
                   <Badge variant={u.is_active ? "default" : "secondary"} className="text-[10px]">
-                    {u.pos_role}
+                    {u.pos_role === "superadmin" ? "SuperAdmin" : u.pos_role}
                   </Badge>
                   {!u.is_active && <Badge variant="outline" className="text-[10px] text-destructive">Inactivo</Badge>}
                 </div>

@@ -56,6 +56,7 @@ interface License {
   pos_invoice_count?: number | null;
   pos_expires_at?: string | null;
   pos_created_at?: string | null;
+  store_name?: string | null;
 }
 
 interface Props {
@@ -83,6 +84,7 @@ export function LicenseDetailsDialog({ license, onClose, onUpdated }: Props) {
     expires_at: "",
     notes: "",
     provider_notes: "",
+    store_name: "",
   });
 
   const initInfoForm = () => {
@@ -99,6 +101,7 @@ export function LicenseDetailsDialog({ license, onClose, onUpdated }: Props) {
       expires_at: license.expires_at || "",
       notes: license.notes || "",
       provider_notes: license.provider_notes || "",
+      store_name: license.store_name || "",
     });
     setEditing(false);
   };
@@ -125,7 +128,8 @@ export function LicenseDetailsDialog({ license, onClose, onUpdated }: Props) {
       expires_at: infoForm.expires_at || null,
       notes: infoForm.notes || null,
       provider_notes: infoForm.provider_notes || null,
-    }).eq("id", license.id);
+      store_name: infoForm.store_name || null,
+    } as any).eq("id", license.id);
     setSavingInfo(false);
     if (error) {
       toast({ title: "Error al guardar", description: error.message, variant: "destructive" });
@@ -235,6 +239,10 @@ export function LicenseDetailsDialog({ license, onClose, onUpdated }: Props) {
                       <Input value={infoForm.business_name} onChange={(e) => setInfoForm(p => ({ ...p, business_name: e.target.value }))} />
                     </div>
                     <div>
+                      <Label className="text-xs">Nombre de Tienda POS</Label>
+                      <Input value={infoForm.store_name} onChange={(e) => setInfoForm(p => ({ ...p, store_name: e.target.value }))} placeholder="Ej: dimanti" />
+                    </div>
+                    <div>
                       <Label className="text-xs">NIT</Label>
                       <Input value={infoForm.business_nit} onChange={(e) => setInfoForm(p => ({ ...p, business_nit: e.target.value }))} />
                     </div>
@@ -297,6 +305,7 @@ export function LicenseDetailsDialog({ license, onClose, onUpdated }: Props) {
               ) : (
                 <>
                   <div className="grid grid-cols-2 gap-3">
+                    <Field label="Tienda POS" value={license.store_name || "—"} />
                     <Field label="NIT" value={license.business_nit || "—"} />
                     <Field label="Plan" value={planLabel(license.plan_type)} />
                     <Field label="Contacto" value={license.contact_name} />
