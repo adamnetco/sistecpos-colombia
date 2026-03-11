@@ -3645,6 +3645,8 @@ export type Database = {
       get_pos_users_for_license: {
         Args: { _license_id: string }
         Returns: {
+          branch_id: string
+          branch_name: string
           created_at: string
           display_name: string
           id: string
@@ -3672,21 +3674,38 @@ export type Database = {
         Returns: undefined
       }
       increment_video_view: { Args: { video_id: string }; Returns: undefined }
-      insert_pos_user: {
-        Args: {
-          _display_name?: string
-          _license_id: string
-          _notes?: string
-          _pos_password: string
-          _pos_role?: string
-          _pos_store: string
-          _pos_username: string
-          _registered_by?: string
-          _user_email?: string
-          _user_id?: string
-        }
-        Returns: string
-      }
+      insert_pos_user:
+        | {
+            Args: {
+              _display_name?: string
+              _license_id: string
+              _notes?: string
+              _pos_password: string
+              _pos_role?: string
+              _pos_store: string
+              _pos_username: string
+              _registered_by?: string
+              _user_email?: string
+              _user_id?: string
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              _branch_id?: string
+              _display_name?: string
+              _license_id: string
+              _notes?: string
+              _pos_password: string
+              _pos_role?: string
+              _pos_store: string
+              _pos_username: string
+              _registered_by?: string
+              _user_email?: string
+              _user_id?: string
+            }
+            Returns: string
+          }
       link_reseller_on_login: {
         Args: { _user_email: string; _user_id: string }
         Returns: Json
@@ -3700,22 +3719,40 @@ export type Database = {
           user_id: string
         }[]
       }
-      update_pos_user: {
-        Args: {
-          _clear_user_link?: boolean
-          _display_name?: string
-          _id: string
-          _is_active?: boolean
-          _notes?: string
-          _pos_password?: string
-          _pos_role?: string
-          _pos_store?: string
-          _pos_username?: string
-          _user_email?: string
-          _user_id?: string
-        }
-        Returns: undefined
-      }
+      update_pos_user:
+        | {
+            Args: {
+              _clear_user_link?: boolean
+              _display_name?: string
+              _id: string
+              _is_active?: boolean
+              _notes?: string
+              _pos_password?: string
+              _pos_role?: string
+              _pos_store?: string
+              _pos_username?: string
+              _user_email?: string
+              _user_id?: string
+            }
+            Returns: undefined
+          }
+        | {
+            Args: {
+              _branch_id?: string
+              _clear_user_link?: boolean
+              _display_name?: string
+              _id: string
+              _is_active?: boolean
+              _notes?: string
+              _pos_password?: string
+              _pos_role?: string
+              _pos_store?: string
+              _pos_username?: string
+              _user_email?: string
+              _user_id?: string
+            }
+            Returns: undefined
+          }
       upsert_client_pos_session: {
         Args: {
           _pos_password: string
