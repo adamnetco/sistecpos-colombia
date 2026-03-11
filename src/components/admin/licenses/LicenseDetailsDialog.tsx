@@ -101,6 +101,7 @@ export function LicenseDetailsDialog({ license, onClose, onUpdated }: Props) {
       expires_at: license.expires_at || "",
       notes: license.notes || "",
       provider_notes: license.provider_notes || "",
+      store_name: license.store_name || "",
     });
     setEditing(false);
   };
