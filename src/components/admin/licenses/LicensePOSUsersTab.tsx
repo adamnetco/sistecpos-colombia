@@ -594,6 +594,9 @@ export function LicensePOSUsersTab({ licenseId, businessName, storeName }: Props
                   <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => togglePassword(u.id)}>
                     {visiblePasswords.has(u.id) ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
                   </Button>
+                  <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => startEdit(u)} title="Editar usuario">
+                    <Pencil className="h-3 w-3" />
+                  </Button>
                   <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => toggleActive(u)}>
                     {u.is_active ? <span className="text-[10px]">🟢</span> : <span className="text-[10px]">🔴</span>}
                   </Button>
@@ -603,8 +606,50 @@ export function LicensePOSUsersTab({ licenseId, businessName, storeName }: Props
                 </div>
               </div>
 
-              {visiblePasswords.has(u.id) && (
+              {visiblePasswords.has(u.id) && editingId !== u.id && (
                 <div className="text-xs font-mono bg-muted/50 rounded px-2 py-1">{u.pos_password}</div>
+              )}
+
+              {/* Inline edit form */}
+              {editingId === u.id && (
+                <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-2">
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <Label className="text-[10px]">Usuario</Label>
+                      <Input value={editForm.pos_username} onChange={(e) => setEditForm(p => ({ ...p, pos_username: e.target.value }))} className="h-7 text-xs" />
+                    </div>
+                    <div>
+                      <Label className="text-[10px]">Clave</Label>
+                      <Input value={editForm.pos_password} onChange={(e) => setEditForm(p => ({ ...p, pos_password: e.target.value }))} className="h-7 text-xs" />
+                    </div>
+                    <div>
+                      <Label className="text-[10px]">Rol</Label>
+                      <select
+                        value={editForm.pos_role}
+                        onChange={(e) => setEditForm(p => ({ ...p, pos_role: e.target.value }))}
+                        className="h-7 w-full text-xs rounded border border-input bg-background px-2"
+                      >
+                        {POS_ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <Label className="text-[10px]">Nombre visible</Label>
+                      <Input value={editForm.display_name} onChange={(e) => setEditForm(p => ({ ...p, display_name: e.target.value }))} className="h-7 text-xs" />
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-[10px]">Notas</Label>
+                    <Input value={editForm.notes} onChange={(e) => setEditForm(p => ({ ...p, notes: e.target.value }))} className="h-7 text-xs" />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button size="sm" className="h-7 text-xs gap-1" onClick={() => handleSaveEdit(u)} disabled={savingEdit}>
+                      {savingEdit ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />} Guardar
+                    </Button>
+                    <Button size="sm" variant="ghost" className="h-7 text-xs gap-1" onClick={cancelEdit}>
+                      <X className="h-3 w-3" /> Cancelar
+                    </Button>
+                  </div>
+                </div>
               )}
 
               {/* Branch assignment */}
