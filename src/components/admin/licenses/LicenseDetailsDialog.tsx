@@ -6,9 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Copy, Check, ExternalLink, Clock, CheckCircle2, AlertTriangle, MapPin, Hash, FileText, Calendar, Save, Loader2, MessageSquare, Pencil, X } from "lucide-react";
+import { Copy, Check, ExternalLink, Clock, CheckCircle2, AlertTriangle, MapPin, Hash, FileText, Calendar, Save, Loader2, MessageSquare, Pencil, X, Store } from "lucide-react";
 import { planLabel, LICENSE_PLANS } from "@/data/licensePlans";
 import { LicensePOSUsersTab } from "./LicensePOSUsersTab";
+import { LicenseBranchesTab } from "./LicenseBranchesTab";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -266,8 +267,9 @@ export function LicenseDetailsDialog({ license, onClose, onUpdated }: Props) {
         </DialogHeader>
 
         <Tabs defaultValue="info" className="mt-2" onValueChange={(v) => { if (v === "provider") initProviderData(); }}>
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="info">Info</TabsTrigger>
+            <TabsTrigger value="branches" className="gap-1"><Store className="h-3 w-3" /> Sedes</TabsTrigger>
             <TabsTrigger value="provider" className="gap-1"><MapPin className="h-3 w-3" /> Proveedor</TabsTrigger>
             <TabsTrigger value="timeline">Trazabilidad</TabsTrigger>
             <TabsTrigger value="pos-users">Usuarios POS</TabsTrigger>
@@ -437,6 +439,11 @@ export function LicenseDetailsDialog({ license, onClose, onUpdated }: Props) {
                 </>
               )}
             </div>
+          </TabsContent>
+
+          {/* ====== BRANCHES TAB ====== */}
+          <TabsContent value="branches">
+            <LicenseBranchesTab licenseId={license.id} businessName={license.business_name} />
           </TabsContent>
 
           {/* ====== PROVIDER TAB ====== */}
