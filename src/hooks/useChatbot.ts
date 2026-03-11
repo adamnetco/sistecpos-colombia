@@ -38,6 +38,8 @@ interface ChatbotContextType {
   userRole: string | null;
   submitFeedback: (msgIndex: number, isPositive: boolean, comment?: string) => Promise<void>;
   feedbackGiven: Set<number>;
+  dismissed: boolean;
+  dismiss: () => void;
 }
 
 const ChatbotContext = createContext<ChatbotContextType | null>(null);
