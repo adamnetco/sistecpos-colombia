@@ -330,7 +330,8 @@ export function LicensePOSUsersTab({ licenseId, businessName, storeName }: Props
   };
 
   const buildCredentialMessage = (u: POSUser) => {
-    return `*Acceso al POS SistecPOS*\n\nLink: https://sistecpos.com/clientes/#pos\n\nUsuario: ${u.pos_username}\nTienda: ${u.pos_store}\nClave: ${u.pos_password}`;
+    const tienda = storeName || u.pos_store;
+    return `*Acceso al POS SistecPOS*\n\nLink: https://sistecpos.com/clientes/#pos\n\nUsuario: ${u.pos_username}\nTienda: ${tienda}\nClave: ${u.pos_password}`;
   };
 
   const handleCopyCredentials = async (u: POSUser) => {
