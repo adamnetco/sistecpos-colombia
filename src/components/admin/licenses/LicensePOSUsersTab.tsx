@@ -335,7 +335,8 @@ export function LicensePOSUsersTab({ licenseId, businessName, storeName }: Props
   };
 
   const handleCopyCredentials = async (u: POSUser) => {
-    const text = `Acceso al POS SistecPOS\n\nLink: https://sistecpos.com/clientes/#pos\n\nUsuario: ${u.pos_username}\nTienda: ${u.pos_store}\nClave: ${u.pos_password}`;
+    const tienda = storeName || u.pos_store;
+    const text = `Acceso al POS SistecPOS\n\nLink: https://sistecpos.com/clientes/#pos\n\nUsuario: ${u.pos_username}\nTienda: ${tienda}\nClave: ${u.pos_password}`;
     try {
       await navigator.clipboard.writeText(text);
       toast({ title: "Credenciales copiadas al portapapeles" });
