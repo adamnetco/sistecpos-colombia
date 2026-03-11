@@ -53,7 +53,7 @@ export function ChatbotWidget() {
     }
   }, [messages, isLoading]);
 
-  if (!visible) return null;
+  if (!visible || dismissed) return null;
 
   const quickQuestions = userRole === "admin"
     ? ["¿Cuál es el MRR actual estimado?", "¿Cómo mejorar la conversión de leads?", "Ayúdame a redactar una propuesta"]
