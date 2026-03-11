@@ -304,15 +304,45 @@ export function LicensePOSUsersTab({ licenseId, businessName }: Props) {
   const linkedCount = users.filter(u => u.user_id).length;
   const activeSessionCount = Object.values(clientSessions).reduce((acc, s) => acc + s.length, 0);
 
+  // Verification state
+  const [verifyingId, setVerifyingId] = useState<string | null>(null);
+  const [verifyStatus, setVerifyStatus] = useState<Record<string, 'success' | 'error' | null>>({});
+
   const loginFormRef = useRef<HTMLFormElement>(null);
 
   const handlePosLogin = (u: POSUser) => {
-    const form = loginFormRef.current;
-    if (!form) return;
-    (form.querySelector('[name="usuario"]') as HTMLInputElement).value = u.pos_username;
-    (form.querySelector('[name="tienda"]') as HTMLInputElement).value = u.pos_store;
-    (form.querySelector('[name="clave"]') as HTMLInputElement).value = u.pos_password;
-    form.submit();
+    const f = loginFormRef.current;
+    if (!f) return;
+    (f.querySelector('[name="username"]') as HTMLInputElement).value = u.pos_username;
+    (f.querySelector('[name="store"]') as HTMLInputElement).value = u.pos_store;
+    (f.querySelector('[name="password"]') as HTMLInputElement).value = u.pos_password;
+    (f.querySelector('[name="remember_user"]') as HTMLInputElement).value = "1";
+    f.submit();
+  };
+
+  const handleVerifyUser = async (u: POSUser) => {
+    setVerifyingId(u.id);
+    setVerifyStatus(prev => ({ ...prev, [u.id]: null }));
+    try {
+      const { data, error } = await supabase.functions.invoke("validate-pos-login", {
+        body: { username: u.pos_username, password: u.pos_password, store: u.pos_store, consent: false },
+      });
+      if (error) {
+        setVerifyStatus(prev => ({ ...prev, [u.id]: 'error' }));
+        toast({ title: "Error al verificar", description: error.message, variant: "destructive" });
+      } else if (data?.success) {
+        setVerifyStatus(prev => ({ ...prev, [u.id]: 'success' }));
+        toast({ title: "✅ Credenciales verificadas", description: "El acceso al POS es válido." });
+      } else {
+        setVerifyStatus(prev => ({ ...prev, [u.id]: 'error' }));
+        toast({ title: "⚠️ No se pudo verificar", description: data?.message || "Las credenciales podrían ser incorrectas.", variant: "destructive" });
+      }
+    } catch {
+      setVerifyStatus(prev => ({ ...prev, [u.id]: 'error' }));
+      toast({ title: "Error de conexión", variant: "destructive" });
+    } finally {
+      setVerifyingId(null);
+    }
   };
 
   return (
