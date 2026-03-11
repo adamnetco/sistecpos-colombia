@@ -1535,6 +1535,68 @@ export type Database = {
           },
         ]
       }
+      license_branches: {
+        Row: {
+          branch_name: string
+          created_at: string
+          expiry_reminder_sent: boolean | null
+          id: string
+          is_active: boolean | null
+          license_id: string
+          notes: string | null
+          pos_created_at: string | null
+          pos_expires_at: string | null
+          pos_invoice_count: number | null
+          pos_license_hash: string | null
+          pos_location: string | null
+          pos_plan_type: string | null
+          sort_order: number | null
+          updated_at: string
+        }
+        Insert: {
+          branch_name?: string
+          created_at?: string
+          expiry_reminder_sent?: boolean | null
+          id?: string
+          is_active?: boolean | null
+          license_id: string
+          notes?: string | null
+          pos_created_at?: string | null
+          pos_expires_at?: string | null
+          pos_invoice_count?: number | null
+          pos_license_hash?: string | null
+          pos_location?: string | null
+          pos_plan_type?: string | null
+          sort_order?: number | null
+          updated_at?: string
+        }
+        Update: {
+          branch_name?: string
+          created_at?: string
+          expiry_reminder_sent?: boolean | null
+          id?: string
+          is_active?: boolean | null
+          license_id?: string
+          notes?: string | null
+          pos_created_at?: string | null
+          pos_expires_at?: string | null
+          pos_invoice_count?: number | null
+          pos_license_hash?: string | null
+          pos_location?: string | null
+          pos_plan_type?: string | null
+          sort_order?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "license_branches_license_id_fkey"
+            columns: ["license_id"]
+            isOneToOne: false
+            referencedRelation: "licenses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       license_pos_users: {
         Row: {
           created_at: string
