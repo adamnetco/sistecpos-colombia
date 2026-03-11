@@ -267,8 +267,9 @@ export function LicenseDetailsDialog({ license, onClose, onUpdated }: Props) {
         </DialogHeader>
 
         <Tabs defaultValue="info" className="mt-2" onValueChange={(v) => { if (v === "provider") initProviderData(); }}>
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="info">Info</TabsTrigger>
+            <TabsTrigger value="branches" className="gap-1"><Store className="h-3 w-3" /> Sedes</TabsTrigger>
             <TabsTrigger value="provider" className="gap-1"><MapPin className="h-3 w-3" /> Proveedor</TabsTrigger>
             <TabsTrigger value="timeline">Trazabilidad</TabsTrigger>
             <TabsTrigger value="pos-users">Usuarios POS</TabsTrigger>
