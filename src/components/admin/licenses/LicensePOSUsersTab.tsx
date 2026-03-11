@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Trash2, Eye, EyeOff, UserPlus, Loader2, Link2, Unlink, Search, Building2, Monitor, Users, Store, LogIn, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
+import { Plus, Trash2, Eye, EyeOff, UserPlus, Loader2, Link2, Unlink, Search, Building2, Monitor, Users, Store, LogIn, CheckCircle2, XCircle, AlertCircle, Copy, MessageCircle, History } from "lucide-react";
+import { buildWhatsAppUrl, WHATSAPP_DEFAULT_NUMBER } from "@/hooks/useWhatsAppConfig";
 import { useAuth } from "@/hooks/useAuth";
 
 interface POSUser {
@@ -308,6 +309,44 @@ export function LicensePOSUsersTab({ licenseId, businessName }: Props) {
   const [verifyingId, setVerifyingId] = useState<string | null>(null);
   const [verifyStatus, setVerifyStatus] = useState<Record<string, 'success' | 'error' | null>>({});
 
+  // Credential history
+  const [historyUserId, setHistoryUserId] = useState<string | null>(null);
+  const [historyEntries, setHistoryEntries] = useState<any[]>([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
+
+  const loadHistory = async (posUserId: string) => {
+    if (historyUserId === posUserId) { setHistoryUserId(null); return; }
+    setHistoryUserId(posUserId);
+    setLoadingHistory(true);
+    const { data } = await supabase
+      .from("pos_credential_history")
+      .select("*")
+      .eq("pos_user_id", posUserId)
+      .order("created_at", { ascending: false })
+      .limit(20);
+    setHistoryEntries(data || []);
+    setLoadingHistory(false);
+  };
+
+  const buildCredentialMessage = (u: POSUser) => {
+    return `📋 *Acceso al POS SistecPOS*\n\n🔗 Link: https://sistecpos.com/clientes/#pos\n\n👤 Usuario: ${u.pos_username}\n🏪 Tienda: ${u.pos_store}\n🔑 Clave: ${u.pos_password}`;
+  };
+
+  const handleCopyCredentials = async (u: POSUser) => {
+    const text = `Acceso al POS SistecPOS\n\nLink: https://sistecpos.com/clientes/#pos\n\nUsuario: ${u.pos_username}\nTienda: ${u.pos_store}\nClave: ${u.pos_password}`;
+    try {
+      await navigator.clipboard.writeText(text);
+      toast({ title: "📋 Credenciales copiadas al portapapeles" });
+    } catch {
+      toast({ title: "Error al copiar", variant: "destructive" });
+    }
+  };
+
+  const handleWhatsAppCredentials = (u: POSUser) => {
+    const msg = buildCredentialMessage(u);
+    window.open(buildWhatsAppUrl(WHATSAPP_DEFAULT_NUMBER, msg), "_blank");
+  };
+
   const loginFormRef = useRef<HTMLFormElement>(null);
 
   const handlePosLogin = (u: POSUser) => {
@@ -505,6 +544,12 @@ export function LicensePOSUsersTab({ licenseId, businessName }: Props) {
                   <Button size="sm" variant="outline" className="h-7 text-[10px] gap-1" onClick={() => handlePosLogin(u)} title="Iniciar sesión en POS">
                     <LogIn className="h-3 w-3" /> POS
                   </Button>
+                  <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => handleCopyCredentials(u)} title="Copiar credenciales">
+                    <Copy className="h-3 w-3" />
+                  </Button>
+                  <Button size="icon" variant="ghost" className="h-7 w-7 text-green-600" onClick={() => handleWhatsAppCredentials(u)} title="Enviar por WhatsApp">
+                    <MessageCircle className="h-3 w-3" />
+                  </Button>
                   <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => togglePassword(u.id)}>
                     {visiblePasswords.has(u.id) ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
                   </Button>
@@ -598,6 +643,33 @@ export function LicensePOSUsersTab({ licenseId, businessName }: Props) {
               )}
 
               {u.notes && <p className="text-[10px] text-muted-foreground italic">{u.notes}</p>}
+
+              {/* Credential history */}
+              <div>
+                <Button size="sm" variant="ghost" className="h-6 text-[10px] gap-1" onClick={() => loadHistory(u.id)}>
+                  <History className="h-2.5 w-2.5" /> {historyUserId === u.id ? "Ocultar historial" : "Historial"}
+                </Button>
+                {historyUserId === u.id && (
+                  <div className="mt-1 space-y-1">
+                    {loadingHistory ? (
+                      <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
+                    ) : historyEntries.length === 0 ? (
+                      <p className="text-[10px] text-muted-foreground">Sin historial registrado.</p>
+                    ) : (
+                      historyEntries.map((h) => (
+                        <div key={h.id} className="text-[10px] bg-muted/40 rounded px-2 py-1 flex items-center gap-2">
+                          <Badge variant="outline" className="text-[9px] shrink-0">
+                            {h.action === "created" ? "✨ Creado" : h.action === "updated" ? "✏️ Editado" : h.action === "deactivated" ? "🔴 Desactivado" : h.action === "reactivated" ? "🟢 Reactivado" : h.action === "migrated_from_demo" ? "🔄 Desde demo" : h.action}
+                          </Badge>
+                          <span className="text-muted-foreground">{h.pos_username}@{h.pos_store}</span>
+                          {h.notes && <span className="text-muted-foreground italic">— {h.notes}</span>}
+                          <span className="ml-auto text-muted-foreground shrink-0">{new Date(h.created_at).toLocaleDateString("es-CO")}</span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           ))}
         </div>
