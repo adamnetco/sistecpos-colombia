@@ -490,6 +490,18 @@ export function LicensePOSUsersTab({ licenseId, businessName }: Props) {
                   {!u.is_active && <Badge variant="outline" className="text-[10px] text-destructive">Inactivo</Badge>}
                 </div>
                 <div className="flex items-center gap-1">
+                  {/* Verify status indicator */}
+                  {verifyStatus[u.id] === 'success' && <CheckCircle2 className="h-4 w-4 text-emerald-500" title="Verificado" />}
+                  {verifyStatus[u.id] === 'error' && <XCircle className="h-4 w-4 text-destructive" title="No verificado" />}
+                  <Button
+                    size="sm" variant="ghost" className="h-7 text-[10px] gap-1"
+                    onClick={() => handleVerifyUser(u)}
+                    disabled={verifyingId === u.id}
+                    title="Verificar credenciales"
+                  >
+                    {verifyingId === u.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <AlertCircle className="h-3 w-3" />}
+                    Verificar
+                  </Button>
                   <Button size="sm" variant="outline" className="h-7 text-[10px] gap-1" onClick={() => handlePosLogin(u)} title="Iniciar sesión en POS">
                     <LogIn className="h-3 w-3" /> POS
                   </Button>
