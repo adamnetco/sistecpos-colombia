@@ -1605,7 +1605,8 @@ export type Database = {
           id: string
           is_active: boolean
           last_verified_at: string | null
-          license_id: string
+          lead_id: string | null
+          license_id: string | null
           notes: string | null
           pos_password_encrypted: string
           pos_role: string
@@ -1623,7 +1624,8 @@ export type Database = {
           id?: string
           is_active?: boolean
           last_verified_at?: string | null
-          license_id: string
+          lead_id?: string | null
+          license_id?: string | null
           notes?: string | null
           pos_password_encrypted: string
           pos_role?: string
@@ -1641,7 +1643,8 @@ export type Database = {
           id?: string
           is_active?: boolean
           last_verified_at?: string | null
-          license_id?: string
+          lead_id?: string | null
+          license_id?: string | null
           notes?: string | null
           pos_password_encrypted?: string
           pos_role?: string
@@ -1658,6 +1661,13 @@ export type Database = {
             columns: ["branch_id"]
             isOneToOne: false
             referencedRelation: "license_branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "license_pos_users_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads_trials"
             referencedColumns: ["id"]
           },
           {
@@ -2246,7 +2256,8 @@ export type Database = {
           created_at: string
           display_name: string | null
           id: string
-          license_id: string
+          lead_id: string | null
+          license_id: string | null
           notes: string | null
           pos_role: string | null
           pos_store: string | null
@@ -2260,7 +2271,8 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
-          license_id: string
+          lead_id?: string | null
+          license_id?: string | null
           notes?: string | null
           pos_role?: string | null
           pos_store?: string | null
@@ -2274,7 +2286,8 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
-          license_id?: string
+          lead_id?: string | null
+          license_id?: string | null
           notes?: string | null
           pos_role?: string | null
           pos_store?: string | null
@@ -3698,6 +3711,23 @@ export type Database = {
           token_expires_at: string
         }[]
       }
+      get_pos_users_for_lead: {
+        Args: { _lead_id: string }
+        Returns: {
+          created_at: string
+          display_name: string
+          id: string
+          is_active: boolean
+          last_verified_at: string
+          lead_id: string
+          notes: string
+          pos_password: string
+          pos_role: string
+          pos_store: string
+          pos_username: string
+          user_email: string
+        }[]
+      }
       get_pos_users_for_license: {
         Args: { _license_id: string }
         Returns: {
@@ -3746,9 +3776,27 @@ export type Database = {
         }
         Returns: string
       }
+      insert_pos_user_for_lead: {
+        Args: {
+          _display_name?: string
+          _lead_id: string
+          _notes?: string
+          _pos_password: string
+          _pos_role?: string
+          _pos_store: string
+          _pos_username: string
+          _registered_by?: string
+          _user_email?: string
+        }
+        Returns: string
+      }
       link_reseller_on_login: {
         Args: { _user_email: string; _user_id: string }
         Returns: Json
+      }
+      migrate_lead_pos_users_to_license: {
+        Args: { _lead_id: string; _license_id: string }
+        Returns: number
       }
       search_profiles: {
         Args: { _limit?: number; _query: string }
