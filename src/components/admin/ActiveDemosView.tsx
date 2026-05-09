@@ -15,7 +15,9 @@ import {
   Send, Loader2, Mail, Phone, MapPin,
   Building2, User, CheckCircle2, RefreshCw, Lock, Eye, Search,
   Rocket, Clock, AlertTriangle, Calendar, Presentation, Tag, Globe, Ticket,
+  Pencil, Save, X,
 } from "lucide-react";
+import { LeadPOSUsersTab } from "./sales/LeadPOSUsersTab";
 
 interface DemoLead {
   id: string;
