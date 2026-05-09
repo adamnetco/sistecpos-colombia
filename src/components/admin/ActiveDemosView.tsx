@@ -743,6 +743,17 @@ export default function ActiveDemosView() {
                   <p className="text-xs text-muted-foreground">Las credenciales se gestionan en etapa "Gestionando Demo" o "Activación Solicitada".</p>
                 </div>
               )}
+
+              {/* Multiple POS users for this demo (copy / WhatsApp share like in active license) */}
+              <div className="rounded-lg border bg-card p-3">
+                <LeadPOSUsersTab
+                  leadId={selectedLead.id}
+                  storeName={selectedLead.short_name || selectedLead.pos_company || ""}
+                  contactPhone={selectedLead.phone}
+                  defaultUsername={selectedLead.pos_username}
+                  defaultPassword={selectedLead.pos_password}
+                />
+              </div>
             </div>
           )}
 
