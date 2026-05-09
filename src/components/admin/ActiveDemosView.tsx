@@ -81,7 +81,61 @@ export default function ActiveDemosView() {
   });
   const [sending, setSending] = useState(false);
   const [domains, setDomains] = useState<EmailDomain[]>([]);
+
+  // Inline lead-info editor
+  const [editingLead, setEditingLead] = useState(false);
+  const [savingLead, setSavingLead] = useState(false);
+  const [leadEdit, setLeadEdit] = useState({
+    business_name: "",
+    contact_name: "",
+    email: "",
+    phone: "",
+    city: "",
+    business_type: "",
+  });
+
   const { toast } = useToast();
+
+  const startLeadEdit = (l: DemoLead) => {
+    setLeadEdit({
+      business_name: l.business_name || "",
+      contact_name: l.contact_name || "",
+      email: l.email || "",
+      phone: l.phone || "",
+      city: l.city || "",
+      business_type: l.business_type || "",
+    });
+    setEditingLead(true);
+  };
+
+  const handleSaveLead = async () => {
+    if (!selectedLead) return;
+    if (!leadEdit.business_name || !leadEdit.contact_name) {
+      toast({ title: "Negocio y contacto son requeridos", variant: "destructive" });
+      return;
+    }
+    setSavingLead(true);
+    const { error } = await supabase
+      .from("leads_trials")
+      .update({
+        business_name: leadEdit.business_name,
+        contact_name: leadEdit.contact_name,
+        email: leadEdit.email,
+        phone: leadEdit.phone,
+        city: leadEdit.city || null,
+        business_type: leadEdit.business_type || null,
+      })
+      .eq("id", selectedLead.id);
+    setSavingLead(false);
+    if (error) {
+      toast({ title: "Error al guardar", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Información actualizada" });
+      setSelectedLead({ ...selectedLead, ...leadEdit, city: leadEdit.city || null, business_type: leadEdit.business_type || null } as DemoLead);
+      setEditingLead(false);
+      load();
+    }
+  };
 
   const loadDomains = async () => {
     const { data } = await supabase.from("approved_email_domains").select("*").eq("is_active", true).order("sort_order");
