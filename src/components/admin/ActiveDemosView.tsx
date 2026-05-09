@@ -540,21 +540,62 @@ export default function ActiveDemosView() {
 
           {selectedLead && (
             <div className="space-y-4">
-              {/* Lead Info */}
+              {/* Lead Info (with inline edit) */}
               <div className="rounded-lg border bg-muted/30 p-4 space-y-2">
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div className="flex items-center gap-2"><User className="h-3.5 w-3.5 text-muted-foreground" /> {selectedLead.contact_name}</div>
-                  <div className="flex items-center gap-2"><Building2 className="h-3.5 w-3.5 text-muted-foreground" /> {selectedLead.business_name}</div>
-                  <a href={`mailto:${selectedLead.email}`} className="flex items-center gap-2 text-primary hover:underline"><Mail className="h-3.5 w-3.5" /> {selectedLead.email}</a>
-                  <a href={`tel:${selectedLead.phone}`} className="flex items-center gap-2 text-primary hover:underline"><Phone className="h-3.5 w-3.5" /> {selectedLead.phone}</a>
-                  <div className="flex items-center gap-2"><MapPin className="h-3.5 w-3.5 text-muted-foreground" /> {selectedLead.city || "—"}</div>
-                  <div className="flex items-center gap-2"><Calendar className="h-3.5 w-3.5 text-muted-foreground" /> {new Date(selectedLead.created_at).toLocaleDateString("es-CO")}</div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Información del prospecto</span>
+                  {!editingLead ? (
+                    <Button size="sm" variant="ghost" className="h-7 text-[11px] gap-1" onClick={() => startLeadEdit(selectedLead)}>
+                      <Pencil className="h-3 w-3" /> Editar
+                    </Button>
+                  ) : (
+                    <div className="flex gap-1">
+                      <Button size="sm" className="h-7 text-[11px] gap-1" onClick={handleSaveLead} disabled={savingLead}>
+                        {savingLead ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />} Guardar
+                      </Button>
+                      <Button size="sm" variant="ghost" className="h-7 text-[11px] gap-1" onClick={() => setEditingLead(false)}>
+                        <X className="h-3 w-3" /> Cancelar
+                      </Button>
+                    </div>
+                  )}
                 </div>
-                {selectedLead.assigned_email && (
-                  <div className="flex items-center gap-2 text-sm text-primary">
-                    <Globe className="h-3.5 w-3.5" /> Correo asignado: <strong>{selectedLead.assigned_email}</strong>
+
+                {!editingLead ? (
+                  <>
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      <div className="flex items-center gap-2"><User className="h-3.5 w-3.5 text-muted-foreground" /> {selectedLead.contact_name}</div>
+                      <div className="flex items-center gap-2"><Building2 className="h-3.5 w-3.5 text-muted-foreground" /> {selectedLead.business_name}</div>
+                      <a href={`mailto:${selectedLead.email}`} className="flex items-center gap-2 text-primary hover:underline"><Mail className="h-3.5 w-3.5" /> {selectedLead.email}</a>
+                      <a href={`tel:${selectedLead.phone}`} className="flex items-center gap-2 text-primary hover:underline"><Phone className="h-3.5 w-3.5" /> {selectedLead.phone}</a>
+                      <div className="flex items-center gap-2"><MapPin className="h-3.5 w-3.5 text-muted-foreground" /> {selectedLead.city || "—"}</div>
+                      <div className="flex items-center gap-2"><Calendar className="h-3.5 w-3.5 text-muted-foreground" /> {new Date(selectedLead.created_at).toLocaleDateString("es-CO")}</div>
+                      {selectedLead.business_type && (
+                        <div className="flex items-center gap-2 col-span-2"><Tag className="h-3.5 w-3.5 text-muted-foreground" /> {selectedLead.business_type}</div>
+                      )}
+                    </div>
+                    {selectedLead.assigned_email && (
+                      <div className="flex items-center gap-2 text-sm text-primary">
+                        <Globe className="h-3.5 w-3.5" /> Correo asignado: <strong>{selectedLead.assigned_email}</strong>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div className="grid grid-cols-2 gap-2">
+                    <div><Label className="text-[10px]">Negocio *</Label>
+                      <Input className="h-8 text-sm" value={leadEdit.business_name} onChange={(e) => setLeadEdit({ ...leadEdit, business_name: e.target.value })} /></div>
+                    <div><Label className="text-[10px]">Contacto *</Label>
+                      <Input className="h-8 text-sm" value={leadEdit.contact_name} onChange={(e) => setLeadEdit({ ...leadEdit, contact_name: e.target.value })} /></div>
+                    <div><Label className="text-[10px]">Email</Label>
+                      <Input className="h-8 text-sm" type="email" value={leadEdit.email} onChange={(e) => setLeadEdit({ ...leadEdit, email: e.target.value })} /></div>
+                    <div><Label className="text-[10px]">Teléfono</Label>
+                      <Input className="h-8 text-sm" value={leadEdit.phone} onChange={(e) => setLeadEdit({ ...leadEdit, phone: e.target.value })} /></div>
+                    <div><Label className="text-[10px]">Ciudad</Label>
+                      <Input className="h-8 text-sm" value={leadEdit.city} onChange={(e) => setLeadEdit({ ...leadEdit, city: e.target.value })} /></div>
+                    <div><Label className="text-[10px]">Tipo negocio</Label>
+                      <Input className="h-8 text-sm" value={leadEdit.business_type} onChange={(e) => setLeadEdit({ ...leadEdit, business_type: e.target.value })} /></div>
                   </div>
                 )}
+
                 <div className="pt-1">
                   <Badge className={stageConfig[selectedLead.status]?.color || ""}>{stageConfig[selectedLead.status]?.icon} {stageConfig[selectedLead.status]?.label}</Badge>
                 </div>
