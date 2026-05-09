@@ -190,6 +190,16 @@ export function LeadConversionDialog({ lead, onClose, onConverted }: Props) {
         }
       }
 
+      // Migrate any lead-bound POS users (from demo) to the new license
+      try {
+        await supabase.rpc("migrate_lead_pos_users_to_license", {
+          _lead_id: lead.id,
+          _license_id: newLicense.id,
+        });
+      } catch (mErr) {
+        console.warn("Lead POS users migration failed (non-critical):", mErr);
+      }
+
       const { error: leadUpdateError } = await supabase.from("leads_trials").update({
         status: "converted",
         converted_at: new Date().toISOString(),
