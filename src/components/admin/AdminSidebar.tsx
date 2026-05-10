@@ -28,8 +28,7 @@ const navGroups: NavGroup[] = [
   {
     label: "Contactos",
     items: [
-      { name: "Libreta", href: "/admin/contactos", icon: Contact2 },
-      { name: "Pipeline", href: "/admin/pipeline", icon: Kanban },
+      { name: "CRM (Libreta + Pipeline)", href: "/admin/contactos", icon: Contact2 },
       { name: "Socios", href: "/admin/socios", icon: Handshake },
       { name: "Proveedores", href: "/admin/proveedores", icon: Package },
     ],

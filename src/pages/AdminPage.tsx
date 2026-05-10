@@ -73,7 +73,7 @@ export default function AdminPage() {
             <Route path="pagos" element={<PaymentsView />} />
             <Route path="socios" element={<ResellersView />} />
             <Route path="contactos" element={<ContactsView />} />
-            <Route path="pipeline" element={<ContactPipelineView />} />
+            <Route path="pipeline" element={<Navigate to="/admin/contactos?view=pipeline" replace />} />
             <Route path="central-ia" element={<CentralIAView />} />
             <Route path="tracking" element={<TrackingView />} />
             <Route path="articulos-dian" element={<DianArticlesView />} />

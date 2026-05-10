@@ -8,12 +8,14 @@ import { useToast } from "@/hooks/use-toast";
 import {
   Users, Bot, Eye, EyeOff, Search, Plus, Mail, Phone,
   Building2, MapPin, Filter, RefreshCw, Download, KeyRound, Link2, UserCog,
+  Table as TableIcon, Kanban,
 } from "lucide-react";
 import { exportToCsv } from "@/lib/exportCsv";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import ContactDetailPanel from "./ContactDetailPanel";
+import ContactPipelineView from "./ContactPipelineView";
 
 interface Contact {
   id: string;
@@ -80,6 +82,9 @@ export default function ContactsView() {
   const [activeFilter, setActiveFilter] = useState("all");
   const [showForm, setShowForm] = useState(false);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
+  const [view, setView] = useState<"table" | "pipeline">(
+    () => (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("view") === "pipeline" ? "pipeline" : "table")
+  );
   const { toast } = useToast();
 
   const load = async () => {
@@ -210,30 +215,53 @@ export default function ContactsView() {
             {unreadCount > 0 && <span className="ml-2 text-primary font-medium">· {unreadCount} sin leer</span>}
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <Button size="sm" variant="outline" onClick={() => exportToCsv(filtered as any[], [
-            { key: "full_name", label: "Nombre" },
-            { key: "email", label: "Email" },
-            { key: "phone", label: "Teléfono" },
-            { key: "city", label: "Ciudad" },
-            { key: "business_name", label: "Negocio" },
-            { key: "contact_type", label: "Tipo" },
-            { key: "source", label: "Fuente" },
-            { key: "created_at", label: "Fecha" },
-          ], "contactos")}>
-            <Download className="h-3.5 w-3.5 mr-1" /> Exportar
-          </Button>
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="inline-flex rounded-lg border bg-card p-0.5">
+            <button
+              onClick={() => setView("table")}
+              className={`inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${view === "table" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"}`}
+              title="Vista tabla"
+            >
+              <TableIcon className="h-3.5 w-3.5" /> Tabla
+            </button>
+            <button
+              onClick={() => setView("pipeline")}
+              className={`inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${view === "pipeline" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"}`}
+              title="Vista pipeline (CRM)"
+            >
+              <Kanban className="h-3.5 w-3.5" /> Pipeline
+            </button>
+          </div>
+          {view === "table" && (
+            <Button size="sm" variant="outline" onClick={() => exportToCsv(filtered as any[], [
+              { key: "full_name", label: "Nombre" },
+              { key: "email", label: "Email" },
+              { key: "phone", label: "Teléfono" },
+              { key: "city", label: "Ciudad" },
+              { key: "business_name", label: "Negocio" },
+              { key: "contact_type", label: "Tipo" },
+              { key: "source", label: "Fuente" },
+              { key: "created_at", label: "Fecha" },
+            ], "contactos")}>
+              <Download className="h-3.5 w-3.5 mr-1" /> Exportar
+            </Button>
+          )}
           <Dialog open={showForm} onOpenChange={setShowForm}>
             <DialogTrigger asChild>
-              <Button size="sm"><Plus className="h-3.5 w-3.5 mr-1" /> Nuevo</Button>
+              <Button size="sm"><Plus className="h-3.5 w-3.5 mr-1" /> Nuevo Contacto</Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader><DialogTitle>Nuevo Contacto</DialogTitle></DialogHeader>
-              <NewContactForm onSuccess={() => { setShowForm(false); load(); }} />
+              <NewContactForm onSuccess={() => { setShowForm(false); load(); setView("pipeline"); }} />
             </DialogContent>
           </Dialog>
         </div>
       </div>
+
+      {view === "pipeline" ? (
+        <ContactPipelineView />
+      ) : (
+        <>
 
       {/* Filter chips */}
       <div className="mb-4 flex flex-wrap gap-2">
@@ -419,6 +447,8 @@ export default function ContactsView() {
           contact={selectedContact as any}
           onUpdate={() => { setSelectedContact(null); load(); }}
         />
+      )}
+        </>
       )}
     </div>
   );

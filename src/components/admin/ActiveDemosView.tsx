@@ -94,6 +94,56 @@ export default function ActiveDemosView() {
     business_type: "",
   });
 
+  // Inline credentials editor
+  const [editingCreds, setEditingCreds] = useState(false);
+  const [savingCreds, setSavingCreds] = useState(false);
+  const [credEdit, setCredEdit] = useState({
+    pos_username: "",
+    pos_company: "",
+    pos_password: "",
+    short_name: "",
+    assigned_email: "",
+  });
+
+  const startCredsEdit = (l: DemoLead) => {
+    setCredEdit({
+      pos_username: l.pos_username || "",
+      pos_company: l.pos_company || "",
+      pos_password: l.pos_password || "",
+      short_name: l.short_name || "",
+      assigned_email: l.assigned_email || "",
+    });
+    setEditingCreds(true);
+  };
+
+  const handleSaveCreds = async () => {
+    if (!selectedLead) return;
+    if (!credEdit.pos_username || !credEdit.pos_company || !credEdit.pos_password) {
+      toast({ title: "Usuario, Empresa y Contraseña son requeridos", variant: "destructive" });
+      return;
+    }
+    setSavingCreds(true);
+    const { error } = await supabase
+      .from("leads_trials")
+      .update({
+        pos_username: credEdit.pos_username,
+        pos_company: credEdit.pos_company,
+        pos_password: credEdit.pos_password,
+        short_name: credEdit.short_name || null,
+        assigned_email: credEdit.assigned_email || null,
+      })
+      .eq("id", selectedLead.id);
+    setSavingCreds(false);
+    if (error) {
+      toast({ title: "Error al guardar credenciales", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Credenciales actualizadas" });
+      setSelectedLead({ ...selectedLead, ...credEdit, short_name: credEdit.short_name || null, assigned_email: credEdit.assigned_email || null } as DemoLead);
+      setEditingCreds(false);
+      load();
+    }
+  };
+
   const { toast } = useToast();
 
   const startLeadEdit = (l: DemoLead) => {
@@ -625,33 +675,85 @@ export default function ActiveDemosView() {
                     <p className="text-sm font-semibold text-green-800 flex items-center gap-2">
                       <CheckCircle2 className="h-4 w-4" /> Credenciales Enviadas
                     </p>
-                    <Badge variant="outline" className="text-xs border-green-300 text-green-700 bg-green-100">✓ Demo Activa</Badge>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="text-xs border-green-300 text-green-700 bg-green-100">✓ Demo Activa</Badge>
+                      {!editingCreds && (
+                        <Button size="sm" variant="ghost" className="h-7 px-2 text-green-700 hover:bg-green-100" onClick={() => startCredsEdit(selectedLead)} title="Editar credenciales">
+                          <Pencil className="h-3.5 w-3.5" />
+                        </Button>
+                      )}
+                    </div>
                   </div>
-                  <div className="bg-white border border-green-200 rounded-lg p-3 space-y-1">
-                    <div className="flex items-center gap-2 text-sm">
-                      <span className="text-muted-foreground w-24">Usuario:</span>
-                      <span className="font-mono font-medium">{selectedLead.pos_username}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm">
-                      <span className="text-muted-foreground w-24">Empresa:</span>
-                      <span className="font-mono font-medium">{selectedLead.pos_company}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm">
-                      <span className="text-muted-foreground w-24">Contraseña:</span>
-                      <span className="font-mono font-medium">{selectedLead.pos_password}</span>
-                    </div>
-                    {selectedLead.assigned_email && (
-                      <div className="flex items-center gap-2 text-sm">
-                        <span className="text-muted-foreground w-24">Correo POS:</span>
-                        <span className="font-mono font-medium text-primary">{selectedLead.assigned_email}</span>
+
+                  {editingCreds ? (
+                    <div className="bg-white border border-green-200 rounded-lg p-3 space-y-2">
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <Label className="text-[11px]">Usuario *</Label>
+                          <Input value={credEdit.pos_username} onFocus={(e) => e.currentTarget.select()} onChange={(e) => setCredEdit(p => ({ ...p, pos_username: e.target.value }))} className="h-8 text-sm font-mono" />
+                        </div>
+                        <div>
+                          <Label className="text-[11px]">Empresa (corto) *</Label>
+                          <Input value={credEdit.pos_company} onFocus={(e) => e.currentTarget.select()} onChange={(e) => setCredEdit(p => ({ ...p, pos_company: e.target.value }))} className="h-8 text-sm font-mono" />
+                        </div>
+                        <div>
+                          <Label className="text-[11px]">Contraseña *</Label>
+                          <Input value={credEdit.pos_password} onFocus={(e) => e.currentTarget.select()} onChange={(e) => setCredEdit(p => ({ ...p, pos_password: e.target.value }))} className="h-8 text-sm font-mono" />
+                        </div>
+                        <div>
+                          <Label className="text-[11px]">Nombre Tienda POS</Label>
+                          <Input value={credEdit.short_name} onFocus={(e) => e.currentTarget.select()} onChange={(e) => setCredEdit(p => ({ ...p, short_name: e.target.value }))} className="h-8 text-sm font-mono" placeholder="Identificador corto" />
+                        </div>
+                        <div className="col-span-2">
+                          <Label className="text-[11px]">Correo POS asignado</Label>
+                          <Input value={credEdit.assigned_email} onFocus={(e) => e.currentTarget.select()} onChange={(e) => setCredEdit(p => ({ ...p, assigned_email: e.target.value }))} className="h-8 text-sm font-mono" placeholder="usuario@dominio.com" />
+                        </div>
                       </div>
-                    )}
-                  </div>
+                      <div className="flex gap-2 pt-1">
+                        <Button size="sm" className="h-8 text-xs gap-1 bg-green-600 hover:bg-green-700" onClick={handleSaveCreds} disabled={savingCreds}>
+                          {savingCreds ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+                          Guardar
+                        </Button>
+                        <Button size="sm" variant="ghost" className="h-8 text-xs gap-1" onClick={() => setEditingCreds(false)} disabled={savingCreds}>
+                          <X className="h-3.5 w-3.5" /> Cancelar
+                        </Button>
+                      </div>
+                      <p className="text-[10px] text-muted-foreground italic">Al guardar, los cambios se reflejan al instante. Usa "Reenviar" para notificar al cliente.</p>
+                    </div>
+                  ) : (
+                    <div className="bg-white border border-green-200 rounded-lg p-3 space-y-1">
+                      <div className="flex items-center gap-2 text-sm">
+                        <span className="text-muted-foreground w-24">Usuario:</span>
+                        <span className="font-mono font-medium">{selectedLead.pos_username}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <span className="text-muted-foreground w-24">Empresa:</span>
+                        <span className="font-mono font-medium">{selectedLead.pos_company}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <span className="text-muted-foreground w-24">Contraseña:</span>
+                        <span className="font-mono font-medium">{selectedLead.pos_password}</span>
+                      </div>
+                      {selectedLead.short_name && (
+                        <div className="flex items-center gap-2 text-sm">
+                          <span className="text-muted-foreground w-24">Tienda POS:</span>
+                          <span className="font-mono font-medium">{selectedLead.short_name}</span>
+                        </div>
+                      )}
+                      {selectedLead.assigned_email && (
+                        <div className="flex items-center gap-2 text-sm">
+                          <span className="text-muted-foreground w-24">Correo POS:</span>
+                          <span className="font-mono font-medium text-primary">{selectedLead.assigned_email}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={handleResendCredentials}
-                    disabled={sending}
+                    disabled={sending || editingCreds}
                     className="w-full border-green-300 text-green-700 hover:bg-green-100"
                   >
                     {sending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
@@ -659,7 +761,7 @@ export default function ActiveDemosView() {
                   </Button>
 
                   {/* Software Presentation button for active demos */}
-                  {selectedLead.status === "active_trial" && !selectedLead.coupon_id && (
+                  {selectedLead.status === "active_trial" && !selectedLead.coupon_id && !editingCreds && (
                     <Button
                       variant="outline"
                       size="sm"
