@@ -94,6 +94,56 @@ export default function ActiveDemosView() {
     business_type: "",
   });
 
+  // Inline credentials editor
+  const [editingCreds, setEditingCreds] = useState(false);
+  const [savingCreds, setSavingCreds] = useState(false);
+  const [credEdit, setCredEdit] = useState({
+    pos_username: "",
+    pos_company: "",
+    pos_password: "",
+    short_name: "",
+    assigned_email: "",
+  });
+
+  const startCredsEdit = (l: DemoLead) => {
+    setCredEdit({
+      pos_username: l.pos_username || "",
+      pos_company: l.pos_company || "",
+      pos_password: l.pos_password || "",
+      short_name: l.short_name || "",
+      assigned_email: l.assigned_email || "",
+    });
+    setEditingCreds(true);
+  };
+
+  const handleSaveCreds = async () => {
+    if (!selectedLead) return;
+    if (!credEdit.pos_username || !credEdit.pos_company || !credEdit.pos_password) {
+      toast({ title: "Usuario, Empresa y Contraseña son requeridos", variant: "destructive" });
+      return;
+    }
+    setSavingCreds(true);
+    const { error } = await supabase
+      .from("leads_trials")
+      .update({
+        pos_username: credEdit.pos_username,
+        pos_company: credEdit.pos_company,
+        pos_password: credEdit.pos_password,
+        short_name: credEdit.short_name || null,
+        assigned_email: credEdit.assigned_email || null,
+      })
+      .eq("id", selectedLead.id);
+    setSavingCreds(false);
+    if (error) {
+      toast({ title: "Error al guardar credenciales", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Credenciales actualizadas" });
+      setSelectedLead({ ...selectedLead, ...credEdit, short_name: credEdit.short_name || null, assigned_email: credEdit.assigned_email || null } as DemoLead);
+      setEditingCreds(false);
+      load();
+    }
+  };
+
   const { toast } = useToast();
 
   const startLeadEdit = (l: DemoLead) => {
