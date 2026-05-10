@@ -448,6 +448,8 @@ export default function ContactsView() {
           onUpdate={() => { setSelectedContact(null); load(); }}
         />
       )}
+        </>
+      )}
     </div>
   );
 }
