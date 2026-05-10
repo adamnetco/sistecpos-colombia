@@ -8,12 +8,14 @@ import { useToast } from "@/hooks/use-toast";
 import {
   Users, Bot, Eye, EyeOff, Search, Plus, Mail, Phone,
   Building2, MapPin, Filter, RefreshCw, Download, KeyRound, Link2, UserCog,
+  Table as TableIcon, Kanban,
 } from "lucide-react";
 import { exportToCsv } from "@/lib/exportCsv";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import ContactDetailPanel from "./ContactDetailPanel";
+import ContactPipelineView from "./ContactPipelineView";
 
 interface Contact {
   id: string;
