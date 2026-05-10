@@ -82,6 +82,9 @@ export default function ContactsView() {
   const [activeFilter, setActiveFilter] = useState("all");
   const [showForm, setShowForm] = useState(false);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
+  const [view, setView] = useState<"table" | "pipeline">(
+    () => (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("view") === "pipeline" ? "pipeline" : "table")
+  );
   const { toast } = useToast();
 
   const load = async () => {
