@@ -45,18 +45,13 @@ export function ClientPOSLogin() {
     }
   }, [searchParams]);
 
-  // Auto-fill demo credentials and auto-submit when ?quick=demo
+  // Scroll to POS card when ?quick=demo (no auto-fill, fields stay empty)
   useEffect(() => {
     const quick = searchParams.get("quick");
     if (quick === "demo") {
-      // Scroll to POS card
       setTimeout(() => {
         posCardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
       }, 300);
-      // Auto-submit with demo credentials
-      setTimeout(() => {
-        submitPOSForm("demo", "demo", "demo");
-      }, 600);
     }
   }, [searchParams]);
 
