@@ -279,6 +279,59 @@ export type Database = {
         }
         Relationships: []
       }
+      business_branches: {
+        Row: {
+          address: string | null
+          branch_name: string
+          business_id: string
+          city: string | null
+          created_at: string
+          email: string | null
+          id: string
+          is_primary: boolean
+          notes: string | null
+          phone: string | null
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          branch_name?: string
+          business_id: string
+          city?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_primary?: boolean
+          notes?: string | null
+          phone?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          branch_name?: string
+          business_id?: string
+          city?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_primary?: boolean
+          notes?: string | null
+          phone?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_branches_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       businesses: {
         Row: {
           address: string | null
@@ -287,10 +340,15 @@ export type Database = {
           created_at: string
           email: string | null
           id: string
+          industry: string | null
+          legal_name: string | null
           nit: string | null
-          owner_user_id: string
+          notes: string | null
+          owner_user_id: string | null
           phone: string | null
+          primary_contact_id: string | null
           updated_at: string
+          website: string | null
         }
         Insert: {
           address?: string | null
@@ -299,10 +357,15 @@ export type Database = {
           created_at?: string
           email?: string | null
           id?: string
+          industry?: string | null
+          legal_name?: string | null
           nit?: string | null
-          owner_user_id: string
+          notes?: string | null
+          owner_user_id?: string | null
           phone?: string | null
+          primary_contact_id?: string | null
           updated_at?: string
+          website?: string | null
         }
         Update: {
           address?: string | null
@@ -311,10 +374,15 @@ export type Database = {
           created_at?: string
           email?: string | null
           id?: string
+          industry?: string | null
+          legal_name?: string | null
           nit?: string | null
-          owner_user_id?: string
+          notes?: string | null
+          owner_user_id?: string | null
           phone?: string | null
+          primary_contact_id?: string | null
           updated_at?: string
+          website?: string | null
         }
         Relationships: []
       }
@@ -969,14 +1037,63 @@ export type Database = {
           },
         ]
       }
+      contact_activity_log: {
+        Row: {
+          action: string
+          actor_user_id: string | null
+          business_id: string | null
+          contact_id: string
+          created_at: string
+          details: Json | null
+          id: string
+        }
+        Insert: {
+          action: string
+          actor_user_id?: string | null
+          business_id?: string | null
+          contact_id: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+        }
+        Update: {
+          action?: string
+          actor_user_id?: string | null
+          business_id?: string | null
+          contact_id?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_activity_log_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contact_activity_log_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contacts: {
         Row: {
+          address: string | null
+          branch_id: string | null
+          business_id: string | null
           business_name: string | null
           business_type: string | null
           captured_by_ai: boolean
           city: string | null
           contact_type: string
           created_at: string
+          document_id: string | null
           email: string | null
           full_name: string
           id: string
@@ -988,6 +1105,7 @@ export type Database = {
           phone: string | null
           pipeline_stage: string
           reseller_id: string | null
+          role_in_business: string | null
           source: string
           tags: string[] | null
           updated_at: string
@@ -996,12 +1114,16 @@ export type Database = {
           utm_source: string | null
         }
         Insert: {
+          address?: string | null
+          branch_id?: string | null
+          business_id?: string | null
           business_name?: string | null
           business_type?: string | null
           captured_by_ai?: boolean
           city?: string | null
           contact_type?: string
           created_at?: string
+          document_id?: string | null
           email?: string | null
           full_name: string
           id?: string
@@ -1013,6 +1135,7 @@ export type Database = {
           phone?: string | null
           pipeline_stage?: string
           reseller_id?: string | null
+          role_in_business?: string | null
           source?: string
           tags?: string[] | null
           updated_at?: string
@@ -1021,12 +1144,16 @@ export type Database = {
           utm_source?: string | null
         }
         Update: {
+          address?: string | null
+          branch_id?: string | null
+          business_id?: string | null
           business_name?: string | null
           business_type?: string | null
           captured_by_ai?: boolean
           city?: string | null
           contact_type?: string
           created_at?: string
+          document_id?: string | null
           email?: string | null
           full_name?: string
           id?: string
@@ -1038,6 +1165,7 @@ export type Database = {
           phone?: string | null
           pipeline_stage?: string
           reseller_id?: string | null
+          role_in_business?: string | null
           source?: string
           tags?: string[] | null
           updated_at?: string
@@ -1046,6 +1174,20 @@ export type Database = {
           utm_source?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "contacts_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "business_branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contacts_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "contacts_lead_id_fkey"
             columns: ["lead_id"]
@@ -1755,6 +1897,7 @@ export type Database = {
       licenses: {
         Row: {
           activation_requested_at: string | null
+          business_id: string | null
           business_name: string
           business_nit: string | null
           contact_email: string | null
@@ -1786,6 +1929,7 @@ export type Database = {
         }
         Insert: {
           activation_requested_at?: string | null
+          business_id?: string | null
           business_name: string
           business_nit?: string | null
           contact_email?: string | null
@@ -1817,6 +1961,7 @@ export type Database = {
         }
         Update: {
           activation_requested_at?: string | null
+          business_id?: string | null
           business_name?: string
           business_nit?: string | null
           contact_email?: string | null
@@ -1847,6 +1992,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "licenses_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "licenses_created_by_reseller_id_fkey"
             columns: ["created_by_reseller_id"]
@@ -3671,6 +3823,10 @@ export type Database = {
     }
     Functions: {
       delete_pos_user: { Args: { _id: string }; Returns: undefined }
+      find_related_by_contact: {
+        Args: { _email?: string; _phone?: string }
+        Returns: Json
+      }
       get_all_pos_users: {
         Args: never
         Returns: {
@@ -3798,6 +3954,7 @@ export type Database = {
         Args: { _lead_id: string; _license_id: string }
         Returns: number
       }
+      parse_supplier_license: { Args: { _raw: string }; Returns: Json }
       search_profiles: {
         Args: { _limit?: number; _query: string }
         Returns: {

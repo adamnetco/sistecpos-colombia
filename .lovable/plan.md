@@ -1,311 +1,96 @@
-# Audit y Plan: Mejora del Portal de Socios (/socio)
 
-## Auditoria Comparativa: Portal Clientes vs Portal Socios
+# Plan: CRM ampliado + Demos unificadas + Parser de licencias del proveedor
 
-### Lo que tiene el Portal de Clientes (avanzado)
-| Funcionalidad | Estado |
-|---|---|
-| Dashboard con metricas (plan activo, estado cuenta, tickets) | Implementado |
-| Suscripcion con planes de soporte (Autogestion/Tranquilidad/Socio Estrategico) | Implementado |
-| Chat de tickets en tiempo real (ticket_messages + Realtime) | Implementado |
-| Facturacion con historial de pagos | Implementado |
-| Contratos/SLA con descarga de PDF | Implementado |
-| Vinculacion a tabla `businesses` | Implementado |
+Cambio grande dividido en 5 bloques. Implemento todo de corrido si lo apruebas.
 
-### Lo que tiene el Portal de Socios (basico)
-| Funcionalidad | Estado | Brecha |
-|---|---|---|
-| Dashboard basico con 4 KPIs + grafico barras | OK pero limitado | Falta plan de soporte, estado de cuenta, accesos rapidos inteligentes |
-| Tickets con dialog estatico (admin_response unico) | Obsoleto | No usa `ticket_messages` ni Realtime como clientes |
-| Comisiones con tabla basica | OK | Falta resumen ejecutivo y tendencia |
-| Licencias con CRUD completo | Bien implementado | Solo falta vincular con `businesses` |
-| Entrenamientos (reutiliza TrainingVideoHub) | OK | Sin brechas |
-| Solicitar Demo (formulario independiente) | OK | Sin brechas |
-| Sin tab de "Perfil de Negocio" | No existe | El socio no puede ver/editar sus datos |
-| Sin tab de "Contratos" | No existe | No puede ver SLAs firmados |
-| Sin vinculacion a `businesses` | No existe | No hay perfil de empresa |
+## 1. Modelo CRM profesional (Negocios → Sucursales → Contactos)
 
-### Brechas Criticas Detectadas
+Aprovechamos la tabla `businesses` existente y la enriquecemos:
 
-1. **Tickets sin chat Realtime**: El socio usa `reseller_tickets` con `admin_response` (campo unico), mientras los clientes ya tienen hilo de mensajes con `ticket_messages` + Realtime. Inconsistencia grave.
+- `businesses`: ya existe (CRM centralizado). Añado/uso campos: `legal_name`, `nit`, `industry`, `website`, `address`, `notes`, `primary_contact_id`.
+- Nueva tabla `business_branches`: sucursales por negocio (`business_id`, `branch_name`, `city`, `address`, `phone`, `is_primary`).
+- `contacts`: añado `business_id` (FK → businesses) y `branch_id` (FK → business_branches), además de `role_in_business` (texto: dueño, admin, contador, etc.). Mantengo retrocompatibilidad con `business_name` actual.
+- RPC `find_related_by_contact(_email, _phone)`: al digitar email/teléfono devuelve negocios + contactos + sucursales + licencias + demos relacionadas para auto-vincular.
+- Trigger: si se crea un contacto con email/teléfono ya existente, sugerir merge en UI (no auto-merge destructivo).
 
-2. **Sin perfil de empresa**: El socio no puede ver ni editar su NIT, razon social, telefono. No esta vinculado a `businesses`.
+## 2. Edición completa de contactos (estilo CRM pro)
 
-3. **Sin contratos**: No tiene acceso a sus SLAs/contratos firmados.
+Nuevo `ContactDetailDialog.tsx` (drawer lateral) reemplaza la edición actual de `ContactsView`:
 
-4. **Dashboard limitado**: No muestra plan de soporte, no tiene alertas inteligentes ni accesos contextuales.
+- Pestañas: **Resumen · Negocio · Sucursales · Otros contactos del negocio · Actividad · Notas**.
+- Edición inline de TODOS los campos del contacto y del negocio asociado.
+- Botón "Vincular a otro negocio" + "Crear sucursal".
+- Buscador de relaciones: al escribir email o teléfono muestra coincidencias en otros negocios.
+- Historial de cambios visible (de `pos_credential_history` y un nuevo `contact_activity_log`).
 
----
+## 3. Unificación CRM + Demos Activas
 
-## Plan de Implementacion
+`ContactsView.tsx` pasa a tener tres vistas (toggle): **Tabla · Pipeline · Demos Activas**.
 
-### Fase 1: Base de Datos
+- Demos Activas se monta como tab interna (mismo componente `ActiveDemosView` reusado), filtrando por `pipeline_stage = 'demo'` o existencia en `leads_trials`.
+- Sidebar: elimino "Demos Activas" como entrada separada; redirect `/admin/demos-activas` → `/admin/contactos?view=demos`.
+- Filtros compartidos (búsqueda, ciudad, fuente) entre las 3 vistas.
 
-**1.1 Vincular socios a `businesses`**
-- Cuando un socio accede al portal, si no tiene `business_id` en su perfil, crear automaticamente un registro en `businesses` usando los datos de `reseller_applications` (full_name, email, phone, city).
-- Esto permite que el socio comparta la infraestructura de contratos y suscripciones con clientes.
+## 4. Conversión Demo → Licencia + creación manual flexible
 
-**1.2 Agregar soporte de `ticket_messages` para `reseller_tickets`**
-- La tabla `ticket_messages` ya tiene `ticket_id UUID` que referencia a `client_tickets`. Necesitamos hacerla generica:
-  - Agregar columna `ticket_source TEXT DEFAULT 'client'` (valores: 'client', 'reseller') a `ticket_messages`
-  - Actualizar RLS para que socios puedan leer/escribir mensajes de sus propios tickets
-  - Esto evita crear una tabla duplicada y unifica la experiencia de chat
+- En cada tarjeta de Demo Activa: botón prominente **"Convertir a Licencia Activa"** que abre `LeadConversionDialog` (ya existe, lo amplío).
+- El dialog ahora permite: editar fecha de vencimiento, tipo (Anual/Mensual/Permanente), pegar clave de licencia del proveedor (ver bloque 5), elegir sucursal destino. Migra POS users + contacto + negocio.
+- Nueva ruta `/admin/licencias/nueva`: formulario para crear licencia **sin restricciones**, con `expires_at` editable (date picker libre, sin validación de "futuro obligatorio") y opción de pegar bloque del proveedor.
+- Quito validaciones bloqueantes en `LicenseFormDialog` que impedían fechas personalizadas.
 
-### Fase 2: Nuevos Componentes del Portal Socio
+## 5. Parser de licencias del proveedor + cambios en `/clientes/#pos`
 
-**2.1 Dashboard mejorado (`ResellerDashboard.tsx`)**
-- Agregar metrica de "Plan de Soporte" leyendo de `support_subscriptions` via `business_id`
-- Agregar alerta de "Licencias por vencer" con enlace directo
-- Agregar alerta de "Tickets abiertos sin respuesta" 
-- Mejorar accesos rapidos con badges de conteo
+Caja "Pega aquí los datos de tu licencia" en:
+- Vista de cliente `/clientes` pestaña Licencias (autoservicio del cliente).
+- Admin: al crear/editar licencia.
 
-**2.2 Perfil de Empresa (nuevo tab)**
-- Nuevo componente `ResellerProfileView.tsx` con formulario editable:
-  - Razon social, NIT, telefono, email corporativo, ciudad, direccion
-  - Datos del representante (solo lectura, de `reseller_applications`)
-  - Boton "Guardar cambios" que actualiza `businesses`
-
-**2.3 Chat Realtime en Tickets (`ResellerTicketsView.tsx`)**
-- Reemplazar el dialog estatico por `TicketChatView` (reutilizar el componente de clientes adaptandolo)
-- Crear version compartida del chat que reciba `ticketSource: 'client' | 'reseller'` como prop
-- Suscripcion Realtime identica a la del portal de clientes
-
-**2.4 Contratos (nuevo tab)**
-- Reutilizar logica de `ClientContractsTab` adaptada para socio
-- Leer contratos vinculados al `business_id` del socio
-
-**2.5 Suscripcion de Soporte (nuevo tab)**
-- Reutilizar estructura de `ClientSubscriptionTab` 
-- Mostrar plan activo del socio desde `support_subscriptions`
-- Mismos 3 planes (Autogestion, Tranquilidad, Socio Estrategico)
-
-### Fase 3: Actualizacion de Layout y Navegacion
-
-**3.1 Sidebar del socio (`ResellerLayout.tsx`)**
-Agregar nuevos items de navegacion:
-- "Mi Empresa" (nuevo) -> /socio/empresa
-- "Suscripcion" (nuevo) -> /socio/suscripcion  
-- "Contratos" (nuevo) -> /socio/contratos
-- Los existentes se mantienen (Licencias, Entrenamientos, Tickets, Comisiones, Solicitar Demo)
-
-**3.2 Rutas (`ResellerPage.tsx`)**
-Agregar rutas para los nuevos componentes.
-
-### Fase 4: Admin
-
-**4.1 Actualizar `AdminTicketChatDialog`**
-- Hacerlo compatible con `reseller_tickets` ademas de `client_tickets`
-- Pasar `ticket_source` para filtrar mensajes correctamente
-
----
-
-## Resumen de Archivos a Crear/Modificar
-
-| Archivo | Accion |
-|---|---|
-| Migracion SQL | Crear: columna `ticket_source` en `ticket_messages`, RLS para socios |
-| `ResellerDashboard.tsx` | Modificar: agregar metricas de soporte y alertas |
-| `ResellerProfileView.tsx` | Crear: formulario de perfil de empresa |
-| `ResellerTicketsView.tsx` | Modificar: reemplazar dialog por chat Realtime |
-| `TicketChatView.tsx` | Modificar: hacerlo generico (client/reseller) |
-| `ResellerContractsView.tsx` | Crear: lista de contratos con descarga PDF |
-| `ResellerSubscriptionView.tsx` | Crear: planes de soporte para socios |
-| `ResellerLayout.tsx` | Modificar: agregar 3 nuevos items de nav |
-| `ResellerPage.tsx` | Modificar: agregar 3 nuevas rutas |
-| `AdminTicketChatDialog.tsx` | Modificar: soporte para reseller_tickets |
-
-## Secuencia
-
-1. Migracion SQL (ticket_messages generico + RLS + auto-crear business para socio)
-2. Adaptar TicketChatView para ser reutilizable
-3. Crear los 3 nuevos componentes (Perfil, Contratos, Suscripcion)
-4. Mejorar Dashboard existente
-5. Actualizar Layout, rutas y admin
-
----
-
-# Sistema CMS Híbrido — Documentación Completa
-
-## Arquitectura
-
-El CMS utiliza la tabla `page_content` para almacenar bloques de contenido editables sin tocar código. Cada bloque se identifica por `page_path` + `section_key` (índice único).
-
-### Tabla: `page_content`
-| Columna | Tipo | Descripción |
-|---|---|---|
-| `page_path` | text | Ruta de la página (ej: `/`, `/licencias`) |
-| `section_key` | text | Identificador del bloque (ej: `hero_title`) |
-| `content_type` | text | `text`, `markdown`, `image`, `html`, `json` |
-| `text_value` | text | Contenido textual o HTML |
-| `image_url` | text | URL de imagen (bucket `shared-resources`) |
-| `image_alt` | text | Texto alt para SEO |
-| `json_value` | jsonb | Datos estructurados (listas, tablas, configs) |
-| `sort_order` | int | Orden de aparición |
-| `is_active` | bool | Visible en el sitio público |
-
-### RLS
-- **Público**: solo lectura de bloques activos (`is_active = true`)
-- **Admin**: CRUD completo via `has_role(auth.uid(), 'admin')`
-
-## Hook: `usePageContent`
-
-```tsx
-import { usePageContent, getContent, getImageContent, getJsonContent } from "@/hooks/usePageContent";
-
-// En el componente:
-const { data: blocks } = usePageContent("/licencias");
-const title = getContent(blocks, "hero_title", "Fallback por defecto");
-const image = getImageContent(blocks, "hero_image", "/fallback.png");
-const items = getJsonContent<string[]>(blocks, "benefits", ["item1", "item2"]);
+Acepta texto pegado tipo:
+```
+Ubicación: Tienda Principal   Tipo: Media
+6129d58fdb654f46e0381e48af03d8f7
++ 0 facturas   2027-05-08 14:46:06
+365 días
+Fecha de creacion 2026-05-04 21:05:00
+Tipo de licencia Anual
+Licencia 6129d58fdb654f46e0381e48af03d8f7
 ```
 
-## Interfaz Admin
+Parser regex extrae: `license_key` (hash 32), `branch_name`, `license_tier` (Media/Alta/etc), `expires_at`, `created_at`, `billing_type` (Anual/Mensual), `invoice_count`. Muestra preview formateado y botón "Guardar". Persiste en `licenses` + `license_branches` para trazabilidad.
 
-Acceso: `/admin/contenido` → Gestor de Contenido (CMS)
+En `/clientes/#pos` (`ClientPOSLogin.tsx`):
+- Cambio placeholders/labels a **Usuario / Tienda / Clave** (uniformidad con POS).
+- **Elimino** la sección "Clave de Licencia Activa" del flujo de login (queda solo en la pestaña Licencias como información/parser, no como credencial de acceso).
 
-Funcionalidades:
-- Selector lateral de páginas agrupadas por categoría
-- CRUD de bloques con editor por tipo (texto, Markdown, HTML, JSON, imagen)
-- Subida de imágenes con optimización automática (WebP via edge function `optimize-image`)
-- Preview de imágenes en línea
-- Control de visibilidad y orden
+## Detalles técnicos
 
-## Páginas Integradas con CMS
+**Migración SQL**:
+- `ALTER TABLE businesses ADD COLUMN legal_name, nit, industry, website, address, notes, primary_contact_id`.
+- `CREATE TABLE business_branches (id, business_id, branch_name, city, address, phone, is_primary, ...)` + RLS admin-only.
+- `ALTER TABLE contacts ADD COLUMN business_id, branch_id, role_in_business`.
+- RPC `find_related_by_contact(email, phone)` → JSONB con negocios/contactos/licencias coincidentes.
+- RPC `parse_and_create_license(_raw_text, _business_id)` → inserta `licenses` + `license_branches`.
+- `CREATE TABLE contact_activity_log` (cambios y eventos por contacto).
 
-### Home (`/`)
-| section_key | Tipo | Componente | Descripción |
-|---|---|---|---|
-| `hero_badge` | text | HeroSection | Badge superior del hero |
-| `hero_title` | html | HeroSection | Título H1 principal (soporta HTML) |
-| `hero_subtitle` | text | HeroSection | Subtítulo descriptivo |
-| `hero_cta_primary` | text | HeroSection | Texto del botón CTA primario |
-| `hero_cta_secondary` | text | HeroSection | Texto del botón CTA secundario |
-| `social_proof_*` | text | SocialProofBar | Estadísticas de confianza |
-| `software_preview_*` | text/image | SoftwarePreviewSection | Preview del dashboard |
-| `comparison_data` | json | ComparisonSection | Tabla comparativa (JSON) |
-| `whyus_*` | text/json | WhyUsSection | Sección "Por qué elegirnos" |
-| `features_*` | text | FeaturesSection | Características principales |
-| `local_trust_*` | text | LocalTrustSection | Confianza local |
-| `solutions_*` | text | SolutionsSection | Soluciones por industria |
-| `connectpos_*` | text | ConnectPOSSection | Sección de conexión POS |
-| `coverage_*` | text | CoverageSection | Cobertura nacional |
-| `cta_*` | text | CTASection | Call-to-action final |
+**Frontend**:
+- Nuevo `src/components/admin/contacts/ContactDetailDialog.tsx` (tabs).
+- Nuevo `src/components/admin/contacts/BusinessRelationsPanel.tsx` (sucursales + contactos relacionados).
+- Nuevo `src/components/admin/licenses/LicenseRawPasteParser.tsx` (caja de pegado + preview).
+- Modificar `ContactsView.tsx` (toggle 3 vistas + filtros compartidos).
+- Modificar `LeadConversionDialog.tsx` (date picker libre + parser opcional).
+- Modificar `ClientPOSLogin.tsx` (labels Usuario/Tienda/Clave, quitar clave-de-licencia del login).
+- Modificar `LicenseFormDialog.tsx` y crear ruta `/admin/licencias/nueva` sin restricciones de fecha.
+- `AdminSidebar.tsx`: quitar "Demos Activas".
+- `AdminPage.tsx`: redirect viejo.
 
-### Licencias (`/licencias`)
-| section_key | Tipo | Descripción |
-|---|---|---|
-| `hero_title` | text | Título del hero |
-| `hero_subtitle` | html | Subtítulo con HTML |
-| `hero_badge` | text | Badge del hero |
-| `benefits` | json | Lista de beneficios (string[]) |
-| `ideal_for` | json | Mapa plan→descripción (Record<string,string>) |
-| `crosssell_title` | text | Título cross-sell packs |
-| `crosssell_subtitle` | text | Subtítulo cross-sell |
-| `cta_title` | text | Título CTA final |
-| `cta_subtitle` | text | Subtítulo CTA final |
+**No se rompen** los datos existentes; los nuevos campos son opcionales y se rellenan progresivamente.
 
-### Planes (`/planes`)
-| section_key | Tipo | Descripción |
-|---|---|---|
-| `hero_title` | text | Título principal (paso "choose") |
-| `hero_subtitle` | text | Subtítulo (paso "choose") |
-| `hero_title_alt` | text | Título alternativo (paso seleccionado) |
-| `hero_subtitle_alt` | text | Subtítulo alternativo |
+## Orden de ejecución
 
-### Packs (`/packs`)
-| section_key | Tipo | Descripción |
-|---|---|---|
-| `hero_badge` | text | Badge del hero |
-| `hero_title` | html | Título H1 (soporta HTML/br) |
-| `hero_subtitle` | html | Subtítulo con HTML |
+1. Migración SQL (apruebas).
+2. Refactor `ContactsView` + nuevo `ContactDetailDialog` con relaciones.
+3. Unificación con Demos Activas (toggle interno + sidebar).
+4. `LicenseRawPasteParser` reusable + integración en conversión y creación manual.
+5. Cambios en `ClientPOSLogin` (labels + quitar clave de licencia del login).
+6. QA visual del flujo completo.
 
-### Módulos (`/modulos`)
-| section_key | Tipo | Descripción |
-|---|---|---|
-| `hero_title` | text | Título H1 |
-| `hero_subtitle` | text | Subtítulo descriptivo |
-
-### Servicios (`/servicios`)
-| section_key | Tipo | Descripción |
-|---|---|---|
-| `hero_title` | html | Título con gradient-text (HTML) |
-| `hero_subtitle` | text | Subtítulo descriptivo |
-
-### Soluciones (`/soluciones`)
-| section_key | Tipo | Descripción |
-|---|---|---|
-| `hero_title` | text | Título H1 |
-| `hero_subtitle` | text | Subtítulo descriptivo |
-
-### Facturación Electrónica (`/facturacion-electronica`)
-| section_key | Tipo | Descripción |
-|---|---|---|
-| `hero_title` | text | Título H1 |
-| `hero_subtitle` | text | Subtítulo descriptivo |
-
-### Nosotros (`/nosotros`)
-| section_key | Tipo | Descripción |
-|---|---|---|
-| `hero_title` | html | Título con gradient-text (HTML) |
-| `hero_subtitle` | text | Subtítulo descriptivo |
-
-### Contacto (`/contacto`)
-| section_key | Tipo | Descripción |
-|---|---|---|
-| `hero_title` | text | Título H1 |
-| `hero_subtitle` | text | Subtítulo descriptivo |
-
-### Comparar (`/comparar`)
-| section_key | Tipo | Descripción |
-|---|---|---|
-| `hero_title` | text | Título H1 |
-| `hero_subtitle` | text | Subtítulo descriptivo |
-
-### Software POS Colombia (`/software-pos-colombia`)
-| section_key | Tipo | Descripción |
-|---|---|---|
-| `hero_title` | text | Título H1 |
-| `hero_subtitle` | text | Subtítulo descriptivo |
-
-## Edge Function: `optimize-image`
-
-- **Endpoint**: `POST /functions/v1/optimize-image`
-- **Auth**: Bearer token de admin
-- **Body**: FormData con `file`, `bucket`, `folder`
-- **Respuesta**: `{ url: string }` — URL pública optimizada
-- **Formato**: Conversión automática a WebP
-- **Caché**: 1 año (`Cache-Control: public, max-age=31536000`)
-- **Límite**: 5MB por imagen
-
-## Convenciones de Nombrado
-
-- **section_key**: `snake_case`, prefijado por sección (ej: `hero_title`, `cta_subtitle`, `features_card_1`)
-- **page_path**: ruta exacta del router (ej: `/`, `/licencias`, `/packs`)
-- **content_type**: usar `html` cuando se necesiten tags HTML en el contenido; `text` para strings planos
-
-## Patrón de Implementación
-
-```tsx
-// 1. Importar hook y helpers
-import { usePageContent, getContent } from "@/hooks/usePageContent";
-
-// 2. En el componente, cargar bloques de la página
-const { data: blocks } = usePageContent("/mi-pagina");
-
-// 3. Usar getContent con fallback hardcodeado (el valor actual)
-const titulo = getContent(blocks, "hero_title", "Valor actual hardcodeado");
-
-// 4. Para HTML: usar dangerouslySetInnerHTML
-<h1 dangerouslySetInnerHTML={{ __html: titulo }} />
-
-// 5. Para JSON (listas, objetos):
-const items = getJsonContent<string[]>(blocks, "features_list", ["item1", "item2"]);
-```
-
-## Registro de Páginas en Admin
-
-El archivo `PageContentView.tsx` contiene `PAGE_REGISTRY` con todas las páginas registradas. Para agregar una nueva página al CMS:
-
-1. Agregar entrada en `PAGE_REGISTRY` con `path`, `label` y `group`
-2. Integrar `usePageContent(path)` en el componente de la página
-3. Usar `getContent()` con fallbacks para cada sección editable
+¿Apruebas para implementar?
