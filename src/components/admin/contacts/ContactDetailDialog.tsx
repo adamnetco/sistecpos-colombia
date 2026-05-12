@@ -14,7 +14,7 @@ import {
   Mail, Phone, Building2, MapPin, User, Save, Loader2, Plus, Trash2,
   Network, Activity, KeyRound, Search, Link2, Pencil,
 } from "lucide-react";
-import ContactDetailPanel from "./ContactDetailPanel";
+import ContactDetailPanel from "../ContactDetailPanel";
 
 interface Contact {
   id: string;
