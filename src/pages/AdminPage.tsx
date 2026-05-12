@@ -80,7 +80,7 @@ export default function AdminPage() {
             <Route path="proveedores" element={<SuppliersView />} />
             <Route path="analytics" element={<StoreAnalyticsView />} />
             
-            <Route path="demos-activas" element={<ActiveDemosView />} />
+            <Route path="demos-activas" element={<Navigate to="/admin/contactos?view=demos" replace />} />
             <Route path="descargas-clientes" element={<ClientDownloadsView />} />
             <Route path="tickets-clientes" element={<ClientTicketsView />} />
             <Route path="capacitacion" element={<TrainingVideosView />} />
