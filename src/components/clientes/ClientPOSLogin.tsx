@@ -239,16 +239,16 @@ export function ClientPOSLogin() {
                 <form onSubmit={handlePOSLogin} className="space-y-4">
                   <div className="space-y-1.5">
                     <Label htmlFor="username">Usuario</Label>
-                    <Input id="username" placeholder="Tu usuario" value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="username" required />
+                    <Input id="username" placeholder="Usuario" value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="username" required />
                   </div>
                   <div className="space-y-1.5">
-                    <Label htmlFor="store">Empresa</Label>
-                    <Input id="store" placeholder="Nombre de tu empresa" value={store} onChange={(e) => setStore(e.target.value)} required />
+                    <Label htmlFor="store">Tienda</Label>
+                    <Input id="store" placeholder="Tienda" value={store} onChange={(e) => setStore(e.target.value)} required />
                   </div>
                   <div className="space-y-1.5">
-                    <Label htmlFor="password">Contraseña</Label>
+                    <Label htmlFor="password">Clave</Label>
                     <div className="relative">
-                      <Input id="password" type={showPassword ? "text" : "password"} placeholder="Tu contraseña" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" className="pr-10" required />
+                      <Input id="password" type={showPassword ? "text" : "password"} placeholder="Clave" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" className="pr-10" required />
                       <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors" tabIndex={-1} aria-label={showPassword ? "Ocultar" : "Mostrar"}>
                         {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>
