@@ -59,6 +59,8 @@ export function LeadConversionDialog({ lead, onClose, onConverted }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [selectedSupplierId, setSelectedSupplierId] = useState<string>("");
+  const [parsedLicense, setParsedLicense] = useState<ParsedLicense | null>(null);
+  const [parsedRaw, setParsedRaw] = useState<string>("");
 
   const priceValue = Number(price || "0");
 
