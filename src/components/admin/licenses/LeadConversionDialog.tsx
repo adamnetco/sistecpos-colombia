@@ -483,6 +483,30 @@ export function LeadConversionDialog({ lead, onClose, onConverted }: Props) {
               </div>
             </div>
 
+            {/* Supplier license paste (optional) */}
+            <div>
+              <Label className="text-sm font-semibold flex items-center gap-2 mb-2">
+                <Package className="h-4 w-4" /> ¿Ya tienes la licencia del proveedor? (opcional)
+              </Label>
+              <p className="text-xs text-muted-foreground mb-2">
+                Si el proveedor ya entregó la clave, pégala aquí para crear la licencia <strong>activa</strong> en un solo paso.
+                Si no, déjalo vacío y quedará en estado <em>pendiente de activación</em>.
+              </p>
+              <LicenseRawPasteParser
+                onApply={(p, raw) => {
+                  setParsedLicense(p);
+                  setParsedRaw(raw);
+                  toast({ title: "✅ Datos de licencia capturados", description: "Se aplicarán al convertir." });
+                }}
+                compact
+              />
+              {parsedLicense?.license_key && (
+                <div className="mt-2 text-xs text-green-700 bg-green-50 dark:bg-green-950/20 border border-green-200 rounded p-2">
+                  ✅ Licencia <strong className="font-mono">{parsedLicense.license_key.slice(0, 12)}…</strong> lista para activar.
+                </div>
+              )}
+            </div>
+
             {/* Provider Notes */}
             <div>
               <Label className="text-xs">Notas para el proveedor (instrucciones especiales)</Label>
