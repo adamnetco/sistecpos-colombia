@@ -18,6 +18,8 @@ import {
   Pencil, Save, X,
 } from "lucide-react";
 import { LeadPOSUsersTab } from "./sales/LeadPOSUsersTab";
+import { LeadConversionDialog } from "./licenses/LeadConversionDialog";
+import { Trophy } from "lucide-react";
 
 interface DemoLead {
   id: string;
