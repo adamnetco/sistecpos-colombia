@@ -14,6 +14,7 @@ import {
   Loader2, Building2, User, Mail, Phone, MapPin, Trophy, CreditCard,
   Upload, FileCheck, Send, CheckCircle2, Package,
 } from "lucide-react";
+import { LicenseRawPasteParser, type ParsedLicense } from "./LicenseRawPasteParser";
 
 interface Supplier {
   id: string;
