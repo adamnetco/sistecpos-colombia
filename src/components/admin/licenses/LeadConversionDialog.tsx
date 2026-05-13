@@ -118,10 +118,12 @@ export function LeadConversionDialog({ lead, onClose, onConverted }: Props) {
     setSaving(true);
     try {
       const proofUrl = await uploadPaymentProof();
-      const expiresAt = planExpirationDate(selectedPlan);
+      const expiresAt = parsedLicense?.pos_expires_at
+        ? parsedLicense.pos_expires_at.split("T")[0]
+        : planExpirationDate(selectedPlan);
 
       const selectedSupplier = suppliers.find((s) => s.id === selectedSupplierId);
-      const { data: newLicense, error: licErr } = await supabase.from("licenses").insert({
+      const insertPayload: any = {
         business_name: lead.business_name,
         business_nit: nit || null,
         contact_name: lead.contact_name,
@@ -133,12 +135,23 @@ export function LeadConversionDialog({ lead, onClose, onConverted }: Props) {
         lead_id: lead.id,
         created_by_reseller_id: lead.requested_by_reseller_id || null,
         notes: notes || `Convertido desde Lead/Demo. Origen: ${lead.source || "web"}`,
-        provider_notes: providerNotes || null,
+        provider_notes: providerNotes || (parsedRaw ? `Bloque del proveedor:\n${parsedRaw}` : null),
         payment_proof_url: proofUrl,
         activation_requested_at: new Date().toISOString(),
-        status: "pending_activation",
+        status: parsedLicense?.license_key ? "active" : "pending_activation",
         supplier_id: selectedSupplierId || null,
-      }).select("id, license_key").single();
+      };
+      if (parsedLicense?.license_key) {
+        insertPayload.license_key = parsedLicense.license_key;
+        insertPayload.pos_license_hash = parsedLicense.license_key;
+        insertPayload.pos_location = parsedLicense.pos_location;
+        insertPayload.pos_plan_type = parsedLicense.pos_plan_type;
+        insertPayload.pos_invoice_count = parsedLicense.pos_invoice_count ?? 0;
+        insertPayload.pos_expires_at = parsedLicense.pos_expires_at;
+        insertPayload.pos_created_at = parsedLicense.pos_created_at;
+      }
+      const { data: newLicense, error: licErr } = await supabase.from("licenses")
+        .insert(insertPayload).select("id, license_key").single();
 
       if (licErr) throw licErr;
 
