@@ -72,6 +72,7 @@ export default function ActiveDemosView() {
   const [search, setSearch] = useState("");
   const [filterStage, setFilterStage] = useState<string>("all");
   const [selectedLead, setSelectedLead] = useState<DemoLead | null>(null);
+  const [convertingLead, setConvertingLead] = useState<DemoLead | null>(null);
   const [credDialog, setCredDialog] = useState(false);
   const [credForm, setCredForm] = useState({ 
     pos_username: "admin", 
