@@ -18,7 +18,7 @@ const Index = () => {
   return (
     <Layout>
       <SEO
-        title="SistecPOS | Software POS y Facturación Electrónica DIAN en Colombia"
+        title="SistecPOS | Software POS y Facturación Electrónica en Colombia"
         description="Software punto de venta con facturación electrónica DIAN, inventario y soporte presencial en Santander. Prueba gratis 7 días."
         canonical="https://sistecpos.com"
       />
