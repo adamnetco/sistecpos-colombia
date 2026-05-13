@@ -862,8 +862,20 @@ export default function ActiveDemosView() {
             </div>
           )}
 
-          <DialogFooter className="gap-2">
+          <DialogFooter className="gap-2 flex-col sm:flex-row">
             <Button variant="outline" onClick={() => setCredDialog(false)}>Cerrar</Button>
+            {selectedLead && hasCredentials(selectedLead) && (
+              <Button
+                onClick={() => {
+                  setConvertingLead(selectedLead);
+                  setCredDialog(false);
+                }}
+                className="bg-amber-600 hover:bg-amber-700 text-white"
+              >
+                <Trophy className="mr-2 h-4 w-4" />
+                Convertir a Licencia Activa
+              </Button>
+            )}
             {selectedLead && !hasCredentials(selectedLead) && ["demo_personalized", "activation_completed", "welcome_sent"].includes(selectedLead.status) && (
               <Button onClick={handleSendCredentials} disabled={sending} className="bg-green-600 hover:bg-green-700 text-white">
                 {sending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
@@ -873,6 +885,12 @@ export default function ActiveDemosView() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <LeadConversionDialog
+        lead={convertingLead as any}
+        onClose={() => setConvertingLead(null)}
+        onConverted={() => { setConvertingLead(null); load(); }}
+      />
     </div>
   );
 }
