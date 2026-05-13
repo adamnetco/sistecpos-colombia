@@ -73,6 +73,29 @@ export default function AyudaPage() {
         title="Ayuda y Descargas | SistecPOS"
         description="Centro de ayuda, artículos de soporte, descargas de instaladores y herramientas para tu sistema POS."
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            name: "Centro de Ayuda SistecPOS",
+            description: "Artículos de soporte, guías, descargas de instaladores y herramientas para SistecPOS.",
+            url: "https://sistecpos.com/ayuda",
+            isPartOf: { "@type": "WebSite", name: "SistecPOS", url: "https://sistecpos.com" },
+            mainEntity: {
+              "@type": "ItemList",
+              numberOfItems: articles.length,
+              itemListElement: articles.slice(0, 30).map((a, i) => ({
+                "@type": "ListItem",
+                position: i + 1,
+                url: `https://sistecpos.com/ayuda/${a.slug}`,
+                name: a.title,
+              })),
+            },
+          }),
+        }}
+      />
 
       {/* Hero */}
       <section className="py-16 md:py-24 gradient-bg text-primary-foreground">
