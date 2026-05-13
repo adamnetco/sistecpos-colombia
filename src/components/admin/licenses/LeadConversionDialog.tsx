@@ -160,7 +160,12 @@ export function LeadConversionDialog({ lead, onClose, onConverted }: Props) {
         await supabase.from("license_branches").insert({
           license_id: newLicense.id,
           branch_name: "Sede Principal",
-          pos_location: lead.pos_company || lead.business_name,
+          pos_location: parsedLicense?.pos_location || lead.pos_company || lead.business_name,
+          pos_license_hash: parsedLicense?.license_key || null,
+          pos_plan_type: parsedLicense?.pos_plan_type || null,
+          pos_invoice_count: parsedLicense?.pos_invoice_count ?? 0,
+          pos_expires_at: parsedLicense?.pos_expires_at || null,
+          pos_created_at: parsedLicense?.pos_created_at || null,
           sort_order: 0,
         });
       } catch (_) { /* non-critical */ }
