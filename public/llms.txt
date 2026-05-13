@@ -1,0 +1,35 @@
+# SistecPOS
+
+> Software POS y facturación electrónica DIAN en Colombia. Modo offline 8 días, inventario, soporte presencial e instalación. Más de 500 negocios activos.
+
+SistecPOS es un sistema punto de venta para Colombia que cumple con la Resolución DIAN 000165: facturación electrónica ilimitada, contingencia, multi-sede, multi-caja y módulos especializados (contabilidad, restaurantes, multitienda). Pensado para Mipymes — desde $12 USD/mes — con soporte humano en Bucaramanga y cobertura nacional.
+
+## Pages
+
+- [Inicio](/): Resumen del producto, beneficios y prueba gratis 7 días.
+- [Software POS Colombia](/software-pos-colombia): Pilar SEO sobre el sistema POS para Colombia.
+- [Facturación Electrónica DIAN](/facturacion-electronica): Cumplimiento DIAN, contingencia y emisión ilimitada.
+- [Soluciones por industria](/soluciones): Catálogo de verticales (restaurantes, retail, salud, servicios).
+- [Licencias](/licencias): Planes anuales (Básico, Intermedio, Premium, Multitienda, Vitalicio).
+- [Planes de soporte](/planes): Suscripciones recurrentes de soporte y mantenimiento.
+- [Packs anuales](/packs): Bundles comerciales que combinan licencia + servicios.
+- [Módulos](/modulos): Add-ons (contabilidad, multitienda, facturación electrónica, etc.).
+- [Productos / Hardware](/productos): Hardware POS (impresoras, lectores, cajones, terminales).
+- [Comparar competidores](/comparar): Comparativas vs 65+ alternativas del mercado.
+- [Casos de éxito](/casos-de-exito): Negocios reales usando SistecPOS.
+- [Guías DIAN](/guias-dian): Centro de contenidos sobre normativa DIAN colombiana.
+- [Centro de ayuda](/ayuda): Artículos de soporte, descargas, drivers e instaladores.
+- [Representantes / Socios](/representantes): Programa de referidos con 30% de comisión recurrente.
+- [Nosotros](/nosotros): Empresa, ubicación (Floridablanca, Santander) y equipo.
+- [Contacto](/contacto): Canales directos: WhatsApp, email, formulario.
+
+## Tools
+
+- [Calculadora UVT](/herramientas/calculadora-uvt): Convierte UVT a pesos colombianos según el año vigente.
+- [Validador NIT](/herramientas/validador-nit): Verifica el dígito de verificación de un NIT colombiano.
+
+## Optional
+
+- [Política de privacidad](/politica-privacidad)
+- [Términos y condiciones](/terminos-condiciones)
+- [Portal de clientes](/clientes): Login para clientes activos (acceso al POS, facturas, soporte).

@@ -63,6 +63,29 @@ export default function AyudaArticlePage() {
         title={`${article.title} | Ayuda SistecPOS`}
         description={article.excerpt || `Guía: ${article.title}`}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Article",
+            headline: article.title,
+            description: article.excerpt || article.title,
+            datePublished: article.created_at,
+            dateModified: (article as any).updated_at || article.created_at,
+            author: { "@type": "Person", name: article.author_name || "SistecPOS" },
+            publisher: {
+              "@type": "Organization",
+              name: "SistecPOS",
+              logo: { "@type": "ImageObject", url: "https://sistecpos.com/lovable-uploads/43a24c53-78c0-4ca3-b642-99a376d90a0f.png" },
+            },
+            image: article.cover_image_url || undefined,
+            mainEntityOfPage: `https://sistecpos.com/ayuda/${slug}`,
+            articleSection: article.category,
+            keywords: article.tags?.join(", "),
+          }),
+        }}
+      />
       <Breadcrumbs items={[{ label: "Ayuda", href: "/ayuda" }, { label: article.title }]} />
 
       <article className="py-12 md:py-20">

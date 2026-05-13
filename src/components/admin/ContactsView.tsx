@@ -444,13 +444,13 @@ export default function ContactsView() {
         </table>
       </div>
 
-      {/* Detail panel */}
-      {selectedContact && (
-        <ContactDetailPanel
-          contact={selectedContact as any}
-          onUpdate={() => { setSelectedContact(null); load(); }}
-        />
-      )}
+      {/* Detail dialog */}
+      <ContactDetailDialog
+        contact={selectedContact}
+        open={!!selectedContact}
+        onOpenChange={(o) => { if (!o) setSelectedContact(null); }}
+        onUpdated={() => { load(); }}
+      />
         </>
       )}
     </div>

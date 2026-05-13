@@ -109,6 +109,37 @@ const ModuloDetallePage = () => {
         description={module.description || `Conoce el ${module.name} para tu software POS. Amplía las funcionalidades de tu negocio con SistecPOS.`}
         canonical={`https://sistecpos.com/modulos/${module.slug}`}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            name: module.name,
+            description: module.description,
+            applicationCategory: "BusinessApplication",
+            applicationSubCategory: "POS Module",
+            operatingSystem: "Web, Windows, Android",
+            url: `https://sistecpos.com/modulos/${module.slug}`,
+            brand: { "@type": "Brand", name: "SistecPOS" },
+            offers: isPaid
+              ? {
+                  "@type": "Offer",
+                  price: module.price_cop,
+                  priceCurrency: "COP",
+                  availability: "https://schema.org/InStock",
+                  url: `https://sistecpos.com/modulos/${module.slug}`,
+                }
+              : {
+                  "@type": "Offer",
+                  price: 0,
+                  priceCurrency: "COP",
+                  availability: "https://schema.org/InStock",
+                  description: "Incluido sin costo en planes compatibles",
+                },
+          }),
+        }}
+      />
       <Breadcrumbs
         items={[
           { label: "Productos", href: "/productos" },
