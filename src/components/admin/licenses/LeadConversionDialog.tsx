@@ -14,6 +14,7 @@ import {
   Loader2, Building2, User, Mail, Phone, MapPin, Trophy, CreditCard,
   Upload, FileCheck, Send, CheckCircle2, Package,
 } from "lucide-react";
+import { LicenseRawPasteParser, type ParsedLicense } from "./LicenseRawPasteParser";
 
 interface Supplier {
   id: string;
@@ -58,6 +59,8 @@ export function LeadConversionDialog({ lead, onClose, onConverted }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [selectedSupplierId, setSelectedSupplierId] = useState<string>("");
+  const [parsedLicense, setParsedLicense] = useState<ParsedLicense | null>(null);
+  const [parsedRaw, setParsedRaw] = useState<string>("");
 
   const priceValue = Number(price || "0");
 
@@ -115,10 +118,12 @@ export function LeadConversionDialog({ lead, onClose, onConverted }: Props) {
     setSaving(true);
     try {
       const proofUrl = await uploadPaymentProof();
-      const expiresAt = planExpirationDate(selectedPlan);
+      const expiresAt = parsedLicense?.pos_expires_at
+        ? parsedLicense.pos_expires_at.split("T")[0]
+        : planExpirationDate(selectedPlan);
 
       const selectedSupplier = suppliers.find((s) => s.id === selectedSupplierId);
-      const { data: newLicense, error: licErr } = await supabase.from("licenses").insert({
+      const insertPayload: any = {
         business_name: lead.business_name,
         business_nit: nit || null,
         contact_name: lead.contact_name,
@@ -130,12 +135,23 @@ export function LeadConversionDialog({ lead, onClose, onConverted }: Props) {
         lead_id: lead.id,
         created_by_reseller_id: lead.requested_by_reseller_id || null,
         notes: notes || `Convertido desde Lead/Demo. Origen: ${lead.source || "web"}`,
-        provider_notes: providerNotes || null,
+        provider_notes: providerNotes || (parsedRaw ? `Bloque del proveedor:\n${parsedRaw}` : null),
         payment_proof_url: proofUrl,
         activation_requested_at: new Date().toISOString(),
-        status: "pending_activation",
+        status: parsedLicense?.license_key ? "active" : "pending_activation",
         supplier_id: selectedSupplierId || null,
-      }).select("id, license_key").single();
+      };
+      if (parsedLicense?.license_key) {
+        insertPayload.license_key = parsedLicense.license_key;
+        insertPayload.pos_license_hash = parsedLicense.license_key;
+        insertPayload.pos_location = parsedLicense.pos_location;
+        insertPayload.pos_plan_type = parsedLicense.pos_plan_type;
+        insertPayload.pos_invoice_count = parsedLicense.pos_invoice_count ?? 0;
+        insertPayload.pos_expires_at = parsedLicense.pos_expires_at;
+        insertPayload.pos_created_at = parsedLicense.pos_created_at;
+      }
+      const { data: newLicense, error: licErr } = await supabase.from("licenses")
+        .insert(insertPayload).select("id, license_key").single();
 
       if (licErr) throw licErr;
 
@@ -144,7 +160,12 @@ export function LeadConversionDialog({ lead, onClose, onConverted }: Props) {
         await supabase.from("license_branches").insert({
           license_id: newLicense.id,
           branch_name: "Sede Principal",
-          pos_location: lead.pos_company || lead.business_name,
+          pos_location: parsedLicense?.pos_location || lead.pos_company || lead.business_name,
+          pos_license_hash: parsedLicense?.license_key || null,
+          pos_plan_type: parsedLicense?.pos_plan_type || null,
+          pos_invoice_count: parsedLicense?.pos_invoice_count ?? 0,
+          pos_expires_at: parsedLicense?.pos_expires_at || null,
+          pos_created_at: parsedLicense?.pos_created_at || null,
           sort_order: 0,
         });
       } catch (_) { /* non-critical */ }
@@ -460,6 +481,30 @@ export function LeadConversionDialog({ lead, onClose, onConverted }: Props) {
                 {lead.pos_username && <p><strong>Usuario demo:</strong> {lead.pos_username}</p>}
                 {lead.pos_company && <p><strong>Empresa demo:</strong> {lead.pos_company}</p>}
               </div>
+            </div>
+
+            {/* Supplier license paste (optional) */}
+            <div>
+              <Label className="text-sm font-semibold flex items-center gap-2 mb-2">
+                <Package className="h-4 w-4" /> ¿Ya tienes la licencia del proveedor? (opcional)
+              </Label>
+              <p className="text-xs text-muted-foreground mb-2">
+                Si el proveedor ya entregó la clave, pégala aquí para crear la licencia <strong>activa</strong> en un solo paso.
+                Si no, déjalo vacío y quedará en estado <em>pendiente de activación</em>.
+              </p>
+              <LicenseRawPasteParser
+                onApply={(p, raw) => {
+                  setParsedLicense(p);
+                  setParsedRaw(raw);
+                  toast({ title: "✅ Datos de licencia capturados", description: "Se aplicarán al convertir." });
+                }}
+                compact
+              />
+              {parsedLicense?.license_key && (
+                <div className="mt-2 text-xs text-green-700 bg-green-50 dark:bg-green-950/20 border border-green-200 rounded p-2">
+                  ✅ Licencia <strong className="font-mono">{parsedLicense.license_key.slice(0, 12)}…</strong> lista para activar.
+                </div>
+              )}
             </div>
 
             {/* Provider Notes */}
