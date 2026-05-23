@@ -421,16 +421,20 @@ export function LicenseCreateDialog({ open, onOpenChange, onCreated }: Props) {
                   </p>
                 )}
               </div>
-              <div className="flex items-end">
-                {expiresAt ? (
-                  <div className="rounded-lg bg-muted/50 p-2.5 text-xs text-muted-foreground w-full text-center">
-                    📅 Vence: <strong>{expiresAt}</strong>
-                  </div>
-                ) : (
-                  <div className="rounded-lg bg-amber-50 dark:bg-amber-950/30 p-2.5 text-xs text-amber-700 w-full text-center">
-                    ♾️ Sin vencimiento
-                  </div>
-                )}
+              <div>
+                <Label className="text-xs flex items-center gap-1">
+                  <Calendar className="h-3 w-3" /> Vencimiento (editable)
+                </Label>
+                <Input
+                  type="date"
+                  value={expiresAtOverride || planDefaultExpiresAt || ""}
+                  onChange={(e) => setExpiresAtOverride(e.target.value)}
+                />
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                  {planDefaultExpiresAt
+                    ? <>Sugerido por plan: <strong>{planDefaultExpiresAt}</strong>. Puedes ponerle cualquier fecha (incluso pasada) o dejar vacío para “vitalicio”.</>
+                    : <>Plan sin vencimiento por defecto. Asigna una fecha si lo necesitas.</>}
+                </p>
               </div>
             </div>
 
