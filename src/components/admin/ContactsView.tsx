@@ -245,6 +245,13 @@ export default function ContactsView() {
             >
               <Kanban className="h-3.5 w-3.5" /> Pipeline
             </button>
+            <button
+              onClick={() => setView("demos")}
+              className={`inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${view === "demos" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"}`}
+              title="Demos activas (convertir a licencia)"
+            >
+              <Rocket className="h-3.5 w-3.5" /> Demos
+            </button>
           </div>
           {view === "table" && (
             <Button size="sm" variant="outline" onClick={() => exportToCsv(filtered as any[], [
