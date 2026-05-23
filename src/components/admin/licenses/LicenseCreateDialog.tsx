@@ -96,6 +96,32 @@ export function LicenseCreateDialog({ open, onOpenChange, onCreated }: Props) {
     setNotes("");
     setBranches([emptyBranch()]);
     setEnableBranches(false);
+    setExpiresAtOverride("");
+    setProviderRaw("");
+  };
+
+  // Apply parsed supplier data: fill key fields and create/replace first branch with the POS hash
+  const applyParsed = (p: ParsedLicense, raw: string) => {
+    setProviderRaw(raw);
+    if (p.pos_expires_at) {
+      // Normalize to YYYY-MM-DD for the date input
+      setExpiresAtOverride(new Date(p.pos_expires_at).toISOString().slice(0, 10));
+    }
+    setEnableBranches(true);
+    setBranches((prev) => {
+      const first: Branch = {
+        ...(prev[0] || emptyBranch()),
+        branch_name: prev[0]?.branch_name || "Sede Principal",
+        pos_location: p.pos_location || prev[0]?.pos_location || "",
+        pos_plan_type: p.pos_plan_type || prev[0]?.pos_plan_type || "",
+        pos_license_hash: p.license_key || prev[0]?.pos_license_hash || "",
+        pos_invoice_count: p.pos_invoice_count != null ? String(p.pos_invoice_count) : (prev[0]?.pos_invoice_count || "0"),
+        pos_created_at: p.pos_created_at ? new Date(p.pos_created_at).toISOString().slice(0, 16) : (prev[0]?.pos_created_at || ""),
+        pos_expires_at: p.pos_expires_at ? new Date(p.pos_expires_at).toISOString().slice(0, 16) : (prev[0]?.pos_expires_at || ""),
+      };
+      return [first, ...prev.slice(1)];
+    });
+    toast({ title: "Datos del proveedor aplicados", description: "Revisa y completa el resto antes de crear." });
   };
 
   const handlePlanChange = (value: string) => {
