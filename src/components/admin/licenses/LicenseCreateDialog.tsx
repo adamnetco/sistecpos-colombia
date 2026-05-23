@@ -331,6 +331,10 @@ export function LicenseCreateDialog({ open, onOpenChange, onCreated }: Props) {
         {step === "business" && (
           <div className="space-y-4 animate-in fade-in-50 duration-200">
             <p className="text-sm text-muted-foreground">Datos del negocio y contacto principal</p>
+
+            {/* Paste-from-supplier shortcut: pre-fills hash, location, plan type and expiry */}
+            <LicenseRawPasteParser onApply={applyParsed} compact />
+
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label className="text-xs flex items-center gap-1"><Building2 className="h-3 w-3" /> Negocio *</Label>
