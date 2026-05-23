@@ -14,6 +14,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { LICENSE_PLANS, planExpirationDate, type LicensePlan } from "@/data/licensePlans";
+import { LicenseRawPasteParser, type ParsedLicense } from "./LicenseRawPasteParser";
 
 interface Branch {
   id: string;
@@ -73,9 +74,15 @@ export function LicenseCreateDialog({ open, onOpenChange, onCreated }: Props) {
   const [branches, setBranches] = useState<Branch[]>([emptyBranch()]);
   const [enableBranches, setEnableBranches] = useState(false);
 
+  // Manual expiry override (admin can set ANY date, including past, or leave empty for "vitalicio")
+  const [expiresAtOverride, setExpiresAtOverride] = useState<string>("");
+  // Raw supplier paste (saved into provider_notes for traceability)
+  const [providerRaw, setProviderRaw] = useState<string>("");
+
   const currentPlan = LICENSE_PLANS.find((p) => p.value === selectedPlan);
   const isMultiStore = selectedPlan.includes("multi");
-  const expiresAt = planExpirationDate(selectedPlan);
+  const planDefaultExpiresAt = planExpirationDate(selectedPlan);
+  const expiresAt = expiresAtOverride || planDefaultExpiresAt;
 
   const resetForm = () => {
     setStep("business");
@@ -89,6 +96,32 @@ export function LicenseCreateDialog({ open, onOpenChange, onCreated }: Props) {
     setNotes("");
     setBranches([emptyBranch()]);
     setEnableBranches(false);
+    setExpiresAtOverride("");
+    setProviderRaw("");
+  };
+
+  // Apply parsed supplier data: fill key fields and create/replace first branch with the POS hash
+  const applyParsed = (p: ParsedLicense, raw: string) => {
+    setProviderRaw(raw);
+    if (p.pos_expires_at) {
+      // Normalize to YYYY-MM-DD for the date input
+      setExpiresAtOverride(new Date(p.pos_expires_at).toISOString().slice(0, 10));
+    }
+    setEnableBranches(true);
+    setBranches((prev) => {
+      const first: Branch = {
+        ...(prev[0] || emptyBranch()),
+        branch_name: prev[0]?.branch_name || "Sede Principal",
+        pos_location: p.pos_location || prev[0]?.pos_location || "",
+        pos_plan_type: p.pos_plan_type || prev[0]?.pos_plan_type || "",
+        pos_license_hash: p.license_key || prev[0]?.pos_license_hash || "",
+        pos_invoice_count: p.pos_invoice_count != null ? String(p.pos_invoice_count) : (prev[0]?.pos_invoice_count || "0"),
+        pos_created_at: p.pos_created_at ? new Date(p.pos_created_at).toISOString().slice(0, 16) : (prev[0]?.pos_created_at || ""),
+        pos_expires_at: p.pos_expires_at ? new Date(p.pos_expires_at).toISOString().slice(0, 16) : (prev[0]?.pos_expires_at || ""),
+      };
+      return [first, ...prev.slice(1)];
+    });
+    toast({ title: "Datos del proveedor aplicados", description: "Revisa y completa el resto antes de crear." });
   };
 
   const handlePlanChange = (value: string) => {
@@ -182,6 +215,8 @@ export function LicenseCreateDialog({ open, onOpenChange, onCreated }: Props) {
     setSaving(true);
     try {
       // Create license
+      // If supplier already provided a hash, mark the license as active immediately
+      const firstHash = branches[0]?.pos_license_hash || null;
       const { data: newLicense, error } = await supabase.from("licenses").insert({
         business_name: businessName,
         business_nit: businessNit || null,
@@ -190,8 +225,11 @@ export function LicenseCreateDialog({ open, onOpenChange, onCreated }: Props) {
         contact_phone: contactPhone || null,
         plan_type: selectedPlan,
         price_paid: priceValue,
-        expires_at: expiresAt,
+        expires_at: expiresAt || null,
         notes: notes || null,
+        provider_notes: providerRaw || null,
+        pos_license_hash: firstHash,
+        status: firstHash ? "active" : "active",
       }).select("id, license_key").single();
 
       if (error) throw error;
@@ -293,6 +331,10 @@ export function LicenseCreateDialog({ open, onOpenChange, onCreated }: Props) {
         {step === "business" && (
           <div className="space-y-4 animate-in fade-in-50 duration-200">
             <p className="text-sm text-muted-foreground">Datos del negocio y contacto principal</p>
+
+            {/* Paste-from-supplier shortcut: pre-fills hash, location, plan type and expiry */}
+            <LicenseRawPasteParser onApply={applyParsed} compact />
+
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label className="text-xs flex items-center gap-1"><Building2 className="h-3 w-3" /> Negocio *</Label>
@@ -379,16 +421,20 @@ export function LicenseCreateDialog({ open, onOpenChange, onCreated }: Props) {
                   </p>
                 )}
               </div>
-              <div className="flex items-end">
-                {expiresAt ? (
-                  <div className="rounded-lg bg-muted/50 p-2.5 text-xs text-muted-foreground w-full text-center">
-                    📅 Vence: <strong>{expiresAt}</strong>
-                  </div>
-                ) : (
-                  <div className="rounded-lg bg-amber-50 dark:bg-amber-950/30 p-2.5 text-xs text-amber-700 w-full text-center">
-                    ♾️ Sin vencimiento
-                  </div>
-                )}
+              <div>
+                <Label className="text-xs flex items-center gap-1">
+                  <Calendar className="h-3 w-3" /> Vencimiento (editable)
+                </Label>
+                <Input
+                  type="date"
+                  value={expiresAtOverride || planDefaultExpiresAt || ""}
+                  onChange={(e) => setExpiresAtOverride(e.target.value)}
+                />
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                  {planDefaultExpiresAt
+                    ? <>Sugerido por plan: <strong>{planDefaultExpiresAt}</strong>. Puedes ponerle cualquier fecha (incluso pasada) o dejar vacío para “vitalicio”.</>
+                    : <>Plan sin vencimiento por defecto. Asigna una fecha si lo necesitas.</>}
+                </p>
               </div>
             </div>
 
