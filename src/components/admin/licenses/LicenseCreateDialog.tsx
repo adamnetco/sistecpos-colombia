@@ -74,9 +74,15 @@ export function LicenseCreateDialog({ open, onOpenChange, onCreated }: Props) {
   const [branches, setBranches] = useState<Branch[]>([emptyBranch()]);
   const [enableBranches, setEnableBranches] = useState(false);
 
+  // Manual expiry override (admin can set ANY date, including past, or leave empty for "vitalicio")
+  const [expiresAtOverride, setExpiresAtOverride] = useState<string>("");
+  // Raw supplier paste (saved into provider_notes for traceability)
+  const [providerRaw, setProviderRaw] = useState<string>("");
+
   const currentPlan = LICENSE_PLANS.find((p) => p.value === selectedPlan);
   const isMultiStore = selectedPlan.includes("multi");
-  const expiresAt = planExpirationDate(selectedPlan);
+  const planDefaultExpiresAt = planExpirationDate(selectedPlan);
+  const expiresAt = expiresAtOverride || planDefaultExpiresAt;
 
   const resetForm = () => {
     setStep("business");
