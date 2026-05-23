@@ -547,31 +547,43 @@ export default function ActiveDemosView() {
                       {new Date(l.created_at).toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" })}
                     </td>
                     <td className="px-4 py-3">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="h-8 text-xs"
-                        onClick={() => {
-                          setSelectedLead(l);
-                          const defaultDomain = domains.find(d => d.is_default)?.domain || domains[0]?.domain || "";
-                          const sName = l.short_name || l.business_name.toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 15);
-                          setCredForm({
-                            pos_username: l.pos_username || "admin",
-                            pos_company: l.pos_company || sName,
-                            pos_password: l.pos_password || "",
-                            short_name: l.short_name || sName,
-                            assigned_email: l.assigned_email || (sName && defaultDomain ? `${sName}@${defaultDomain}` : ""),
-                            selected_domain: defaultDomain,
-                          });
-                          setCredDialog(true);
-                        }}
-                      >
-                        {hasCredentials(l) ? (
-                          <><Eye className="h-3.5 w-3.5 mr-1" /> Ver</>
-                        ) : (
-                          <><Send className="h-3.5 w-3.5 mr-1" /> Asignar</>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-8 text-xs"
+                          onClick={() => {
+                            setSelectedLead(l);
+                            const defaultDomain = domains.find(d => d.is_default)?.domain || domains[0]?.domain || "";
+                            const sName = l.short_name || l.business_name.toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 15);
+                            setCredForm({
+                              pos_username: l.pos_username || "admin",
+                              pos_company: l.pos_company || sName,
+                              pos_password: l.pos_password || "",
+                              short_name: l.short_name || sName,
+                              assigned_email: l.assigned_email || (sName && defaultDomain ? `${sName}@${defaultDomain}` : ""),
+                              selected_domain: defaultDomain,
+                            });
+                            setCredDialog(true);
+                          }}
+                        >
+                          {hasCredentials(l) ? (
+                            <><Eye className="h-3.5 w-3.5 mr-1" /> Ver</>
+                          ) : (
+                            <><Send className="h-3.5 w-3.5 mr-1" /> Asignar</>
+                          )}
+                        </Button>
+                        {hasCredentials(l) && (
+                          <Button
+                            size="sm"
+                            className="h-8 text-xs bg-amber-600 hover:bg-amber-700 text-white"
+                            onClick={() => setConvertingLead(l)}
+                            title="Convertir esta demo en licencia activa"
+                          >
+                            <Trophy className="h-3.5 w-3.5 mr-1" /> Convertir
+                          </Button>
                         )}
-                      </Button>
+                      </div>
                     </td>
                   </tr>
                 );
