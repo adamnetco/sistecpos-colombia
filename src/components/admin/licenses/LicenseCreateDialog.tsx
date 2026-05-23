@@ -215,6 +215,8 @@ export function LicenseCreateDialog({ open, onOpenChange, onCreated }: Props) {
     setSaving(true);
     try {
       // Create license
+      // If supplier already provided a hash, mark the license as active immediately
+      const firstHash = branches[0]?.pos_license_hash || null;
       const { data: newLicense, error } = await supabase.from("licenses").insert({
         business_name: businessName,
         business_nit: businessNit || null,
@@ -225,6 +227,9 @@ export function LicenseCreateDialog({ open, onOpenChange, onCreated }: Props) {
         price_paid: priceValue,
         expires_at: expiresAt,
         notes: notes || null,
+        provider_notes: providerRaw || null,
+        pos_license_hash: firstHash,
+        status: firstHash ? "active" : "active",
       }).select("id, license_key").single();
 
       if (error) throw error;
