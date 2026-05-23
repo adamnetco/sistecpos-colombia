@@ -225,7 +225,7 @@ export function LicenseCreateDialog({ open, onOpenChange, onCreated }: Props) {
         contact_phone: contactPhone || null,
         plan_type: selectedPlan,
         price_paid: priceValue,
-        expires_at: expiresAt,
+        expires_at: expiresAt || null,
         notes: notes || null,
         provider_notes: providerRaw || null,
         pos_license_hash: firstHash,
