@@ -86,8 +86,19 @@ export default function ContactsView() {
   const [view, setView] = useState<"table" | "pipeline" | "demos">(() => {
     if (typeof window === "undefined") return "table";
     const v = new URLSearchParams(window.location.search).get("view");
-    return v === "pipeline" || v === "demos" ? v : "table";
+    const hash = window.location.hash.replace("#", "");
+    if (v === "pipeline" || v === "demos") return v;
+    if (hash === "demos" || hash === "pipeline") return hash as any;
+    return "table";
   });
+
+  // Keep URL in sync with selected view (so /admin/contactos?view=demos works as deep link)
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    if (view === "table") url.searchParams.delete("view");
+    else url.searchParams.set("view", view);
+    window.history.replaceState({}, "", url.toString());
+  }, [view]);
   const { toast } = useToast();
 
   const load = async () => {
