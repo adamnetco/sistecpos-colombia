@@ -281,6 +281,8 @@ export default function ContactsView() {
 
       {view === "pipeline" ? (
         <ContactPipelineView />
+      ) : view === "demos" ? (
+        <ActiveDemosView />
       ) : (
         <>
 
