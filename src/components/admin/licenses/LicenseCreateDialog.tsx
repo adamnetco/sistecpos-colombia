@@ -14,6 +14,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { LICENSE_PLANS, planExpirationDate, type LicensePlan } from "@/data/licensePlans";
+import { LicenseRawPasteParser, type ParsedLicense } from "./LicenseRawPasteParser";
 
 interface Branch {
   id: string;
