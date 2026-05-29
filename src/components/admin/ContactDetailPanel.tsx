@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { useToast } from "@/hooks/use-toast";
 import {
   Mail, Phone, Building2, MapPin, Bot, Clock, Plus,
-  MessageSquare, PhoneCall, FileText, Calendar, Rocket, Loader2, ExternalLink,
+  MessageSquare, PhoneCall, FileText, Calendar, Rocket, Loader2, ExternalLink, Copy, Check,
 } from "lucide-react";
 import { BUSINESS_TYPES_DEMO, COUNTRIES } from "@/data/demoFormOptions";
 
@@ -70,7 +70,19 @@ export default function ContactDetailPanel({
     country: "Colombia",
   });
   const [creatingLead, setCreatingLead] = useState(false);
+  const [showForwardPanel, setShowForwardPanel] = useState(false);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
   const { toast } = useToast();
+
+  const copyField = async (key: string, value: string) => {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopiedField(key);
+      setTimeout(() => setCopiedField(c => (c === key ? null : c)), 1400);
+    } catch {
+      toast({ title: "No se pudo copiar", variant: "destructive" });
+    }
+  };
 
   useEffect(() => {
     loadActivities();
@@ -163,52 +175,98 @@ export default function ContactDetailPanel({
         </div>
       )}
 
-      {/* Reenviar al panel del franquiciado — salta la pantalla "¿Eres dueño?" yendo directo al formulario */}
-      <div className="space-y-2">
-        <Button
-          variant="outline"
-          size="sm"
-          className="w-full gap-2 border-amber-400/40 text-amber-700 hover:bg-amber-50 dark:text-amber-300 dark:hover:bg-amber-950"
-          onClick={async () => {
-            const storeSlug = (contact.business_name || contact.full_name || "sistecpos")
-              .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-              .replace(/[^A-Za-z0-9]/g, "").slice(0, 20) || "sistecpos";
-            const phone = (contact.phone || "").replace(/\D/g, "");
-            const data = {
-              form_name: contact.full_name || "",
-              form_email: contact.email || "",
-              confirm_email: contact.email || "",
-              form_store: storeSlug,
-              form_phone: phone,
-              form_city: contact.city || "",
-              form_country: "Colombia",
-              form_description: `Lead enviado desde SistecPOS CRM (${contact.source || "manual"})`,
-            };
-            // 1) Copiar al portapapeles como texto formateado (respaldo si el panel no autollena)
-            try {
-              const txt = Object.entries(data).map(([k, v]) => `${k}: ${v}`).join("\n");
-              await navigator.clipboard.writeText(txt);
-            } catch {}
-            // 2) Abrir DIRECTO el formulario (sin la pantalla de "¿Eres dueño?")
-            const params = new URLSearchParams({
-              ...data,
-              nombre: data.form_name, correo: data.form_email,
-              telefono: data.form_phone, negocio: data.form_store,
-              ciudad: data.form_city, pais: data.form_country,
-              ref: "sistecpos_admin",
-            });
-            const url = `https://licenciaspos.online/prospects/registerForm/890267cdf2986e0e0d89a6de48236599?token=ODM=&${params.toString()}`;
-            window.open(url, "_blank", "noopener,noreferrer");
-          }}
-        >
-          <ExternalLink className="h-4 w-4" />
-          Reenviar al Panel Franquiciado
-        </Button>
-        <p className="text-[11px] text-muted-foreground leading-tight">
-          Abre el formulario del panel <strong>saltando</strong> la pantalla de "¿Eres dueño?".
-          Si el panel no autollena los campos, los datos ya quedaron <strong>copiados al portapapeles</strong> — solo pega (Ctrl+V) en cada campo.
-        </p>
-      </div>
+      {/* Reenviar al panel del franquiciado — mini-panel campo por campo */}
+      {(() => {
+        const storeSlug = (contact.business_name || contact.full_name || "sistecpos")
+          .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+          .replace(/[^A-Za-z0-9]/g, "").slice(0, 20) || "sistecpos";
+        const phone = (contact.phone || "").replace(/\D/g, "");
+        const fields: Array<{ key: string; label: string; value: string }> = [
+          { key: "name",  label: "Nombre completo",  value: contact.full_name || "" },
+          { key: "email", label: "Email",            value: contact.email || "" },
+          { key: "email2",label: "Confirmar email",  value: contact.email || "" },
+          { key: "store", label: "Nombre de tienda", value: storeSlug },
+          { key: "phone", label: "Teléfono / WhatsApp", value: phone },
+          { key: "city",  label: "Ciudad",           value: contact.city || "" },
+          { key: "country",label: "País",            value: "Colombia" },
+          { key: "desc",  label: "Descripción",      value: `Lead desde SistecPOS CRM (${contact.source || "manual"})` },
+        ].filter(f => f.value);
+
+        const openPanel = async () => {
+          // Copia el primer campo automáticamente para arrancar
+          if (fields[0]) await copyField(fields[0].key, fields[0].value);
+          window.open(
+            `https://licenciaspos.online/prospects/registerForm/890267cdf2986e0e0d89a6de48236599?token=ODM=`,
+            "_blank", "noopener,noreferrer"
+          );
+          setShowForwardPanel(true);
+        };
+
+        return (
+          <div className="space-y-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full gap-2 border-amber-400/40 text-amber-700 hover:bg-amber-50 dark:text-amber-300 dark:hover:bg-amber-950"
+              onClick={openPanel}
+            >
+              <ExternalLink className="h-4 w-4" />
+              Reenviar al Panel Franquiciado
+            </Button>
+
+            {showForwardPanel && (
+              <div className="rounded-lg border border-amber-300/50 bg-amber-50/60 dark:bg-amber-950/30 p-3 space-y-2">
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-semibold text-amber-800 dark:text-amber-200">
+                    Pega campo por campo en el panel ↗
+                  </p>
+                  <button
+                    onClick={() => setShowForwardPanel(false)}
+                    className="text-[11px] text-amber-700/70 hover:text-amber-900 dark:text-amber-300/70"
+                  >
+                    Cerrar
+                  </button>
+                </div>
+                <p className="text-[11px] text-amber-700/80 dark:text-amber-300/80 leading-tight">
+                  1) Click en "Copiar" · 2) Click en el campo del panel · 3) Ctrl+V · 4) Siguiente.
+                  Empezamos con <strong>{fields[0]?.label}</strong> ya copiado.
+                </p>
+                <div className="space-y-1.5 max-h-64 overflow-y-auto">
+                  {fields.map(f => {
+                    const isCopied = copiedField === f.key;
+                    return (
+                      <button
+                        key={f.key}
+                        onClick={() => copyField(f.key, f.value)}
+                        className={`w-full flex items-center gap-2 text-left rounded-md border px-2 py-1.5 transition ${
+                          isCopied
+                            ? "border-emerald-400 bg-emerald-50 dark:bg-emerald-950/40"
+                            : "border-amber-200 bg-white/70 dark:bg-amber-950/20 hover:bg-amber-100/60 dark:hover:bg-amber-900/30"
+                        }`}
+                      >
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[10px] uppercase tracking-wide text-muted-foreground">{f.label}</p>
+                          <p className="text-xs font-mono truncate">{f.value}</p>
+                        </div>
+                        {isCopied ? (
+                          <span className="flex items-center gap-1 text-[11px] text-emerald-700 dark:text-emerald-400 font-medium">
+                            <Check className="h-3.5 w-3.5" /> Copiado
+                          </span>
+                        ) : (
+                          <span className="flex items-center gap-1 text-[11px] text-amber-700 dark:text-amber-300 font-medium">
+                            <Copy className="h-3.5 w-3.5" /> Copiar
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      })()}
+
 
 
       {/* Pasar a Leads/Demos */}
