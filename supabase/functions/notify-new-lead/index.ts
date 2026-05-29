@@ -86,9 +86,9 @@ function welcomeDemoHtml(name: string, business: string, supportNumber: string, 
         <p style="margin:0 0 8px;color:#166534;font-size:14px;font-weight:600;">🖥️ Explora el software ahora mismo</p>
         <p style="margin:0 0 4px;color:#374151;font-size:13px;">Mientras preparamos tu demo personalizada, puedes explorar el sistema con estas credenciales genéricas:</p>
         <div style="background:#ffffff;border:1px solid #d1d5db;border-radius:8px;padding:12px;margin-top:10px;">
-          <p style="margin:0;font-size:13px;color:#374151;"><strong>Usuario:</strong> demo</p>
-          <p style="margin:0;font-size:13px;color:#374151;"><strong>Empresa:</strong> demo</p>
-          <p style="margin:0;font-size:13px;color:#374151;"><strong>Contraseña:</strong> demo</p>
+          <p style="margin:0;font-size:13px;color:#374151;"><strong>Usuario:</strong> demosistecposonline</p>
+          <p style="margin:0;font-size:13px;color:#374151;"><strong>Tienda:</strong> demosistecposonline</p>
+          <p style="margin:0;font-size:13px;color:#374151;"><strong>Contraseña:</strong> demosistecposonline</p>
         </div>
       </div>
 
@@ -105,7 +105,7 @@ function welcomeDemoHtml(name: string, business: string, supportNumber: string, 
         <a href="${SITE_URL}/clientes?quick=demo#pos" style="display:inline-block;background:#2563eb;color:#ffffff;font-size:14px;font-weight:600;padding:14px 36px;border-radius:10px;text-decoration:none;">
           🖥️ Ingresar a la Demo con 1 Clic
         </a>
-        <p style="margin:6px 0 0;color:#9ca3af;font-size:11px;">Se abrirá directamente el panel con credenciales demo/demo/demo</p>
+        <p style="margin:6px 0 0;color:#9ca3af;font-size:11px;">Se abrirá el panel; usa <strong>demosistecposonline</strong> en Usuario, Tienda y Contraseña</p>
       </div>
 
       <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:16px;margin-bottom:20px;">
@@ -193,7 +193,7 @@ function activationCompletedClientHtml(name: string, business: string, supportNu
 
       <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:16px;margin-bottom:20px;">
         <p style="margin:0 0 8px;color:#166534;font-size:14px;font-weight:600;">🖥️ Mientras tanto, sigue explorando</p>
-        <p style="margin:0;color:#374151;font-size:13px;">Puedes continuar usando la demo genérica con las credenciales: <strong>demo / demo / demo</strong></p>
+        <p style="margin:0;color:#374151;font-size:13px;">Puedes continuar usando la demo genérica con las credenciales: <strong>demosistecposonline / demosistecposonline / demosistecposonline</strong></p>
       </div>
 
       <div style="text-align:center;margin:20px 0;">
