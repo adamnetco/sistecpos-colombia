@@ -80,6 +80,19 @@ export function DemoRequestForm() {
         },
       }).catch(console.error);
 
+      // Forward to external endpoint via proxy edge function (no CORS, no blocking)
+      supabase.functions.invoke("forward-lead-external", {
+        body: {
+          full_name: data.fullName,
+          business_name: data.businessName,
+          phone: data.whatsapp,
+          whatsapp: data.whatsapp,
+          email: data.email,
+          source: "sistecpos_web_demo",
+          origin_url: typeof window !== "undefined" ? window.location.href : "",
+        },
+      }).catch((err) => console.error("forward-lead-external error:", err));
+
       // Open WhatsApp
       const waMsg = `Hola SistecPOS, quiero solicitar una demo gratis.\n\n👤 Nombre: ${data.fullName}\n🏪 Negocio: ${data.businessName}\n📱 WhatsApp: ${data.whatsapp}\n📧 Correo: ${data.email}`;
       window.open(buildUrl(waMsg), "_blank", "noopener,noreferrer");
