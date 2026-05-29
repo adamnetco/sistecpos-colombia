@@ -554,15 +554,14 @@ export default function ActiveDemosView() {
                           className="h-8 text-xs"
                           onClick={() => {
                             setSelectedLead(l);
-                            const defaultDomain = domains.find(d => d.is_default)?.domain || domains[0]?.domain || "";
                             const sName = l.short_name || l.business_name.toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 15);
                             setCredForm({
                               pos_username: l.pos_username || "admin",
                               pos_company: l.pos_company || sName,
                               pos_password: l.pos_password || "",
                               short_name: l.short_name || sName,
-                              assigned_email: l.assigned_email || (sName && defaultDomain ? `${sName}@${defaultDomain}` : ""),
-                              selected_domain: defaultDomain,
+                              assigned_email: l.assigned_email || l.email || "",
+                              selected_domain: "",
                             });
                             setCredDialog(true);
                           }}
