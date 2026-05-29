@@ -211,7 +211,7 @@ export function LeadPOSUsersTab({ leadId, storeName, contactPhone, defaultUserna
 
   return (
     <div className="space-y-3">
-      <form ref={loginFormRef} method="POST" action="https://softwarepos.online/index.php/login/index/1" target="_blank" className="hidden">
+      <form ref={loginFormRef} method="POST" action="https://sistecpos.online" target="_blank" className="hidden">
         <input name="username" /><input name="store" /><input name="password" /><input name="remember_user" />
       </form>
 
