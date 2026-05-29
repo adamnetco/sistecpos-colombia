@@ -3867,6 +3867,21 @@ export type Database = {
           token_expires_at: string
         }[]
       }
+      get_lead_by_activation_token: {
+        Args: { _token: string }
+        Returns: {
+          activation_completed_at: string
+          business_name: string
+          business_type: string
+          city: string
+          contact_name: string
+          email: string
+          id: string
+          phone: string
+          status: string
+          trial_ends_at: string
+        }[]
+      }
       get_pos_users_for_lead: {
         Args: { _lead_id: string }
         Returns: {
@@ -3902,6 +3917,19 @@ export type Database = {
           pos_username: string
           user_email: string
           user_id: string
+        }[]
+      }
+      get_wompi_transaction_by_reference: {
+        Args: { _reference: string }
+        Returns: {
+          amount_cents: number
+          created_at: string
+          currency: string
+          id: string
+          payment_method: string
+          reference: string
+          status: string
+          updated_at: string
         }[]
       }
       has_role: {

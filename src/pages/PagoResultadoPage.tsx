@@ -11,9 +11,10 @@ interface TransactionInfo {
   status: string;
   amount_cents: number;
   payment_method: string | null;
-  customer_name: string | null;
-  customer_email: string | null;
+  customer_name?: string | null;
+  customer_email?: string | null;
 }
+
 
 const statusConfig: Record<string, { icon: React.ReactNode; title: string; description: string; color: string }> = {
   APPROVED: {
@@ -68,15 +69,13 @@ export default function PagoResultadoPage() {
 
     const fetchTransaction = async () => {
       const { data, error } = await supabase
-        .from("wompi_transactions")
-        .select("reference, status, amount_cents, payment_method, customer_name, customer_email")
-        .eq("reference", reference)
-        .single();
+        .rpc("get_wompi_transaction_by_reference", { _reference: reference })
+        .maybeSingle();
 
       if (error || !data) {
         setNotFound(true);
       } else {
-        setTransaction(data);
+        setTransaction(data as TransactionInfo);
       }
       setLoading(false);
     };
@@ -86,21 +85,20 @@ export default function PagoResultadoPage() {
     // Poll for status updates every 5s if PENDING
     const interval = setInterval(async () => {
       const { data } = await supabase
-        .from("wompi_transactions")
-        .select("reference, status, amount_cents, payment_method, customer_name, customer_email")
-        .eq("reference", reference)
-        .single();
+        .rpc("get_wompi_transaction_by_reference", { _reference: reference })
+        .maybeSingle();
 
       if (data && data.status !== "PENDING") {
-        setTransaction(data);
+        setTransaction(data as TransactionInfo);
         clearInterval(interval);
       } else if (data) {
-        setTransaction(data);
+        setTransaction(data as TransactionInfo);
       }
     }, 5000);
 
     return () => clearInterval(interval);
   }, [reference]);
+
 
   const config = transaction ? statusConfig[transaction.status] || statusConfig.ERROR : null;
 
