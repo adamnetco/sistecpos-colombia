@@ -799,10 +799,10 @@ export default function ActiveDemosView() {
                       <Label className="text-xs">Nombre Corto (≤15 caracteres)</Label>
                       <Input 
                         value={credForm.short_name} 
+                        onFocus={(e) => e.currentTarget.select()}
                         onChange={(e) => {
                           const val = e.target.value.slice(0, 15);
                           setCredForm(p => ({ ...p, short_name: val }));
-                          updateAssignedEmail(val, credForm.selected_domain);
                         }} 
                         placeholder="Ej: mitienda" 
                         maxLength={15}
