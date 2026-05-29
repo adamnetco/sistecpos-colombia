@@ -554,15 +554,14 @@ export default function ActiveDemosView() {
                           className="h-8 text-xs"
                           onClick={() => {
                             setSelectedLead(l);
-                            const defaultDomain = domains.find(d => d.is_default)?.domain || domains[0]?.domain || "";
                             const sName = l.short_name || l.business_name.toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 15);
                             setCredForm({
                               pos_username: l.pos_username || "admin",
                               pos_company: l.pos_company || sName,
                               pos_password: l.pos_password || "",
                               short_name: l.short_name || sName,
-                              assigned_email: l.assigned_email || (sName && defaultDomain ? `${sName}@${defaultDomain}` : ""),
-                              selected_domain: defaultDomain,
+                              assigned_email: l.assigned_email || l.email || "",
+                              selected_domain: "",
                             });
                             setCredDialog(true);
                           }}
@@ -799,44 +798,30 @@ export default function ActiveDemosView() {
                       <Label className="text-xs">Nombre Corto (≤15 caracteres)</Label>
                       <Input 
                         value={credForm.short_name} 
+                        onFocus={(e) => e.currentTarget.select()}
                         onChange={(e) => {
                           const val = e.target.value.slice(0, 15);
                           setCredForm(p => ({ ...p, short_name: val }));
-                          updateAssignedEmail(val, credForm.selected_domain);
                         }} 
                         placeholder="Ej: mitienda" 
                         maxLength={15}
                       />
                     </div>
-                    {/* Assigned Email */}
+                    {/* Correo del cliente (libre, opcional — ya no se asigna dominio interno) */}
                     <div>
-                      <Label className="text-xs flex items-center gap-1"><Globe className="h-3 w-3" /> Correo Asignado</Label>
-                      <div className="flex gap-2">
-                        <Input 
-                          value={credForm.assigned_email} 
-                          onChange={(e) => setCredForm(p => ({ ...p, assigned_email: e.target.value }))}
-                          placeholder="mitienda@ventas.click" 
-                          className="flex-1"
-                        />
-                        {domains.length > 0 && (
-                          <Select 
-                            value={credForm.selected_domain} 
-                            onValueChange={(v) => {
-                              setCredForm(p => ({ ...p, selected_domain: v }));
-                              updateAssignedEmail(credForm.short_name, v);
-                            }}
-                          >
-                            <SelectTrigger className="w-[160px]">
-                              <SelectValue placeholder="Dominio" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {domains.map(d => (
-                                <SelectItem key={d.id} value={d.domain}>@{d.domain}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        )}
-                      </div>
+                      <Label className="text-xs flex items-center gap-1">
+                        <Globe className="h-3 w-3" /> Correo del cliente <span className="text-muted-foreground font-normal">(opcional)</span>
+                      </Label>
+                      <Input
+                        type="email"
+                        value={credForm.assigned_email}
+                        onFocus={(e) => e.currentTarget.select()}
+                        onChange={(e) => setCredForm(p => ({ ...p, assigned_email: e.target.value }))}
+                        placeholder={selectedLead.email || "correo@cliente.com"}
+                      />
+                      <p className="text-[11px] text-muted-foreground mt-0.5">
+                        Usa el correo real del cliente. Ya no se asigna un dominio interno (@ventas.click).
+                      </p>
                     </div>
                     <hr className="my-2" />
                     <div>
