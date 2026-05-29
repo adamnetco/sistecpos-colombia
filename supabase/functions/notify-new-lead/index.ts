@@ -193,7 +193,7 @@ function activationCompletedClientHtml(name: string, business: string, supportNu
 
       <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:16px;margin-bottom:20px;">
         <p style="margin:0 0 8px;color:#166534;font-size:14px;font-weight:600;">🖥️ Mientras tanto, sigue explorando</p>
-        <p style="margin:0;color:#374151;font-size:13px;">Puedes continuar usando la demo genérica con las credenciales: <strong>demo / demo / demo</strong></p>
+        <p style="margin:0;color:#374151;font-size:13px;">Puedes continuar usando la demo genérica con las credenciales: <strong>demosistecposonline / demosistecposonline / demosistecposonline</strong></p>
       </div>
 
       <div style="text-align:center;margin:20px 0;">
