@@ -163,29 +163,52 @@ export default function ContactDetailPanel({
         </div>
       )}
 
-      {/* Reenviar al panel del franquiciado (licenciaspos.online / panel.accesopos.com) */}
-      <Button
-        variant="outline"
-        size="sm"
-        className="w-full gap-2 border-amber-400/40 text-amber-700 hover:bg-amber-50 dark:text-amber-300 dark:hover:bg-amber-950"
-        onClick={() => {
-          const params = new URLSearchParams({
-            nombre: contact.full_name || "",
-            correo: contact.email || "",
-            telefono: (contact.phone || "").replace(/\D/g, ""),
-            negocio: contact.business_name || "",
-            ciudad: contact.city || "",
-            pais: "Colombia",
-            tipo_negocio: contact.business_type || "",
-            ref: "sistecpos_admin",
-          });
-          const url = `https://licenciaspos.online/prospects/register/890267cdf2986e0e0d89a6de48236599?token=ODM=&${params.toString()}`;
-          window.open(url, "_blank", "noopener,noreferrer");
-        }}
-      >
-        <ExternalLink className="h-4 w-4" />
-        Reenviar al Panel Franquiciado
-      </Button>
+      {/* Reenviar al panel del franquiciado — salta la pantalla "¿Eres dueño?" yendo directo al formulario */}
+      <div className="space-y-2">
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full gap-2 border-amber-400/40 text-amber-700 hover:bg-amber-50 dark:text-amber-300 dark:hover:bg-amber-950"
+          onClick={async () => {
+            const storeSlug = (contact.business_name || contact.full_name || "sistecpos")
+              .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+              .replace(/[^A-Za-z0-9]/g, "").slice(0, 20) || "sistecpos";
+            const phone = (contact.phone || "").replace(/\D/g, "");
+            const data = {
+              form_name: contact.full_name || "",
+              form_email: contact.email || "",
+              confirm_email: contact.email || "",
+              form_store: storeSlug,
+              form_phone: phone,
+              form_city: contact.city || "",
+              form_country: "Colombia",
+              form_description: `Lead enviado desde SistecPOS CRM (${contact.source || "manual"})`,
+            };
+            // 1) Copiar al portapapeles como texto formateado (respaldo si el panel no autollena)
+            try {
+              const txt = Object.entries(data).map(([k, v]) => `${k}: ${v}`).join("\n");
+              await navigator.clipboard.writeText(txt);
+            } catch {}
+            // 2) Abrir DIRECTO el formulario (sin la pantalla de "¿Eres dueño?")
+            const params = new URLSearchParams({
+              ...data,
+              nombre: data.form_name, correo: data.form_email,
+              telefono: data.form_phone, negocio: data.form_store,
+              ciudad: data.form_city, pais: data.form_country,
+              ref: "sistecpos_admin",
+            });
+            const url = `https://licenciaspos.online/prospects/registerForm/890267cdf2986e0e0d89a6de48236599?token=ODM=&${params.toString()}`;
+            window.open(url, "_blank", "noopener,noreferrer");
+          }}
+        >
+          <ExternalLink className="h-4 w-4" />
+          Reenviar al Panel Franquiciado
+        </Button>
+        <p className="text-[11px] text-muted-foreground leading-tight">
+          Abre el formulario del panel <strong>saltando</strong> la pantalla de "¿Eres dueño?".
+          Si el panel no autollena los campos, los datos ya quedaron <strong>copiados al portapapeles</strong> — solo pega (Ctrl+V) en cada campo.
+        </p>
+      </div>
 
 
       {/* Pasar a Leads/Demos */}
