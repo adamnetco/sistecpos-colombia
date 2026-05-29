@@ -1,5 +1,6 @@
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors';
 
+// Endpoint del panel del franquiciado (Prospectos)
 const EXTERNAL_URL = 'https://licenciaspos.online/prospects/register/890267cdf2986e0e0d89a6de48236599?token=ODM=';
 
 Deno.serve(async (req) => {
@@ -10,12 +11,57 @@ Deno.serve(async (req) => {
   try {
     const payload = await req.json();
 
-    // Build both JSON and form-urlencoded variants; many legacy PHP endpoints expect form data.
-    const form = new URLSearchParams();
-    Object.entries(payload || {}).forEach(([k, v]) => {
-      if (v === undefined || v === null) return;
-      form.append(k, typeof v === 'string' ? v : JSON.stringify(v));
+    // Normaliza datos del prospecto a múltiples alias de campos que suelen
+    // esperar los backends PHP del panel (es / en) para asegurar ingesta correcta
+    // en https://panel.accesopos.com/prospects
+    const fullName = payload.full_name || payload.name || payload.nombre || '';
+    const businessName = payload.business_name || payload.business || payload.negocio || payload.empresa || '';
+    const phone = payload.phone || payload.whatsapp || payload.telefono || payload.celular || '';
+    const email = payload.email || payload.correo || '';
+    const city = payload.city || payload.ciudad || '';
+    const businessType = payload.business_type || payload.tipo_negocio || '';
+    const country = payload.country || payload.pais || 'Colombia';
+
+    const normalized: Record<string, string> = {
+      // Alias en español
+      nombre: fullName,
+      nombre_completo: fullName,
+      negocio: businessName,
+      empresa: businessName,
+      razon_social: businessName,
+      telefono: phone,
+      celular: phone,
+      whatsapp: phone,
+      correo: email,
+      email,
+      ciudad: city,
+      pais: country,
+      tipo_negocio: businessType,
+      // Alias en inglés
+      name: fullName,
+      full_name: fullName,
+      business: businessName,
+      business_name: businessName,
+      phone,
+      city,
+      country,
+      business_type: businessType,
+      // Metadatos de origen
+      source: payload.source || 'sistecpos_web_demo',
+      origin: payload.source || 'sistecpos_web_demo',
+      origin_url: payload.origin_url || '',
+      utm_source: payload.utm_source || 'sistecpos.com',
+      utm_medium: payload.utm_medium || 'web_form',
+      utm_campaign: payload.utm_campaign || 'demo_request',
+    };
+
+    // Limpia vacíos para no ensuciar el panel
+    Object.keys(normalized).forEach((k) => {
+      if (!normalized[k]) delete normalized[k];
     });
+
+    const form = new URLSearchParams();
+    Object.entries(normalized).forEach(([k, v]) => form.append(k, v));
 
     let externalStatus = 0;
     let externalBody = '';
@@ -34,7 +80,6 @@ Deno.serve(async (req) => {
       externalStatus = res.status;
       externalBody = (await res.text()).slice(0, 500);
 
-      // Fallback to JSON if the endpoint rejected the form payload
       if (externalStatus >= 400) {
         mode = 'json';
         const res2 = await fetch(EXTERNAL_URL, {
@@ -44,7 +89,7 @@ Deno.serve(async (req) => {
             'Accept': 'application/json, text/plain, */*',
             'User-Agent': 'SistecPOS-Proxy/1.0',
           },
-          body: JSON.stringify(payload),
+          body: JSON.stringify(normalized),
         });
         externalStatus = res2.status;
         externalBody = (await res2.text()).slice(0, 500);
