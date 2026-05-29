@@ -4,7 +4,7 @@ import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors';
 const HASH = '890267cdf2986e0e0d89a6de48236599';
 const TOKEN_PARAM = 'ODM=';
 const FORM_PAGE = `https://licenciaspos.online/prospects/registerForm/${HASH}?token=${TOKEN_PARAM}`;
-const SUBMIT_URL = FORM_PAGE; // mismo endpoint, POST
+const SUBMIT_URL = 'https://licenciaspos.online/prospects/createProspects';
 
 function parseCookies(setCookieHeaders: string[]): string {
   // Une las cookies devueltas para reenviarlas en el POST
