@@ -163,6 +163,31 @@ export default function ContactDetailPanel({
         </div>
       )}
 
+      {/* Reenviar al panel del franquiciado (licenciaspos.online / panel.accesopos.com) */}
+      <Button
+        variant="outline"
+        size="sm"
+        className="w-full gap-2 border-amber-400/40 text-amber-700 hover:bg-amber-50 dark:text-amber-300 dark:hover:bg-amber-950"
+        onClick={() => {
+          const params = new URLSearchParams({
+            nombre: contact.full_name || "",
+            correo: contact.email || "",
+            telefono: (contact.phone || "").replace(/\D/g, ""),
+            negocio: contact.business_name || "",
+            ciudad: contact.city || "",
+            pais: "Colombia",
+            tipo_negocio: contact.business_type || "",
+            ref: "sistecpos_admin",
+          });
+          const url = `https://licenciaspos.online/prospects/register/890267cdf2986e0e0d89a6de48236599?token=ODM=&${params.toString()}`;
+          window.open(url, "_blank", "noopener,noreferrer");
+        }}
+      >
+        <ExternalLink className="h-4 w-4" />
+        Reenviar al Panel Franquiciado
+      </Button>
+
+
       {/* Pasar a Leads/Demos */}
       {!contact.lead_id && (
         <>
