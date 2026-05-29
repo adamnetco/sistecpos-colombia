@@ -11,9 +11,10 @@ interface TransactionInfo {
   status: string;
   amount_cents: number;
   payment_method: string | null;
-  customer_name: string | null;
-  customer_email: string | null;
+  customer_name?: string | null;
+  customer_email?: string | null;
 }
+
 
 const statusConfig: Record<string, { icon: React.ReactNode; title: string; description: string; color: string }> = {
   APPROVED: {
