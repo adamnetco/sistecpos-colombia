@@ -48,7 +48,7 @@ interface LeadData {
   phone: string;
   city: string | null;
   business_type: string | null;
-  country: string | null;
+  country?: string | null;
   activation_completed_at: string | null;
 }
 
