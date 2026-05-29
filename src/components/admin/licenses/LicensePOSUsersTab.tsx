@@ -430,7 +430,7 @@ export function LicensePOSUsersTab({ licenseId, businessName, storeName }: Props
   return (
     <div className="space-y-4">
       {/* Hidden form for POS login */}
-      <form ref={loginFormRef} method="POST" action="https://softwarepos.online/index.php/login/index/1" target="_blank" className="hidden">
+      <form ref={loginFormRef} method="POST" action="https://sistecpos.online" target="_blank" className="hidden">
         <input name="username" />
         <input name="store" />
         <input name="password" />

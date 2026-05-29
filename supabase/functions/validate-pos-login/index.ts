@@ -28,7 +28,7 @@ serve(async (req) => {
     formData.append("store", store)
     formData.append("remember_user", "1")
 
-    const posResponse = await fetch("https://softwarepos.online/index.php/login/index/1", {
+    const posResponse = await fetch("https://sistecpos.online", {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",

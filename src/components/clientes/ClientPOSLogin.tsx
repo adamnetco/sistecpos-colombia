@@ -96,7 +96,7 @@ export function ClientPOSLogin() {
   const submitPOSForm = (user: string, company: string, pass: string) => {
     const form = document.createElement("form");
     form.method = "POST";
-    form.action = "https://softwarepos.online/index.php/login/index/1";
+    form.action = "https://sistecpos.online";
     form.target = "_blank";
 
     const fields = { username: user, password: pass, store: company, remember_user: "1" };

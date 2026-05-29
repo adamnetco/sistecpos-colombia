@@ -54,7 +54,7 @@ export function ConnectPOSSection() {
     try {
       const form = document.createElement("form");
       form.method = "POST";
-      form.action = "https://softwarepos.online/index.php/login/index/1";
+      form.action = "https://sistecpos.online";
       form.target = "_blank";
       const fields = { username: demoCreds.user, password: demoCreds.pass, store: demoCreds.store, remember_user: "1" };
       for (const [key, value] of Object.entries(fields)) {
