@@ -85,15 +85,14 @@ export default function ActivarDemoPage() {
     if (!token) return;
     const fetchLead = async () => {
       const { data, error } = await supabase
-        .from("leads_trials")
-        .select("id, contact_name, business_name, email, phone, city, business_type, country, activation_completed_at")
-        .eq("activation_token", token)
+        .rpc("get_lead_by_activation_token", { _token: token })
         .maybeSingle();
 
       if (error || !data) {
         setLoading(false);
         return;
       }
+
 
       if (data.activation_completed_at) {
         setAlreadyCompleted(true);
