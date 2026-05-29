@@ -86,9 +86,9 @@ function welcomeDemoHtml(name: string, business: string, supportNumber: string, 
         <p style="margin:0 0 8px;color:#166534;font-size:14px;font-weight:600;">🖥️ Explora el software ahora mismo</p>
         <p style="margin:0 0 4px;color:#374151;font-size:13px;">Mientras preparamos tu demo personalizada, puedes explorar el sistema con estas credenciales genéricas:</p>
         <div style="background:#ffffff;border:1px solid #d1d5db;border-radius:8px;padding:12px;margin-top:10px;">
-          <p style="margin:0;font-size:13px;color:#374151;"><strong>Usuario:</strong> demo</p>
-          <p style="margin:0;font-size:13px;color:#374151;"><strong>Empresa:</strong> demo</p>
-          <p style="margin:0;font-size:13px;color:#374151;"><strong>Contraseña:</strong> demo</p>
+          <p style="margin:0;font-size:13px;color:#374151;"><strong>Usuario:</strong> demosistecposonline</p>
+          <p style="margin:0;font-size:13px;color:#374151;"><strong>Tienda:</strong> demosistecposonline</p>
+          <p style="margin:0;font-size:13px;color:#374151;"><strong>Contraseña:</strong> demosistecposonline</p>
         </div>
       </div>
 
