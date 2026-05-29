@@ -19,6 +19,8 @@ project_id = "yqvznnqcxvogxhramyua"
     verify_jwt = false
   [functions.notify-new-lead]
     verify_jwt = false
+  [functions.forward-lead-external]
+    verify_jwt = false
   [functions.notify-reseller-license]
     verify_jwt = false
   [functions.notify-ticket-status]
