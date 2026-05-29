@@ -105,7 +105,7 @@ function welcomeDemoHtml(name: string, business: string, supportNumber: string, 
         <a href="${SITE_URL}/clientes?quick=demo#pos" style="display:inline-block;background:#2563eb;color:#ffffff;font-size:14px;font-weight:600;padding:14px 36px;border-radius:10px;text-decoration:none;">
           🖥️ Ingresar a la Demo con 1 Clic
         </a>
-        <p style="margin:6px 0 0;color:#9ca3af;font-size:11px;">Se abrirá directamente el panel con credenciales demo/demo/demo</p>
+        <p style="margin:6px 0 0;color:#9ca3af;font-size:11px;">Se abrirá el panel; usa <strong>demosistecposonline</strong> en Usuario, Tienda y Contraseña</p>
       </div>
 
       <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:16px;margin-bottom:20px;">
