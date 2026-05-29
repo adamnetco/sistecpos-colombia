@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { useToast } from "@/hooks/use-toast";
 import {
   Mail, Phone, Building2, MapPin, Bot, Clock, Plus,
-  MessageSquare, PhoneCall, FileText, Calendar, Rocket, Loader2, ExternalLink,
+  MessageSquare, PhoneCall, FileText, Calendar, Rocket, Loader2, ExternalLink, Copy, Check,
 } from "lucide-react";
 import { BUSINESS_TYPES_DEMO, COUNTRIES } from "@/data/demoFormOptions";
 
