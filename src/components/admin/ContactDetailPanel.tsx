@@ -70,7 +70,19 @@ export default function ContactDetailPanel({
     country: "Colombia",
   });
   const [creatingLead, setCreatingLead] = useState(false);
+  const [showForwardPanel, setShowForwardPanel] = useState(false);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
   const { toast } = useToast();
+
+  const copyField = async (key: string, value: string) => {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopiedField(key);
+      setTimeout(() => setCopiedField(c => (c === key ? null : c)), 1400);
+    } catch {
+      toast({ title: "No se pudo copiar", variant: "destructive" });
+    }
+  };
 
   useEffect(() => {
     loadActivities();
