@@ -52,6 +52,8 @@ const benefits = [
 
 export default function LandingDemoPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [step, setStep] = useState<1 | 2>(1);
+  const [qualifying, setQualifying] = useState<QualifyingValues>(emptyQualifying);
   const navigate = useNavigate();
   const { toast } = useToast();
   const utm = useUTMParams();
@@ -69,6 +71,7 @@ export default function LandingDemoPage() {
       habeasData: undefined,
     },
   });
+
 
   async function onSubmit(data: DemoFormValues) {
     setIsSubmitting(true);
