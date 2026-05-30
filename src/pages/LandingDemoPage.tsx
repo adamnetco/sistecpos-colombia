@@ -116,7 +116,17 @@ export default function LandingDemoPage() {
         utm_campaign: utm.utm_campaign,
         utm_term: utm.utm_term,
         utm_content: utm.utm_content,
+        qual_has_software: qualifying.qual_has_software,
+        qual_knows_inventory: qualifying.qual_knows_inventory,
+        qual_main_pain: qualifying.qual_main_pain || null,
+        qual_ideal_pos: qualifying.qual_ideal_pos || null,
+        qual_sales_per_day: qualifying.qual_sales_per_day || null,
+        qual_employees: qualifying.qual_employees || null,
+        qual_time_to_systematize: qualifying.qual_time_to_systematize || null,
+        qual_business_age_value: qualifying.qual_business_age_value ? Number(qualifying.qual_business_age_value) : null,
+        qual_business_age_period: qualifying.qual_business_age_period || null,
       });
+
 
       if (dbError) {
         console.error("DB error:", dbError);
