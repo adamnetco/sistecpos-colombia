@@ -194,6 +194,7 @@ export default function ContactsView() {
     former_client: contacts.filter(c => c.contact_type === "former_client").length,
     with_license: contacts.filter(c => c.license_id).length,
     with_demo: contacts.filter(c => c.lead_id).length,
+    franchise: contacts.filter(c => (c.tags || []).includes("franquicia_registrada")).length,
     ai_captured: contacts.filter(c => c.captured_by_ai).length,
   };
 
@@ -211,6 +212,7 @@ export default function ContactsView() {
     if (activeFilter === "all") return true;
     if (activeFilter === "with_license") return !!c.license_id;
     if (activeFilter === "with_demo") return !!c.lead_id;
+    if (activeFilter === "franchise") return (c.tags || []).includes("franquicia_registrada");
     if (activeFilter === "ai_captured") return c.captured_by_ai;
     return c.contact_type === activeFilter;
   });
