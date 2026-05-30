@@ -72,7 +72,9 @@ export default function ContactDetailPanel({
   const [creatingLead, setCreatingLead] = useState(false);
   const [showForwardPanel, setShowForwardPanel] = useState(false);
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [qualData, setQualData] = useState<any | null>(null);
   const { toast } = useToast();
+
 
   const copyField = async (key: string, value: string) => {
     try {
