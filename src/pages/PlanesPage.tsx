@@ -408,6 +408,7 @@ export default function PlanesPage() {
           </Button>
         </div>
       </section>
+      <PlanesAdminEditBar />
     </Layout>
   );
 }
