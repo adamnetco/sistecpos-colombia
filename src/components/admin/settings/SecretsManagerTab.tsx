@@ -264,6 +264,60 @@ function SecretRow({ config, storedValue, onSave }: SecretRowProps) {
   );
 }
 
+function FranchiseTokenHelper({ onSave }: { onSave: (value: string) => Promise<void> }) {
+  const [generated, setGenerated] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const generate = () => {
+    const bytes = new Uint8Array(32);
+    crypto.getRandomValues(bytes);
+    const hex = Array.from(bytes).map((b) => b.toString(16).padStart(2, "0")).join("");
+    setGenerated(hex);
+  };
+
+  const copy = async () => {
+    if (!generated) return;
+    await navigator.clipboard.writeText(generated);
+    toast.success("Token copiado al portapapeles");
+  };
+
+  const saveNow = async () => {
+    if (!generated) return;
+    setSaving(true);
+    await onSave(generated);
+    setSaving(false);
+    setGenerated("");
+  };
+
+  return (
+    <div className="mt-4 rounded-md border border-dashed bg-muted/30 p-3 space-y-2">
+      <p className="text-xs font-medium">Generador de token seguro</p>
+      <p className="text-xs text-muted-foreground">
+        Crea un token aleatorio de 64 caracteres hexadecimales (256 bits). Cópialo, guárdalo y úsalo
+        en el bookmarklet del Panel Franquiciado (lo pedirá la primera vez que lo ejecutes en el navegador).
+      </p>
+      <div className="flex flex-wrap gap-2">
+        <Button size="sm" variant="outline" onClick={generate} className="gap-1.5">
+          <RefreshCw className="h-3.5 w-3.5" />
+          Generar nuevo
+        </Button>
+        <Button size="sm" variant="outline" onClick={copy} disabled={!generated} className="gap-1.5">
+          Copiar
+        </Button>
+        <Button size="sm" onClick={saveNow} disabled={!generated || saving} className="gap-1.5">
+          {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+          Guardar como token activo
+        </Button>
+      </div>
+      {generated && (
+        <code className="block break-all rounded bg-background border px-2 py-1.5 font-mono text-xs">
+          {generated}
+        </code>
+      )}
+    </div>
+  );
+}
+
 export default function SecretsManagerTab() {
   const [values, setValues] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
