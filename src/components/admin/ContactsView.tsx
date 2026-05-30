@@ -268,6 +268,7 @@ export default function ContactsView() {
               <Download className="h-3.5 w-3.5 mr-1" /> Exportar
             </Button>
           )}
+          {view === "table" && <ProspectsImportDialog onImported={load} />}
           <Dialog open={showForm} onOpenChange={setShowForm}>
             <DialogTrigger asChild>
               <Button size="sm"><Plus className="h-3.5 w-3.5 mr-1" /> Nuevo Contacto</Button>
