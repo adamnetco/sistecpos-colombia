@@ -242,17 +242,28 @@ export function ClientPOSAccess() {
       )}
 
       {/* Manual Login Form */}
-      <Card className="max-w-lg">
+      <Card className={`max-w-lg ${isActivation ? "border-2 border-emerald-500/60 shadow-lg shadow-emerald-500/10" : ""}`}>
         <CardHeader>
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-              <Monitor className="h-5 w-5 text-primary" />
+            <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${isActivation ? "bg-emerald-500/15" : "bg-primary/10"}`}>
+              {isActivation ? <Sparkles className="h-5 w-5 text-emerald-600" /> : <Monitor className="h-5 w-5 text-primary" />}
             </div>
             <div>
-              <CardTitle className="text-lg">Acceder al Sistema POS</CardTitle>
-              <CardDescription>Ingresa tus credenciales para abrir tu panel</CardDescription>
+              <CardTitle className="text-lg">
+                {isActivation ? "Activa tu licencia POS" : "Acceder al Sistema POS"}
+              </CardTitle>
+              <CardDescription>
+                {isActivation
+                  ? "Tus datos llegaron desde el correo de activación. Solo ingresa tu clave para abrir tu panel."
+                  : "Ingresa tus credenciales para abrir tu panel"}
+              </CardDescription>
             </div>
           </div>
+          {isActivation && (
+            <div className="mt-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30 p-3 text-xs text-emerald-900 dark:text-emerald-200">
+              <strong>Usuario</strong> y <strong>Empresa</strong> ya están prellenados desde el enlace de tu correo. El acceso se completa de forma segura en <code>sistecpos.online</code>.
+            </div>
+          )}
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
