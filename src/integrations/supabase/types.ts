@@ -4096,6 +4096,10 @@ export type Database = {
         Args: { _payload: Json }
         Returns: Json
       }
+      upsert_lead_from_external_json_srv: {
+        Args: { _payload: Json }
+        Returns: Json
+      }
     }
     Enums: {
       app_role: "admin" | "customer" | "reseller"
