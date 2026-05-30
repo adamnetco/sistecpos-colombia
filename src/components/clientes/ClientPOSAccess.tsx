@@ -10,6 +10,7 @@ import { Monitor, LogIn, Eye, EyeOff, Loader2, ShieldCheck, ShieldOff, Trash2, Z
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { cleanPOSActivationParams, readPOSActivationParams } from "@/lib/posActivationParams";
 
 interface SavedSession {
   id: string;
@@ -39,21 +40,24 @@ export function ClientPOSAccess() {
   // Prellenado desde correo de activación de licencia
   // (?pos_user=&pos_store=&activation=1 al volver desde sistecpos.com/?user=&store=)
   useEffect(() => {
-    const posUser = searchParams.get("pos_user");
-    const posStore = searchParams.get("pos_store");
-    const activation = searchParams.get("activation") === "1";
-    if (posUser || posStore) {
+    const { username: posUser, store: posStore, password: posPassword, isActivation: activation } = readPOSActivationParams();
+    if (posUser || posStore || posPassword) {
       if (posUser) setUsername(posUser);
       if (posStore) setStore(posStore);
+      if (posPassword) setPassword(posPassword);
       if (activation) {
         setIsActivation(true);
         setConsent(true); // por defecto guardamos credenciales al activar
-        setTimeout(() => passwordRef.current?.focus(), 200);
+        setTimeout(() => {
+          if (posPassword) {
+            document.getElementById("pos-submit")?.focus();
+          } else {
+            passwordRef.current?.focus();
+          }
+        }, 200);
       }
       // limpiar la URL para evitar reactivar al recargar
-      const next = new URLSearchParams(searchParams);
-      ["pos_user", "pos_store", "activation", "pos_language"].forEach((k) => next.delete(k));
-      setSearchParams(next, { replace: true });
+      setSearchParams(cleanPOSActivationParams(searchParams), { replace: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -254,14 +258,18 @@ export function ClientPOSAccess() {
               </CardTitle>
               <CardDescription>
                 {isActivation
-                  ? "Tus datos llegaron desde el correo de activación. Solo ingresa tu clave para abrir tu panel."
+                  ? password
+                    ? "Tus datos llegaron desde el correo de activación. Solo confirma el ingreso."
+                    : "Tus datos llegaron desde el correo de activación. Solo ingresa tu clave para abrir tu panel."
                   : "Ingresa tus credenciales para abrir tu panel"}
               </CardDescription>
             </div>
           </div>
           {isActivation && (
             <div className="mt-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30 p-3 text-xs text-emerald-900 dark:text-emerald-200">
-              <strong>Usuario</strong> y <strong>Empresa</strong> ya están prellenados desde el enlace de tu correo. El acceso se completa de forma segura en <code>sistecpos.online</code>.
+              {password
+                ? <>El correo ya cargó <strong>Usuario</strong>, <strong>Empresa</strong> y <strong>Clave</strong>. Presiona ingresar para activar el POS.</>
+                : <><strong>Usuario</strong> y <strong>Empresa</strong> ya están prellenados desde el enlace de tu correo. Escribe la clave y el acceso se completa de forma segura en <code>sistecpos.online</code>.</>}
             </div>
           )}
         </CardHeader>
@@ -333,7 +341,7 @@ export function ClientPOSAccess() {
               </div>
             </div>
 
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button id="pos-submit" type="submit" className="w-full" disabled={loading}>
               {loading ? (
                 <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Verificando acceso…</>
               ) : (

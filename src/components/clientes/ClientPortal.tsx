@@ -24,17 +24,20 @@ export function ClientPortal() {
   const { user, signOut } = useAuth();
   const location = useLocation();
 
-  // Auto-switch tabs: trainings via hash, support via ?tab=tickets
+  // Auto-switch tabs: trainings via hash, POS via #pos or activation query params
   const searchParams = new URLSearchParams(location.search);
   const tabFromUrl = searchParams.get("tab");
-  const initialTab = location.hash.startsWith("#video-") ? "trainings" : tabFromUrl ?? "dashboard";
+  const shouldOpenPos = location.hash === "#pos" || searchParams.has("pos_user") || searchParams.has("pos_store") || searchParams.has("pos_password") || searchParams.get("activation") === "1";
+  const initialTab = shouldOpenPos ? "pos" : location.hash.startsWith("#video-") ? "trainings" : tabFromUrl ?? "dashboard";
   const [activeTab, setActiveTab] = useState(initialTab);
 
   useEffect(() => {
     if (location.hash.startsWith("#video-")) {
       setActiveTab("trainings");
+    } else if (location.hash === "#pos" || new URLSearchParams(location.search).get("activation") === "1") {
+      setActiveTab("pos");
     }
-  }, [location.hash]);
+  }, [location.hash, location.search]);
 
   return (
     <section className="py-10 md:py-16">

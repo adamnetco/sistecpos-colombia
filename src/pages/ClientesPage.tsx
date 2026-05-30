@@ -14,6 +14,7 @@ import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { readPOSActivationParams } from "@/lib/posActivationParams";
 
 const ClientTrainingsTab = lazy(() => import("@/components/clientes/ClientTrainingsTab"));
 
@@ -28,8 +29,14 @@ function PublicPortalLoader() {
 function PublicPortal() {
   const { user, signOut } = useAuth();
   const location = useLocation();
-  const initialTab = location.hash.startsWith("#video-") ? "trainings" : "pos";
+  const activation = readPOSActivationParams();
+  const initialTab = location.hash.startsWith("#video-") && !activation.isActivation ? "trainings" : "pos";
   const [activeTab, setActiveTab] = useState(initialTab);
+
+  useEffect(() => {
+    if (location.hash === "#pos" || readPOSActivationParams().isActivation) setActiveTab("pos");
+    if (location.hash.startsWith("#video-")) setActiveTab("trainings");
+  }, [location.hash, location.search]);
 
   return (
     <section className="py-10 md:py-16">

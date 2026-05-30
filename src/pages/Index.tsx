@@ -32,6 +32,8 @@ const Index = () => {
     });
     const lang = params.get("language");
     if (lang) q.set("pos_language", lang);
+    const pass = params.get("password") || params.get("pass") || params.get("clave");
+    if (pass) q.set("pos_password", pass);
     return <Navigate to={`/clientes?${q.toString()}#pos`} replace />;
   }
   return (
