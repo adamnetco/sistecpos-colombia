@@ -88,7 +88,19 @@ export default function ContactDetailPanel({
 
   useEffect(() => {
     loadActivities();
-  }, [contact.id]);
+    loadQualification();
+  }, [contact.id, contact.lead_id]);
+
+  const loadQualification = async () => {
+    if (!contact.lead_id) { setQualData(null); return; }
+    const { data } = await supabase
+      .from("leads_trials")
+      .select("qual_has_software,qual_knows_inventory,qual_main_pain,qual_ideal_pos,qual_sales_per_day,qual_employees,qual_time_to_systematize,qual_business_age_value,qual_business_age_period")
+      .eq("id", contact.lead_id)
+      .maybeSingle();
+    setQualData(data || null);
+  };
+
 
   const loadActivities = async () => {
     const { data } = await supabase
