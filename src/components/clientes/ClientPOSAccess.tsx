@@ -1,11 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { Monitor, LogIn, Eye, EyeOff, Loader2, ShieldCheck, ShieldOff, Trash2, Zap, Info } from "lucide-react";
+import { Monitor, LogIn, Eye, EyeOff, Loader2, ShieldCheck, ShieldOff, Trash2, Zap, Info, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,16 +22,41 @@ interface SavedSession {
 export function ClientPOSAccess() {
   const { toast } = useToast();
   const { user } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [store, setStore] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [consent, setConsent] = useState(false);
+  const [isActivation, setIsActivation] = useState(false);
+  const passwordRef = useRef<HTMLInputElement>(null);
 
   // Saved sessions
   const [savedSessions, setSavedSessions] = useState<SavedSession[]>([]);
   const [loadingSessions, setLoadingSessions] = useState(true);
+
+  // Prellenado desde correo de activación de licencia
+  // (?pos_user=&pos_store=&activation=1 al volver desde sistecpos.com/?user=&store=)
+  useEffect(() => {
+    const posUser = searchParams.get("pos_user");
+    const posStore = searchParams.get("pos_store");
+    const activation = searchParams.get("activation") === "1";
+    if (posUser || posStore) {
+      if (posUser) setUsername(posUser);
+      if (posStore) setStore(posStore);
+      if (activation) {
+        setIsActivation(true);
+        setConsent(true); // por defecto guardamos credenciales al activar
+        setTimeout(() => passwordRef.current?.focus(), 200);
+      }
+      // limpiar la URL para evitar reactivar al recargar
+      const next = new URLSearchParams(searchParams);
+      ["pos_user", "pos_store", "activation", "pos_language"].forEach((k) => next.delete(k));
+      setSearchParams(next, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (user) loadSavedSessions();
@@ -216,17 +242,28 @@ export function ClientPOSAccess() {
       )}
 
       {/* Manual Login Form */}
-      <Card className="max-w-lg">
+      <Card className={`max-w-lg ${isActivation ? "border-2 border-emerald-500/60 shadow-lg shadow-emerald-500/10" : ""}`}>
         <CardHeader>
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-              <Monitor className="h-5 w-5 text-primary" />
+            <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${isActivation ? "bg-emerald-500/15" : "bg-primary/10"}`}>
+              {isActivation ? <Sparkles className="h-5 w-5 text-emerald-600" /> : <Monitor className="h-5 w-5 text-primary" />}
             </div>
             <div>
-              <CardTitle className="text-lg">Acceder al Sistema POS</CardTitle>
-              <CardDescription>Ingresa tus credenciales para abrir tu panel</CardDescription>
+              <CardTitle className="text-lg">
+                {isActivation ? "Activa tu licencia POS" : "Acceder al Sistema POS"}
+              </CardTitle>
+              <CardDescription>
+                {isActivation
+                  ? "Tus datos llegaron desde el correo de activación. Solo ingresa tu clave para abrir tu panel."
+                  : "Ingresa tus credenciales para abrir tu panel"}
+              </CardDescription>
             </div>
           </div>
+          {isActivation && (
+            <div className="mt-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30 p-3 text-xs text-emerald-900 dark:text-emerald-200">
+              <strong>Usuario</strong> y <strong>Empresa</strong> ya están prellenados desde el enlace de tu correo. El acceso se completa de forma segura en <code>sistecpos.online</code>.
+            </div>
+          )}
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
@@ -254,6 +291,7 @@ export function ClientPOSAccess() {
               <div className="relative">
                 <Input
                   id="pos-pass"
+                  ref={passwordRef}
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}

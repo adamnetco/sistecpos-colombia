@@ -1,3 +1,4 @@
+import { Navigate, useSearchParams } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { HeroSection } from "@/components/home/HeroSection";
 import { SocialProofBar } from "@/components/home/SocialProofBar";
@@ -15,6 +16,24 @@ import { JsonLd, organizationSchema } from "@/components/seo/JsonLd";
 import { SEO } from "@/components/seo/SEO";
 
 const Index = () => {
+  // Interceptor de activación de licencia. El correo de bienvenida llega como
+  //   https://sistecpos.com/?user=admin&store=xxx&language=spanish
+  // (no incluye la clave por seguridad). Redirigimos al portal de clientes con
+  // el formulario POS prellenado para que el usuario solo digite su contraseña;
+  // el POST final se hará contra sistecpos.online desde ClientPOSAccess.
+  const [params] = useSearchParams();
+  const activationUser = params.get("user");
+  const activationStore = params.get("store");
+  if (activationUser && activationStore) {
+    const q = new URLSearchParams({
+      pos_user: activationUser,
+      pos_store: activationStore,
+      activation: "1",
+    });
+    const lang = params.get("language");
+    if (lang) q.set("pos_language", lang);
+    return <Navigate to={`/clientes?${q.toString()}#pos`} replace />;
+  }
   return (
     <Layout>
       <SEO
