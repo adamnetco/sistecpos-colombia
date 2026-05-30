@@ -15,6 +15,7 @@ import {
   MessageSquare, PhoneCall, FileText, Calendar, Rocket, Loader2, ExternalLink, Copy, Check,
 } from "lucide-react";
 import { BUSINESS_TYPES_DEMO, COUNTRIES } from "@/data/demoFormOptions";
+import { FranchisePanelSection, type FranchiseData } from "./contacts/FranchisePanelSection";
 
 interface Contact {
   id: string;
