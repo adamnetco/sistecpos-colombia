@@ -27,7 +27,7 @@ import {
 
 const demoSchema = z.object({
   fullName: z.string().trim().min(3, "Mínimo 3 caracteres").max(100),
-  businessName: z.string().trim().min(2, "Mínimo 2 caracteres").max(30),
+  businessName: z.string().trim().min(2, "Mínimo 2 caracteres").max(20, "Máximo 20 caracteres (límite del sistema)"),
   businessType: z.string().min(1, "Selecciona tipo de negocio"),
   country: z.string().min(1, "Selecciona un país"),
   whatsapp: z.string().trim().regex(/^\d{10}$/, "Ingresa 10 dígitos"),
@@ -37,6 +37,7 @@ const demoSchema = z.object({
     errorMap: () => ({ message: "Debes aceptar la política de datos" }),
   }),
 });
+
 
 type DemoFormValues = z.infer<typeof demoSchema>;
 
