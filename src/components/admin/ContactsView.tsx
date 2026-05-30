@@ -74,6 +74,7 @@ const roleFilters = [
   { value: "former_client", label: "Ex-Clientes", count: 0 },
   { value: "with_license", label: "Con Licencia", count: 0 },
   { value: "with_demo", label: "Con Demo", count: 0 },
+  { value: "franchise", label: "🏛️ Franquicia", count: 0 },
   { value: "ai_captured", label: "Captura IA", count: 0 },
 ];
 
