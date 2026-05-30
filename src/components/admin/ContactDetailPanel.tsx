@@ -275,7 +275,75 @@ export default function ContactDetailPanel({
                     );
                   })}
                 </div>
+
+                {/* Paso 3 — Cualificación del lead (respuestas del usuario) */}
+                {(() => {
+                  if (!qualData) {
+                    return (
+                      <p className="text-[11px] text-amber-700/70 dark:text-amber-300/70 italic border-t border-amber-200/60 pt-2">
+                        Sin cualificación del paso 2 (lead anterior al wizard).
+                      </p>
+                    );
+                  }
+                  const yn = (v: boolean | null) => (v === true ? "Sí" : v === false ? "No" : "");
+                  const qFields: Array<{ key: string; label: string; value: string }> = [
+                    { key: "q_a", label: "a) ¿Maneja algún software?", value: yn(qualData.qual_has_software) },
+                    { key: "q_b", label: "b) ¿Conoce inventarios / ganancias / pérdidas?", value: yn(qualData.qual_knows_inventory) },
+                    { key: "q_c", label: "c) Mayor inconveniente", value: qualData.qual_main_pain || "" },
+                    { key: "q_d", label: "d) Qué debería tener su POS ideal", value: qualData.qual_ideal_pos || "" },
+                    { key: "q_e", label: "e) Ventas promedio/día", value: qualData.qual_sales_per_day || "" },
+                    { key: "q_f", label: "f) Cuántos empleados", value: qualData.qual_employees || "" },
+                    { key: "q_g", label: "g) En cuánto tiempo quiere sistematizar", value: qualData.qual_time_to_systematize || "" },
+                    { key: "q_h", label: "h) Antigüedad del negocio", value: qualData.qual_business_age_value ? `${qualData.qual_business_age_value} ${qualData.qual_business_age_period || "Meses"}` : "" },
+                  ];
+                  return (
+                    <div className="border-t border-amber-200/60 pt-2 space-y-1.5">
+                      <p className="text-[11px] font-semibold text-amber-800 dark:text-amber-200">
+                        Paso 3 — Cualificación (respuestas del usuario)
+                      </p>
+                      <div className="space-y-1.5 max-h-64 overflow-y-auto">
+                        {qFields.map(f => {
+                          const empty = !f.value;
+                          const isCopied = copiedField === f.key;
+                          return (
+                            <button
+                              key={f.key}
+                              disabled={empty}
+                              onClick={() => copyField(f.key, f.value)}
+                              className={`w-full flex items-center gap-2 text-left rounded-md border px-2 py-1.5 transition ${
+                                empty
+                                  ? "border-dashed border-muted-foreground/20 bg-muted/30 cursor-not-allowed"
+                                  : isCopied
+                                  ? "border-emerald-400 bg-emerald-50 dark:bg-emerald-950/40"
+                                  : "border-amber-200 bg-white/70 dark:bg-amber-950/20 hover:bg-amber-100/60 dark:hover:bg-amber-900/30"
+                              }`}
+                            >
+                              <div className="flex-1 min-w-0">
+                                <p className="text-[10px] uppercase tracking-wide text-muted-foreground">{f.label}</p>
+                                <p className={`text-xs truncate ${empty ? "italic text-muted-foreground/60" : "font-mono"}`}>
+                                  {empty ? "Sin respuesta" : f.value}
+                                </p>
+                              </div>
+                              {!empty && (
+                                isCopied ? (
+                                  <span className="flex items-center gap-1 text-[11px] text-emerald-700 dark:text-emerald-400 font-medium">
+                                    <Check className="h-3.5 w-3.5" /> Copiado
+                                  </span>
+                                ) : (
+                                  <span className="flex items-center gap-1 text-[11px] text-amber-700 dark:text-amber-300 font-medium">
+                                    <Copy className="h-3.5 w-3.5" /> Copiar
+                                  </span>
+                                )
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
+
             )}
           </div>
         );
