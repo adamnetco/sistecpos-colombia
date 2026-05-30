@@ -109,8 +109,9 @@ export function ExternalSurveyImportDialog({ onImported }: Props) {
               value={raw}
               onChange={(e) => setRaw(e.target.value)}
               placeholder={`javascript:show_encuesta('{"id":649,...}')`}
-              className="font-mono text-xs h-64"
+              className="font-mono text-xs h-48"
             />
+            <BookmarkletPanel />
           </div>
         ) : (
           <div className="flex-1 overflow-auto space-y-4">
