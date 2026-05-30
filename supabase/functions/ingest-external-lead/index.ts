@@ -11,8 +11,26 @@ Deno.serve(async (req) => {
 
   try {
     const token = req.headers.get('x-franchise-token')
-    const expected = Deno.env.get('FRANCHISE_INGEST_TOKEN')
-    if (!expected || token !== expected) {
+
+    const admin = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+      { auth: { persistSession: false } },
+    )
+
+    // Prioriza valor dinámico en app_settings; fallback a variable de entorno
+    let expected: string | null = null
+    try {
+      const { data: setting } = await admin
+        .from('app_settings')
+        .select('value')
+        .eq('key', 'secret_franchise_ingest_token')
+        .maybeSingle()
+      if (setting?.value) expected = String(setting.value).trim()
+    } catch (_) { /* ignore */ }
+    if (!expected) expected = Deno.env.get('FRANCHISE_INGEST_TOKEN') ?? null
+
+    if (!expected || !token || token !== expected) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
@@ -28,11 +46,7 @@ Deno.serve(async (req) => {
     // Acepta un único payload o array (compatible con bookmarklet en batch)
     const payloads: any[] = Array.isArray(body) ? body : Array.isArray(body?.payloads) ? body.payloads : [body]
 
-    const admin = createClient(
-      Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
-      { auth: { persistSession: false } },
-    )
+    // admin client ya creado al inicio
 
     const results: any[] = []
     for (const p of payloads) {
