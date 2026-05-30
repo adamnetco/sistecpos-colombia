@@ -291,6 +291,7 @@ export function ClientPOSAccess() {
               <div className="relative">
                 <Input
                   id="pos-pass"
+                  ref={passwordRef}
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
