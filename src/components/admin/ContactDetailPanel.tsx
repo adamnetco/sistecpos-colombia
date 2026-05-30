@@ -500,7 +500,10 @@ export default function ContactDetailPanel({
         </div>
       )}
 
+      <FranchisePanelSection data={franchiseData} onResync={loadQualification} />
+
       <Separator />
+
 
       {/* AI Conversations */}
       <AIConversationsSection contactId={contact.id} />
