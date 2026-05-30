@@ -251,7 +251,9 @@ export function ClientPOSLogin() {
                 </div>
                 {isActivation && (
                   <div className="mt-3 rounded-lg border bg-primary/5 px-3 py-2 text-xs text-primary">
-                    Revisa los datos y presiona <strong>Ingresar al Sistema</strong>. Si la clave no llegó cargada, escríbela desde el correo.
+                    {password
+                      ? <>Todo quedó listo. Presiona <strong>Ingresar al Sistema</strong> para abrir el POS.</>
+                      : <>Usuario y tienda quedaron listos. Copia la <strong>clave</strong> del correo y presiona <strong>Ingresar al Sistema</strong>.</>}
                   </div>
                 )}
               </CardHeader>
