@@ -358,6 +358,9 @@ export default function SecretsManagerTab() {
                   onSave={handleSave}
                 />
               ))}
+              {group === "Panel Franquiciado / Ingesta" && (
+                <FranchiseTokenHelper onSave={(v) => handleSave("secret_franchise_ingest_token", v)} />
+              )}
             </CardContent>
           </Card>
         );
