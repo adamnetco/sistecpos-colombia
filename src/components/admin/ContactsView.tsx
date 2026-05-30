@@ -15,6 +15,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ContactDetailDialog } from "./contacts/ContactDetailDialog";
+import { ProspectsImportDialog } from "./contacts/ProspectsImportDialog";
 import ContactPipelineView from "./ContactPipelineView";
 import ActiveDemosView from "./ActiveDemosView";
 
