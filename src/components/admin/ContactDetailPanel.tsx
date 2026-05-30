@@ -74,6 +74,7 @@ export default function ContactDetailPanel({
   const [showForwardPanel, setShowForwardPanel] = useState(false);
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [qualData, setQualData] = useState<any | null>(null);
+  const [franchiseData, setFranchiseData] = useState<FranchiseData | null>(null);
   const { toast } = useToast();
 
 
