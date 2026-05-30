@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ContactDetailDialog } from "./contacts/ContactDetailDialog";
 import { ProspectsImportDialog } from "./contacts/ProspectsImportDialog";
+import { ExternalSurveyImportDialog } from "./contacts/ExternalSurveyImportDialog";
 import ContactPipelineView from "./ContactPipelineView";
 import ActiveDemosView from "./ActiveDemosView";
 
@@ -272,6 +273,7 @@ export default function ContactsView() {
             </Button>
           )}
           {view === "table" && <ProspectsImportDialog onImported={load} />}
+          {view === "table" && <ExternalSurveyImportDialog onImported={load} />}
           <Dialog open={showForm} onOpenChange={setShowForm}>
             <DialogTrigger asChild>
               <Button size="sm"><Plus className="h-3.5 w-3.5 mr-1" /> Nuevo Contacto</Button>
