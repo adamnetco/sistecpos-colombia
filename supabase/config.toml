@@ -49,3 +49,6 @@ project_id = "yqvznnqcxvogxhramyua"
     verify_jwt = false
   [functions.wompi-webhook]
     verify_jwt = false
+
+[functions.ingest-external-lead]
+verify_jwt = false

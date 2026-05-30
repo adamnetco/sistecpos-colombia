@@ -109,8 +109,9 @@ export function ExternalSurveyImportDialog({ onImported }: Props) {
               value={raw}
               onChange={(e) => setRaw(e.target.value)}
               placeholder={`javascript:show_encuesta('{"id":649,...}')`}
-              className="font-mono text-xs h-64"
+              className="font-mono text-xs h-48"
             />
+            <BookmarkletPanel />
           </div>
         ) : (
           <div className="flex-1 overflow-auto space-y-4">
@@ -158,5 +159,51 @@ export function ExternalSurveyImportDialog({ onImported }: Props) {
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+// ---------- Bookmarklet de ingest automático ----------
+function BookmarkletPanel() {
+  const { toast } = useToast();
+  const FN_URL = `https://yqvznnqcxvogxhramyua.supabase.co/functions/v1/ingest-external-lead`;
+
+  // El bookmarklet:
+  // 1) Busca todos los onclick="show_encuesta('...')" o href="javascript:show_encuesta('...')" en la página del panel
+  // 2) Pide al usuario el token (lo cachea en localStorage)
+  // 3) POST en batch al edge function
+  const code = `(()=>{const U=${JSON.stringify(FN_URL)};let t=localStorage.getItem('stc_franchise_token');if(!t){t=prompt('Pega tu FRANCHISE_INGEST_TOKEN');if(!t)return;localStorage.setItem('stc_franchise_token',t);}const rx=/show_encuesta\\(\\s*'([^']+)'\\s*\\)/g;const set=new Set();document.querySelectorAll('[onclick],a[href^="javascript:"]').forEach(el=>{const s=(el.getAttribute('onclick')||'')+' '+(el.getAttribute('href')||'');let m;while((m=rx.exec(s))){set.add(m[1]);}});if(!set.size){alert('No se encontraron encuestas en esta página');return;}const payloads=[];set.forEach(s=>{try{payloads.push(JSON.parse(s.replace(/\\\\'/g,"'")));}catch(e){}});if(!payloads.length){alert('No se pudo parsear ningún JSON');return;}if(!confirm('Enviar '+payloads.length+' encuesta(s) a SistecPOS?'))return;fetch(U,{method:'POST',headers:{'Content-Type':'application/json','x-franchise-token':t},body:JSON.stringify({payloads})}).then(r=>r.json()).then(j=>alert('OK: '+(j.processed||0)+' procesados\\n'+JSON.stringify(j.results||j,null,2))).catch(e=>alert('Error: '+e.message));})();`;
+
+  const bookmarklet = `javascript:${encodeURIComponent(code)}`;
+
+  return (
+    <div className="rounded-lg border bg-muted/30 p-3 space-y-2">
+      <div className="flex items-center gap-2 text-sm font-medium">
+        <Sparkles className="h-4 w-4 text-primary" />
+        Bookmarklet — Ingest automático (Fase 2)
+      </div>
+      <p className="text-xs text-muted-foreground">
+        Arrastra el botón a tu barra de marcadores. Luego, estando en el panel de la franquicia, haz clic en el marcador para enviar TODAS las encuestas visibles al CRM en un solo paso.
+      </p>
+      <div className="flex flex-wrap items-center gap-2">
+        <a
+          href={bookmarklet}
+          onClick={(e) => { e.preventDefault(); toast({ title: "Arrastra el botón", description: "Click no funciona aquí — arrástralo a la barra de marcadores del navegador." }); }}
+          draggable
+          className="inline-flex items-center gap-1 rounded-md bg-primary text-primary-foreground px-3 py-1.5 text-xs font-medium cursor-grab active:cursor-grabbing"
+        >
+          📥 Ingest SistecPOS
+        </a>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => { navigator.clipboard.writeText(bookmarklet); toast({ title: "Bookmarklet copiado" }); }}
+        >
+          Copiar código
+        </Button>
+      </div>
+      <p className="text-[10px] text-muted-foreground">
+        La primera vez te pedirá el token <code>FRANCHISE_INGEST_TOKEN</code> (se guarda en tu navegador). Endpoint: <code className="break-all">{FN_URL}</code>
+      </p>
+    </div>
   );
 }
