@@ -9,6 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import { Monitor, LogIn, Download, HeadphonesIcon, Eye, EyeOff, ShieldCheck, Mail, Lock, KeyRound, Loader2 } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { readPOSActivationParams } from "@/lib/posActivationParams";
 
 interface SavedCredential {
   pos_username: string;
@@ -24,6 +25,9 @@ export function ClientPOSLogin() {
   const [password, setPassword] = useState("");
   const [store, setStore] = useState("");
   const posCardRef = useRef<HTMLDivElement>(null);
+  const submitButtonRef = useRef<HTMLButtonElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+  const [isActivation, setIsActivation] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   // Saved credentials from demo leads
@@ -55,12 +59,23 @@ export function ClientPOSLogin() {
     }
   }, [searchParams]);
 
-  // Scroll to #pos anchor on load
+  // Prellenado desde enlaces de activación: /clientes?pos_user=&pos_store=&pos_password=#pos
   useEffect(() => {
-    if (window.location.hash === "#pos") {
+    const activation = readPOSActivationParams();
+    if (activation.username || activation.store || activation.password) {
+      if (activation.username) setUsername(activation.username);
+      if (activation.store) setStore(activation.store);
+      if (activation.password) setPassword(activation.password);
+      setIsActivation(true);
       setTimeout(() => {
         posCardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+        if (activation.password) submitButtonRef.current?.focus();
+        else passwordRef.current?.focus();
       }, 300);
+      return;
+    }
+    if (window.location.hash === "#pos") {
+      setTimeout(() => posCardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 300);
     }
   }, []);
 
@@ -223,17 +238,22 @@ export function ClientPOSLogin() {
 
           <div className="grid gap-8 md:grid-cols-2 items-start">
             {/* POS Login */}
-            <Card id="pos" ref={posCardRef} className="border-2 shadow-lg scroll-mt-20">
+            <Card id="pos" ref={posCardRef} className={`border-2 shadow-lg scroll-mt-20 ${isActivation ? "border-primary" : ""}`}>
               <CardHeader className="pb-4">
                 <div className="flex items-center gap-3">
                   <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
                     <Monitor className="h-6 w-6 text-primary" />
                   </div>
                   <div>
-                    <CardTitle>Ingresar al POS</CardTitle>
-                    <CardDescription>Accede a tu sistema de facturación</CardDescription>
+                    <CardTitle>{isActivation ? "Activar acceso al POS" : "Ingresar al POS"}</CardTitle>
+                    <CardDescription>{isActivation ? "Datos cargados desde tu correo de bienvenida" : "Accede a tu sistema de facturación"}</CardDescription>
                   </div>
                 </div>
+                {isActivation && (
+                  <div className="mt-3 rounded-lg border bg-primary/5 px-3 py-2 text-xs text-primary">
+                    Revisa los datos y presiona <strong>Ingresar al Sistema</strong>. Si la clave no llegó cargada, escríbela desde el correo.
+                  </div>
+                )}
               </CardHeader>
               <CardContent>
                 <form onSubmit={handlePOSLogin} className="space-y-4">
@@ -248,13 +268,13 @@ export function ClientPOSLogin() {
                   <div className="space-y-1.5">
                     <Label htmlFor="password">Clave</Label>
                     <div className="relative">
-                      <Input id="password" type={showPassword ? "text" : "password"} placeholder="Clave" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" className="pr-10" required />
+                      <Input id="password" ref={passwordRef} type={showPassword ? "text" : "password"} placeholder="Clave" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" className="pr-10" required />
                       <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors" tabIndex={-1} aria-label={showPassword ? "Ocultar" : "Mostrar"}>
                         {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>
                     </div>
                   </div>
-                  <Button type="submit" className="w-full" size="lg">
+                  <Button ref={submitButtonRef} type="submit" className="w-full" size="lg">
                     <LogIn className="mr-2 h-4 w-4" />
                     Ingresar al Sistema
                   </Button>
