@@ -15,6 +15,7 @@ import {
   MessageSquare, PhoneCall, FileText, Calendar, Rocket, Loader2, ExternalLink, Copy, Check,
 } from "lucide-react";
 import { BUSINESS_TYPES_DEMO, COUNTRIES } from "@/data/demoFormOptions";
+import { FranchisePanelSection, type FranchiseData } from "./contacts/FranchisePanelSection";
 
 interface Contact {
   id: string;
@@ -73,6 +74,7 @@ export default function ContactDetailPanel({
   const [showForwardPanel, setShowForwardPanel] = useState(false);
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [qualData, setQualData] = useState<any | null>(null);
+  const [franchiseData, setFranchiseData] = useState<FranchiseData | null>(null);
   const { toast } = useToast();
 
 
@@ -92,14 +94,16 @@ export default function ContactDetailPanel({
   }, [contact.id, contact.lead_id]);
 
   const loadQualification = async () => {
-    if (!contact.lead_id) { setQualData(null); return; }
+    if (!contact.lead_id) { setQualData(null); setFranchiseData(null); return; }
     const { data } = await supabase
       .from("leads_trials")
-      .select("qual_has_software,qual_knows_inventory,qual_main_pain,qual_ideal_pos,qual_sales_per_day,qual_employees,qual_time_to_systematize,qual_business_age_value,qual_business_age_period")
+      .select("qual_has_software,qual_knows_inventory,qual_main_pain,qual_ideal_pos,qual_sales_per_day,qual_employees,qual_time_to_systematize,qual_business_age_value,qual_business_age_period,external_lead_id,external_reseller_id,external_reseller_name,external_store_id,pos_store,pos_store_internal,license_key_external,external_token,external_status,external_created_at,external_updated_at,external_payload")
       .eq("id", contact.lead_id)
       .maybeSingle();
     setQualData(data || null);
+    setFranchiseData(data as any || null);
   };
+
 
 
   const loadActivities = async () => {
@@ -496,7 +500,10 @@ export default function ContactDetailPanel({
         </div>
       )}
 
+      <FranchisePanelSection data={franchiseData} onResync={loadQualification} />
+
       <Separator />
+
 
       {/* AI Conversations */}
       <AIConversationsSection contactId={contact.id} />
