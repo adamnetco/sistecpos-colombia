@@ -155,6 +155,16 @@ const SECRET_CONFIGS: SecretConfig[] = [
     icon: <RefreshCw className="h-4 w-4" />,
     sensitive: false,
   },
+  // Panel Franquiciado
+  {
+    key: "secret_franchise_ingest_token",
+    label: "Panel Franquiciado — Token de Ingesta",
+    description: "Token compartido (header x-franchise-token) que autoriza la importación de leads desde el bookmarklet del panel externo. Puedes generar uno nuevo abajo. Tiene prioridad sobre la variable de entorno FRANCHISE_INGEST_TOKEN.",
+    placeholder: "64 caracteres hex aleatorios",
+    group: "Panel Franquiciado / Ingesta",
+    icon: <ShieldCheck className="h-4 w-4" />,
+    sensitive: true,
+  },
 ];
 
 const GROUPS = [...new Set(SECRET_CONFIGS.map((s) => s.group))];
