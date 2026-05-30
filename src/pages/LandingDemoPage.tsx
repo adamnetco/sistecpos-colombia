@@ -24,10 +24,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import DemoQualifyingStep, { emptyQualifying, isQualifyingComplete, type QualifyingValues } from "@/components/forms/DemoQualifyingStep";
+import { ArrowLeft, ArrowRight } from "lucide-react";
+
 
 const demoSchema = z.object({
   fullName: z.string().trim().min(3, "Mínimo 3 caracteres").max(100),
-  businessName: z.string().trim().min(2, "Mínimo 2 caracteres").max(30),
+  businessName: z.string().trim().min(2, "Mínimo 2 caracteres").max(20, "Máximo 20 caracteres (límite del sistema)"),
   businessType: z.string().min(1, "Selecciona tipo de negocio"),
   country: z.string().min(1, "Selecciona un país"),
   whatsapp: z.string().trim().regex(/^\d{10}$/, "Ingresa 10 dígitos"),
@@ -37,6 +40,7 @@ const demoSchema = z.object({
     errorMap: () => ({ message: "Debes aceptar la política de datos" }),
   }),
 });
+
 
 type DemoFormValues = z.infer<typeof demoSchema>;
 
@@ -48,6 +52,8 @@ const benefits = [
 
 export default function LandingDemoPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [step, setStep] = useState<1 | 2>(1);
+  const [qualifying, setQualifying] = useState<QualifyingValues>(emptyQualifying);
   const navigate = useNavigate();
   const { toast } = useToast();
   const utm = useUTMParams();
@@ -65,6 +71,7 @@ export default function LandingDemoPage() {
       habeasData: undefined,
     },
   });
+
 
   async function onSubmit(data: DemoFormValues) {
     setIsSubmitting(true);
@@ -109,7 +116,17 @@ export default function LandingDemoPage() {
         utm_campaign: utm.utm_campaign,
         utm_term: utm.utm_term,
         utm_content: utm.utm_content,
+        qual_has_software: qualifying.qual_has_software,
+        qual_knows_inventory: qualifying.qual_knows_inventory,
+        qual_main_pain: qualifying.qual_main_pain || null,
+        qual_ideal_pos: qualifying.qual_ideal_pos || null,
+        qual_sales_per_day: qualifying.qual_sales_per_day || null,
+        qual_employees: qualifying.qual_employees || null,
+        qual_time_to_systematize: qualifying.qual_time_to_systematize || null,
+        qual_business_age_value: qualifying.qual_business_age_value ? Number(qualifying.qual_business_age_value) : null,
+        qual_business_age_period: qualifying.qual_business_age_period || null,
       });
+
 
       if (dbError) {
         console.error("DB error:", dbError);
@@ -201,115 +218,165 @@ export default function LandingDemoPage() {
 
           {/* Right: Form */}
           <div className="rounded-2xl border bg-card p-6 shadow-card md:p-8">
-            <div className="mb-6 text-center">
+            <div className="mb-4 text-center">
               <h2 className="text-2xl font-bold text-foreground">Solicita tu Demo Gratis</h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Completa el formulario y te activamos hoy mismo
+                {step === 1 ? "Paso 1 de 2 · Datos básicos" : "Paso 2 de 2 · Cuéntanos sobre tu negocio"}
               </p>
+              <div className="mt-3 flex gap-1.5 max-w-xs mx-auto">
+                <div className={`h-1.5 flex-1 rounded-full ${step >= 1 ? "bg-primary" : "bg-muted"}`} />
+                <div className={`h-1.5 flex-1 rounded-full ${step >= 2 ? "bg-primary" : "bg-muted"}`} />
+              </div>
             </div>
 
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField control={form.control} name="fullName" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Nombre Completo *</FormLabel>
-                    <FormControl><Input placeholder="Ej: Carlos Martínez" {...field} /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
+              <form
+                onSubmit={form.handleSubmit(async (data) => {
+                  if (step === 1) {
+                    setStep(2);
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                    return;
+                  }
+                  const qErr = isQualifyingComplete(qualifying);
+                  if (qErr) {
+                    toast({ title: qErr, variant: "destructive" });
+                    return;
+                  }
+                  await onSubmit(data);
+                })}
+                className="space-y-4"
+              >
+                {step === 1 && (
+                  <>
+                    <FormField control={form.control} name="fullName" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Nombre Completo *</FormLabel>
+                        <FormControl><Input placeholder="Ej: Carlos Martínez" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
 
-                <FormField control={form.control} name="businessName" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Nombre del Negocio *</FormLabel>
-                    <FormControl><Input placeholder="Máx. 30 caracteres. Ej: DrogueriaSanAngel" maxLength={30} {...field} /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
+                    <FormField control={form.control} name="businessName" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Nombre del Negocio *</FormLabel>
+                        <FormControl><Input placeholder="Ej: DrogueriaSanAngel" maxLength={20} {...field} /></FormControl>
+                        <p className="text-xs text-muted-foreground">Máx. 20 caracteres (límite del sistema)</p>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
 
-                <FormField control={form.control} name="businessType" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Tipo de Negocio *</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger><SelectValue placeholder="Seleccione" /></SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {BUSINESS_TYPES_DEMO.map(t => (
-                          <SelectItem key={t} value={t}>{t}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )} />
+                    <FormField control={form.control} name="businessType" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Tipo de Negocio *</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger><SelectValue placeholder="Seleccione" /></SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {BUSINESS_TYPES_DEMO.map(t => (
+                              <SelectItem key={t} value={t}>{t}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
 
-                <div className="grid grid-cols-2 gap-3">
-                  <FormField control={form.control} name="country" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>País *</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger><SelectValue placeholder="Seleccione" /></SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {COUNTRIES.map(c => (
-                            <SelectItem key={c} value={c}>{c}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )} />
+                    <div className="grid grid-cols-2 gap-3">
+                      <FormField control={form.control} name="country" render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>País *</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger><SelectValue placeholder="Seleccione" /></SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {COUNTRIES.map(c => (
+                                <SelectItem key={c} value={c}>{c}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
 
-                  <FormField control={form.control} name="city" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Ciudad *</FormLabel>
-                      <FormControl><Input placeholder="Ej: Bogotá" {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )} />
-                </div>
-
-                <FormField control={form.control} name="whatsapp" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>WhatsApp *</FormLabel>
-                    <div className="flex gap-2">
-                      <div className="flex h-10 items-center rounded-md border bg-muted px-3 text-sm text-muted-foreground">+57</div>
-                      <FormControl><Input placeholder="3176268307" maxLength={10} inputMode="numeric" {...field} /></FormControl>
+                      <FormField control={form.control} name="city" render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Ciudad *</FormLabel>
+                          <FormControl><Input placeholder="Ej: Bogotá" {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
                     </div>
-                    <FormMessage />
-                  </FormItem>
-                )} />
 
-                <FormField control={form.control} name="email" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Correo Electrónico *</FormLabel>
-                    <FormControl><Input type="email" placeholder="correo@minegocio.com" {...field} /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
+                    <FormField control={form.control} name="whatsapp" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>WhatsApp *</FormLabel>
+                        <div className="flex gap-2">
+                          <div className="flex h-10 items-center rounded-md border bg-muted px-3 text-sm text-muted-foreground">+57</div>
+                          <FormControl><Input placeholder="3176268307" maxLength={10} inputMode="numeric" {...field} /></FormControl>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
 
-                <FormField control={form.control} name="habeasData" render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-3 bg-muted/50">
-                    <FormControl>
-                      <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-                    </FormControl>
-                    <FormLabel className="text-xs text-muted-foreground font-normal cursor-pointer">
-                      Acepto la política de tratamiento de datos personales y autorizo recibir información comercial.
-                    </FormLabel>
-                    <FormMessage />
-                  </FormItem>
-                )} />
+                    <FormField control={form.control} name="email" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Correo Electrónico *</FormLabel>
+                        <FormControl><Input type="email" placeholder="correo@minegocio.com" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
 
-                <Button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full h-12 text-base font-semibold bg-cta hover:bg-cta/90 text-cta-foreground"
-                  size="lg"
-                >
-                  {isSubmitting ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Rocket className="mr-2 h-5 w-5" />}
-                  {isSubmitting ? "Registrando..." : "Solicitar Demo Gratis"}
-                </Button>
+                    <FormField control={form.control} name="habeasData" render={({ field }) => (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-3 bg-muted/50">
+                        <FormControl>
+                          <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                        </FormControl>
+                        <FormLabel className="text-xs text-muted-foreground font-normal cursor-pointer">
+                          Acepto la política de tratamiento de datos personales y autorizo recibir información comercial.
+                        </FormLabel>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                  </>
+                )}
+
+                {step === 2 && (
+                  <DemoQualifyingStep values={qualifying} onChange={setQualifying} />
+                )}
+
+                <div className="flex gap-2">
+                  {step === 2 && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setStep(1)}
+                      className="h-12"
+                    >
+                      <ArrowLeft className="mr-1 h-4 w-4" /> Atrás
+                    </Button>
+                  )}
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="flex-1 h-12 text-base font-semibold bg-cta hover:bg-cta/90 text-cta-foreground"
+                    size="lg"
+                  >
+                    {isSubmitting ? (
+                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    ) : step === 1 ? (
+                      <ArrowRight className="mr-2 h-5 w-5" />
+                    ) : (
+                      <Rocket className="mr-2 h-5 w-5" />
+                    )}
+                    {isSubmitting
+                      ? "Registrando..."
+                      : step === 1
+                      ? "Siguiente"
+                      : "Finalizar y solicitar demo"}
+                  </Button>
+                </div>
 
                 <p className="text-center text-xs text-muted-foreground">
                   🔒 Tus datos están protegidos. No compartimos tu información.
@@ -321,6 +388,7 @@ export default function LandingDemoPage() {
                 </p>
               </form>
             </Form>
+
           </div>
         </div>
       </main>

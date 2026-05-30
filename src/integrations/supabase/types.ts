@@ -1563,6 +1563,15 @@ export type Database = {
           pos_company: string | null
           pos_password: string | null
           pos_username: string | null
+          qual_business_age_period: string | null
+          qual_business_age_value: number | null
+          qual_employees: string | null
+          qual_has_software: boolean | null
+          qual_ideal_pos: string | null
+          qual_knows_inventory: boolean | null
+          qual_main_pain: string | null
+          qual_sales_per_day: string | null
+          qual_time_to_systematize: string | null
           requested_by_reseller_id: string | null
           short_name: string | null
           software_change_reason: string | null
@@ -1604,6 +1613,15 @@ export type Database = {
           pos_company?: string | null
           pos_password?: string | null
           pos_username?: string | null
+          qual_business_age_period?: string | null
+          qual_business_age_value?: number | null
+          qual_employees?: string | null
+          qual_has_software?: boolean | null
+          qual_ideal_pos?: string | null
+          qual_knows_inventory?: boolean | null
+          qual_main_pain?: string | null
+          qual_sales_per_day?: string | null
+          qual_time_to_systematize?: string | null
           requested_by_reseller_id?: string | null
           short_name?: string | null
           software_change_reason?: string | null
@@ -1645,6 +1663,15 @@ export type Database = {
           pos_company?: string | null
           pos_password?: string | null
           pos_username?: string | null
+          qual_business_age_period?: string | null
+          qual_business_age_value?: number | null
+          qual_employees?: string | null
+          qual_has_software?: boolean | null
+          qual_ideal_pos?: string | null
+          qual_knows_inventory?: boolean | null
+          qual_main_pain?: string | null
+          qual_sales_per_day?: string | null
+          qual_time_to_systematize?: string | null
           requested_by_reseller_id?: string | null
           short_name?: string | null
           software_change_reason?: string | null

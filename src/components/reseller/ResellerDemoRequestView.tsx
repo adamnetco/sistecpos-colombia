@@ -16,10 +16,12 @@ import {
   Form, FormControl, FormField, FormItem, FormLabel, FormMessage,
 } from "@/components/ui/form";
 import { BUSINESS_TYPES_DEMO, COUNTRIES } from "@/data/demoFormOptions";
+import DemoQualifyingStep, { emptyQualifying, isQualifyingComplete, type QualifyingValues } from "@/components/forms/DemoQualifyingStep";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 
 const resellerDemoSchema = z.object({
   fullName: z.string().trim().min(3, "Mínimo 3 caracteres").max(100),
-  businessName: z.string().trim().min(2, "Mínimo 2 caracteres").max(30),
+  businessName: z.string().trim().min(2, "Mínimo 2 caracteres").max(20, "Máximo 20 caracteres (límite del sistema)"),
   whatsapp: z.string().trim().regex(/^\d{10}$/, "Ingresa 10 dígitos"),
   email: z.string().trim().email("Correo no válido").max(255),
   city: z.string().trim().min(2, "Ingresa la ciudad").max(100),
@@ -27,13 +29,17 @@ const resellerDemoSchema = z.object({
   country: z.string().min(1, "Selecciona un país"),
 });
 
+
 type ResellerDemoValues = z.infer<typeof resellerDemoSchema>;
 
 export default function ResellerDemoRequestView() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [step, setStep] = useState<1 | 2>(1);
+  const [qualifying, setQualifying] = useState<QualifyingValues>(emptyQualifying);
   const { toast } = useToast();
   const { reseller } = useReseller();
+
 
   const form = useForm<ResellerDemoValues>({
     resolver: zodResolver(resellerDemoSchema),
@@ -68,9 +74,19 @@ export default function ResellerDemoRequestView() {
         trial_ends_at: trialEnds.toISOString(),
         activation_token: token,
         requested_by_reseller_id: reseller?.id || null,
+        qual_has_software: qualifying.qual_has_software,
+        qual_knows_inventory: qualifying.qual_knows_inventory,
+        qual_main_pain: qualifying.qual_main_pain || null,
+        qual_ideal_pos: qualifying.qual_ideal_pos || null,
+        qual_sales_per_day: qualifying.qual_sales_per_day || null,
+        qual_employees: qualifying.qual_employees || null,
+        qual_time_to_systematize: qualifying.qual_time_to_systematize || null,
+        qual_business_age_value: qualifying.qual_business_age_value ? Number(qualifying.qual_business_age_value) : null,
+        qual_business_age_period: qualifying.qual_business_age_period || null,
       });
 
       if (error) throw error;
+
 
       // Trigger welcome email with activation link
       supabase.functions.invoke("notify-new-lead", {
@@ -127,102 +143,139 @@ export default function ResellerDemoRequestView() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          <div className="mb-4 flex gap-1.5 max-w-xs">
+            <div className={`h-1.5 flex-1 rounded-full ${step >= 1 ? "bg-primary" : "bg-muted"}`} />
+            <div className={`h-1.5 flex-1 rounded-full ${step >= 2 ? "bg-primary" : "bg-muted"}`} />
+          </div>
+          <p className="mb-4 text-xs text-muted-foreground">
+            {step === 1 ? "Paso 1 de 2 · Datos del cliente" : "Paso 2 de 2 · Cualificación"}
+          </p>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField control={form.control} name="fullName" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nombre completo del cliente *</FormLabel>
-                  <FormControl><Input placeholder="Ej: Carlos Martínez" {...field} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )} />
+            <form
+              onSubmit={form.handleSubmit(async (data) => {
+                if (step === 1) { setStep(2); return; }
+                const qErr = isQualifyingComplete(qualifying);
+                if (qErr) { toast({ title: qErr, variant: "destructive" }); return; }
+                await onSubmit(data);
+              })}
+              className="space-y-4"
+            >
+              {step === 1 && (
+                <>
+                  <FormField control={form.control} name="fullName" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nombre completo del cliente *</FormLabel>
+                      <FormControl><Input placeholder="Ej: Carlos Martínez" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
 
-              <FormField control={form.control} name="businessName" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nombre del negocio *</FormLabel>
-                  <FormControl><Input placeholder="Máximo 30 caracteres. Ej: DrogueriaSanAngel" maxLength={30} {...field} /></FormControl>
-                  <p className="text-xs text-muted-foreground">Máximo 30 caracteres</p>
-                  <FormMessage />
-                </FormItem>
-              )} />
+                  <FormField control={form.control} name="businessName" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nombre del negocio *</FormLabel>
+                      <FormControl><Input placeholder="Ej: DrogueriaSanAngel" maxLength={20} {...field} /></FormControl>
+                      <p className="text-xs text-muted-foreground">Máximo 20 caracteres (límite del sistema)</p>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
 
-              <FormField control={form.control} name="businessType" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Tipo de negocio *</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger><SelectValue placeholder="Seleccione" /></SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {BUSINESS_TYPES_DEMO.map(t => (
-                        <SelectItem key={t} value={t}>{t}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )} />
+                  <FormField control={form.control} name="businessType" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Tipo de negocio *</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger><SelectValue placeholder="Seleccione" /></SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {BUSINESS_TYPES_DEMO.map(t => (
+                            <SelectItem key={t} value={t}>{t}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
 
-              <div className="grid grid-cols-2 gap-3">
-                <FormField control={form.control} name="country" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>País *</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger><SelectValue placeholder="Seleccione" /></SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {COUNTRIES.map(c => (
-                          <SelectItem key={c} value={c}>{c}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )} />
+                  <div className="grid grid-cols-2 gap-3">
+                    <FormField control={form.control} name="country" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>País *</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger><SelectValue placeholder="Seleccione" /></SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {COUNTRIES.map(c => (
+                              <SelectItem key={c} value={c}>{c}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
 
-                <FormField control={form.control} name="city" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Ciudad *</FormLabel>
-                    <FormControl><Input placeholder="Ej: Bucaramanga" {...field} /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-              </div>
-
-              <FormField control={form.control} name="whatsapp" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>WhatsApp del cliente *</FormLabel>
-                  <div className="flex gap-2">
-                    <div className="flex h-10 items-center rounded-md border bg-muted px-3 text-sm text-muted-foreground">+57</div>
-                    <FormControl>
-                      <Input placeholder="3176268307" maxLength={10} inputMode="numeric" {...field} />
-                    </FormControl>
+                    <FormField control={form.control} name="city" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Ciudad *</FormLabel>
+                        <FormControl><Input placeholder="Ej: Bucaramanga" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
                   </div>
-                  <FormMessage />
-                </FormItem>
-              )} />
 
-              <FormField control={form.control} name="email" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Correo electrónico del cliente *</FormLabel>
-                  <FormControl><Input type="email" placeholder="correo@cliente.com" {...field} /></FormControl>
-                  <p className="text-xs text-muted-foreground">Aquí le llegarán las credenciales de la demo</p>
-                  <FormMessage />
-                </FormItem>
-              )} />
+                  <FormField control={form.control} name="whatsapp" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>WhatsApp del cliente *</FormLabel>
+                      <div className="flex gap-2">
+                        <div className="flex h-10 items-center rounded-md border bg-muted px-3 text-sm text-muted-foreground">+57</div>
+                        <FormControl>
+                          <Input placeholder="3176268307" maxLength={10} inputMode="numeric" {...field} />
+                        </FormControl>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
 
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full h-12 text-base font-semibold bg-cta hover:bg-cta/90 text-cta-foreground"
-                size="lg"
-              >
-                {isSubmitting ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Rocket className="mr-2 h-5 w-5" />}
-                {isSubmitting ? "Registrando..." : "Solicitar Demo para Cliente"}
-              </Button>
+                  <FormField control={form.control} name="email" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Correo electrónico del cliente *</FormLabel>
+                      <FormControl><Input type="email" placeholder="correo@cliente.com" {...field} /></FormControl>
+                      <p className="text-xs text-muted-foreground">Aquí le llegarán las credenciales de la demo</p>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                </>
+              )}
+
+              {step === 2 && (
+                <DemoQualifyingStep values={qualifying} onChange={setQualifying} />
+              )}
+
+              <div className="flex gap-2">
+                {step === 2 && (
+                  <Button type="button" variant="outline" onClick={() => setStep(1)} className="h-12">
+                    <ArrowLeft className="mr-1 h-4 w-4" /> Atrás
+                  </Button>
+                )}
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="flex-1 h-12 text-base font-semibold bg-cta hover:bg-cta/90 text-cta-foreground"
+                  size="lg"
+                >
+                  {isSubmitting ? (
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  ) : step === 1 ? (
+                    <ArrowRight className="mr-2 h-5 w-5" />
+                  ) : (
+                    <Rocket className="mr-2 h-5 w-5" />
+                  )}
+                  {isSubmitting ? "Registrando..." : step === 1 ? "Siguiente" : "Solicitar Demo para Cliente"}
+                </Button>
+              </div>
             </form>
           </Form>
+
         </CardContent>
       </Card>
     </div>
