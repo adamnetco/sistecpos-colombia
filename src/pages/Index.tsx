@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { Navigate, useSearchParams } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { HeroSection } from "@/components/home/HeroSection";
