@@ -22,16 +22,41 @@ interface SavedSession {
 export function ClientPOSAccess() {
   const { toast } = useToast();
   const { user } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [store, setStore] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [consent, setConsent] = useState(false);
+  const [isActivation, setIsActivation] = useState(false);
+  const passwordRef = useRef<HTMLInputElement>(null);
 
   // Saved sessions
   const [savedSessions, setSavedSessions] = useState<SavedSession[]>([]);
   const [loadingSessions, setLoadingSessions] = useState(true);
+
+  // Prellenado desde correo de activación de licencia
+  // (?pos_user=&pos_store=&activation=1 al volver desde sistecpos.com/?user=&store=)
+  useEffect(() => {
+    const posUser = searchParams.get("pos_user");
+    const posStore = searchParams.get("pos_store");
+    const activation = searchParams.get("activation") === "1";
+    if (posUser || posStore) {
+      if (posUser) setUsername(posUser);
+      if (posStore) setStore(posStore);
+      if (activation) {
+        setIsActivation(true);
+        setConsent(true); // por defecto guardamos credenciales al activar
+        setTimeout(() => passwordRef.current?.focus(), 200);
+      }
+      // limpiar la URL para evitar reactivar al recargar
+      const next = new URLSearchParams(searchParams);
+      ["pos_user", "pos_store", "activation", "pos_language"].forEach((k) => next.delete(k));
+      setSearchParams(next, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (user) loadSavedSessions();
