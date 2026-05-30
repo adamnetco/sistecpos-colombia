@@ -35,8 +35,11 @@ type ResellerDemoValues = z.infer<typeof resellerDemoSchema>;
 export default function ResellerDemoRequestView() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [step, setStep] = useState<1 | 2>(1);
+  const [qualifying, setQualifying] = useState<QualifyingValues>(emptyQualifying);
   const { toast } = useToast();
   const { reseller } = useReseller();
+
 
   const form = useForm<ResellerDemoValues>({
     resolver: zodResolver(resellerDemoSchema),
