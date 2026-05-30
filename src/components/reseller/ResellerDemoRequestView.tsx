@@ -74,9 +74,19 @@ export default function ResellerDemoRequestView() {
         trial_ends_at: trialEnds.toISOString(),
         activation_token: token,
         requested_by_reseller_id: reseller?.id || null,
+        qual_has_software: qualifying.qual_has_software,
+        qual_knows_inventory: qualifying.qual_knows_inventory,
+        qual_main_pain: qualifying.qual_main_pain || null,
+        qual_ideal_pos: qualifying.qual_ideal_pos || null,
+        qual_sales_per_day: qualifying.qual_sales_per_day || null,
+        qual_employees: qualifying.qual_employees || null,
+        qual_time_to_systematize: qualifying.qual_time_to_systematize || null,
+        qual_business_age_value: qualifying.qual_business_age_value ? Number(qualifying.qual_business_age_value) : null,
+        qual_business_age_period: qualifying.qual_business_age_period || null,
       });
 
       if (error) throw error;
+
 
       // Trigger welcome email with activation link
       supabase.functions.invoke("notify-new-lead", {
