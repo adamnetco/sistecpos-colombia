@@ -1554,14 +1554,26 @@ export type Database = {
           daily_sales: string | null
           email: string
           employee_count: string | null
+          external_created_at: string | null
+          external_lead_id: number | null
+          external_payload: Json | null
+          external_reseller_id: number | null
+          external_reseller_name: string | null
+          external_status: string | null
+          external_store_id: number | null
+          external_token: string | null
+          external_updated_at: string | null
           id: string
           ideal_pos_features: string | null
           knows_inventory: boolean | null
+          license_key_external: string | null
           main_pain: string | null
           notes: string | null
           phone: string
           pos_company: string | null
           pos_password: string | null
+          pos_password_hash_external: string | null
+          pos_store_internal: string | null
           pos_username: string | null
           qual_business_age_period: string | null
           qual_business_age_value: number | null
@@ -1604,14 +1616,26 @@ export type Database = {
           daily_sales?: string | null
           email: string
           employee_count?: string | null
+          external_created_at?: string | null
+          external_lead_id?: number | null
+          external_payload?: Json | null
+          external_reseller_id?: number | null
+          external_reseller_name?: string | null
+          external_status?: string | null
+          external_store_id?: number | null
+          external_token?: string | null
+          external_updated_at?: string | null
           id?: string
           ideal_pos_features?: string | null
           knows_inventory?: boolean | null
+          license_key_external?: string | null
           main_pain?: string | null
           notes?: string | null
           phone: string
           pos_company?: string | null
           pos_password?: string | null
+          pos_password_hash_external?: string | null
+          pos_store_internal?: string | null
           pos_username?: string | null
           qual_business_age_period?: string | null
           qual_business_age_value?: number | null
@@ -1654,14 +1678,26 @@ export type Database = {
           daily_sales?: string | null
           email?: string
           employee_count?: string | null
+          external_created_at?: string | null
+          external_lead_id?: number | null
+          external_payload?: Json | null
+          external_reseller_id?: number | null
+          external_reseller_name?: string | null
+          external_status?: string | null
+          external_store_id?: number | null
+          external_token?: string | null
+          external_updated_at?: string | null
           id?: string
           ideal_pos_features?: string | null
           knows_inventory?: boolean | null
+          license_key_external?: string | null
           main_pain?: string | null
           notes?: string | null
           phone?: string
           pos_company?: string | null
           pos_password?: string | null
+          pos_password_hash_external?: string | null
+          pos_store_internal?: string | null
           pos_username?: string | null
           qual_business_age_period?: string | null
           qual_business_age_value?: number | null
@@ -4055,6 +4091,10 @@ export type Database = {
           _user_id: string
         }
         Returns: string
+      }
+      upsert_lead_from_external_json: {
+        Args: { _payload: Json }
+        Returns: Json
       }
     }
     Enums: {
