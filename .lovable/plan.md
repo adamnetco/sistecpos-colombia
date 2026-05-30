@@ -1,68 +1,116 @@
-# Plan: Cualificación completa de demo + paridad con panel franquicia
+## Objetivo
 
-## 1. Comparación de campos (auditoría)
+Aprovechar el JSON que expone el panel franquiciado (`show_encuesta({...})`) para:
 
-| # | Campo en licenciaspos.online (3 pasos) | ¿Lo tenemos en /lp/demo? | Acción |
-|---|---|---|---|
-| 1 | Nombre y apellidos | ✅ `fullName` | OK |
-| 2 | Correo + Confirmar correo | ✅ `email` (sin confirmación) | OK (duplicamos al enviar) |
-| 3 | Nombre del negocio (máx 15) | ⚠️ `businessName` máx 30 | **Bajar a 20** y avisar al usuario |
-| 4 | Tipo de negocio | ✅ `businessType` | OK (ya sincronizado) |
-| 5 | País | ✅ `country` | OK |
-| 6 | Ciudad | ✅ `city` | OK |
-| 7 | WhatsApp (+57) | ✅ `whatsapp` | OK |
-| 8 | a) ¿Maneja algún software? Sí/No | ❌ Falta | **Agregar** |
-| 9 | b) ¿Sabe inventarios/ganancias/pérdidas? Sí/No | ❌ Falta | **Agregar** |
-| 10 | c) Mayor inconveniente (texto largo) | ❌ Falta | **Agregar** |
-| 11 | d) ¿Qué debe tener su POS ideal? (texto) | ❌ Falta | **Agregar** |
-| 12 | e) Ventas promedio/día (1-30, 31-60, 61-100, +100) | ❌ Falta | **Agregar select** |
-| 13 | f) Cuántos empleados (Ninguno, 1-3, 4-10, +10) | ❌ Falta | **Agregar select** |
-| 14 | g) ¿En cuánto tiempo quiere sistematizar? | ❌ Falta | **Agregar select** |
-| 15 | h) Antigüedad negocio (número + Meses/Años) | ❌ Falta | **Agregar 2 campos** |
+1. Importar/actualizar contactos en SistecPOS con todos los campos de cualificación ya respondidos.
+2. Unificar el mapeo entre los 3 orígenes: panel franquiciado, `/lp/demo` propio, y formulario de prospección externo.
+3. Dejar trazabilidad bidireccional (token, reseller_id, store_id, license).
 
-## 2. Cambios en el formulario público `/lp/demo`
+## Mapeo de campos (fuente → SistecPOS)
 
-- Convertir `LandingDemoPage.tsx` en wizard de **2 pasos** (la UX actual + paso de cualificación), barra de progreso simple `1/2 · 2/2`.
-- **Paso 1** (igual al actual) con un solo cambio: `businessName` `max(20)` y helper "Máx. 20 caracteres (límite de la plataforma)".
-- **Paso 2 — Cualificación** (los 8 campos a–h). Todos opcionales salvo a, b, e, f, g, h (igual que el externo). Mismas etiquetas y opciones literales para que el copy-paste sea 1:1.
-- Al enviar se guardan en `leads_trials` (columnas nuevas, ver §4) y se mantiene el flujo de notify-new-lead.
-- Replicar el paso 2 en `ResellerDemoRequestView.tsx` (mismo componente compartido).
 
-## 3. Centralizar opciones
+| JSON panel franquiciado              | Tabla / Columna SistecPOS                                             |
+| ------------------------------------ | --------------------------------------------------------------------- |
+| `id`                                 | `leads_trials.external_lead_id` (nuevo)                               |
+| `reseller_id`, `reseller_name`       | `leads_trials.external_reseller_id`, `external_reseller_name` (nuevo) |
+| `store_id`, `store`, `store_name`    | `leads_trials.external_store_id`, `pos_store`, `pos_store_internal`   |
+| `name` + `last_names`                | `contact_name` / `contacts.full_name`                                 |
+| `phone`, `email`                     | `phone`, `email`                                                      |
+| `city`, `country`                    | `city`, `country`                                                     |
+| `license` (hash 32)                  | `leads_trials.license_key_external`                                   |
+| `token`                              | `activation_token` (ya existe)                                        |
+| `password` (hash)                    | `pos_password_hash_external` (solo lectura, no descifrable)           |
+| `status` ("SIN CONTACTAR"…)          | mapear a `pipeline_stage`                                             |
+| `day_demo` ("demo_day_14")           | `trial_ends_at` calculado                                             |
+| `created_at`, `updated_at`           | `external_created_at`, `external_updated_at`                          |
+| `name_lang_key` ("Restaurante")      | `business_type`                                                       |
+| `manage_software` (Si/No)            | `qual_has_software`                                                   |
+| `software_ideal`                     | `qual_ideal_pos`                                                      |
+| `change_software_description`        | `qual_main_pain`                                                      |
+| `know_inventory` (Si/No)             | `qual_inventory_knowledge`                                            |
+| `how_employees`                      | `qual_staff_count`                                                    |
+| `in_time_systematize`                | `qual_time_to_start`                                                  |
+| `business_time`                      | `qual_business_age`                                                   |
+| `nom_sale` ("1-30"…)                 | `qual_sales_per_day`                                                  |
+| `description`                        | `qual_notes`                                                          |
+| `profile_id`, `is_active`, `deleted` | metadata cruda en `external_payload jsonb`                            |
 
-Nuevo archivo `src/data/demoQualifyingOptions.ts` con los selects exactos del panel externo (`SALES_PER_DAY`, `EMPLOYEES`, `TIME_TO_SYSTEMATIZE`, `BUSINESS_AGE_PERIOD`) para mantener paridad literal.
 
-## 4. Persistencia
+## Entregables
 
-Migración: agregar a `leads_trials` columnas `qual_has_software boolean`, `qual_knows_inventory boolean`, `qual_main_pain text`, `qual_ideal_pos text`, `qual_sales_per_day text`, `qual_employees text`, `qual_time_to_systematize text`, `qual_business_age_value int`, `qual_business_age_period text`. Todas nullables, sin romper inserts existentes.
+### 1. Migración DB
 
-## 5. Panel de Contactos — Copiar/Pegar para licenciaspos.online
+- Añadir a `leads_trials`: `external_lead_id int`, `external_reseller_id int`, `external_reseller_name text`, `external_store_id int`, `pos_store_internal text`, `license_key_external text`, `pos_password_hash_external text`, `external_created_at timestamptz`, `external_updated_at timestamptz`, `external_payload jsonb`, `external_status text`.
+- Índice único parcial sobre `external_lead_id` para evitar duplicados.
+- Función `public.upsert_lead_from_external_json(_payload jsonb)` (SECURITY DEFINER, solo admin):
+  - busca por `external_lead_id` → si no existe, por `email`/`phone`.
+  - hace `INSERT` o `UPDATE` con merge no destructivo.
+  - sincroniza `contacts` vía el trigger existente `sync_lead_to_contact`.
+  - devuelve `{action: 'created'|'updated'|'skipped', lead_id, contact_id}`.
 
-En `ContactDetailPanel.tsx`, extender el mini-panel "Reenviar al Panel Franquiciado" con una segunda sección **"Paso 3 — Cualificación"** que muestra cada respuesta del lead con su botón Copiar:
+### 2. UI Admin — "Importar desde Panel Franquiciado"
 
-- a) ¿Maneja software? → "Sí"/"No"
-- b) ¿Conoce inventarios…? → "Sí"/"No"
-- c) Mayor inconveniente → texto del usuario (botón Copiar)
-- d) POS ideal → texto del usuario (botón Copiar)
-- e) Ventas/día → opción
-- f) Empleados → opción
-- g) Tiempo para sistematizar → opción
-- h) Antigüedad → "N Meses/Años"
+Ubicación: `ContactsView.tsx` (junto al botón "Importar Excel" ya existente).
 
-Cada item con el mismo patrón visual (border-amber → border-emerald al copiar) ya implementado. Si el lead no respondió un campo, se muestra deshabilitado con tag "Sin respuesta".
+Nuevo componente: `src/components/admin/contacts/ExternalSurveyImportDialog.tsx`
 
-## 6. UX/UI
+- Textarea: el admin pega el `show_encuesta('{...}')` completo o solo el JSON.
+- Parser tolerante: si detecta `show_encuesta(`, extrae lo que está entre comillas y hace `JSON.parse`.
+- Vista previa lado-a-lado: campo → valor → estado (Nuevo / Existente: valor actual vs nuevo).
+- Confirmación por campo (checkbox "actualizar este campo") antes de ejecutar.
+- Llama a `upsert_lead_from_external_json`.
+- Soporta **lote**: pegar un array JSON `[{...}, {...}]`.
 
-- Wizard con dos botones grandes "Atrás / Siguiente / Finalizar" (mobile-first).
-- Validación del paso 1 antes de pasar al 2.
-- Mensaje en el paso 2: "Estas preguntas nos ayudan a asesorarte mejor. Toma 30 segundos."
-- En admin, badge "✅ Cualificado" si el lead respondió el paso 2; "⚠️ Sin cualificar" si no.
+### 3. Bookmarklet para el admin (1-clic desde el panel franquiciado)
 
-## Archivos a tocar
-- `src/pages/LandingDemoPage.tsx` (wizard + paso 2)
-- `src/components/reseller/ResellerDemoRequestView.tsx` (mismo paso 2)
-- `src/data/demoQualifyingOptions.ts` (nuevo)
-- `src/components/admin/ContactDetailPanel.tsx` (sección Copiar Paso 3)
-- Migración SQL en `leads_trials`
+Documentado en una nueva tarjeta dentro de `ContactDetailPanel.tsx` → "Herramientas Franquicia":
 
-¿Apruebas para implementar?
+```js
+javascript:(()=>{const o=window.show_encuesta;window.show_encuesta=d=>{navigator.clipboard.writeText(d);alert('Encuesta copiada. Pega en SistecPOS.');};})()
+```
+
+El admin lo instala una vez; al hacer clic en la fila del panel franquiciado, el JSON se copia al portapapeles en vez de abrir el modal de encuesta. Luego pega en SistecPOS.
+
+### 4. Endpoint público de captura (para flujos sin pasar por /lp/demo)
+
+Edge function `ingest-external-lead`:
+
+- Recibe `POST` con el mismo JSON + header `x-franchise-token` (secret nuevo `FRANCHISE_INGEST_TOKEN`).
+- Llama a `upsert_lead_from_external_json`.
+- Permite que el panel franquiciado (o un Zapier/n8n) empuje leads automáticamente.
+
+### 5. Unificación con `/lp/demo`
+
+- `LandingDemoPage.tsx` ya guarda `qual_*`. Reusar exactamente los mismos nombres internos para que el importador y el formulario propio escriban en las mismas columnas.
+- En `demoQualifyingOptions.ts`, añadir mapeo `externalValueMap` para traducir valores del panel ("1-30", "1 mes", "1 año(s)") a los `value` internos.
+
+### 6. Visualización en ContactDetailPanel
+
+- Nueva sección colapsable **"Datos del Panel Franquiciado"** mostrando: external_lead_id (link directo `https://licenciaspos.online/prospects/register/{license}?token={token_b64}`), reseller, store_id, status externo, fechas, payload crudo (JSON pretty con copy).
+- Botón **"Re-sincronizar desde panel"** (si hay `external_lead_id`, abre el dialog pre-llenado).
+
+## Detalles técnicos
+
+- El `password` del JSON es un hash MD5/bcrypt del panel — **nunca** se descifra ni se reusa; solo se guarda como evidencia.
+- `license` (hash 32) se cruza con `parse_supplier_license` ya existente para asociar con la licencia real cuando se cree.
+- `day_demo: "demo_day_14"` → regex `/demo_day_(\d+)/` → `trial_ends_at = created_at + N days`.
+- `status` map: `SIN CONTACTAR→new`, `CONTACTADO→contacted`, `INTERESADO→qualified`, `DEMO→demo`, `CLIENTE→client`, `DESCARTADO→lost`.
+- Todos los campos `qual_*` ya existen en la migración previa — no se duplican.
+
+## Archivos
+
+- `supabase/migrations/<ts>_external_franchise_lead_import.sql` (nuevo)
+- `src/components/admin/contacts/ExternalSurveyImportDialog.tsx` (nuevo)
+- `src/lib/externalSurveyParser.ts` (nuevo — parser + value mapping)
+- `src/components/admin/ContactsView.tsx` (editar — botón)
+- `src/components/admin/ContactDetailPanel.tsx` (editar — sección franquicia + bookmarklet)
+- `src/data/demoQualifyingOptions.ts` (editar — externalValueMap)
+- `supabase/functions/ingest-external-lead/index.ts` (nuevo, opcional fase 2)
+
+## Fases
+
+1. **Fase 1 (core)**: migración + parser + dialog manual + visualización. Cubre el 100% del caso "copio JSON → cargo cliente".
+2. **Fase 2**: bookmarklet + edge function de ingest automático.
+3. **Fase 3**: job programado que el panel franquiciado dispare diariamente para sincronizar deltas.
+
+¿Apruebas para implementar Fase 1? Si tambien puedes dar soporte avanzado para importar json así como importamos doc excel, con solo pegar el JSON con la misma estructura copiada en el panel de administración de la franquicia, tambien se pueda importar un nuevo contacto con demo. cuando viene así, es porque su estado es con demo activa / pendiente de activar (pero ya se registró)
