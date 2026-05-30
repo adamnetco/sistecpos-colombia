@@ -15,6 +15,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ContactDetailDialog } from "./contacts/ContactDetailDialog";
+import { ProspectsImportDialog } from "./contacts/ProspectsImportDialog";
 import ContactPipelineView from "./ContactPipelineView";
 import ActiveDemosView from "./ActiveDemosView";
 
@@ -73,6 +74,7 @@ const roleFilters = [
   { value: "former_client", label: "Ex-Clientes", count: 0 },
   { value: "with_license", label: "Con Licencia", count: 0 },
   { value: "with_demo", label: "Con Demo", count: 0 },
+  { value: "franchise", label: "🏛️ Franquicia", count: 0 },
   { value: "ai_captured", label: "Captura IA", count: 0 },
 ];
 
@@ -192,6 +194,7 @@ export default function ContactsView() {
     former_client: contacts.filter(c => c.contact_type === "former_client").length,
     with_license: contacts.filter(c => c.license_id).length,
     with_demo: contacts.filter(c => c.lead_id).length,
+    franchise: contacts.filter(c => (c.tags || []).includes("franquicia_registrada")).length,
     ai_captured: contacts.filter(c => c.captured_by_ai).length,
   };
 
@@ -209,6 +212,7 @@ export default function ContactsView() {
     if (activeFilter === "all") return true;
     if (activeFilter === "with_license") return !!c.license_id;
     if (activeFilter === "with_demo") return !!c.lead_id;
+    if (activeFilter === "franchise") return (c.tags || []).includes("franquicia_registrada");
     if (activeFilter === "ai_captured") return c.captured_by_ai;
     return c.contact_type === activeFilter;
   });
@@ -267,6 +271,7 @@ export default function ContactsView() {
               <Download className="h-3.5 w-3.5 mr-1" /> Exportar
             </Button>
           )}
+          {view === "table" && <ProspectsImportDialog onImported={load} />}
           <Dialog open={showForm} onOpenChange={setShowForm}>
             <DialogTrigger asChild>
               <Button size="sm"><Plus className="h-3.5 w-3.5 mr-1" /> Nuevo Contacto</Button>
@@ -368,6 +373,11 @@ export default function ContactsView() {
                       {c.captured_by_ai && (
                         <Badge className="bg-purple-500/10 text-purple-700 border-purple-200 text-[10px] px-1 py-0">
                           <Bot className="h-2.5 w-2.5" />
+                        </Badge>
+                      )}
+                      {(c.tags || []).includes("franquicia_registrada") && (
+                        <Badge className="bg-amber-500/10 text-amber-700 border-amber-200 text-[10px] px-1.5 py-0" title="Registrado en panel franquiciado">
+                          🏛️ Franquicia
                         </Badge>
                       )}
                     </div>
