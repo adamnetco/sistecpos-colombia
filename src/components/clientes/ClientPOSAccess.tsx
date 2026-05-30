@@ -258,14 +258,18 @@ export function ClientPOSAccess() {
               </CardTitle>
               <CardDescription>
                 {isActivation
-                  ? "Tus datos llegaron desde el correo de activación. Solo ingresa tu clave para abrir tu panel."
+                  ? password
+                    ? "Tus datos llegaron desde el correo de activación. Solo confirma el ingreso."
+                    : "Tus datos llegaron desde el correo de activación. Solo ingresa tu clave para abrir tu panel."
                   : "Ingresa tus credenciales para abrir tu panel"}
               </CardDescription>
             </div>
           </div>
           {isActivation && (
             <div className="mt-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30 p-3 text-xs text-emerald-900 dark:text-emerald-200">
-              <strong>Usuario</strong> y <strong>Empresa</strong> ya están prellenados desde el enlace de tu correo. El acceso se completa de forma segura en <code>sistecpos.online</code>.
+              {password
+                ? <>El correo ya cargó <strong>Usuario</strong>, <strong>Empresa</strong> y <strong>Clave</strong>. Presiona ingresar para activar el POS.</>
+                : <><strong>Usuario</strong> y <strong>Empresa</strong> ya están prellenados desde el enlace de tu correo. Escribe la clave y el acceso se completa de forma segura en <code>sistecpos.online</code>.</>}
             </div>
           )}
         </CardHeader>
