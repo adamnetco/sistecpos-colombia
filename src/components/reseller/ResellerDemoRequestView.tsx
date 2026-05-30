@@ -16,16 +16,19 @@ import {
   Form, FormControl, FormField, FormItem, FormLabel, FormMessage,
 } from "@/components/ui/form";
 import { BUSINESS_TYPES_DEMO, COUNTRIES } from "@/data/demoFormOptions";
+import DemoQualifyingStep, { emptyQualifying, isQualifyingComplete, type QualifyingValues } from "@/components/forms/DemoQualifyingStep";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 
 const resellerDemoSchema = z.object({
   fullName: z.string().trim().min(3, "Mínimo 3 caracteres").max(100),
-  businessName: z.string().trim().min(2, "Mínimo 2 caracteres").max(30),
+  businessName: z.string().trim().min(2, "Mínimo 2 caracteres").max(20, "Máximo 20 caracteres (límite del sistema)"),
   whatsapp: z.string().trim().regex(/^\d{10}$/, "Ingresa 10 dígitos"),
   email: z.string().trim().email("Correo no válido").max(255),
   city: z.string().trim().min(2, "Ingresa la ciudad").max(100),
   businessType: z.string().min(1, "Selecciona tipo de negocio"),
   country: z.string().min(1, "Selecciona un país"),
 });
+
 
 type ResellerDemoValues = z.infer<typeof resellerDemoSchema>;
 
