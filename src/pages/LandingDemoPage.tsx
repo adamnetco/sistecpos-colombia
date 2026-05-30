@@ -24,6 +24,9 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import DemoQualifyingStep, { emptyQualifying, isQualifyingComplete, type QualifyingValues } from "@/components/forms/DemoQualifyingStep";
+import { ArrowLeft, ArrowRight } from "lucide-react";
+
 
 const demoSchema = z.object({
   fullName: z.string().trim().min(3, "Mínimo 3 caracteres").max(100),
