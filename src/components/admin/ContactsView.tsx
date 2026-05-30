@@ -375,6 +375,11 @@ export default function ContactsView() {
                           <Bot className="h-2.5 w-2.5" />
                         </Badge>
                       )}
+                      {(c.tags || []).includes("franquicia_registrada") && (
+                        <Badge className="bg-amber-500/10 text-amber-700 border-amber-200 text-[10px] px-1.5 py-0" title="Registrado en panel franquiciado">
+                          🏛️ Franquicia
+                        </Badge>
+                      )}
                     </div>
                     <div className="flex flex-wrap gap-2 mt-0.5">
                       {c.email && (
