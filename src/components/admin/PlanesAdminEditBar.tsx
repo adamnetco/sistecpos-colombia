@@ -40,7 +40,7 @@ export function PlanesAdminEditBar() {
     {
       label: "Servicios sueltos",
       desc: "Implementaciones, capacitaciones, redes (catálogo).",
-      to: "/admin/catalogo",
+      to: "/admin/productos",
       icon: Wrench,
       color: "text-orange-600",
     },
