@@ -46,11 +46,7 @@ Deno.serve(async (req) => {
     // Acepta un único payload o array (compatible con bookmarklet en batch)
     const payloads: any[] = Array.isArray(body) ? body : Array.isArray(body?.payloads) ? body.payloads : [body]
 
-    const admin = createClient(
-      Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
-      { auth: { persistSession: false } },
-    )
+    // admin client ya creado al inicio
 
     const results: any[] = []
     for (const p of payloads) {
