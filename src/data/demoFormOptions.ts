@@ -1,35 +1,38 @@
-// Combined business types from FacilPos + SistecPOS for demo registration
+// IMPORTANT: Synced 1:1 with the franchise prospect panel (licenciaspos.online).
+// Do NOT add types or countries that the franchise panel doesn't accept —
+// they will be rejected when the lead is forwarded.
+
 export const BUSINESS_TYPES_DEMO = [
   "Almacen de Moda",
   "Almacén de tecnología",
-  "Bares y Discotecas",
   "Carnicerías, Fruver balanza de peso",
   "Casas de cambio",
-  "Comidas Rápidas",
+  "Comidas Rapidas",
   "Compra y venta mercancía en general",
-  "Consultorios Médicos o Veterinarios",
+  "Consultorios Medicos o Veterinarios",
   "Distribuidoras TAT",
   "Fabricas",
-  "Factura Electrónica",
+  "Factura Electronica",
   "Farmacias",
-  "Ferretería",
-  "Heladerías y Fruterías",
-  "Historia clínica",
-  "Joyerías",
+  "Ferreteria",
+  "Historia clinica",
   "Mini Market",
   "Multi-Tiendas",
-  "Negocio Múltiples Divisas",
+  "Negocio Multiples Divisas",
   "Panadería",
   "Papelerías",
-  "Pizzerías y Comidas Rápidas",
   "Restaurante",
   "Servicio técnico",
   "Spa y salones de belleza",
   "Tienda Online",
-  "Todos los módulos",
+  "Todos los modulos",
 ] as const;
 
+// Order matches the franchise panel dropdown exactly.
 export const COUNTRIES = [
+  "Argentina",
+  "Bolivia",
+  "Chile",
   "Colombia",
   "Costa Rica",
   "Cuba",
@@ -37,6 +40,7 @@ export const COUNTRIES = [
   "El Salvador",
   "España",
   "Estados Unidos",
+  "San Martín",
   "Guatemala",
   "Honduras",
   "México",
