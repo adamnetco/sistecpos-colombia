@@ -19,6 +19,7 @@ import {
 import { useWhatsAppConfig } from "@/hooks/useWhatsAppConfig";
 import { usePageContent, getContent } from "@/hooks/usePageContent";
 import { DynamicPricingSection } from "@/components/pricing/DynamicPricingSection";
+import { PlanesAdminEditBar } from "@/components/admin/PlanesAdminEditBar";
 
 type Step = "choose" | "licencias" | "packs" | "soporte" | "servicios";
 
